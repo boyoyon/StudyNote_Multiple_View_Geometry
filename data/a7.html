@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録7</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録7</center><center>いくつかの特殊な平面射影変換</center></h1>
+<p>
+射影変換（ホモグラフィ）は、その固有値の代数的重複度と幾何的重複度によって分類できます。固有値の代数的重複度とは、特性方程式において根が繰り返される回数です。幾何的重複度は、行列 \((H−\lambda I)\) の階数から決定できます。ここで、\(H\) はホモグラフィ、\(\lambda\) は固有値です。完全な分類は、[Springer-64] などの射影幾何学の教科書に記載されています。ここでは、実用的な状況で重要であり、本書のさまざまな場面で登場するいくつかの特殊なケースについて述べます。ここでは、\(H\) が \(3 × 3\) 行列である平面変換について説明しますが、3次元空間変換への一般化は容易です。
+
+<!-- Projective transformations (homographies) can be classified according to the algebraic
+and geometric multiplicity of their eigenvalues. The algebraic multiplicity of an eigenvalue
+is the number of times the root is repeated in the characteristic equation. The
+geometric multiplicity may be determined from the rank of the matrix \((H−\lambda I)\), where
+\(H\) is the homography and \(\lambda\) the eigenvalue. A complete classification is given in projective
+geometry textbooks such as [Springer-64]. Here we mention several special cases
+which are important in practical situations, and occur at several points throughout this
+book. The description will be for plane transformations where \(H\) is a \(3 × 3\) matrix, but
+the generalization to 3-space transformations is straightforward. -->
+
+</p><p>
+特殊形式が重要なのは、\(H\) が多くの関係性を満たすためです（一般射影変換の唯一の制約は、フルランクを持つことだと思い出してください）。
+\(H\) は制約を満たすため自由度が少なく、その結果、一般射影変換よりも少ない対応から計算できます。また、特殊変換は、一般の場合よりも豊富な幾何学と不変量を持ちます。
+
+<!--
+The special forms are significant because H satisfies a number of relationships (remember
+the only restriction a general projective transformation is that it has full rank).
+Since H satisfies constraints it has fewer degrees of freedom, and consequently can be
+computed from fewer correspondences than a general projective transformation. The
+special transformations also have richer geometry and invariants than in the general
+case.-->
+
+</p><p>
+第2章で論じた特殊形式（アフィン等）は部分群を形成しますが、以下の特殊射影性は一般には部分群を形成しません。なぜなら、それらは乗法に関して閉じていないからです。ただし、すべての元が一致する不動点と不動直線を持つ場合（つまり、固有値のみが異なる場合）、それらは部分群を形成します。
+
+<!-- Note that unlike the special forms (affine etc.) discussed in chapter 2, which form
+subgroups, the following special projectivities do not form subgroups in general since
+they are not closed under multiplication. They do form a subgroup if all the elements
+have coincident fixed points and lines (i.e. differing only in their eigenvalues). -->
+
+</p>
+<h2><center>A7.1 共役回転</center></h2>
+<p>
+回転行列 \(R\) は固有値 \(\{1, e^{i\theta}, e^{-i\theta}\}\) を持ち、対応する固有ベクトルは
+\(\{a, \mathbf I, \mathbf J\}\) です。ここで \(a\) は回転軸、つまり \(Ra = a, \theta\) は軸周りの回転角、\(\mathbf I\) と \(\mathbf J\) (複素共役) は \(a\) に直交する平面上の円点です。2 つの平面間の射影変換が次の形式であるとします。
+
+<!-- 
+A rotation matrix \(R\) has eigenvalues \(\{1, e^{i\theta}, e^{-i\theta}\}\), with corresponding eigenvectors
+\({a, \mathbf I, \mathbf J\}\), where \(a\) is the rotation axis, i.e. \(Ra = a, \theta\) is the angle of rotation about
+the axis, and \(\mathbf I\) and \(\mathbf J\) (which are complex conjugate) are the circular points for the plane
+orthogonal to a. Suppose a projective transformation between two planes has the form -->
+\[
+H = T R T^{-1}
+\]
+
+\(T\) を一般射影変換とすると、\(H\) は共役回転になります。固有値は共役関係<sup>1</sup> のもとで保存されるため、射影変換 \(H\) の固有値も共通のスケールまで \(\{1, e^{i\theta}, e^{-i\theta}\}\) となります。
+
+<!--
+with \(T\) a general projective transformation; then \(H\) is a conjugate rotation. Eigenvalues
+are preserved under a conjugate relationship1 so the eigenvalues of the projective
+transformation \(H\) are also \(\{1, e^{i\theta}, e^{-i\theta}\}\) up to a common scale. 
+-->
+</p>
+<p class="margin-large">
+<sup>1</sup> 共役性は「相似変換」とも呼ばれます。この「相似」の意味は、本書における等長変換＋スケーリング変換としての使用とは無関係です。
+
+<!--
+<p class="margin^large">
+<sup>1</sup> Conjugacy is also referred to as a “similarity transformation”. This meaning of “similarity” is unrelated to its use in this book
+as an isometry plus scaling transformation. -->
+</p>
+
+<p>
+<!--
+Fig. A7.1. A planar homology. A planar homology is a plane projective transformation which has a
+line a of fixed points, called the axis, and a distinct fixed point v, not on the line, called the centre or
+vertex of the homology. There is a pencil of fixed lines through the vertex. Algebraically, two of the
+eigenvalues of the transformation matrix are equal, and the fixed line corresponds to the 2D invariant
+space of the matrix (here the repeated eigenvalues are 2 and 3).
+
+</p><p>
+Consider two images obtained by a camera rotating about its centre (as in figure 2.5-
+(p36)b); then as shown in section 8.4.2(p204), the images are related by a conjugate
+rotation. In this case the complex eigenvalues determine the angle () through which
+the camera rotates, and the eigenvector corresponding to the real eigenvalue is the
+vanishing point of the rotation axis. Note that  – a metric invariant – can be measured
+directly from the projective transformation.
+</p>
+<h2><center>A7.2 Planar homologies</center></h2>
+<p>
+A plane projective transformation H is a planar homology if it has a line of fixed points
+(called the axis), together with a fixed point (called the vertex) not on the line, see
+figure A7.1. Algebraically, the matrix has two equal and one distinct eigenvalues and
+the eigenspace corresponding to the equal eigenvalues is two-dimensional. The axis
+is the line through the two eigenvectors (i.e. points) spanning this eigenspace. The
+vertex corresponds to the other eigenvector. The ratio of the distinct eigenvalue to the
+repeated one is a characteristic invariant μ of the homology (i.e. the eigenvalues are, up
+to a common scale factor, {μ, 1, 1}).
+Properties of a planar homology include:
+• Lines joining corresponding points intersect at the vertex, and corresponding lines
+(i.e. lines through two pairs of corresponding points) intersect on the axis. This is an
+example of Desargues’ Theorem. See figure A7.2a.
+• The cross ratios defined by the vertex, a pair of corresponding points, and the intersection
+of the line joining these points with the line of fixed points, are the same for
+all points related by the homology. See figure A7.2b.
+• For curves related by a planar homology, corresponding tangents (the limit of neighbouring
+points defining corresponding lines) intersect on the axis.
+• The vertex (2 dof), axis (2 dof) and invariant (1 dof) are sufficient to define the
+homology completely. A planar homology thus has 5 degrees of freedom.
+630 Appendix 7 Some Special Plane Projective Transformations
+x1
+H
+x1
+2
+x2
+axis a
+vertex v
+/
+x/
+1
+x
+1
+2
+12
+2
+2
+/
+/
+i
+a
+i
+p
+x
+x
+1
+v
+x
+a b
+Fig. A7.2. Homology transformation. (a) Under the transformation points on the axis are mapped to
+themselves; each point off the axis lies on a fixed line through v intersecting a and is mapped to another
+point on the line. Consequently, corresponding point pairs x ↔ x′ and the vertex of the homology
+are collinear. Corresponding lines – i.e. lines through pairs of corresponding points – intersect on the
+axis: for example, the lines hx1, x2i and hx′
+1, x′
+2i. (b) The cross ratio defined by the vertex v, the
+corresponding points x, x′ and the intersection of their join with the axis i, is the characteristic invariant
+of the homology, and is the same for all corresponding points. For example, the cross ratios of the
+four points {v, x′
+1, x1, i1} and {v, x′
+2, x2, i2} are equal since they are perspectively related by lines
+concurrent at p12. It follows that the cross ratio is the same for all points related by the homology.
+• 3 matched points are sufficient to compute a planar homology. The 6 degrees of freedom
+of the point matches over-constrain the 5 degrees of freedom of the homology.
+A planar homology arises naturally in an image of two planes related by a perspectivity
+of 3-space (i.e. lines joining corresponding points on the two planes are concurrent).
+An example is the transformation between the image of a planar object and the image
+of its shadow on a plane. In this case the axis is the imaged intersection of the two
+planes, and the vertex is the image of the light source, see figure 2.5(p36)c.
+Parametrization. The projective transformation representing the homology can be
+parametrized directly in terms of the 3-vectors representing the axis a and vertex v,
+and the characteristic ratio μ, as
+H = I + (μ − 1)
+vaT
+vTa
+where I is the identity. It is straightforward to verify that the inverse transformation is
+given by
+H
+−1 = I +
+ 
+1
+μ
+− 1
+!
+vaT
+vTa
+.
+The eigenvectors are
+{e1 = v, e2 = a?
+1 , e3 = a?
+2 }
+A7.3 Elations 631
+with corresponding eigenvalues
+{1 = μ, 2 = 1, 3 = 1}
+where a?
+i are two vectors that span the space orthogonal to the 3-vector a, i.e. aTa?
+i = 0
+and a = a?
+1 × a?
+2 .
+If the axis or the vertex is at infinity then the homology is an affine transformation.
+Algebraically, if a = (0, 0, 1)T, then the axis is at infinity; or if v = (v1, v2, 0)T, then
+the vertex is at infinity; and in both cases the transformation matrix H has last row
+(0, 0, 1).
+Planar harmonic homology. A specialization of a planar homology is the case that
+the cross ratio is harmonic (μ = −1). This planar homology is called a planar harmonic
+homology and has 4 degrees of freedom since the invariant is known. The transformation
+matrix H obeys H2 = I, i.e. the transformation is a square root of the identity, which
+is called an involution (also a collineation of period 2). The eigenvalues are, up to a
+common scale factor, {−1, 1, 1}. Two pairs of point correspondences determine H.
+In a perspective image of a plane object with a bilateral symmetry, corresponding
+points in the image are related by a planar harmonic homology. The axis of the homology
+is the image of the symmetry axis. Algebraically, H is a conjugate reflection
+where the conjugating element is a plane projective transformation. In an affine image
+(generated by an affine camera) the resulting transformation is a skewed symmetry, and
+the conjugating element is a plane affine transformation. For a skewed symmetry the
+vertex is at infinity, and the lines joining corresponding points are parallel.
+The harmonic homology can be parametrized as
+H = H
+−1 = I − 2
+vaT
+vTa
+.
+Again, if the axis or vertex is at infinity then the transformation is affine.
+A7.3 Elations
+An elation has a line of fixed points (the axis), and a pencil of fixed lines intersecting
+in a point (the vertex) on the axis. It may be thought of as the limit of a homology
+where the vertex is on the line of fixed points. Algebraically, the matrix has three equal
+eigenvalues, but the eigenspace is 2-dimensional. It may be parametrized as
+H = I + μvaT with aTv = 0 (A7.1)
+where a is the axis, and v the vertex. The eigenvalues are all unity. The invariant space
+of H is spanned by a?
+1 , a?
+2 . This is a line (pencil) of fixed points (which includes v
+since aTv = 0). The invariant space of HT is spanned by vectors v?
+1 , v?
+2 orthogonal to
+v. This is a pencil of fixed lines, l = 
+v?
+1 + v?
+2 , for which lTv = 0, i.e. all lines of
+the pencil are concurrent at the point v.
+An elation has 4 degrees of freedom: one less than a homology due to the constraint
+aTv = 0. It is defined by the axis a (2 dof), the vertex v on a (1 dof) and the parameter
+μ (1 dof). It can be determined from 2 point correspondences.
+632 Appendix 7 Some Special Plane Projective Transformations
+A C
+a
+b
+c
+B
+x
+x
+/
+Fig. A7.3. A line perspectivity. The lines joining corresponding points (a,A etc.) are concurrent.
+Compare with figure A7.4.
+Elations often arise in practice as conjugate translations. Consider a pattern on a
+plane that repeats by a translation t = (tx, ty)T, for example identical windows on the
+wall of a building. This action is represented on the plane of the wall as
+HE =
+"
+I t
+0T 1
+#
+which is an elation where v = (tx, ty, 0)T is the translation direction of the repetition,
+and a = (0, 0, 1)T is the line at infinity. In an image of the wall the windows are related
+by a conjugate translation H = T HE T−1, where T is the projectivity which maps the
+plane of the wall to the image. The image transformation H is also an elation. The
+vertex of this elation is the vanishing point of the translation direction, and the axis is
+the vanishing line of the wall plane.
+A7.4 Perspectivities
+One other special case of a projectivity is a perspectivity, which is shown in figure A7.3
+for a 1D projectivity on the plane. The distinctive property of a perspectivity is that
+lines joining corresponding points are concurrent. The difference between a perspectivity
+and projectivity is made clear by considering the composition of two perspectivities.
+As shown in figure A7.4 the composition of two perspectivities is not in general
+a perspectivity. However, the composition is a projectivity because a perspectivity is
+a projectivity, and projectivities form a group (closed), so that the composition of two
+projectivities is a projectivity. To summarize:
+• The composition of two (or more) perspectivities is a projectivity, but not, in general,
+a perspectivity.
+A central projection image of a world plane, as in figure 2.3(p34), is an example of
+a 2D perspectivity between different planes. Notice that identifying the projectivity as
+a perspectivity requires the embedding of the planes in 3-space.
+Finally, imagine that the planes and camera centre of figure 2.3(p34) are mapped
+(by another perspectivity) onto one of the planes. Then this imaged perspectivity is
+now a map between points on the same plane, and is seen to be a planar homology
+(section A7.2).
+A7.4 Perspectivities 633
+A C
+a
+b
+c
+a
+b
+c
+/
+/
+/
+B
+image 1
+image 2
+p
+q
+r
+x
+x /
+Fig. A7.4. A line projectivity. Points {a, b, c} are related to points {A,B,C} by a line–to–line perspectivity.
+Points {a′, b′, c′} are also related to points {A,B,C} by a perspectivity. However, points
+{a, b, c} are related to points {a′, b′, c′} by a projectivity; they are not related by a perspectivity because
+lines joining corresponding points are not concurrent. In fact the pairwise intersections result in
+three distinct points {p, q, r}.
+Further reading. [Springer-64] classifies projectivities and covers special cases,
+e.g. planar homologies. Planar homologies appear in many guises: modelling imaged
+shadow relations in [VanGool-98]; modelling imaged extruded surfaces in
+[Zisserman-95a]; and modelling relations for planar pose recovery in [Basri-99].
+The parametrization of planar homologies is given in Vi´eville and Lingrand
+[Vieville-95]. Elations appear in the grouping of imaged repeated patterns on a plane
+[Schaffalitzky-99, Schaffalitzky-00b] and in 3-space they appear in the generalized
+bas-relief ambiguity [Kriegman-98].　-->
+</p><p>
+</p><p>
+    </body>
+</html>

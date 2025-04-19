@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>12章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>12章 構造計算</center></h1>
+<p>
+
+この章では、2つのビューにおける点の画像とそれらのビューのカメラ行列が与えられた場合に、3次元空間における点の位置を計算する方法について説明します。誤差は測定された画像座標にのみ存在し、投影行列 \(P, P^\prime\) には存在しないものとします。
+
+<!-- This chapter describes how to compute the position of a point in 3-space given its image in two views and the camera matrices of those views. It is assumed that there are errors only in the measured image coordinates, not in the projection matrices \(P, P^\prime\). -->
+
+</p><p>
+
+このような状況では、測定された画像点からの光線を逆投影する単純な三角測量は、光線が一般に交差しないため、失敗します。したがって、3次元空間における点の最適解を推定する必要があります。
+
+<!-- Under these circumstances naive triangulation by back-projecting rays from the measured image points will fail, because the rays will not intersect in general. It is thus
+necessary to estimate a best solution for the point in 3-space. -->
+
+</p><p>
+最善の解を得るには、適切なコスト関数の定義と最小化が必要です。
+この問題は、物体空間に関する意味のある計量情報が存在しないアフィン変換や射影再構成において特に重要です。空間の射影変換に対して不変な三角測量法を見つけることが望ましいのです。
+
+<!-- A best solution requires the definition and minimization of a suitable cost function.
+This problem is especially critical in affine and projective reconstruction in which there
+is no meaningful metric information about the object space. It is desirable to find a
+triangulation method that is invariant to projective transformations of space. -->
+
+</p><p>
+
+以下の節では、\(X\)とその共分散の推定について述べる。点の最適（MLE）推定量を開発し、数値最小化を必要とせずに解が得られることを示す。
+
+<!-- In the following sections we describe the estimation of \(X\) and of its covariance. An
+optimal (MLE) estimator for the point is developed, and it is shown that a solution can
+be obtained without requiring numerical minimization. -->
+
+</p><p>
+
+なお、これは \(F\) が事前に与えられ、その後 \(X\) が決定されるシナリオです。別のシナリオとして、\(F\) と \(\{X_i\}\) が画像点の対応 \(\{x_i\leftrightarrow x^\prime\}\) から同時に推定されるシナリオもありますが、本章では扱いません。これは、本章で検討した手法を初期推定値として用い、セクション 11.4.1 のゴールドスタンダードアルゴリズムを用いて解くことができます。
+
+<!-- Note, this is the scenario where \(F\) is given a priori and then \(X\) is determined. An
+alternative scenario is where \(F\) and \(\{X_i\}\) are estimated simultaneously from the image point correspondences \(\{x_i\leftrightarrow x^\prime\}\), but this is not considered in this chapter. It
+may be solved using the Gold Standard algorithm of section 11.4.1, using the method
+considered in this chapter as an initial estimate. -->
+
+</p>
+<h2><center>12.1 問題の定義</center></h2>
+<p>
+カメラ行列、ひいては基礎行列が与えられているものと仮定します。
+あるいは、基礎行列が与えられており、したがって矛盾のないカメラ行列のペアを構築できるものと仮定します（9.5節参照）。いずれの場合も、これらの行列は正確に既知であるか、少なくとも2枚の画像における対応する点のペアと比較して高い精度で既知であると仮定します。
+
+<!-- It is supposed that the camera matrices, and hence the fundamental matrix, are provided;
+or that the fundamental matrix is provided, and hence a pair of consistent camera
+matrices can be constructed (as in section 9.5). In either case it is assumed
+that these matrices are known exactly, or at least with great accuracy compared with a
+pair of matching points in the two images. -->
+
+</p><p>
+
+測定点 \(x\) と \(x^\prime\) には誤差があるため、これらの点から逆投影された光線は歪んでいます。つまり、\(x = PX,\; x^\prime = P^\prime X\); を正確に満たす点 \(X\) は存在せず、像点はエピポーラ制約 \({x^\prime}^TFx = 0\) を満たしません。これらの記述は等価です。なぜなら、対応する点のペア \(x\leftrightarrow x^\prime\) に対応する2本の光線が空間的に交わるのは、それらの点がエピポーラ制約を満たす場合のみだからです。図12.1を参照してください。
+
+<!-- Since there are errors in the measured points \(x\) and \(x^\prime\), the rays back-projected from
+the points are skew. This means that there will not be a point \(X\) which exactly satisfies
+\(x = PX,\; x^\prime = P^\prime X\); and that the image points do not satisfy the epipolar constraint
+\({x^\prime}^TFx = 0\). These statements are equivalent since the two rays corresponding to a
+matching pair of points \(x\leftrightarrow x^\prime\) will meet in space if and only if the points satisfy the
+epipolar constraint. See figure 12.1. -->
+
+</p><p>
+図12.1. (a) 不完全な測定点 \(x, x^\prime\) から逆投影された光線は、一般に3次元空間で歪んでいる。
+(b) \(x, x-\prime\) のエピポーラ幾何学。測定点はエピポーラ制約を満たさない。
+エピポーラ線 \(l^\prime = Fx\) は \(x\) を通る光線の像であり、\(l = F^Tx^\prime\) は \(x^\prime\) を通る光線の像である。光線は交差しないため、\(x^\prime\) は \(l^\prime\) 上になく、\(x\) は \(l\) 上にない。
+
+<!-- Fig. 12.1. (a) Rays back-projected from imperfectly measured points \(x, x^\prime\) are skew in 3-space in general.
+(b) The epipolar geometry for \(x, x-\prime\). The measured points do not satisfy the epipolar constraint.
+The epipolar line \(l^\prime = Fx\) is the image of the ray through \(x\), and \(l = F^Tx^\prime\) is the image of the ray through
+\(x^\prime\). Since the rays do not intersect, \(x^\prime\) does not lie on \(l^\prime\), and \(x\) does not lie on \(l\). -->
+
+</p><p>
+<!-- A desirable feature of the method of triangulation used is that it should be invariant
+under transformations of the appropriate class for the reconstruction – if the camera
+matrices are known only up to an affine (or projective) transformation, then it is clearly
+desirable to use an affine (resp. projective) invariant triangulation method to compute
+the 3D space points. Thus, denote by  a triangulation method used to compute a 3D
+space point X from a point correspondence x ↔ x′ and a pair of camera matrices P
+and P′. We write
+\[
+X = \tau (x, x^\prime, P, P^\prime)
+\]
+
+The triangulation is said to be invariant under a transformation H if
+\[
+\tau(x, x^\prime, P, P^\prime) = H-{-1}\tau (x, x^\prime, PH^{-1}, P^\prime H^{-1})
+\]
+
+This means that triangulation using the transformed cameras results in the transformed
+point.
+</p><p>
+It is clear, particularly for projective reconstruction, that it is inappropriate to minimize
+errors in the 3D projective space, IP3. For instance, the method that finds the
+midpoint of the common perpendicular to the two rays in space is not suitable for
+projective reconstruction, since concepts such as distance and perpendicularity are not
+valid in the context of projective geometry. In fact, in projective reconstruction, this
+method will give different results depending on which particular projective reconstruction
+is considered – the method is not projective-invariant.
+</p><p>
+Here we will give a triangulation method that is projective-invariant. The key idea
+is to estimate a 3D point bX which exactly satisfies the supplied camera geometry, so it
+projects as
+
+\[
+\hat{x} = P\hat{X}　\hat{x}^\prime = P^\prime\hat{X}
+\]
+
+and the aim is to estimate \(\hat{X}\) from the image measurements \(x\) and \(x^\prime\). As described
+in section 12.3 the maximum likelihood estimate, under Gaussian noise, is given by
+the point bX which minimizes the reprojection error – the (summed squared) distances
+between the projections of bX and the measured image points.
+
+</p><p>
+
+Such a triangulation method is projective-invariant because only image distances are
+minimized, and the points ˆx and ˆx′ which are the projections of bX do not depend on
+the projective frame in which bX is defined, i.e. a different projective reconstruction will
+project to the same points.
+
+</p><p>
+
+In the following sections simple linear triangulation methods are given. Then the
+MLE is defined, and it is shown that an optimal solution can be obtained via the root of
+a sixth-degree polynomial, thus avoiding a non-linear minimization of a cost function.
+
+</p>
+<h2><center>12.2 Linear triangulation methods</center></h2>
+<p>
+In this section, we describe simple linear triangulation methods. As usual the estimated
+point does not exactly satisfy the geometric relations, and is not an optimal estimate.
+
+</p><p>
+
+The linear triangulation method is the direct analogue of the DLT method described
+in section 4.1. In each image we have a measurement x = PX, x′ = P′X, and
+these equations can be combined into a form AX = 0, which is an equation linear in X.
+First the homogeneous scale factor is eliminated by a cross product to give three
+equations for each image point, of which two are linearly independent. For example
+for the first image, x × (PX) = 0 and writing this out gives
+x(p3T
+X) − (p1T
+X) = 0
+y(p3T
+X) − (p2T
+X) = 0
+x(p2T
+X) − y(p1T
+X) = 0
+where piT are the rows of P. These equations are linear in the components of X.
+An equation of the form AX = 0 can then be composed, with
+A =
+
+
+xp3T − p1T
+yp3T − p2T
+x′p′3T − p′1T
+y′p′3T − p′2T
+
+
+where two equations have been included from each image, giving a total of four equations
+in four homogeneous unknowns. This is a redundant set of equations, since the
+solution is determined only up to scale. Two ways of solving the set of equations of the
+form AX = 0 were discussed in section 4.1(p88) and will be considered again here.
+Homogeneous method (DLT). The method of section 4.1.1(p90) finds the solution
+as the unit singular vector corresponding to the smallest singular value of A, as shown
+12.3 Geometric error cost function 313
+in section A5.3(p592). The discussion in section 4.1.1 on the merits of normalization,
+and of including two or three equations from each image, applies equally well here.
+Inhomogeneous method. In section 4.1.2(p90) the solution of this system as a set
+of inhomogeneous equations is discussed. By setting X = (X, Y, Z, 1)T the set of
+homogeneous equations, AX = 0, is reduced to a set of four inhomogeneous equations
+in three unknowns. The least-squares solution to these inhomogeneous equations is
+described in section A5.1(p588). As explained in section 4.1.2, however, difficulties
+arise if the true solution X has last coordinate equal or close to 0. In this case, it is not
+legitimate to set it to 1 and instabilities can occur.
+Discussion. These two methods are quite similar, but in fact have quite different properties
+in the presence of noise. The inhomogeneous method assumes that the solution
+point X is not at infinity, for otherwise we could not assume that X = (x, y, z, 1)T.
+This is a disadvantage of this method when we are seeking to carry out a projective reconstruction,
+where reconstructed points may lie on the plane at infinity. Furthermore,
+neither of these two linear methods is quite suitable for projective reconstruction, since
+they are not projective-invariant. To see this, suppose that camera matrices P and P′
+are replaced by PH−1 and P′H−1. One sees that in this case the matrix of equations,
+A, becomes AH−1. A point X such that AX = ǫ for the original problem corresponds
+to a point HX satisfying (AH−1)(HX) = ǫ for the transformed problem. Thus, there is
+a one-to-one correspondence between points X and HX giving the same error. However,
+neither the condition kXk = 1 for the homogeneous method, nor the condition
+X = (X, Y, Z, 1)T for the inhomogeneous method, is invariant under application of the
+projective transformation H. Thus, in general the point X solving the original problem
+will not correspond to a solution HX for the transformed problem.
+For affine transformations, on the other hand, the situation is different. In fact, although
+the condition kXk = 1 is not preserved under affine transformations, the condition
+X = (X, Y, Z, 1)T is preserved, since for an affine transformation, H(X, Y, Z, 1)T =
+(X′, Y′, Z′, 1)T. This means that there is a one-to-one correspondence between a vector
+X = (X, Y, Z, 1)T such that A(x, y, z, 1)T = ǫ and the vector HX = (X′, Y′, Z′, 1)T such
+that (AH−1)(X′, Y′, Z′, 1)T = ǫ. The error is the same for corresponding points. Thus,
+the points that minimize the error kǫk correspond as well. Hence, the inhomogeneous
+method is affine-invariant, whereas the homogeneous method is not.
+In the remainder of this chapter we will describe a method for triangulation that is
+invariant to the projective frame of the cameras, and minimizes a geometric image error.
+This will be the recommended triangulation method. Nevertheless, the homogeneous
+linear method described above often provides acceptable results. Furthermore, it has
+the virtue that it generalizes easily to triangulation when more than two views of the
+point are available.
+12.3 Geometric error cost function
+A typical observation consists of a noisy point correspondence x ↔ x′ which does
+not in general satisfy the epipolar constraint. In reality, the correct values of the cor314
+12 Structure Computation
+x /
+/
+X
+e e /
+x
+x/
+/
+C C
+x
+d d
+Fig. 12.2. Minimization of geometric error. The estimated 3-space point bX projects to the two images
+at ˆx, ˆx′. The corresponding image points ˆx, ˆx′ satisfy the epipolar constraint, unlike the measured points
+x and x′. The point bX is chosen so that the reprojection error d2 + d′2 is minimized.
+responding image points should be points ¯x ↔ ¯x′ lying close to the measured points
+x ↔ x′ and satisfying the epipolar constraint ¯x′TF¯x = 0 exactly.
+We seek the points ˆx and ˆx′ that minimize the function
+C(x, x′) = d(x, ˆx)2 + d(x′, ˆx′)2 subject to ˆx′TFˆx = 0 (12.1)
+where d(∗, ∗) is the Euclidean distance between the points. This is equivalent to minimizing
+the reprojection error for a point bX which is mapped to ˆx and ˆx′ by projection
+matrices consistent with F, as illustrated in figure 12.2.
+As explained in section 4.3(p102), assuming a Gaussian error distribution, the points
+ˆx′ and ˆx are Maximum Likelihood Estimates (MLE) for the true image point correspondences.
+Once ˆx′ and ˆx are found, the point bX may be found by any triangulation
+method, since the corresponding rays will meet precisely in space.
+This cost function could, of course, be minimized using a numerical minimization
+method such as Levenberg–Marquardt (section A6.2(p600)). A close approximation
+to the minimum may also be found using a first-order approximation to the geometric
+cost function, namely the Sampson error, as described in the next section. However,
+in section 12.5 it is shown that the minimum can be obtained non-iteratively by the
+solution of a sixth-degree polynomial.
+12.4 Sampson approximation (first-order geometric correction)
+Before deriving the exact polynomial solution we develop the Sampson approximation,
+which is valid when the measurement errors are small compared with the measurements.
+The Sampson approximation to the geometric cost function in the case
+of the fundamental matrix has already been discussed in section 11.4.3. Here we are
+concerned with computing the correction to the measured points.
+The Sampson correction δX to the measured point X = (x, y, x′, y′)T (note, in this
+section X does not denote a homogeneous 3-space point) is shown in section 4.2.6(p98)
+12.5 An optimal solution 315
+x
+x /
+l = F x /
+x / l = F
+x
+x
+e
+/
+e /
+image 1 image 2
+􀁔 􀁔/
+d
+(t) (t)
+d
+/
+Fig. 12.3. The projections ˆx and ˆx′ of an estimated 3D point bX lie on a pair of corresponding epipolar
+lines. The optimal ˆx and ˆx′ will lie at the foot of the perpendiculars from the measured points x and
+x′. Parametrizing the corresponding epipolar lines as a one-parameter family, the optimal estimation of
+bX
+is reduced to a one-parameter search for corresponding epipolar lines so as to minimize the squared
+sum of perpendicular distances d2 + d′2.
+to be (4.11–p99)
+δX = −J
+T(JJ
+T)−1ǫ
+and the corrected point is
+bX
+= X + δX = X − J
+T(JJ
+T)−1ǫ.
+As shown in section 11.4.3 in the case of the variety defined by x′TFx = 0, the error
+ǫ = x′TFx, and the Jacobian is
+J = @ǫ/@x = [(F
+Tx′)1, (F
+Tx′)2, (Fx)1, (Fx)2]
+where for instance (FTx′)1 = f11x′+f21y′+f31, etc. Then the first-order approximation
+to the corrected point is simply
+
+
+ˆx
+ˆy
+ˆx′
+ˆy′
+
+
+=
+
+
+x
+y
+x′
+y′
+
+
+−
+x′TFx
+(Fx)21
++ (Fx)22
++ (FTx′)21+ (FTx′)22
+
+
+(FTx′)1
+(FTx′)2
+(Fx)1
+(Fx)2
+
+
+.
+The approximation is accurate if the correction in each image is small (less than
+a pixel), and is cheap to compute. Note, however, that the corrected points will not
+satisfy the epipolar relation ˆx′TFˆx = 0 exactly. The method of the following section
+computes the points ˆx, ˆx′ which do exactly satisfy the epipolar constraint, but is more
+costly.
+12.5 An optimal solution
+In this section, we describe a method of triangulation that finds the global minimum of
+the cost function (12.1) using a non-iterative algorithm. If the Gaussian noise model
+can be assumed to be correct, this triangulation method is then provably optimal.
+12.5.1 Reformulation of the minimization problem
+Given a measured correspondence x ↔ x′, we seek a pair of points ˆx′ and ˆx that minimize
+the sum of squared distances (12.1) subject to the epipolar constraint ˆx′TFˆx = 0.
+The following discussion relates to figure 12.3. Any pair of points satisfying the
+316 12 Structure Computation
+epipolar constraint must lie on a pair of corresponding epipolar lines in the two images.
+Thus, in particular, the optimum point ˆx lies on an epipolar line l and ˆx′ lies on the
+corresponding epipolar line l′. On the other hand, any other pair of points lying on the
+lines l and l′ will also satisfy the epipolar constraint. This is true in particular for the
+point x⊥ on l lying closest to the measured point x, and the correspondingly defined
+point x′
+⊥ on l′. Of all pairs of points on the lines l and l′, the points x⊥ and x′
+⊥ minimize
+the squared distance sum of (12.1). It follows that ˆx′ = x′
+⊥ and ˆx = x⊥, where x⊥ and
+x′
+⊥ are defined with respect to a pair of matching epipolar lines l and l′. Consequently,
+we may write d(x, ˆx) = d(x, l), where d(x, l) represents the perpendicular distance
+from the point x to the line l. A similar expression holds for d(x′, ˆx′).
+In view of the previous paragraph, we may formulate the minimization problem differently
+as follows. We seek to minimize
+d(x, l)2 + d(x′, l′)2 (12.2)
+where l and l′ range over all choices of corresponding epipolar lines. The point ˆx is
+then the closest point on the line l to the point x and the point ˆx′ is similarly defined.
+Our strategy for minimizing (12.2) is as follows:
+(i) Parametrize the pencil of epipolar lines in the first image by a parameter t. Thus
+an epipolar line in the first image may be written as l(t).
+(ii) Using the fundamental matrix F, compute the corresponding epipolar line l′(t)
+in the second image.
+(iii) Express the distance function d(x, l(t))2 + d(x′, l′(t))2 explicitly as a function
+of t.
+(iv) Find the value of t that minimizes this function.
+In this way, the problem is reduced to that of finding the minimum of a function of a
+single variable t, i.e.
+min
+bX
+C = d(x, ˆx)2 + d(x′, ˆx′)2 = min
+t
+C = d(x, l(t))2 + d(x′, l′(t))2.
+It will be seen that for a suitable parametrization of the pencil of epipolar lines the
+distance function is a rational polynomial function of t. Using techniques of elementary
+calculus, the minimization problem reduces to finding the real roots of a polynomial of
+degree 6.
+12.5.2 Details of the minimization
+If both of the image points correspond with the epipoles, then the point in space lies
+on the line joining the camera centres. In this case it is impossible to determine the
+position of the point in space. If only one of the corresponding points lies at an epipole,
+then we conclude that the point in space must coincide with the other camera centre.
+Consequently, we assume that neither of the two image points x and x′ corresponds
+with an epipole.
+In this case, we may simplify the analysis by applying a rigid transformation to each
+image in order to place both points x and x′ at the origin, (0, 0, 1)T in homogeneous
+12.5 An optimal solution 317
+coordinates. Furthermore, the epipoles may be placed on the x-axis at points (1, 0, f)T
+and (1, 0, f′)T respectively. A value f equal to 0 means that the epipole is at infinity.
+Applying these two rigid transforms has no effect on the sum-of-squares distance
+function in (12.1), and hence does not change the minimization problem.
+Thus, in future we assume that in homogeneous coordinates, x = x′ = (0, 0, 1)T
+and that the two epipoles are at points (1, 0, f)T and (1, 0, f′)T. In this case, since
+F(1, 0, f)T = (1, 0, f′)F = 0, the fundamental matrix has a special form
+F =
+
+
+ff′d −f′c −f′d
+−fb a b
+−fd c d
+
+
+. (12.3)
+Consider an epipolar line in the first image passing through the point (0, t, 1)T (still in
+homogeneous coordinates) and the epipole (1, 0, f)T. We denote this epipolar line by
+l(t). The vector representing this line is given by the cross product (0, t, 1)×(1, 0, f) =
+(tf, 1,−t), so the squared distance from the line to the origin is
+d(x, l(t))2 =
+t2
+1 + (tf)2 .
+Using the fundamental matrix to find the corresponding epipolar line in the other image,
+we see that
+l′(t) = F(0, t, 1)T = (−f′(ct + d), at + b, ct + d)T. (12.4)
+This is the representation of the line l′(t) as a homogeneous vector. The squared distance
+of this line from the origin is equal to
+d(x′, l′(t))2 =
+(ct + d)2
+(at + b)2 + f′2(ct + d)2 .
+The total squared distance is therefore given by
+s(t) =
+t2
+1 + f2t2 +
+(ct + d)2
+(at + b)2 + f′2(ct + d)2 . (12.5)
+Our task is to find the minimum of this function.
+We may find the minimum using techniques of elementary calculus, as follows. We
+compute the derivative
+s′(t) =
+2t
+(1 + f2t2)2 −
+2(ad − bc)(at + b)(ct + d)
+((at + b)2 + f′2(ct + d)2)2 . (12.6)
+Maxima and minima of s(t) will occur when s′(t) = 0. Collecting the two terms in
+s′(t) over a common denominator and equating the numerator to 0 gives a condition
+g(t) = t((at + b)2 + f′2(ct + d)2)2
+−(ad − bc)(1 + f2t2)2(at + b)(ct + d)
+= 0. (12.7)
+The minima and maxima of s(t) will occur at the roots of this polynomial. This is a
+318 12 Structure Computation
+Objective
+Given a measured point correspondence x ↔ x′, and a fundamental matrix F, compute the
+corrected correspondences ˆx ↔ ˆx′ that minimize the geometric error (12.1) subject to the
+epipolar constraint ˆx′TFˆx = 0.
+Algorithm
+(i) Define transformation matrices
+T =
+"
+1 −x
+1 −y
+1
+#
+and T′ =
+"
+1 −x′
+1 −y′
+1
+#
+.
+These are the translations that take x = (x, y, 1)T and x′ = (x′, y′, 1)T to the origin.
+(ii) Replace F by T′−TFT−1. The new F corresponds to translated coordinates.
+(iii) Compute the right and left epipoles e = (e1, e2, e3)T and e′ = (e′
+1, e′
+2, e′
+3)T such that
+e′TF = 0 and Fe = 0. Normalize (multiply by a scale) e such that e2
+1 + e2
+2 = 1 and do
+the same to e′.
+(iv) Form matrices
+R =
+"
+e1 e2
+−e2 e1
+1
+#
+and R′ =
+"
+e′
+1 e′
+2
+−e′
+2 e′
+1
+1
+#
+and observe that R and R′ are rotation matrices, and Re = (1, 0, e3)T and
+R′e′ = (1, 0, e′
+3)T.
+(v) Replace F by R′FRT. The resulting F must have the form (12.3).
+(vi) Set f = e3, f′ = e′
+3, a = F22, b = F23, c = F32 and d = F33.
+(vii) Form the polynomial g(t) as a polynomial in t according to (12.7). Solve for t to get 6
+roots.
+(viii) Evaluate the cost function (12.5) at the real part of each of the roots of g(t) (alternatively
+evaluate at only the real roots of g(t)). Also, find the asymptotic value of (12.1)
+for t = ∞, namely 1/f2 + c2/(a2 + f′2c2). Select the value tmin of t that gives the
+smallest value of the cost function.
+(ix) Evaluate the two lines l = (tf, 1,−t) and l′ given by (12.4) at tmin and find ˆx and ˆx′
+as the closest points on these lines to the origin. For a general line (, μ, ), the formula
+for the closest point on the line to the origin is (−,−μ, 2 + μ2).
+(x) Transfer back to the original coordinates by replacing ˆx by T−1RTˆx and ˆx′ by
+T′−1R′Tˆx′.
+(xi) The 3-space point bX may then be obtained by the homogeneous method of section 12.2.
+Algorithm 12.1. The optimal triangulation method.
+polynomial of degree 6, which may have up to 6 real roots, corresponding to 3 minima
+and 3 maxima of the function s(t). The absolute minimum of the function s(t) may be
+found by finding the roots of g(t) and evaluating the function s(t) given by (12.5) at
+each of the real roots. More simply, one checks the value of s(t) at the real part of each
+root (complex or real) of g(t), which saves the trouble of determining if a root is real
+or complex. One should also check the asymptotic value of s(t) as t → ∞to see if the
+minimum distance occurs when t = ∞, corresponding to an epipolar line fx = 1 in
+the first image.
+The overall method is summarized in algorithm 12.1.
+12.5 An optimal solution 319
+-1.5 -1 -0.5 0.5 1 1.5
+0.8
+1.2
+1.4
+1.6
+-1.5 -1 -0.5 0.5 1 1.5
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+a b
+Fig. 12.4. (a) Example of a cost function with three minima. (b) This is the cost function for a perfect
+point match, which nevertheless has two minima.
+12.5.3 Local minima
+The fact that g(t) in (12.7) has degree 6 means that s(t) may have as many as three
+minima. In fact, this is indeed possible, as the following case shows. Setting f = f′ =
+1 and
+F =
+
+
+4 −3 −4
+−3 2 3
+−4 3 4
+
+
+gives a function
+s(t) =
+t2
+1 + t2 +
+(3t + 4)2
+(2t + 3)2 + (3t + 4)2
+with graph as shown in figure 12.4a1. The three minima are clearly shown.
+As a second example, we consider the case where f = f′ = 1, and
+F =
+
+
+0 −1 0
+1 2 −1
+0 1 0
+
+
+.
+In this case, the function s(t) is given by
+s(t) =
+t2
+t2 + 1
++
+t2
+t2 + (2t − 1)2
+and both terms of the cost function vanish for a value of t = 0, which means that
+the corresponding points x and x′ exactly satisfy the epipolar constraint. This can
+be verified by observing that x′TFx = 0. Thus the two points are exactly matched.
+A graph of the cost function s(t) is shown in figure 12.4b. Apart from the absolute
+minimum at t = 0 there is also a local minimum at t = 1. Thus, even in the case of
+perfect matches local minima may occur. This example shows that an algorithm that
+attempts to minimize the cost function in (12.1), or equivalently (12.2), by an iterative
+1 In this graph and also figure 12.4b we make the substitution t = tan() and plot for  in the range −/2 ≤  ≤ /2, so as
+to show the whole infinite range for t.
+320 12 Structure Computation
+search beginning from an arbitrary initial point is in danger of finding a local minimum,
+even in the case of perfect point matches.
+12.5.4 Evaluation on real images
+An experiment was carried out using the calibration cube images shown in figure 11.2-
+(p289) with the goal of determining how the triangulation method effects the accuracy
+of reconstruction. A Euclidean model of the cubes, to be used as ground truth, was estimated
+and refined using accurate image measurements. The measured pixel locations
+were corrected to correspond exactly to the Euclidean model, requiring coordinate corrections
+averaging 0.02 pixels.
+At this stage we had a model and a set of matched points corresponding exactly to the
+model. Next, a projective reconstruction of the points was computed and a projective
+transformation H computed that brought the projective reconstruction into agreement
+with the Euclidean model. Controlled zero-mean Gaussian noise was introduced into
+the point coordinates, and triangulation using two methods was carried out in the projective
+frame, the transformation H applied, and the error of each method was measured
+in the Euclidean frame. Figure 12.5 shows the results of this experiment for the two triangulation
+methods. The graph shows the average reconstruction error over all points
+in 10 separate runs at each chosen noise level. It clearly shows that the optimal method
+gives superior reconstruction results.
+In this pair of images the two epipoles are distant from the image. For cases where
+the epipoles are close to the images, results on synthetic images show that the advantage
+of the polynomial method will be more pronounced.
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+Reconstruction Error
+0.05 0.1 0.15
+Noise
+0
+Fig. 12.5. Reconstruction error comparison of triangulation methods. The graph shows the reconstruction
+error obtained using two triangulation methods: (i) selection of the midpoint of the common
+perpendicular to the rays in the projective frame (top curve), and (ii) the optimal polynomial method
+(lower curve). On the horizontal axis is the noise, on the vertical axis the reconstruction error. The units
+for reconstruction error are relative to a unit distance equal to the side of one of the dark squares in the
+calibration cube image figure 11.2(p289). Even for the best method the error is large for higher noise
+levels, because there is little movement between the images.
+12.6 Probability distribution of the estimated 3D point 321
+Fig. 12.6. Uncertainty of reconstruction. The shaded region in each case illustrates the shape of the
+uncertainty region, which depends on the angle between the rays. Points are less precisely localized
+along the ray as the rays become more parallel. Forward motion in particular can give poor reconstructions
+since rays are almost parallel for much of the field of view.
+12.6 Probability distribution of the estimated 3D point
+An illustration of the distribution of the reconstructed point is given in figure 12.6.
+A good rule of thumb is that the angle between the rays determines the accuracy of
+reconstruction. This is a better guide than simply considering the baseline, which is the
+more commonly used measure.
+More formally the probability of a particular 3D point X depends on the probability
+of obtaining its image in each view. We will consider a simplified example where the
+objective is to estimate the probability that a point on a plane has position X = (X, Y)T
+given its images x = f(X) and x′ = f′(X) in two line cameras. (The projections f and
+f′ are expressible in terms of 2 × 3 projection matrices P2×3 and P′
+2×3 respectively –
+see section 6.4.2(p175)). The imaging geometry is shown in figure 12.7(a).
+Suppose that the measured image point is at x in the first image, and the measurement
+process is corrupted by Gaussian noise with mean zero and variance 2, then the
+probability of obtaining x, given that the true image point is f(X), is given by
+p(x|X) = (22)−1/2 exp
+
+−|f(X) − x|2/(22)
+
+.
+with a similar expression for p(x′|X). We wish to compute the a posteriori distribution:
+p(X|x, x′) = p(x, x′|X)p(X)/p(x, x′).
+Assuming a uniform prior probability p(X), and independent image measurements in
+the two images, it follows that
+p(X|x, x′) ∼ p(x, x′|X) = p(x|X)p(x′|X).
+Figure 12.7 shows an example of this Probability Density Function (PDF). The bias
+and variance of this example is discussed in appendix 3(p568).
+12.7 Line reconstruction
+Suppose a line in 3-space is projected to lines in two views as l and l′. The line in
+3-space can be reconstructed by back-projecting each line to give a plane in 3-space,
+and intersecting the planes.
+322 12 Structure Computation
+C1
+C2
+a b c
+Fig. 12.7. PDF for a triangulated point. (a) The camera configuration. There are two line cameras
+with centres at C1 and C2. The image lines are the left and lower edge of the square. The bar indicates
+the 2 range of the noise. The plots show the PDF for a triangulated point computed from the two
+perspective projections. A large noise variance 2 is chosen to emphasize the effect. (b) The PDF shown
+as an image with white representing a higher value. (b) A contour plot of the PDF. Note that the PDF is
+not a Gaussian.
+e e
+L
+l
+l
+/
+􀁓 􀁓/
+epipolar
+plane
+C C / /
+Fig. 12.8. Line reconstruction. The image lines l, l′ back-project to planes π,π′ respectively. The
+plane intersection determines the line L in 3-space. If the line in 3-space lies on an epipolar plane then
+its position in 3-space cannot be determined from its images. In this case the epipoles lie on the image
+lines.
+The planes defined by the lines are π = PTl and π′ = P′Tl′. It is often quite convenient
+in practice to parametrize the line in 3-space by the two planes defined by the
+image lines, i.e. to represent the line as the 2 × 4 matrix
+L =
+"
+lTP
+l′TP′
+#
+as described in the span representation of section 3.2.2(p68). Then for example a point
+X lies on the line if LX = 0.
+In the case of corresponding points the pre-image (i.e. the point in 3-space that
+projects to the image points) is over-determined since there are four measurements
+12.8 Closure 323
+on the three degrees of freedom of the 3-space point. In contrast in the case of lines
+the pre-image is exactly determined because a line in 3-space has four degrees of freedom,
+and the image line provides two measurements in each view. Note, here we are
+considering the lines as infinite, and not using their endpoints.
+Degeneracy. As illustrated in figure 12.8 lines in 3-space lying on epipolar planes
+cannot be determined from their images in two views. Such lines intersect the camera
+baseline. In practice, when there is measurement error, lines which are close to
+intersecting the baseline can be poorly localized in a reconstruction.
+The degeneracy for lines is far more severe than for points: in the case of points
+there is a one-parameter family of points on the baseline which cannot be recovered.
+For lines there is a three-parameter family: one parameter for position on the baseline,
+and the other two for the star of lines through each point on the baseline.
+Intersection of more than two planes
+In later chapters (particularly chapter 15) we will be considering reconstruction from
+three or more views. To reconstruct the line that results from the intersection of several
+planes it is appropriate to proceed as follows. Represent each plane πi by a 4-vector
+and form an n × 4 matrix A for n planes with rows πT
+i . Let A = UDVT be the singular
+value decomposition. The two columns of V corresponding to the two largest singular
+values span the best rank 2 approximation to A and may be used to define the line of
+intersection of the planes. If the planes are defined by back-projecting image lines,
+then the Maximum Likelihood estimate of the line L in 3-space is found by minimizing
+a geometric image distance between L projected into each image and the measured line
+in that image. This is discussed in section 16.4.1(p396).
+12.8 Closure
+It is not evident how to extend the polynomial method of triangulation to 3 or more
+views. However, the linear method extends in an obvious manner. More interestingly,
+the Sampson method also may be extended to 3 or more views, as is described in
+[Torr-97]. The disadvantage is that the computational cost (and also coding effort)
+increases noticeably with more views.
+12.8.1 The literature
+The optimal triangulation method was given by Hartley & Sturm [Hartley-97b].
+12.8.2 Notes and exercises
+(i) Derive a method for triangulation in the case of pure translational motion of the
+cameras. Hint, see figure 12.9. A closed form solution for the parameter  is
+possible. This method was used in [Armstrong-94].
+(ii) Adapt the polynomial triangulation method to a pair of affine cameras (or more
+generally, to cameras with the same principal plane). In this case, the fundamental
+matrix has a simple form, (14.1–p345), and the method reduces to a
+linear algorithm.
+324 12 Structure Computation
+x /
+x / x
+/
+/ e = e
+x
+􀁔
+images 1 & 2
+d
+d
+Fig. 12.9. The epipolar geometry for pure translation. In this case, corresponding epipolar lines are
+identical (see section 11.7.1(p293)). The epipolar line (parametrized by ) that minimizes d2 + d′2 can
+be computed directly.
+(iii) Show that the Sampson method (section 12.4) is invariant under Euclidean coordinate
+changes in the images (and the corresponding change in F).
+(iv) Derive the analogue of the polynomial solution for triangulation in the case of
+a planar homography, i.e. given a measured correspondence x ↔ x′, compute
+points ˆx and ˆx′ that minimize the function
+C(x, x′) = d(x, ˆx)2 + d(x′, ˆx′)2 subject to ˆx′ = Hˆx.
+See [Sturm-97b], where it is shown that the solution is a degree 8 polynomial
+in one variable. -->
+</p><p>
+</p><p>
+    </body>
+</html>

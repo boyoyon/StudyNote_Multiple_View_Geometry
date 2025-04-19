@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>9章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>9章 エピポーラ幾何学と基礎行列</center></h1>
+<p>
+エピポーラ幾何学は、2つのビュー間の固有の射影幾何学です。シーンの構造には依存せず、カメラの内部パラメータと相対的な姿勢のみに依存します。
+
+<!-- The epipolar geometry is the intrinsic projective geometry between two views. It is
+independent of scene structure, and only depends on the cameras’ internal parameters
+and relative pose.-->
+
+</p><p>
+
+基礎行列 \(F\) はこの固有の幾何学を包含する。これは階数 2 の \(3 × 3\) 行列である。3次元空間 X 上の点が最初の視点では x として、2番目の視点では \(x^\prime\) として写像される場合、像点は \({x^\prime}^TTFx = 0\) という関係を満たす。
+
+<!-- The fundamental matrix \(F\) encapsulates this intrinsic geometry. It is a \(3 × 3\) matrix
+of rank 2. If a point in 3-space X is imaged as x in the first view, and \(x^\prime\) in the second,
+then the image points satisfy the relation \({x^\prime}^TTFx = 0\). -->
+
+</p><p>
+
+まずエピポーラ幾何学を解説し、基礎行列を導出します。次に、カメラのビュー間の一般的な動きと、いくつかの一般的に発生する特殊な動きの両方について、基礎行列の性質を明らかにします。次に、カメラは \(F\) から3次元空間の射影変換まで復元できることを示します。この結果は、第10章で示される射影再構成定理の基礎となります。最後に、カメラの内部キャリブレーションが既知であれば、ビュー間のカメラのユークリッド運動は、有限個の曖昧さを除いて、基礎行列から計算できることを示します。
+
+<!-- We will first describe epipolar geometry, and derive the fundamental matrix. The
+properties of the fundamental matrix are then elucidated, both for general motion of
+the camera between the views, and for several commonly occurring special motions. It
+is next shown that the cameras can be retrieved from \(F\) up to a projective transformation
+of 3-space. This result is the basis for the projective reconstruction theorem given in
+chapter 10. Finally, if the camera internal calibration is known, it is shown that the Euclidean
+motion of the cameras between views may be computed from the fundamental
+matrix up to a finite number of ambiguities. -->
+
+</p><p>
+
+基礎行列はシーン構造に依存しません。しかし、カメラの内部パラメータや相対姿勢を知らなくても、撮影されたシーン点の対応関係のみから計算できます。この計算については、第11章で説明します。
+
+<!-- The fundamental matrix is independent of scene structure. However, it can be computed
+from correspondences of imaged scene points alone, without requiring knowledge
+of the cameras’ internal parameters or relative pose. This computation is described
+in chapter 11. -->
+
+</p>
+<h2><center>9.1 エピポーラ幾何学</center></h2>
+<p>
+
+2つのビュー間のエピポーラ幾何学は、本質的には、画像平面と、ベースライン（カメラ中心を結ぶ線）を軸とする平面束との交点の幾何学です。この幾何学は通常、ステレオマッチングにおける対応点の探索を念頭に置いて考案されており、ここではその目的から始めます。
+
+<!-- The epipolar geometry between two views is essentially the geometry of the intersection
+of the image planes with the pencil of planes having the baseline as axis (the
+baseline is the line joining the camera centres). This geometry is usually motivated by
+considering the search for corresponding points in stereo matching, and we will start
+from that objective here. -->
+
+</p><p>
+
+3次元空間の点 \(X\) が2つの視点で結像され、最初の視点では \(x\) に、2番目の視点では \(x^\prime\) に結像されているとします。対応する結像点 \(x\) と \(x^\prime\) の関係はどうなるでしょうか？図9.1aに示すように、結像点 \(x\) と \(x^\prime\)、空間点 \(X\)、そしてカメラ中心は同一平面にあります。この平面を \(\pi\) とします。明らかに、\(x\) と \(x^\prime\) から逆投影された光線は \(X\) で交差し、光線は同一平面上にあり、\(\pi\) 内にあります。対応関係を探す上で最も重要なのは、この後者の特性です。
+
+<!-- Suppose a point \(X\) in 3-space is imaged in two views, at \(x\) in the first, and  \(x^\prime\) in the second. What is the relation between the corresponding image points \(x\) and \(x^\prime\)? As shown in figure 9.1a the image points \(x\) and \(x^\prime\), space point \(X\), and camera centres are coplanar. Denote this plane as \(\pi\). Clearly, the rays back-projected from \(x\) and \(x^\prime\) intersect at \(X\), and the rays are coplanar, lying in \(\pi\). It is this latter property that is of most significance in searching for a correspondence. -->
+
+</p><p>
+
+図 9.1. 点対応幾何学。 (a) 2台のカメラは、中心 \(C\) と \(C^\prime\) および像平面で示されます。カメラ中心である3次元空間の点 \(X\) とその像 \(x\) と \(x^\prime\) は、共通平面 \)\pi\) 上にあります。 (b) 像点 \(x\) は、最初のカメラ中心 \(C\) と \(x\) によって定義される3次元空間の光線に逆投影されます。この光線は、2番目のビューでは直線 \(l^\prime\) として像を描きます。\(x\) に投影される3次元空間の点 \(X\) はこの光線上になければなりません。したがって、2番目のビューにおける \(X\) の像は \(l^\prime\) 上になければなりません。
+
+<!-- Fig. 9.1. Point correspondence geometry. (a) The two cameras are indicated by their centres \(C\) and \(C^\prime\) and image planes. The camera centres, 3-space point \(X\), and its images \(x\) and \(x^\prime\) lie in a common plane \(\pi\). (b) An image point \(x\) back-projects to a ray in 3-space defined by the first camera centre, \(C\),
+and \(x\). This ray is imaged as a line \(l^\prime\) in the second view. The 3-space point \(X\) which projects to \(x\) must lie on this ray, so the image of \(X\) in the second view must lie on \(l^\prime\). -->
+
+</p><p>
+
+図9.2. エピポーラ幾何学。(a) カメラのベースラインは、各画像平面とエピポール \(e\) および \(e^\prime\) で交差します。ベースラインを含む任意の平面 \(\pi\) はエピポーラ平面であり、対応するエピポーラ線 \(l\) および \(l^\prime\) で画像平面と交差します。(b) 3次元点 \(X\) の位置が変化すると、エピポーラ平面はベースラインを中心に「回転」します。この平面群はエピポーラペンシルとして知られています。すべてのエピポーラ線はエピポールで交差します。
+
+<!-- Fig. 9.2. Epipolar geometry. (a) The camera baseline intersects each image plane at the epipoles \(e\) and \(e^\prime\). Any plane \(\pi\) containing the baseline is an epipolar plane, and intersects the image planes in corresponding epipolar lines \(l\) and \(l^\prime\). (b) As the position of the 3D point \(X\) varies, the epipolar planes
+“rotate” about the baseline. This family of planes is known as an epipolar pencil. All epipolar lines intersect at the epipole. -->
+
+</p><p>
+
+ここで、\(x\) のみがわかっていると仮定すると、対応する点 \(x^\prime\) がどのように制約されるかが疑問になります。平面 \(\pi\) は、基線と \(x\) によって定義される光線によって決定されます。上記のことから、（未知の）点 \(x^\prime\) に対応する光線は \(\pi\) 内にあることが分かっています。したがって、点 \(x^\prime\) は、\(\pi\) と 2 番目の画像平面との交線 \(l^\prime\) 上にあります。この線 \(l^\prime\) は、\(x\) から逆投影された光線の 2 番目のビューにおける画像です。これは、\(x\) に対応するエピポーラ線です。ステレオ対応アルゴリズムの観点から見ると、x に対応する点の探索に画像平面全体をカバーする必要がなく、線 \(l^\prime\) に限定できるという利点があります。
+
+<!-- Supposing now that we know only \(x\), we may ask how the corresponding point \(x^\prime\) is constrained. The plane \(\pi\) is determined by the baseline and the ray defined by \(x\). From above we know that the ray corresponding to the (unknown) point \(x^\prime\) lies in \(\pi\), hence the point \(x^\prime\) lies on the line of intersection \(l^\prime\ of \(\pi\) with the second image plane. This line \(l^\prime\) is the image in the second view of the ray back-projected from \(x\). It is the epipolar line corresponding to \(x\). In terms of a stereo correspondence algorithm the benefit is that the search for the point corresponding to x need not cover the entire image plane but can be restricted to the line \(l^\prime\). -->
+
+</p><p>
+
+エピポーラ幾何学に関係する幾何学的実体は、図9.2に示されています。
+用語は以下の通りです。
+<div class="styleBullet">
+<ul>
+<li>● エピポールとは、カメラ中心（ベースライン）を結ぶ線と画像平面との交点です。同様に、エピポールとは、一方のビューにおけるカメラ中心の、もう一方のビューにおける像です。また、ベースライン（並進）方向の消失点でもあります。
+</li><br><li>● エピポーラ平面とは、ベースラインを含む平面です。エピポーラ平面には、1パラメータの族（鉛筆）があります。
+</li><br><li>● エピポーラ線とは、エピポーラ平面と画像平面との交点です。すべてのエピポーラ線はエピポーラ点で交差します。エピポーラ平面は、左右の画像平面をエピポーラ線で交差し、線間の対応関係を定義します。</li>
+</ul>
+</div>
+
+<!-- The geometric entities involved in epipolar geometry are illustrated in figure 9.2.
+The terminology is
+● The epipole is the point of intersection of the line joining the camera centres (the
+baseline) with the image plane. Equivalently, the epipole is the image in one view
+of the camera centre of the other view. It is also the vanishing point of the baseline
+(translation) direction.
+● An epipolar plane is a plane containing the baseline. There is a one-parameter
+family (a pencil) of epipolar planes.
+● An epipolar line is the intersection of an epipolar plane with the image plane. All
+epipolar lines intersect at the epipole. An epipolar plane intersects the left and right
+image planes in epipolar lines, and defines the correspondence between the lines. -->
+
+</p><p>
+
+エピポーラ幾何の例を図9.3と図9.4に示します。これらの画像ペア、そしてこの章のすべての例のエピポーラ幾何は、11.6節で述べたように画像から直接計算されます。
+
+<!-- Examples of epipolar geometry are given in figure 9.3 and figure 9.4. The epipolar
+geometry of these image pairs, and indeed all the examples of this chapter, is computed
+directly from the images as described in section 11.6. -->
+
+</p><p>
+
+図9.3. 収束カメラ。(a) 収束カメラのエピポーラ幾何学。(b) および (c) 重ね合わせた対応点とそのエピポーラ線（白線）を持つ2枚の画像。ビュー間の動きは並進と回転である。各画像において、もう一方のカメラの方向はエピポーラ線の交点から推測できる。この場合、両方のエピポーラ線は可視画像の外側にある。
+
+<!-- Fig. 9.3. Converging cameras. (a) Epipolar geometry for converging cameras. (b) and (c) A pair of images with superimposed corresponding points and their epipolar lines (in white). The motion between the views is a translation and rotation. In each image, the direction of the other camera may be inferred from the intersection of the pencil of epipolar lines. In this case, both epipoles lie outside of the visible image. -->
+
+</p><p>
+<h2><center>9.2 基礎行列F</center></h2>
+<p>
+
+基礎行列はエピポーラ幾何学の代数的表現である。以下では、点とそのエピポーラ線との間の写像から基礎行列を導出し、その行列の特性を特定する。
+
+<!-- The fundamental matrix is the algebraic representation of epipolar geometry. In the
+following we derive the fundamental matrix from the mapping between a point and its
+epipolar line, and then specify the properties of the matrix. -->
+
+</p><p>
+<!-- Given a pair of images, it was seen in figure 9.1 that to each point x in one image,
+there exists a corresponding epipolar line l′ in the other image. Any point x′ in the
+second image matching the point x must lie on the epipolar line l′. The epipolar line
+
+
+
+is the projection in the second image of the ray from the point x through the camera
+centre C of the first camera. Thus, there is a map
+x 7→ l′
+from a point in one image to its corresponding epipolar line in the other image. It is
+the nature of this map that will now be explored. It will turn out that this mapping
+is a (singular) correlation, that is a projective mapping from points to lines, which is
+represented by a matrix F, the fundamental matrix.
+</p>
+
+</p><p>
+Fig. 9.4. Motion parallel to the image plane. In the case of a special motion where the translation is
+parallel to the image plane, and the rotation axis is perpendicular to the image plane, the intersection
+of the baseline with the image plane is at infinity. Consequently the epipoles are at infinity, and epipolar
+lines are parallel. (a) Epipolar geometry for motion parallel to the image plane. (b) and (c) a pair of
+images for which the motion between views is (approximately) a translation parallel to the x-axis, with
+no rotation. Four corresponding epipolar lines are superimposed in white. Note that corresponding
+points lie on corresponding epipolar lines.
+</p><p>
+
+<h3>9.2.1 Geometric derivation</h3>
+<p>
+We begin with a geometric derivation of the fundamental matrix. The mapping from
+a point in one image to a corresponding epipolar line in the other image may be decomposed
+into two steps. In the first step, the point x is mapped to some point x′ in
+the other image lying on the epipolar line l′. This point x′ is a potential match for the
+point x. In the second step, the epipolar line l′ is obtained as the line joining x′ to the
+epipole e′.
+Step 1: Point transfer via a plane. Refer to figure 9.5. Consider a plane  in space
+not passing through either of the two camera centres. The ray through the first camera
+centre corresponding to the point x meets the plane  in a point X. This point X is
+then projected to a point x′ in the second image. This procedure is known as transfer
+via the plane . Since X lies on the ray corresponding to x, the projected point x′
+must lie on the epipolar line l′ corresponding to the image of this ray, as illustrated in
+9.2 The fundamental matrix F 243
+/ e e
+l
+x
+/
+H
+X
+/ 􀁓 x
+􀁓
+Fig. 9.5. A point x in one image is transferred via the plane  to a matching point x′ in the second
+image. The epipolar line through x′ is obtained by joining x′ to the epipole e′. In symbols one may
+write x′ = Hx and l′ = [e′]×x′ = [e′]×Hx = Fx where F = [e′]×H is the fundamental matrix.
+figure 9.1b. The points x and x′ are both images of the 3D point X lying on a plane.
+The set of all such points xi in the first image and the corresponding points x′
+i in the
+second image are projectively equivalent, since they are each projectively equivalent to
+the planar point set Xi. Thus there is a 2D homography H
+ 
+mapping each xi to x′
+i.
+Step 2: Constructing the epipolar line. Given the point x′ the epipolar line l′ passing
+through x′ and the epipole e′ can be written as l′ = e′×x′ = [e′]×x′ (the notation [e′]×
+is defined in (A4.5–p581)). Since x′ may be written as x′ = H
+ 
+x, we have
+l′ = [e′]×H
+ 
+x = Fx
+where we define F = [e′]×H
+ 
+, the fundamental matrix. This shows
+Result 9.1. The fundamental matrix F may be written as F = [e′]×H
+ 
+, where H
+ 
+is the
+transfer mapping from one image to another via any plane . Furthermore, since [e′]×
+has rank 2 and H
+ 
+rank 3, F is a matrix of rank 2.
+Geometrically, F represents a mapping from the 2-dimensional projective plane IP2
+of the first image to the pencil of epipolar lines through the epipole e′. Thus, it represents
+a mapping from a 2-dimensional onto a 1-dimensional projective space, and
+hence must have rank 2.
+Note, the geometric derivation above involves a scene plane , but a plane is not
+required in order for F to exist. The plane is simply used here as a means of defining a
+point map from one image to another. The connection between the fundamental matrix
+and transfer of points from one image to another via a plane is dealt with in some depth
+in chapter 13.
+9.2.2 Algebraic derivation
+The form of the fundamental matrix in terms of the two camera projection matrices,
+P, P′, may be derived algebraically. The following formulation is due to Xu and
+Zhang [Xu-96].
+244 9 Epipolar Geometry and the Fundamental Matrix
+The ray back-projected from x by P is obtained by solving PX = x. The oneparameter
+family of solutions is of the form given by (6.13–p162) as
+X() = P+x + C
+where P+ is the pseudo-inverse of P, i.e. PP+ = I, and C its null-vector, namely the
+camera centre, defined by PC = 0. The ray is parametrized by the scalar . In
+particular two points on the ray are P+x (at  = 0), and the first camera centre C
+(at  = ∞). These two points are imaged by the second camera P′ at P′P+x and P′C
+respectively in the second view. The epipolar line is the line joining these two projected
+points, namely l′ = (P′C)×(P′P+x). The point P′C is the epipole in the second image,
+namely the projection of the first camera centre, and may be denoted by e′. Thus,
+l′ = [e′]×(P′P+)x = Fx, where F is the matrix
+F = [e′]×P′P+. (9.1)
+This is essentially the same formula for the fundamental matrix as the one derived in
+the previous section, the homography H
+ 
+having the explicit form H
+ 
+= P′P+ in terms
+of the two camera matrices. Note that this derivation breaks down in the case where
+the two camera centres are the same for, in this case, C is the common camera centre
+of both P and P′, and so P′C = 0. It follows that F defined in (9.1) is the zero matrix.
+Example 9.2. Suppose the camera matrices are those of a calibrated stereo rig with the
+world origin at the first camera
+P = K[I | 0] P′ = K′[R | t].
+Then
+P+ =
+"
+K−1
+0T
+#
+C =
+ 
+0
+1
+!
+and
+F = [P′
+C]×P′P+
+= [K′t]×K′RK−1 = K′−T[t]×RK−1 = K′−TR[R
+Tt]×K−1 = K′−TRK
+T[KR
+Tt]× (9.2)
+where the various forms follow from result A4.3(p582). Note that the epipoles (defined
+as the image of the other camera centre) are
+e = P
+ 
+−RTt
+1
+!
+= KR
+Tt e′ = P′
+ 
+0
+1
+!
+= K′t. (9.3)
+Thus we may write (9.2) as
+F = [e′]×K′RK−1 = K′−T[t]×RK−1 = K′−TR[R
+Tt]×K−1 = K′−TRK
+T[e]×. (9.4)
+△
+The expression for the fundamental matrix can be derived in many ways, and indeed
+will be derived again several times in this book. In particular, (17.3–p412) expresses F
+in terms of 4 × 4 determinants composed from rows of the camera matrices for each
+view.
+9.2 The fundamental matrix F 245
+9.2.3 Correspondence condition
+Up to this point we have considered the map x → l′ defined by F. We may now state
+the most basic properties of the fundamental matrix.
+Result 9.3. The fundamental matrix satisfies the condition that for any pair of corresponding
+points x ↔ x′ in the two images
+x′TFx = 0.
+This is true, because if points x and x′ correspond, then x′ lies on the epipolar line
+l′ = Fx corresponding to the point x. In other words 0 = x′Tl′ = x′TFx. Conversely,
+if image points satisfy the relation x′TFx = 0 then the rays defined by these points are
+coplanar. This is a necessary condition for points to correspond.
+The importance of the relation of result 9.3 is that it gives a way of characterizing
+the fundamental matrix without reference to the camera matrices, i.e. only in terms of
+corresponding image points. This enables F to be computed from image correspondences
+alone. We have seen from (9.1) that F may be computed from the two camera
+matrices, P, P′, and in particular that F is determined uniquely from the cameras, up
+to an overall scaling. However, we may now enquire how many correspondences are
+required to compute F from x′TFx = 0, and the circumstances under which the matrix
+is uniquely defined by these correspondences. The details of this are postponed
+until chapter 11, where it will be seen that in general at least 7 correspondences are
+required to compute F.
+9.2.4 Properties of the fundamental matrix
+Definition 9.4. Suppose we have two images acquired by cameras with non-coincident
+centres, then the fundamental matrix F is the unique 3×3 rank 2 homogeneous matrix
+which satisfies
+x′TFx = 0 (9.5)
+for all corresponding points x ↔ x′.
+We now briefly list a number of properties of the fundamental matrix. The most
+important properties are also summarized in table 9.1.
+(i) Transpose: If F is the fundamental matrix of the pair of cameras (P, P′), then
+FT is the fundamental matrix of the pair in the opposite order: (P′, P).
+(ii) Epipolar lines: For any point x in the first image, the corresponding epipolar
+line is l′ = Fx. Similarly, l = FTx′ represents the epipolar line corresponding
+to x′ in the second image.
+(iii) The epipole: for any point x (other than e) the epipolar line l′ = Fx contains
+the epipole e′. Thus e′ satisfies e′T(Fx) = (e′TF)x = 0 for all x. It follows that
+e′TF = 0, i.e. e′ is the left null-vector of F. Similarly Fe = 0, i.e. e is the right
+null-vector of F.
+246 9 Epipolar Geometry and the Fundamental Matrix
+• F is a rank 2 homogeneous matrix with 7 degrees of freedom.
+• Point correspondence: If x and x′ are corresponding image points, then
+x′TFx = 0.
+• Epipolar lines:
+⋄ l′ = Fx is the epipolar line corresponding to x.
+⋄ l = FTx′ is the epipolar line corresponding to x′.
+• Epipoles:
+⋄ Fe = 0.
+⋄ FTe′ = 0.
+• Computation from camera matrices P, P′:
+⋄ General cameras,
+F = [e′]×P′P+, where P+ is the pseudo-inverse of P, and e′ = P′C, with PC = 0.
+⋄ Canonical cameras, P = [I | 0], P′ = [M | m],
+F = [e′]×M = M−T[e]×, where e′ = m and e = M−1m.
+⋄ Cameras not at infinity P = K[I | 0], P′ = K′[R | t],
+F = K′−T[t]×RK−1 = [K′t]×K′RK−1 = K′−TRKT[KRTt]×.
+Table 9.1. Summary of fundamental matrix properties.
+(iv) F has seven degrees of freedom: a 3×3 homogeneous matrix has eight independent
+ratios (there are nine elements, and the common scaling is not significant);
+however, F also satisfies the constraint det F = 0 which removes one degree of
+freedom.
+(v) F is a correlation, a projective map taking a point to a line (see definition 2.29-
+(p59)). In this case a point in the first image x defines a line in the second
+l′ = Fx, which is the epipolar line of x. If l and l′ are corresponding epipolar
+lines (see figure 9.6a) then any point x on l is mapped to the same line l′. This
+means there is no inverse mapping, and F is not of full rank. For this reason, F
+is not a proper correlation (which would be invertible).
+9.2.5 The epipolar line homography
+The set of epipolar lines in each of the images forms a pencil of lines passing through
+the epipole. Such a pencil of lines may be considered as a 1-dimensional projective
+space. It is clear from figure 9.6b that corresponding epipolar lines are perspectively
+related, so that there is a homography between the pencil of epipolar lines centred at e
+in the first view, and the pencil centred at e′ in the second. A homography between two
+such 1-dimensional projective spaces has 3 degrees of freedom.
+The degrees of freedom of the fundamental matrix can thus be counted as follows: 2
+for e, 2 for e′, and 3 for the epipolar line homography which maps a line through e to a
+line through e′. A geometric representation of this homography is given in section 9.4.
+Here we give an explicit formula for this mapping.
+9.3 Fundamental matrices arising from special motions 247
+e e /
+l3
+l/
+l 2
+1
+l
+1
+l
+3 l
+/
+/
+2
+p
+a b
+Fig. 9.6. Epipolar line homography. (a) There is a pencil of epipolar lines in each image centred on the
+epipole. The correspondence between epipolar lines, li ↔ l′
+i, is defined by the pencil of planes with axis
+the baseline. (b) The corresponding lines are related by a perspectivity with centre any point p on the
+baseline. It follows that the correspondence between epipolar lines in the pencils is a 1D homography.
+Result 9.5. Suppose l and l′ are corresponding epipolar lines, and k is any line not
+passing through the epipole e, then l and l′ are related by l′ = F[k]×l. Symmetrically,
+l = FT[k′]×l′.
+Proof. The expression [k]×l = k × l is the point of intersection of the two lines k and
+l, and hence a point on the epipolar line l – call it x. Hence, F[k]×l = Fx is the epipolar
+line corresponding to the point x, namely the line l′.
+Furthermore a convenient choice for k is the line e, since kTe = eTe 6= 0, so that
+the line e does not pass through the point e as is required. A similar argument holds
+for the choice of k′ = e′. Thus the epipolar line homography may be written as
+l′ = F[e]×l l = F
+T[e′]×l′ .
+9.3 Fundamental matrices arising from special motions
+A special motion arises from a particular relationship between the translation direction,
+t, and the direction of the rotation axis, a. We will discuss two cases: pure translation,
+where there is no rotation; and pure planar motion, where t is orthogonal to a (the
+significance of the planar motion case is described in section 3.4.1(p77)). The ‘pure’
+indicates that there is no change in the internal parameters. Such cases are important,
+firstly because they occur in practice, for example a camera viewing an object rotating
+on a turntable is equivalent to planar motion for pairs of views; and secondly because
+the fundamental matrix has a special form and thus additional properties.
+9.3.1 Pure translation
+In considering pure translations of the camera, one may consider the equivalent situation
+in which the camera is stationary, and the world undergoes a translation −t. In
+this situation points in 3-space move on straight lines parallel to t, and the imaged intersection
+of these parallel lines is the vanishing point v in the direction of t. This is
+illustrated in figure 9.7 and figure 9.8. It is evident that v is the epipole for both views,
+and the imaged parallel lines are the epipolar lines. The algebraic details are given in
+the following example.
+248 9 Epipolar Geometry and the Fundamental Matrix
+camera
+centre
+parallel
+lines
+point
+vanishing
+image
+e
+Fig. 9.7. Under a pure translational camera motion, 3D points appear to slide along parallel rails. The
+images of these parallel lines intersect in a vanishing point corresponding to the translation direction.
+The epipole e is the vanishing point.
+e / e /
+C C
+a
+b c
+Fig. 9.8. Pure translational motion. (a) under the motion the epipole is a fixed point, i.e. has the same
+coordinates in both images, and points appear to move along lines radiating from the epipole. The
+epipole in this case is termed the Focus of Expansion (FOE). (b) and (c) the same epipolar lines are
+overlaid in both cases. Note the motion of the posters on the wall which slide along the epipolar line.
+Example 9.6. Suppose the motion of the cameras is a pure translation with no rotation
+and no change in the internal parameters. One may assume that the two cameras are
+9.3 Fundamental matrices arising from special motions 249
+P = K[I | 0] and P′ = K[I | t]. Then from (9.4) (using R = I and K = K′)
+F = [e′]×KK−1 = [e′]×.
+If the camera translation is parallel to the x-axis, then e′ = (1, 0, 0)T, so
+F =
+
+
+0 0 0
+0 0 −1
+0 1 0
+
+
+.
+The relation between corresponding points, x′TFx = 0, reduces to y = y′, i.e. the
+epipolar lines are corresponding rasters. This is the situation that is sought by image
+rectification described in section 11.12(p302). △
+Indeed if the image point x is normalized as x = (x, y, 1)T, then from
+x = PX = K[I | 0]X, the space point’s (inhomogeneous) coordinates are (X, Y, Z)T =
+ZK−1x, where Z is the depth of the point X (the distance of X from the camera centre
+measured along the principal axis of the first camera). It then follows from x′ = P′X =
+K[I | t]X that the mapping from an image point x to an image point x′ is
+x′ = x + Kt/Z. (9.6)
+The motion x′ = x + Kt/Z of (9.6) shows that the image point “starts” at x and then
+moves along the line defined by x and the epipole e = e′ = v. The extent of the motion
+depends on the magnitude of the translation t (which is not a homogeneous vector here)
+and the inverse depth Z, so that points closer to the camera appear to move faster than
+those further away – a common experience when looking out of a train window.
+Note that in this case of pure translation F = [e′]× is skew-symmetric and has only
+2 degrees of freedom, which correspond to the position of the epipole. The epipolar
+line of x is l′ = Fx = [e]×x, and x lies on this line since xT[e]×x = 0, i.e. x, x′ and
+e = e′ are collinear (assuming both images are overlaid on top of each other). This
+collinearity property is termed auto-epipolar, and does not hold for general motion.
+General motion. The pure translation case gives additional insight into the general
+motion case. Given two arbitrary cameras, we may rotate the camera used for the first
+image so that it is aligned with the second camera. This rotation may be simulated
+by applying a projective transformation to the first image. A further correction may
+be applied to the first image to account for any difference in the calibration matrices
+of the two images. The result of these two corrections is a projective transformation
+H of the first image. If one assumes these corrections to have been made, then the
+effective relationship of the two cameras to each other is that of a pure translation.
+Consequently, the fundamental matrix corresponding to the corrected first image and
+the second image is of the form ˆF = [e′]×, satisfying x′TˆFˆx = 0, where ˆx = Hx is the
+corrected point in the first image. From this one deduces that x′T[e′]×Hx = 0, and so
+the fundamental matrix corresponding to the initial point correspondences x ↔ x′ is
+F = [e′]×H. This is illustrated in figure 9.9.
+250 9 Epipolar Geometry and the Fundamental Matrix
+e /
+e /
+H
+C C
+Fig. 9.9. General camera motion. The first camera (on the left) may be rotated and corrected to
+simulate a pure translational motion. The fundamental matrix for the original pair is the product F =
+[e′]×H, where [e′]× is the fundamental matrix of the translation, and H is the projective transformation
+corresponding to the correction of the first camera.
+Example 9.7. Continuing from example 9.2, assume again that the two cameras are
+P = K[I | 0] and P′ = K′[R | t]. Then as described in section 8.4.2(p204) the requisite
+projective transformation is H = K′RK−1 = H∞, where H∞ is the infinite homography
+(see section 13.4(p338)), and F = [e′]×H∞.
+If the image point x is normalized as x = (x, y, 1)T, as in example 9.6, then
+(X, Y, Z)T = ZK−1x, and from x = P′X = K′[R | t]X the mapping from an image
+point x to an image point x′ is
+x′ = K′RK−1x + K′t/Z. (9.7)
+The mapping is in two parts: the first term depends on the image position alone, i.e.
+x, but not the point’s depth Z, and takes account of the camera rotation and change
+of internal parameters; the second term depends on the depth, but not on the image
+position x, and takes account of camera translation. In the case of pure translation
+(R = I, K = K′) (9.7) reduces to (9.6). △
+9.3.2 Pure planar motion
+In this case the rotation axis is orthogonal to the translation direction. Orthogonality
+imposes one constraint on the motion, and it is shown in the exercises at the end of
+this chapter that if K′ = K then Fs, the symmetric part of F, has rank 2 in this planar
+motion case (note, for a general motion the symmetric part of F has full rank). Thus,
+the condition that det Fs = 0 is an additional constraint on F and reduces the number
+of degrees of freedom from 7, for a general motion, to 6 degrees of freedom for a pure
+planar motion.
+9.4 Geometric representation of the fundamental matrix
+This section is not essential for a first reading and the reader may optionally skip to
+section 9.5.
+In this section the fundamental matrix is decomposed into its symmetric and skewsymmetric
+parts, and each part is given a geometric representation. The symmetric and
+9.4 Geometric representation of the fundamental matrix 251
+skew-symmetric parts of the fundamental matrix are
+Fs =
+
+F + F
+T
+
+/2 Fa =
+
+F − F
+T
+
+/2
+so that F = Fs + Fa.
+To motivate the decomposition, consider the points X in 3-space that map to the
+same point in two images. These image points are fixed under the camera motion
+so that x = x′. Clearly such points are corresponding and thus satisfy xTFx = 0,
+which is a necessary condition on corresponding points. Now, for any skew-symmetric
+matrix A the form xTAx is identically zero. Consequently only the symmetric part of
+F contributes to xTFx = 0, which then reduces to xTFsx = 0. As will be seen below
+the matrix Fs may be thought of as a conic in the image plane.
+Geometrically the conic arises as follows. The locus of all points in 3-space for
+which x = x′ is known as the horopter curve. Generally this is a twisted cubic curve in
+3-space (see section 3.3(p75)) passing through the two camera centres [Maybank-93].
+The image of the horopter is the conic defined by Fs. We return to the horopter in
+chapter 22.
+Symmetric part. The matrix Fs is symmetric and is of rank 3 in general. It has 5
+degrees of freedom and is identified with a point conic, called the Steiner conic (the
+name is explained below). The epipoles e and e′ lie on the conic Fs. To see that the
+epipoles lie on the conic, i.e. that eTFse = 0, start from Fe = 0. Then eTFe = 0 and
+so eTFse + eTFae = 0. However, eTFae = 0, since for any skew-symmetric matrix
+S, xTSx = 0. Thus eTFse = 0. The derivation for e′ follows in a similar manner.
+Skew-symmetric part. The matrix Fa is skew-symmetric and may be written as
+Fa = [xa]×, where xa is the null-vector of Fa. The skew-symmetric part has 2
+degrees of freedom and is identified with the point xa.
+The relation between the point xa and conic Fs is shown in figure 9.10a. The polar
+of xa intersects the Steiner conic Fs at the epipoles e and e′ (the pole–polar relation is
+described in section 2.2.3(p30)). The proof of this result is left as an exercise.
+Epipolar line correspondence. It is a classical theorem of projective geometry due
+to Steiner [Semple-79] that for two line pencils related by a homography, the locus
+of intersections of corresponding lines is a conic. This is precisely the situation here.
+The pencils are the epipolar pencils, one through e and the other through e′. The
+epipolar lines are related by a 1D homography as described in section 9.2.5. The locus
+of intersection is the conic Fs.
+The conic and epipoles enable epipolar lines to be determined by a geometric construction
+as illustrated in figure 9.10b. This construction is based on the fixed point
+property of the Steiner conic Fs. The epipolar line l = x × e in the first view defines
+an epipolar plane in 3-space which intersects the horopter in a point, which we will
+call Xc. The point Xc is imaged in the first view at xc, which is the point at which l
+intersects the conic Fs (since Fs is the image of the horopter). Now the image of Xc is
+also xc in the second view due to the fixed-point property of the horopter. So xc is the
+252 9 Epipolar Geometry and the Fundamental Matrix
+e
+F
+a
+/ e
+l
+s
+x a
+Fs
+e e
+x
+l
+xc
+/
+/
+a b
+Fig. 9.10. Geometric representation of F. (a) The conic Fs represents the symmetric part of F, and the
+point xa the skew-symmetric part. The conic Fs is the locus of intersection of corresponding epipolar
+lines, assuming both images are overlaid on top of each other. It is the image of the horopter curve. The
+line la is the polar of xa with respect to the conic Fs. It intersects the conic at the epipoles e and e′.
+(b) The epipolar line l′ corresponding to a point x is constructed as follows: intersect the line defined by
+the points e and x with the conic. This intersection point is xc. Then l′ is the line defined by the points
+xc and e′.
+image in the second view of a point on the epipolar plane of x. It follows that xc lies
+on the epipolar line l′ of x, and consequently l′ may be computed as l′ = xc × e′.
+The conic together with two points on the conic account for the 7 degrees of freedom
+of F: 5 degrees of freedom for the conic and one each to specify the two epipoles on
+the conic. Given F, then the conic Fs, epipoles e, e′ and skew-symmetric point xa are
+defined uniquely. However, Fs and xa do not uniquely determine F since the identity
+of the epipoles is not recovered, i.e. the polar of xa determines the epipoles but does
+not determine which one is e and which one e′.
+9.4.1 Pure planar motion
+We return to the case of planar motion discussed above in section 9.3.2, where Fs has
+rank 2. It is evident that in this case the Steiner conic is degenerate and from section
+2.2.3(p30) is equivalent to two non-coincident lines:
+Fs = lhlT
+s + lslT
+h
+as depicted in figure 9.11a. The geometric construction of the epipolar line l′ corresponding
+to a point x of section 9.4 has a simple algebraic representation in this case.
+As in the general motion case, there are three steps, illustrated in figure 9.11b: first
+the line l = e × x joining e and x is computed; second, its intersection point with the
+“conic” xc = ls × l is determined; third the epipolar line l′ = e′ × xc is the join of xc
+and e′. Putting these steps together we find
+l′ = e′ × [ls × (e × x)] = [e′]×[ls]×[e]×x.
+It follows that F may be written as
+F = [e′]×[ls]×[e]×. (9.8)
+The 6 degrees of freedom of F are accounted for as 2 degrees of freedom for each of
+the two epipoles and 2 degrees of freedom for the line.
+9.5 Retrieving the camera matrices 253
+e x e
+l
+x
+h
+s a /
+l s
+image
+e e/
+x c
+l s l /
+image
+l
+x
+a b
+Fig. 9.11. Geometric representation of F for planar motion. (a) The lines ls and lh constitute the
+Steiner conic for this motion, which is degenerate. Compare this figure with the conic for general
+motion shown in figure 9.10. (b) The epipolar line l′ corresponding to a point x is constructed as
+follows: intersect the line defined by the points e and x with the (conic) line ls. This intersection point
+is xc. Then l′ is the line defined by the points xc and e′.
+The geometry of this situation can be easily visualized: the horopter for this motion
+is a degenerate twisted cubic consisting of a circle in the plane of the motion (the plane
+orthogonal to the rotation axis and containing the camera centres), and a line parallel
+to the rotation axis and intersecting the circle. The line is the screw axis (see section
+3.4.1(p77)). The motion is equivalent to a rotation about the screw axis with zero
+translation. Under this motion points on the screw axis are fixed, and consequently
+their images are fixed. The line ls is the image of the screw axis. The line lh is the
+intersection of the image with the plane of the motion. This geometry is used for autocalibration
+in chapter 19.
+9.5 Retrieving the camera matrices
+To this point we have examined the properties of F and of image relations for a point
+correspondence x ↔ x′. We now turn to one of the most significant properties of F,
+that the matrix may be used to determine the camera matrices of the two views.
+9.5.1 Projective invariance and canonical cameras
+It is evident from the derivations of section 9.2 that the map l′ = Fx and the correspondence
+condition x′TFx = 0 are projective relationships: the derivations have involved
+only projective geometric relationships, such as the intersection of lines and planes, and
+in the algebraic development only the linear mapping of the projective camera between
+world and image points. Consequently, the relationships depend only on projective coordinates
+in the image, and not, for example on Euclidean measurements such as the
+angle between rays. In other words the image relationships are projectively invariant:
+under a projective transformation of the image coordinates ˆx = Hx, ˆx′ = H′x′, there is a
+corresponding mapˆl
+′
+= ˆFˆx with ˆF = H′−TFH−1 the corresponding rank 2 fundamental
+matrix.
+Similarly, F only depends on projective properties of the cameras P, P′. The camera
+matrix relates 3-space measurements to image measurements and so depends on both
+the image coordinate frame and the choice of world coordinate frame. F does not
+254 9 Epipolar Geometry and the Fundamental Matrix
+depend on the choice of world frame, for example a rotation of world coordinates
+changes P, P′, but not F. In fact, the fundamental matrix is unchanged by a projective
+transformation of 3-space. More precisely,
+Result 9.8. If H is a 4 × 4 matrix representing a projective transformation of 3-space,
+then the fundamental matrices corresponding to the pairs of camera matrices (P, P′)
+and (PH, P′H) are the same.
+Proof. Observe that PX = (PH)(H−1X), and similarly for P′. Thus if x ↔ x′ are
+matched points with respect to the pair of cameras (P, P′), corresponding to a 3D point
+X, then they are also matched points with respect to the pair of cameras (PH, P′H),
+corresponding to the point H−1X.
+Thus, although from (9.1–p244) a pair of camera matrices (P, P′) uniquely determine a
+fundamental matrix F, the converse is not true. The fundamental matrix determines the
+pair of camera matrices at best up to right-multiplication by a 3D projective transformation.
+It will be seen below that this is the full extent of the ambiguity, and indeed the
+camera matrices are determined up to a projective transformation by the fundamental
+matrix.
+Canonical form of camera matrices. Given this ambiguity, it is common to define
+a specific canonical form for the pair of camera matrices corresponding to a given
+fundamental matrix in which the first matrix is of the simple form [I | 0], where I is
+the 3 × 3 identity matrix and 0 a null 3-vector. To see that this is always possible, let
+P be augmented by one row to make a 4 × 4 non-singular matrix, denoted P∗. Now
+letting H = P∗−1, one verifies that PH = [I | 0] as desired.
+The following result is very frequently used
+Result 9.9. The fundamental matrix corresponding to a pair of camera matrices P =
+[I | 0] and P′ = [M | m] is equal to [m]×M.
+This is easily derived as a special case of (9.1–p244).
+9.5.2 Projective ambiguity of cameras given F
+It has been seen that a pair of camera matrices determines a unique fundamental matrix.
+This mapping is not injective (one-to-one) however, since pairs of camera matrices that
+differ by a projective transformation give rise to the same fundamental matrix. It will
+now be shown that this is the only ambiguity. We will show that a given fundamental
+matrix determines the pair of camera matrices up to right multiplication by a projective
+transformation. Thus, the fundamental matrix captures the projective relationship of
+the two cameras.
+Theorem 9.10. Let F be a fundamental matrix and let (P, P′) and (˜P, ˜P
+′
+) be two pairs of
+camera matrices such that F is the fundamental matrix corresponding to each of these
+pairs. Then there exists a non-singular 4 × 4 matrix H such that ˜P = PH and ˜P
+′
+= P′H.
+9.5 Retrieving the camera matrices 255
+Proof. Suppose that a given fundamental matrix F corresponds to two different pairs
+of camera matrices (P, P′) and (˜P, ˜P
+′
+). As a first step, we may simplify the problem
+by assuming that each of the two pair of camera matrices is in canonical form with
+P = ˜P = [I | 0], since this may be done by applying projective transformations to
+each pair as necessary. Thus, suppose that P = ˜P = [I | 0] and that P′ = [A | a]
+and ˜P
+′
+= [˜A | ˜a]. According to result 9.9 the fundamental matrix may then be written
+F = [a]×A = [˜a]×˜A.
+We will need the following lemma:
+Lemma 9.11. Suppose the rank 2 matrix F can be decomposed in two different ways
+as F = [a]×A and F = [˜a]×˜A; then ˜a = ka and ˜A = k−1(A + avT) for some non-zero
+constant k and 3-vector v.
+Proof. First, note that aTF = aT[a]×A = 0, and similarly, ˜aT
+F = 0. Since F has
+rank 2, it follows that ˜a = ka as required. Next, from [a]×A = [˜a]×˜A it follows that
+[a]×
+
+k˜A − A
+
+= 0, and so k˜A − A = avT for some v. Hence, ˜A = k−1(A + avT) as
+required.
+Applying this result to the two camera matrices P′ and ˜P
+′
+shows that P′ = [A | a] and
+˜P
+′
+= [k−1(A+avT) | ka] if they are to generate the same F. It only remains now to show
+that these camera pairs are projectively related. Let H be the matrix H =
+"
+k−1I 0
+k−1vT k
+#
+.
+Then one verifies that PH = k−1[I | 0] = k−1˜P, and furthermore,
+P′H = [A | a]H = [k−1(A + avT) | ka] = [˜A | ˜a] = ˜P
+′
+so that the pairs P, P′ and ˜P, ˜P
+′
+are indeed projectively related.
+This can be tied precisely to a counting argument: the two cameras P and P′ each
+have 11 degrees of freedom, making a total of 22 degrees of freedom. To specify a
+projective world frame requires 15 degrees of freedom (section 3.1(p65)), so once the
+degrees of freedom of the world frame are removed from the two cameras 22−15 = 7
+degrees of freedom remain – which corresponds to the 7 degrees of freedom of the
+fundamental matrix.
+9.5.3 Canonical cameras given F
+We have shown that F determines the camera pair up to a projective transformation of
+3-space. We will now derive a specific formula for a pair of cameras with canonical
+form given F. We will make use of the following characterization of the fundamental
+matrix F corresponding to a pair of camera matrices:
+Result 9.12. A non-zero matrix F is the fundamental matrix corresponding to a pair of
+camera matrices P and P′ if and only if P′TFP is skew-symmetric.
+Proof. The condition that P′TFP is skew-symmetric is equivalent to X
+TP′TFPX = 0
+for all X. Setting x′ = P′X and x = PX, this is equivalent to x′TFx = 0, which is the
+defining equation for the fundamental matrix.
+256 9 Epipolar Geometry and the Fundamental Matrix
+One may write down a particular solution for the pairs of camera matrices in canonical
+form that correspond to a fundamental matrix as follows:
+Result 9.13. Let F be a fundamental matrix and S any skew-symmetric matrix. Define
+the pair of camera matrices
+P = [I | 0] and P′ = [SF | e′],
+where e′ is the epipole such that e′TF = 0, and assume that P′ so defined is a valid
+camera matrix (has rank 3). Then F is the fundamental matrix corresponding to the
+pair (P, P′).
+To demonstrate this, we invoke result 9.12 and simply verify that
+[SF | e′]T
+F[I | 0] =
+"
+FTSTF 0
+e′TF 0
+#
+=
+"
+FTSTF 0
+0T 0
+#
+(9.9)
+which is skew-symmetric.
+The skew-symmetric matrix S may be written in terms of its null-vector as S = [s]×.
+Then [[s]×F | e′] has rank 3 provided sTe′ 6= 0, according to the following argument.
+Since e′F = 0, the column space (span of the columns) of F is perpendicular to e′. But
+if sTe′ 6= 0, then s is not perpendicular to e′, and hence not in the column space of F.
+Now, the column space of [s]×F is spanned by the cross-products of s with the columns
+of F, and therefore equals the plane perpendicular to s. So [s]×F has rank 2. Since e′
+is not perpendicular to s, it does not lie in this plane, and so [[s]×F | e′] has rank 3, as
+required.
+As suggested by Luong and Vi´eville [Luong-96] a good choice for S is S = [e′]×, for
+in this case e′Te′ 6= 0, which leads to the following useful result.
+Result 9.14. The camera matrices corresponding to a fundamental matrix F may be
+chosen as P = [I | 0] and P′ = [[e′]×F | e′].
+Note that the camera matrix P′ has left 3 × 3 submatrix [e′]×F which has rank 2. This
+corresponds to a camera with centre on ∞. However, there is no particular reason to
+avoid this situation.
+The proof of theorem 9.10 shows that the four parameter family of camera pairs in
+canonical form ˜P = [I | 0], ˜P
+′
+= [A + avT | ka] have the same fundamental matrix as
+the canonical pair, P = [I | 0], P′ = [A | a]; and that this is the most general solution.
+To summarize:
+Result 9.15. The general formula for a pair of canonic camera matrices corresponding
+to a fundamental matrix F is given by
+P = [I | 0] P′ = [[e′]×F + e′vT | e′] (9.10)
+where v is any 3-vector, and  a non-zero scalar.
+9.6 The essential matrix 257
+9.6 The essential matrix
+The essential matrix is the specialization of the fundamental matrix to the case of
+normalized image coordinates (see below). Historically, the essential matrix was introduced
+(by Longuet-Higgins) before the fundamental matrix, and the fundamental
+matrix may be thought of as the generalization of the essential matrix in which the
+(inessential) assumption of calibrated cameras is removed. The essential matrix has
+fewer degrees of freedom, and additional properties, compared to the fundamental matrix.
+These properties are described below.
+Normalized coordinates. Consider a camera matrix decomposed as P = K[R | t],
+and let x = PX be a point in the image. If the calibration matrix K is known, then we
+may apply its inverse to the point x to obtain the point ˆx = K−1x. Then ˆx = [R | t]X,
+where ˆx is the image point expressed in normalized coordinates. It may be thought of
+as the image of the point X with respect to a camera [R | t] having the identity matrix I
+as calibration matrix. The camera matrix K−1P = [R | t] is called a normalized camera
+matrix, the effect of the known calibration matrix having been removed.
+Now, consider a pair of normalized camera matrices P = [I | 0] and P′ = [R | t]. The
+fundamental matrix corresponding to the pair of normalized cameras is customarily
+called the essential matrix, and according to (9.2–p244) it has the form
+E = [t]×R = R [R
+Tt]×.
+Definition 9.16. The defining equation for the essential matrix is
+ˆx′TEˆx = 0 (9.11)
+in terms of the normalized image coordinates for corresponding points x ↔ x′.
+Substituting for ˆx and ˆx′ gives x′TK′−TEK−1x = 0. Comparing this with the relation
+x′TFx = 0 for the fundamental matrix, it follows that the relationship between the
+fundamental and essential matrices is
+E = K′TFK. (9.12)
+9.6.1 Properties of the essential matrix
+The essential matrix, E = [t]×R, has only five degrees of freedom: both the rotation
+matrix R and the translation t have three degrees of freedom, but there is an overall
+scale ambiguity – like the fundamental matrix, the essential matrix is a homogeneous
+quantity.
+The reduced number of degrees of freedom translates into extra constraints that are
+satisfied by an essential matrix, compared with a fundamental matrix. We investigate
+what these constraints are.
+Result 9.17. A 3×3 matrix is an essential matrix if and only if two of its singular values
+are equal, and the third is zero.
+258 9 Epipolar Geometry and the Fundamental Matrix
+Proof. This is easily deduced from the decomposition of E as [t]×R = SR, where S is
+skew-symmetric. We will use the matrices
+W =
+
+
+0 −1 0
+1 0 0
+0 0 1
+
+
+and Z =
+
+
+0 1 0
+−1 0 0
+0 0 0
+
+
+. (9.13)
+It may be verified that W is orthogonal and Z is skew-symmetric. From Result A4.1-
+(p581), which gives a block decomposition of a general skew-symmetric matrix, the
+3 × 3 skew-symmetric matrix S may be written as S = kUZUT where U is orthogonal.
+Noting that, up to sign, Z = diag(1, 1, 0)W, then up to scale, S = U diag(1, 1, 0)WUT, and
+E = SR = U diag(1, 1, 0)(WUTR). This is a singular value decomposition of E with two
+equal singular values, as required. Conversely, a matrix with two equal singular values
+may be factored as SR in this way.
+Since E = U diag(1, 1, 0)VT, it may seem that E has six degrees of freedom
+and not five, since both U and V have three degrees of freedom. However, because
+the two singular values are equal, the SVD is not unique – in fact there is
+a one-parameter family of SVDs for E. Indeed, an alternative SVD is given by
+E = (U diag(R2×2, 1)) diag(1, 1, 0)(diag(RT
+2×2, 1))VT for any 2 × 2 rotation matrix R.
+9.6.2 Extraction of cameras from the essential matrix
+The essential matrix may be computed directly from (9.11) using normalized image
+coordinates, or else computed from the fundamental matrix using (9.12). (Methods
+of computing the fundamental matrix are deferred to chapter 11). Once the essential
+matrix is known, the camera matrices may be retrieved from E as will be described next.
+In contrast with the fundamental matrix case, where there is a projective ambiguity, the
+camera matrices may be retrieved from the essential matrix up to scale and a four-fold
+ambiguity. That is there are four possible solutions, except for overall scale, which
+cannot be determined.
+We may assume that the first camera matrix is P = [I | 0]. In order to compute the
+second camera matrix, P′, it is necessary to factor E into the product SR of a skewsymmetric
+matrix and a rotation matrix.
+Result 9.18. Suppose that the SVD of E is U diag(1, 1, 0)VT. Using the notation of
+(9.13), there are (ignoring signs) two possible factorizations E = SR as follows:
+S = UZU
+T
+R = UWV
+T or UW
+T
+V
+T . (9.14)
+Proof. That the given factorization is valid is true by inspection. That there are no
+other factorizations is shown as follows. Suppose E = SR. The form of S is determined
+by the fact that its left null-space is the same as that of E. Hence S = UZUT. The
+rotation R may be written as UXVT, where X is some rotation matrix. Then
+U diag(1, 1, 0)V
+T = E = SR = (UZU
+T)(UXV
+T) = U(ZX)V
+T
+from which one deduces that ZX = diag(1, 1, 0). Since X is a rotation matrix, it follows
+that X = W or X = WT, as required.
+9.7 Closure 259
+The factorization (9.14) determines the t part of the camera matrix P′, up to scale,
+from S = [t]×. However, the Frobenius norm of S = UZUT is √2, which means
+that if S = [t]× including scale then ktk = 1, which is a convenient normalization
+for the baseline of the two camera matrices. Since St = 0, it follows that
+t = U (0, 0, 1)T = u3, the last column of U. However, the sign of E, and consequently t,
+cannot be determined. Thus, corresponding to a given essential matrix, there are four
+possible choices of the camera matrix P′, based on the two possible choices of R and
+two possible signs of t. To summarize:
+Result 9.19. For a given essential matrix E = U diag(1, 1, 0)VT, and first camera matrix
+P = [I | 0], there are four possible choices for the second camera matrix P′, namely
+P′ = [UWV
+T | +u3] or [UWV
+T | −u3] or [UW
+T
+V
+T | +u3] or [UW
+T
+V
+T | −u3].
+9.6.3 Geometrical interpretation of the four solutions
+It is clear that the difference between the first two solutions is simply that the direction
+of the translation vector from the first to the second camera is reversed.
+The relationship of the first and third solutions in result 9.19 is a little more complicated.
+However, it may be verified that
+[UW
+T
+V
+T | u3] = [UWV
+T | u3]
+"
+VWTWTVT
+1
+#
+and VWTWTVT = V diag(−1,−1, 1)VT is a rotation through 180◦ about the line joining
+the two camera centres. Two solutions related in this way are known as a “twisted
+pair”.
+The four solutions are illustrated in figure 9.12, where it is shown that a reconstructed
+point X will be in front of both cameras in one of these four solutions only. Thus, testing
+with a single point to determine if it is in front of both cameras is sufficient to decide
+between the four different solutions for the camera matrix P′.
+Note. The point of view has been taken here that the essential matrix is a homogeneous
+quantity. An alternative point of view is that the essential matrix is defined exactly by
+the equation E = [t]×R, (i.e. including scale), and is determined only up to indeterminate
+scale by the equation x′TEx = 0. The choice of point of view depends on which
+of these two equations one regards as the defining property of the essential matrix.
+9.7 Closure
+9.7.1 The literature
+The essential matrix was introduced to the computer vision community by Longuet-
+Higgins [LonguetHiggins-81], with a matrix analogous to E appearing in the photogrammetry
+literature, e.g. [VonSanden-08]. Many properties of the essential matrix
+have been elucidated particularly by Huang and Faugeras [Huang-89], [Maybank-93],
+and [Horn-90].
+The realization that the essential matrix could also be applied in uncalibrated situations,
+as it represented a projective relation, developed in the early part of the 1990s,
+260 9 Epipolar Geometry and the Fundamental Matrix
+B A
+B A A B / /
+A B
+(a) (b)
+(c) (d)
+Fig. 9.12. The four possible solutions for calibrated reconstruction from E. Between the left and
+right sides there is a baseline reversal. Between the top and bottom rows camera B rotates 180◦ about
+the baseline. Note, only in (a) is the reconstructed point in front of both cameras.
+and was published simultaneously by Faugeras [Faugeras-92b, Faugeras-92a], and
+Hartley et al. [Hartley-92a, Hartley-92c].
+The special case of pure planar motion was examined by [Maybank-93] for the
+essential matrix. The corresponding case for the fundamental matrix is investigated
+by Beardsley and Zisserman [Beardsley-95a] and Vi´eville and Lingrand [Vieville-95],
+where further properties are given.
+9.7.2 Notes and exercises
+(i) Fixating cameras. Suppose two cameras fixate on a point in space such that
+their principal axes intersect at that point. Show that if the image coordinates
+are normalized so that the coordinate origin coincides with the principal point
+then the F33 element of the fundamental matrix is zero.
+(ii) Mirror images. Suppose that a camera views an object and its reflection in a
+plane mirror. Show that this situation is equivalent to two views of the object,
+and that the fundamental matrix is skew-symmetric. Compare the fundamental
+matrix for this configuration with that of: (a) a pure translation, and (b) a pure
+planar motion. Show that the fundamental matrix is auto-epipolar (as is (a)).
+(iii) Show that if the vanishing line of a plane contains the epipole then the plane is
+parallel to the baseline.
+(iv) Steiner conic. Show that the polar of xa intersects the Steiner conic Fs at the
+epipoles (figure 9.10a). Hint, start from Fe = Fse + Fae = 0. Since e lies on
+9.7 Closure 261
+the conic Fs, then l1 = Fse is the tangent line at e, and l2 = Fae = [xa]×e =
+xa × e is a line through xa and e.
+(v) The affine type of the Steiner conic (hyperbola, ellipse or parabola as given in
+section 2.8.2(p59)) depends on the relative configuration of the two cameras.
+For example, if the two cameras are facing each other then the Steiner conic
+is a hyperbola. This is shown in [Chum-03] where further results on oriented
+epipolar geometry are given.
+(vi) Planar motion. It is shown by [Maybank-93] that if the rotation axis direction
+is orthogonal or parallel to the translation direction then the symmetric part of
+the essential matrix has rank 2. We assume here that K = K′. Then from (9.12),
+F = K−TEK−1, and so
+Fs = (F + F
+T)/2 = K−T(E + E
+T)K−1/2 = K−T
+EsK−1.
+It follows from det(Fs) = det(K−1)2 det(Es) that the symmetric part of F is
+also singular. Does this result hold if K 6= K′?
+(vii) Any matrix F of rank 2 is the fundamental matrix corresponding to some pair of
+camera matrices (P, P′) This follows directly from result 9.14 since the solution
+for the canonical cameras depends only on the rank 2 property of F.
+(viii) Show that the 3D points determined from one of the ambiguous reconstructions
+obtained from E are related to the corresponding 3D points determined from
+another reconstruction by either (i) an inversion through the second camera
+centre; or (ii) a harmonic homology of 3-space (see section A7.2(p629)), where
+the homology plane is perpendicular to the baseline and through the second
+camera centre, and the vertex is the first camera centre.
+(ix) Following a similar development to section 9.2.2, derive the form of the fundamental
+matrix for two linear pushbroom cameras. Details of this matrix are
+given in [Gupta-97] where it is shown that affine reconstruction is possible from
+a pair of images. -->
+</p><p>
+</p><p>
+    </body>
+</html>

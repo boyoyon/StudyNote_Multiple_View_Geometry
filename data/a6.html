@@ -1,0 +1,2182 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録6</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録6</center><center>反復推定法</center></h1>
+<p>
+この付録では、効率的で堅牢な反復推定アルゴリズムの構築に必要なさまざまな要素について説明します。
+
+<!-- In this appendix we describe the various components involved in building an efficient
+and robust iterative estimation algorithm. -->
+
+</p><p>
+まず、最も一般的な2つの反復パラメータ最小化法、すなわちニュートン反復法（および密接に関連するガウス・ニュートン法）とレーベンバーグ・マルカート反復法から始めます。ニュートン反復法の基本的な考え方は、数値解析を学ぶほとんどの学生にとって、単変数関数の零点を求める方法としてよく知られています。多変数への一般化や、方程式の厳密解ではなく最小二乗解を求める適用は比較的簡単です。レーベンバーグ・マルカート法は、ニュートン反復法の単純な変形であり、過剰パラメータ化された問題において、より高速な収束と正則化を実現するように設計されています。ニュートン反復法と勾配降下法のハイブリッドと見なすことができます。
+
+<!--
+We start with two of the most common iterative parameter minimization methods,
+namely Newton iteration (and the closely related Gauss-Newton method) and
+Levenberg–Marquardt iteration. The general idea of Newton iteration is familiar to
+most students of numerical methods as a way of finding the zeros of a function of
+a single variable. Its generalization to several variables and application to finding
+least-squares solutions rather than exact solutions to sets of equations is relatively
+straightforward. The Levenberg–Marquardt method is a simple variation on Newton
+iteration designed to provide faster convergence and regularization in the case of overparametrized
+problems. It may be seen as a hybrid between Newton iteration and a
+gradient descent method. -->
+
+</p><p>
+本書で扱うタイプの問題では、パラメータ集合を2つの部分に分割することで、計算量を大幅に削減できます。この2つの部分は、通常、カメラ行列またはホモグラフィを表すパラメータ集合と、点を表すパラメータ集合で構成されます。これにより、A6.3節以降で説明する問題が疎な構造になります。
+
+<!-- For the type of problem considered in this book, important reductions of computational
+complexity are obtained by dividing the set of parameters into two parts. The two
+parts generally consist of a set of parameters representing camera matrices or homographies,
+and a set of parameters representing points. This leads to a sparse structure
+to the problem that is described starting at section A6.3. -->
+
+</p><p>
+さらに、実装上の2つの問題について議論する。外れ値と凸性に対する頑健性を考慮したコスト関数の選択（A6.8節）、回転、同次ベクトル、制約付きベクトルのパラメータ化（A6.9節）。最後に、反復法とバンドル調整についてさらに詳しく知りたい読者は、[Triggs-00a]を参照のこと。
+
+<!--
+We discuss two further implementation issues – the choice of cost function, with respect
+to their robustness to outliers and convexity (section A6.8); and the parametrization
+of rotations, and homogeneous and constrained vectors (section A6.9). Finally,
+those readers who want to learn more about iterative techniques and bundle-adjustment
+are referred to [Triggs-00a] for more details.
+-->
+
+</p>
+<h2><center>A6.1 ニュートン反復法</center></h2>
+<p>
+仮定された関数関係 \(\mathbf X = f (\mathbf P)\) が与えられているとします。ここで \(\mathbf X\) は測定ベクトル、\(\mathbf P\) はそれぞれユークリッド空間 \(\mathbb R^N\) と \(\mathbb R^M\) におけるパラメータベクトルです。
+真の値 \(\overline{\mathbf X}\) を近似する \(\mathbf X\) の測定値が与えられており、この関数関係を最もよく満たすベクトル \(\hat{\mathbf P}\) を見つけたいとします。より正確には、\(\mathbf X = f (\hat{\mathbf P}) − \epsilon\) を満たすベクトル \(\hat{\mathbf P}\) を求め、\(||\epsilon||\) が最小となるようにします。A5.1節で考察した線形最小二乗問題はまさにこのタイプであり、関数 f は線形関数 \(f (\mathbf P) = A\mathbf P\) として定義されていることに注意してください。
+
+<!-- Suppose we are given a hypothesized functional relation \(\mathbf X = f (\mathbf P)\) where \(\mathbf X\) is a measurement
+vector and \(\mathbf P\) is a parameter vector in Euclidean spaces \(\mathbb R^N\) and \(\mathbb R^M\) respectively.
+A measured value of \(\mathbf X\) approximating the true value \(\overline{\mathbf X}\) is provided, and we wish
+to find the vector \(\hat{\mathbf P}\) that most nearly satisfies this functional relation. More precisely,
+we seek the vector \(\hat{\mathbf P}\) satisfying \(\mathbf X = f (\hat{\mathbf P}) − \epsilon\) for which \(||\epsilon||\) is minimized. Note that
+the linear least-squares problem considered in section A5.1 is exactly of this type, the
+function f being defined as a linear function \(f (\mathbf P) = A\mathbf P\).
+
+</p><p>
+To solve the case where f is not a linear function, we may start with an initial estimated
+value P0, and proceed to refine the estimate under the assumption that the
+function f is locally linear. Let ǫ0 be defined by ǫ0 = f (P0) − X. We assume that the
+function f is approximated at P0 by f (P0 + ) = f (P0) + J, where J is the linear
+mapping represented by the Jacobian matrix J = ∂f/∂P. We seek a point f (P1), with
+P1 = P0 + , which minimizes f (P1) − X = f (P0) + J − X = ǫ0 + J. Thus, it is
+required to minimize kǫ0 + Jk over , which is a linear minimization problem. The
+vector  is obtained by solving the normal equations (see (A5.2))
+J
+T
+J = −J
+Tǫ0 (A6.1)
+or by using the pseudo-inverse  = −J+ǫ0. Thus, the solution vector bP
+is obtained
+by starting with an estimate P0 and computing successive approximations according to
+the formula
+Pi+1 = Pi + i
+where i is the solution to the linear least-squares problem
+Ji = −ǫi.
+Matrix J is the Jacobian ∂f/∂P evaluated at Pi and ǫi = f (Pi) − X. One hopes that
+this algorithm will converge to the required least-squares solution bP. Unfortunately, it
+is possible that this iteration procedure converges to a local minimum value, or does
+not converge at all. The behaviour of the iteration algorithm depends very strongly on
+the initial estimate P0.
+Weighted iteration. As an alternative to all the dependent variables being equally
+weighted it is possible to provide a weight matrix specifying the weights of the dependent
+variables X. To be more precise, one may assume that the measurement X satisfies
+a Gaussian distribution with covariance matrix X, and one wishes to minimize the Mahalanobis
+distance kf (bP) − Xk. This covariance matrix may be diagonal, specifying
+that the individual coordinates of X are independent, or more generally it may be an
+arbitrary symmetric and positive definite matrix. In this case, the normal equations
+become JT−1Ji = −JT−1ǫi. The rest of the algorithm remains unchanged.
+Newton’s method and the Hessian. We pass now to consideration of finding minima
+of functions of many variables. For the present, we consider an arbitrary scalar-valued
+function g(P) where P is a vector. The optimization problem is simply to minimize
+g(P) over all values of P. We make two assumptions: that g(P) has a well-defined
+minimum value, and that we know a point P0 reasonably close to this minimum.
+We may expand g(P) about P0 in a Taylor series to get
+g(P0 + ) = g + gP + 
+TgPP/2 + . . .
+where subscript P denotes differentiation, and the right hand side is evaluated at P0.
+A6.1 Newton iteration 599
+We wish to minimize this quantity with respect to . To this end, we differentiate with
+respect to  and set the derivative to zero, arriving at the equation gP + gPP = 0 or
+gPP = −gP. (A6.2)
+In this equation, gPP is the matrix of second derivatives, the Hessian of g, the (i, j)-th
+entry of which is ∂2g/∂pi∂pj , and pi and pj are the i-th and j-th parameters. Vector
+gP is the gradient of g. The method of Newton iteration consists in starting at an initial
+value of the parameters, P0, and iteratively computing parameter increments  using
+(A6.2) until convergence occurs.
+Now we turn to the sort of cost function that arises in the least-squares minimization
+problem considered above. Specifically, g(P) is the squared norm of an error function
+g(P) =
+1
+2
+kǫ(P)k2 = ǫ(P)Tǫ(P)/2
+where ǫ(P) is a vector-valued function of the parameter vector P. In particular, ǫ(P) =
+f (P) − X. The factor 1/2 is present for simplifying the succeeding computations.
+The gradient vector gP is easily computed to be ǫT
+P
+ǫ. However, we may write ǫP =
+fP = J using the notation introduced previously. In short gP = JTǫ. Differentiating
+gP = ǫT
+P
+ǫ a second time, we compute the following formula for the Hessian.1
+gPP = ǫT
+P
+ǫP + ǫT
+PP
+ǫ. (A6.3)
+Now, under the assumption that f (P) is linear, the second term on the right vanishes,
+leaving gPP = ǫT
+P
+ǫP = JTJ. Now, substituting for the gradient and Hessian in (A6.2)
+yields JTJ = −JTǫ which is nothing more than the normal equations (A6.1). Thus
+we have arrived at the same iterative procedure as previously solving the parameter
+estimation problem, under the assumption that JTJ = ǫT
+P
+ǫP is a reasonable approximation
+for the Hessian of the function g(P). This procedure in which JTJ is used as an
+approximation for the Hessian is known as the Gauss-Newton method.
+Gradient descent. The negative (or down-hill) gradient vector −gP = −ǫT
+P
+ǫ defines
+the direction of most rapid decrease of the cost function. A strategy for minimization
+of g is to move iteratively in the gradient direction. This is known as gradient descent.
+The length of the step may be computed by carrying out a line search for the function
+minimum in the negative gradient direction. In this case, the parameter increment  is
+computed from the equation λ = −gP, where λ controls the length of the step.
+We may consider this as related to Newton iteration as expressed by the update equation
+(A6.2) in which the Hessian is approximated (somewhat arbitrarily) by the scalar
+matrix λI. Gradient descent by itself is not a very good minimization strategy, typically
+characterized by slow convergence due to zig-zagging. (See [Press-88] for a
+closer analysis.) It will be seen in the next section, however, that it can be useful in
+conjunction with Gauss-Newton iteration as a way of getting out of tight corners. The
+1 The last term in this formula needs some clarification. Since
+ 
+is a vector,
+ PP is a 3-dimensional array (a tensor). The sum
+implied by the product
+ 
+T
+PP 
+is over the components of
+ 
+. It may be written more precisely as
+P
+i
+(ǫi)PPǫi where ǫi is the
+i-th components of the vector
+ 
+, and (ǫi)PP is its Hessian.
+600 Appendix 6 Iterative Estimation Methods
+Levenberg–Marquardt method is essentially a Gauss-Newton method that transitions
+smoothly to gradient descent when the Gauss-Newton updates fail.
+To summarize, we have so far considered three methods of minimization of a cost
+function g(P) = kǫ(P)k2/2:
+(i) Newton. Update equation:
+gPP = −gP
+where gPP = ǫT
+P
+ǫP + ǫT
+PP
+ǫ and gP = ǫT
+P
+ǫ. Newton iteration is based on the
+assumption of an approximately quadratic cost function near the minimum, and
+will show rapid convergence if this condition is met. The disadvantage of this
+approach is that the computation of the Hessian may be difficult. In addition, far
+from the minimum the assumption of quadratic behaviour is probably invalid,
+so a lot of extra work is done with little benefit.
+(ii) Gauss-Newton. Update equation:
+ǫT
+P
+ǫP = −ǫT
+P
+ǫ
+This is equivalent to Newton iteration in which the Hessian is approximated by
+ǫT
+P
+ǫP. Generally this is a good approximation, particularly close to a minimum,
+or when ǫ is nearly linear in P.
+(iii) Gradient descent. Update equation:
+λ = −ǫT
+P
+ǫ = −gP.
+The Hessian in Newton iteration is replaced by a multiple of the identity matrix.
+Each update is in the direction of most rapid local decrease of the function
+value. The value of λ may be chosen adaptively, or by a line search in the
+downward gradient direction. Generally, gradient descent by itself is not recommended,
+but in conjunction with Gauss-Newton it yields the commonly used
+Levenberg–Marquardt method.
+A6.2 Levenberg–Marquardt iteration
+The Levenberg–Marquardt (abbreviated LM) iteration method is a slight variation on
+the Gauss-Newton iteration method. The normal equations JTJ = −JTǫ are replaced
+by the augmented normal equations (JTJ + λI) = −JTǫ, for some value of λ that
+varies from iteration to iteration. Here I is the identity matrix. A typical initial value
+of λ is 10−3 times the average of the diagonal elements of N = JTJ.
+If the value of  obtained by solving the augmented normal equations leads to a
+reduction in the error, then the increment is accepted and λ is divided by a factor (typically
+10) before the next iteration. On the other hand if the valueleads to an increased
+error, then λ is multiplied by the same factor and the augmented normal equations are
+solved again, this process continuing until a value of  is found that gives rise to a
+decreased error. This process of repeatedly solving the augmented normal equations
+for different values of λ until an acceptable  is found constitutes one iteration of the
+LM algorithm. An implementation of the LM algorithm is given in [Press-88].
+A6.2 Levenberg–Marquardt iteration 601
+Justification of LM. To understand the reasoning behind this method, consider what
+happens for different values of λ. When λ is very small, the method is essentially the
+same as Gauss-Newton iteration. If the error function kǫk2 = kf (P) − Xk2 is close to
+being quadratic in P, then this method will converge fast to the minimum value. On the
+other hand when λ is large then the normal equation matrix is approximated by λI, and
+the normal equations become λ = −JTǫ. Recalling that JTǫ is simply the gradient
+vector of kǫk2, we see that the direction of the parameter increment  approaches
+that given by gradient descent. Thus, the LM algorithm moves seamlessly between
+Gauss-Newton iteration, which will cause rapid convergence in the neighbourhood of
+the solution, and a gradient descent approach, which will guarantee a decrease in the
+cost function when the going is difficult. Indeed, as λ becomes larger and larger, the
+length of the increment step  decreases and eventually it will lead to a decrease of the
+cost function kǫk2.
+To demonstrate that the parameter increment  obtained by solving the augmented
+normal equations for all values of λ is in the direction of decreasing cost, we will
+show that the inner product of  and the negative gradient direction for the function
+g(P) = kǫ(P)k2 is positive. This results from the following computation.
+−gP ·  = −gT
+P
+
+= (J
+Tǫ)T(J
+T
+J + λI)−1J
+Tǫ
+However, JTJ+λI is positive-definite for any value of λ, and so therefore is its inverse.
+By definition, this means that (JTǫ)T(JTJ + λI)−1JTǫ is positive, unless JTǫ is zero.
+Thus, the increment  is in a direction of locally decreasing cost, unless of course the
+gradient JTǫ is zero.
+A different augmentation. In some implementations of Levenberg-Marquardt, notably
+that given in [Press-88], a different method of augmenting the normal equations
+is used. The augmented normal equation matrix N′ is defined in terms of the matrix
+N = JTJ by N′
+ii = (1 + λ)Nii and N′
+ij = Nij for i 6= j. Thus the diagonal of N is
+augmented by a multiplicative factor (1 + λ) instead of an additive factor. As before,
+a small value of λ, results essentially in a Gauss-Newton update. For large λ, the offdiagonal
+entries of the normal equation matrix become insignificant with respect to the
+diagonal ones.
+The i-th diagonal entry of N′ is simply (1 + λ)J
+T
+i
+Ji where Ji = ∂f/∂pi, and pi
+is the i-th parameter. The update equation is then (1 + λ)J
+T
+i
+Jiδi = J
+T
+i
+ǫ where δi is
+the increment in the i-th parameter. Apart from the factor (1 + λ), this is the normal
+equation that would result from minimizing the cost by varying only the i-th parameter
+δi. Thus, in the limit as λ becomes large, the increment to the parameters is the direction
+that would result from minimizing each one separately.
+With this sort of augmentation, the parameter increments for large λ are not the
+same as for gradient descent. Nevertheless, the same analysis as before shows that the
+resulting increment is still in the down-hill direction for any value of λ.
+One small problem may arise: if some parameter pi has no effect on the value of
+the function f , then Ji = ∂f/∂pi is zero, and the i-th diagonal entry of N and hence N′
+602 Appendix 6 Iterative Estimation Methods
+is zero. The augmented normal equation matrix N′ is then singular, which can cause
+trouble. In practice, this is a rare occurrence, but it can occur.
+Implementation of LM. To carry out Levenberg–Marquardt minimization in its simplest
+form it is necessary only to provide a routine to compute the function being minimized,
+a goal vector bX
+of observed or desired values of the function, and an initial
+estimate P0. Computation of the Jacobian matrix J may be carried out either numerically,
+or by providing a custom routine.
+Numerical differentiation may be carried out as follows. Each independent variable
+xi is incremented in turn to xi + δ, the resulting function value is computed using the
+routine provided for computing f and the derivative is computed as a ratio. Good results
+have been found by setting the value δ to the maximum of |10−4 × xi| and 10−6.
+This choice seemingly gives a good approximation to the derivative. In practice, there
+seems to be little disadvantage in using numerical differentiation, though for simple
+functions f one may prefer to provide a routine to compute J, partly for aesthetic reasons,
+partly because of a possible slightly improved convergence and partly for speed.
+A6.3 A sparse Levenberg–Marquardt algorithm
+The LM algorithm as described above in section A6.2 is quite suitable for minimization
+with respect to a small number of parameters. Thus, in the case of 2D homography
+estimation (see chapter 4), for the simple cost functions (4.6–p94) and (4.7–p95) which
+are minimized with respect only to the entries of the homography matrix H the LM
+algorithm works well. However, for minimizing cost functions with respect to large
+numbers of parameters, the bare LM algorithm is not very suitable. This is because
+the central step of the LM algorithm, the solution of the normal equations (A5.2), has
+complexity N3 in the number of parameters, and this step is repeated many times.
+However, in solving many estimation problems of the type considered in this book, the
+normal equation matrix has a certain sparse block structure that one may take advantage
+of to realize very great time savings.
+An example of the situation in which this method is useful is the problem of estimating
+a 2D homography between two views assuming errors in both images, by
+minimizing the cost function (4.8–p95). This problem may be parametrized in terms
+of a set of parameters characterizing the 2D homography (perhaps the 9 entries of the
+homography matrix), plus parameters for each of the n points in the first view, a total
+of 2n + 9 parameters.
+Another instance where these methods are useful is the reconstruction problem in
+which one has image correspondences across two or more (let us say m) views and one
+wishes to estimate the camera parameters of all the cameras and also the 3D positions
+of all the points. One can assume arbitrary projective cameras or fully or partially
+calibrated cameras. Furthermore, to remove some of the incidental degrees of freedom
+one can fix one of the cameras. For instance in the projective reconstruction problem,
+the problem may be parametrized by the entries of all the camera matrices (a total of
+12m or 11m parameters depending on how the cameras are parametrized), plus a set
+of 3n parameters for the coordinates of the 3D points.
+A6.3 A sparse Levenberg–Marquardt algorithm 603
+The sparse LM algorithm is often perceived as complex and difficult to implement.
+To help overcome this, the algorithms are given cook-book style. Given a suitable
+library of standard matrix manipulation routines, a reader should be able to implement
+the algorithm without difficulty.
+• Notation: If a1, a2, . . . , an are vectors, then the vector obtained by placing them
+one after the other in a single column vector is denoted by (aT
+1 , aT
+2 , . . . , aT
+n)T. A
+similar notation is used for matrices.
+A6.3.1 Partitioning the parameters in the LM method
+The sparse LM method will be described primarily in terms of the reconstruction problem,
+since this is the archetypal problem to which this method relates. The estimation
+problem will be treated in general terms first of all, since this will illuminate the general
+approach without excessive detail. At this level of abstraction, the benefits of this
+approach may not be apparent, but they will become clearer in section A6.3.3. We start
+with the simple observation that the set of parameters in this problem may be divided
+up into two sets: a set of parameters describing the cameras, and a set of parameters describing
+the points. More formally, the “parameter vector” P ∈ IRM may be partitioned
+into parameter vectors a and b so that P = (aT, bT)T. We are given a “measurement
+vector”, denoted by X in a space IRN. In the reconstruction problem, this consists of
+the vector of all image point coordinates. In addition let X be the covariance matrix
+for the measurement vector.1 We consider a general function f : IRM → IRN taking
+the parameter vector P to the estimated measurement vector bX
+= f(P). Denoting by ǫ
+the difference X− bX
+between the measured and estimated quantities, one seeks the set
+of parameters that minimize the squared Mahalanobis distance kǫk2
+X = ǫT−1
+X
+ǫ.
+Corresponding to the division of parameters P = (aT, bT)T, the Jacobian matrix
+J = [∂bX
+/∂P] has a block structure of the form J = [A|B], where Jacobian submatrices
+are defined by
+A =
+h
+∂bX
+/∂a
+i
+and
+B =
+h
+∂bX
+/∂b
+i
+.
+The set of equations Jδ = ǫ solved as the central step in the LM algorithm (see
+section A6.2) now has the form
+Jδ = [A|B]
+
+
+δa
+δb
+
+
+= ǫ. (A6.4)
+Then, the normal equations JT−1
+X
+Jδ = JT−1
+X
+ǫ to be solved at each step of the LM
+algorithm are of the form
+
+
+AT−1
+X
+A AT−1
+X
+B
+BT−1
+X
+A BT−1
+X
+B
+
+
+
+
+δa
+δb
+
+
+=
+
+
+AT−1
+X
+ǫ
+BT−1
+X
+ǫ
+
+
+. (A6.5)
+1 In the absence of other knowledge, one usually assumes that X is the identity matrix.
+604 Appendix 6 Iterative Estimation Methods
+At this point in the LM algorithm the diagonal blocks of this matrix are augmented
+by multiplying their diagonal entries by a factor 1 + λ, for the varying parameter λ.
+This augmentation alters the matrices AT−1
+X
+A and BT−1
+X
+B. The resulting matrices
+will be denoted by (AT−1
+X
+A)∗ and (BT−1
+X
+B)∗. The reader may wish to look ahead to
+figure A6.1 and figure A6.2 which shows graphically the form of the Jacobian and
+normal equations in an estimation problem involving several cameras and points.
+The set of equations (A6.5) may now be written in block form as
+"
+U∗ W
+WT V∗
+#  
+δa
+δb
+!
+=
+ 
+ǫA
+ǫB
+!
+. (A6.6)
+As a first " step to solving these equations, both sides are now multiplied on the left by
+I −WV∗−1
+0 I
+#
+resulting in
+"
+U∗ − WV∗−1WT 0
+WT V∗
+#  
+δa
+δb
+!
+=
+ 
+ǫA − WV∗−1ǫB
+ǫB
+!
+. (A6.7)
+This results in the elimination of the top right hand block. The top half of this set of
+equations is
+(U∗ − WV∗−1W
+T)δa = ǫA − WV∗−1ǫB. (A6.8)
+These equations may be solved to find δa. Subsequently, the value of δb may be found
+by back-substitution, giving
+V∗δb = ǫB − W
+Tδa. (A6.9)
+As in section A6.2, if the newly computed value of the parameter vector P = ((a +
+δa)T, (b + δb)T)T results in a diminished value of the error function, then one accepts
+the new parameter vector P, diminishes the value of λ by a factor of 10, and proceeds
+to the next iteration. On the other hand if the error value is increased, then one rejects
+the new P and tries again with a new value of λ, increased by a factor of 10.
+The complete partitioned Levenberg–Marquardt algorithm is given in
+algorithm A6.1.
+Although in this method we solve first for δa and subsequently for δb based on the
+new value of a, it should not be thought that the method amounts to no more than
+independent iterations over a and b. If one were to solve for a holding b constant,
+then the normal equations used to solve for δa would take the simpler form Uδa = ǫA,
+compared with (A6.8). The method of alternating between solving for δa and δb is not
+recommended, however, because of potential slow convergence.
+A6.3.2 Covariance
+It was seen in result 5.12(p144) that the covariance matrix of the estimated parameters
+is given by
+P = (J
+T
+−1
+X
+J)+. (A6.10)
+A6.3 A sparse Levenberg–Marquardt algorithm 605
+Given A vector of measurements X with covariance matrix X, an initial estimate of a set
+of parameters P = (aT, bT)T and a function f : P 7→ bX
+taking the parameter vector to an
+estimate of the measurement vector.
+Objective Find the set of parameters P that minimizes ǫT−1
+X
+ǫ where ǫ = X − bX
+.
+Algorithm
+(i) Initialize a constant λ = 0.001 (typical value).
+(ii) Compute the derivative matrices A = [∂bX
+/∂a] and B = [∂bX
+/∂b] and the error vector
+ǫ.
+(iii) Compute intermediate expressions
+U = A
+T
+−1
+X
+A V = B
+T
+−1
+X
+B W = A
+T
+−1
+X
+B
+ǫA = A
+T
+−1
+X
+ǫ ǫB = B
+T
+−1
+X
+ǫ
+(iv) Augment U and V by multiplying their diagonal elements by 1 + λ.
+(v) Compute the inverse V−1, and define Y = WV−1. The inverse may overwrite the value
+of V which will not be needed again.
+(vi) Find δa by solving (U − YWT)δa = ǫA − YǫB.
+(vii) Find δb by back-substitution: δb = V−1(ǫB − WTδa).
+(viii) Update the parameter vector by adding the incremental vector (δT
+a , δT
+b)T and compute
+the new error vector.
+(ix) If the new error is less than the old error, then accept the new values of the parameters,
+diminish the value of λ by a factor of 10, and start again at step (ii), or else terminate.
+(x) If the new error is greater than the old error, then revert to the old parameter values,
+increase the value of λ by a factor of 10, and try again from step (iv).
+Algorithm A6.1. A partitioned Levenberg–Marquardt algorithm.
+In the over-parametrized case, the covariance matrix P given by (A6.10) is singular,
+and in particular, no variation in the parameters is allowed in directions perpendicular
+to the constraint surface – the variance is zero in these directions.
+In the case where the parameter set is partitioned as P = (aT, bT)T, matrix (JT−1
+X
+J)
+has the block form given in (A6.5) and (A6.6) (but without augmentation, represented
+by stars). Thus we may write
+J
+T
+−1
+X
+J =
+"
+AT−1
+X
+A AT−1
+X
+B
+BT−1
+X
+A BT−1
+X
+B
+#
+=
+"
+U W
+WT V
+#
+. (A6.11)
+The covariance matrix P is the pseudo-inverse of this matrix. Under the assumption
+that V is invertible, redefine Y = WV−1. Then the matrix may be diagonalized according
+to
+J
+T
+−1
+X
+J =
+"
+U W
+WT V
+#
+=
+"
+I Y
+0 I
+# "
+U − WV−1WT 0
+0 V
+# "
+I 0
+YT I
+#
+(A6.12)
+For matrices G and H with G invertible, we assume an identity
+(GHG
+T)+ = G−T
+H+G−1
+This identity is valid under conditions explored in the exercise at the end of this ap606
+Appendix 6 Iterative Estimation Methods
+Objective Compute the covariance of the parameters a and b estimated using algorithm A6.1.
+Algorithm
+(i) Compute matrices U, V and W as in algorithm A6.1, and also Y = WV−1.
+(ii) a = (U − WV−1WT)+.
+(iii) b = YTaY + V−1
+(iv) The cross-covariance ab = −aY.
+Algorithm A6.2. Computation of the covariance matrix of the LM parameters.
+pendix. Applying this to (A6.12) and multiplying out provides a formula for the pseudo
+inverse
+P = (J
+T
+−1
+X
+J)+ =
+"
+X − XY
+−YTX YTXY + V−1
+#
+(A6.13)
+where X = (U − WV−1WT)+.
+The condition for this to be true is that span(A) ∩ span(B) = ∅, where span(·) represents
+the span of the columns of the matrix. Here A and B are as in (A6.11). Proof
+of this fact and interpretation of the condition span(A) ∩ span(B) = ∅ is outlined in
+exercise (i) on page 626.
+The division of matrix JT−1
+X
+J into blocks as in (A6.11) corresponds in (A6.5) to
+the division of P into parameters a and b. Truncation of the covariance matrix for
+parameters P gives covariance matrices for parameters a and b separately. The result
+is summarized in algorithm A6.2.
+A6.3.3 General sparse LM method
+In the previous pages, a method has been described for carrying out LM iteration and
+computing covariances of the solution in the case where the parameter vector may be
+partitioned into two sub-vectors a and b. It is not clear from the foregoing discussion
+that the methods described there actually give any computational advantage in the general
+case. However, such methods become important when the Jacobian matrix obeys
+a certain sparseness condition, as will be described now.
+We suppose that the “measurement vector” X ∈ IRN may broken up into pieces as
+X = (X
+T
+1 ,X
+T
+2 , . . . ,X
+T
+n)T. Similarly, suppose that the “parameter vector” P ∈ IRM may
+be divided up as P = (aT, bT
+1 , bT
+2 , . . . , bT
+n)T. The estimated values of Xi corresponding
+to a given assignment of parameters will be denoted by bX
+i. We make the sparseness
+assumption that each bX i is dependent on a and bi only, but not on the other parameters
+bj . In this case, ∂bX i/∂bj = 0 for i 6= j. No assumption is made about ∂bX
+i/∂a. This
+situation arises in the reconstruction problem described at the start of this discussion,
+in which bi is the vector of parameters of the i-th point, and bX
+i is the vector of measurements
+of the image of this point in all the views. In this case, since the image of
+a point does not depend on any other point, one sees that ∂bX
+i/∂bj = 0, as required,
+unless i = j.
+Corresponding to this division, the Jacobian matrix J = [∂bX
+/∂P] has a sparse block
+A6.4 Application of sparse LM to 2D homography estimation 607
+structure. We define Jacobian matrices by
+Ai =
+h
+∂bX
+i/∂a
+i
+Bi =
+h
+∂bX
+i/∂bi
+i
+.
+Given an error vector of the form ǫ = (ǫT
+1 , . . . , ǫT
+n)T = X − bX
+the set of equations
+Jδ = ǫ now has the form
+Jδ =
+
+
+A1 B1
+A2 B2
+...
+. . .
+An Bn
+
+
+
+
+δa
+δb1
+...
+δbn
+
+
+=
+
+
+ǫ1
+...
+ǫn
+
+
+. (A6.14)
+We suppose further that all of the measurements Xi are independent with covariance
+matrices Xi . Thus the covariance matrix for the complete measurement vector X has
+the block-diagonal form X = diag(X1 , . . . , Xn).
+In the notation of algorithm A6.1, we have
+A = [A
+T
+1 , A
+T
+2 , . . . , A
+T
+n]T
+B = diag(B1, B2, . . . , Bn)
+X = diag(X1 , . . . , Xn)
+δb = (δT
+b1 , δT
+b2 , . . . , δT
+bn)T
+ǫ = (ǫT
+1 , ǫT
+2 , . . . , ǫT
+n)T
+Now, it is a straightforward task to substitute these formulae into algorithm A6.1.
+The result of this substitution is given in algorithm A6.3, representing the computation
+of one step of the LM algorithm. The important observation is that in this form each
+step of the algorithm requires computation time linear in n. Without the advantage
+resulting from the sparse structure, the algorithm (for instance a blind adherence to
+algorithm A6.1) would have complexity of order n3.
+A6.4 Application of sparse LM to 2D homography estimation
+We apply the foregoing discussion to the estimation of a 2D homography H given a
+set of corresponding image points xi ↔ x′
+i in two images. The points in each image
+are subject to noise, and one seeks to minimize the cost function (4.8–p95). We define
+a measurement vector Xi = (xT
+i , x′
+i
+T)T. In this case, the parameter vector P may be
+divided up as P = (hT, ˆxT
+1 , ˆxT
+2 , . . . , ˆxT
+n)T, where the values ˆxi are the estimated values
+of the image points in the first image, and h is a vector of entries of the homography
+H. Thus, one must simultaneously estimate the homography H and the parameters of
+each point in the first image. The function f maps P to (bX
+T
+1 , bX
+T
+2 , . . . , bX
+T
+n)T, where each
+bX
+i = (ˆxT
+i , HˆxT
+i )T = (ˆxT
+i , ˆx′
+i
+T)T. Then algorithm A6.3 applies directly.
+The Jacobian matrices have a special form in this case, since one observes that
+Ai = ∂bX
+i/∂h =
+"
+0
+∂ˆx′
+i/∂h
+#
+608 Appendix 6 Iterative Estimation Methods
+Objective Formulate LM algorithm in the case where the parameter vector is partitioned
+as P = (aT, bT
+1 , . . . , bT
+n)T, and the measurement vector as X = (XT
+1 , . . . ,XT
+n)T, such that
+∂bX
+i/∂bj = 0 for i 6= j.
+Algorithm Steps (ii) to (vii) of algorithm A6.1 become:
+(i) Compute the derivative matrices Ai = [∂bX
+i/∂a] and Bi = [∂bX
+i/∂bi] and the error
+vectors ǫi = Xi − bX
+i.
+(ii) Compute the intermediate values
+U =
+X
+i
+A
+T
+i
+−1
+Xi
+Ai
+V = diag(V1, . . . , Vn) where Vi = B
+T
+i
+−1
+Xi
+Bi
+W = [W1, W2, . . . , Wn] where Wi = A
+T
+i
+−1
+Xi
+Bi
+ǫA =
+X
+i
+A
+T
+i
+−1
+Xi
+ǫi
+ǫB = (ǫT
+B1 , ǫT
+B2 , . . . , ǫT
+Bn)T where ǫBi = B
+T
+i
+−1
+Xi
+ǫi
+Yi = WiV−1
+i .
+(iii) Compute δa from the equation
+(U −
+X
+i
+YiW
+T
+i )δa = ǫA −
+X
+i
+YiǫBi .
+(iv) Compute each δbi in turn from the equation
+δbi = V−1
+i (ǫBi − W
+T
+i
+δa).
+Covariance
+(i) Redefine Yi = WiV−1
+i
+(ii) a = (U −
+P
+i
+YiWT
+i )+
+(iii) bibj = YT
+i aYj + δijV−1
+i
+(iv) abi = −aYi
+Algorithm A6.3. A sparse Levenberg–Marquardt algorithm.
+since ˆxi is independent of h. Also,
+Bi = ∂bX
+i/∂ˆxi =
+"
+I
+∂ˆx′
+i/∂ˆxi
+#
+because of the form of bX
+i = (ˆxT
+i , ˆx′
+i
+T)T.
+A6.4.1 Computation of the covariance
+As an example of covariance computation, we consider the same problem as in section
+5.2.4(p145), in which a homography is estimated from point correspondences. As in
+that example, we consider a case in which the estimated homography is actually the
+identity mapping, H = I. For the purposes of this example, the number of points or
+their distribution is not important. It will be assumed, however, that the errors of all
+A6.5 Application of sparse LM to fundamental matrix estimation 609
+point measurements are independent. We recall from (5.12–p146) that in the case of
+errors in the second image only, h =
+P
+i
+JT
+i
+−1
+i
+Ji
++
+, where Ji = [∂ˆx′
+i/∂h].
+We now proceed to compute the covariance of the camera parameter vector h in the
+case where the points in the first image are subject to noise as well. We assume further
+that −1
+xi = −1
+x′
+i
+, and denote them by Si. In this case, the inverse covariance matrix −1
+X
+is block-diagonal, −1
+X = diag(−1
+xi , −1
+x′
+i
+). Then, applying the steps of algorithm A6.3
+to compute the covariance matrix for h,
+Ai = [0
+T, J
+T
+i ]T
+Bi = [I
+T, I
+T]T since H = I
+U =
+X
+i
+A
+T
+i diag(Si, Si)Ai =
+X
+i
+J
+T
+i
+SiJi
+Vi = B
+T
+i diag(Si, Si)Bi = 2Si
+Wi = A
+T
+i diag(Si, Si)Bi = J
+T
+i
+Si
+U −
+X
+i
+WiV−1
+i
+W
+T
+i =
+X
+i
+J
+T
+i (Si − Si/2)Ji =
+X
+i
+J
+T
+i
+SiJi/2
+h = 2
+ 
+X
+i
+J
+T
+i
+SiJi
+!+
+.
+Hence, the covariance matrix for h is just twice the value of the covariance matrix for
+the case of error in one image. This is not generally true, and results from the fact that
+H is the identity mapping. As exercises, one may verify the following.
+• If H represents a scaling by a factor s, then h = (s2 + 1)
+P
+i
+JT
+i
+SiJi
++
+.
+• If H is an affine transformation and D is the upper 2 × 2 part of H (the nontranslational
+part), and if Si = I for all i (isotropic and independent noise), then
+h =
+P
+i
+JT
+i
+
+I − D(I + DTD)−1DT
+
+Ji
++
+.
+A6.5 Application of sparse LM to fundamental matrix estimation
+In estimating the fundamental matrix and a set of 3D points, the algorithm is effectively
+that described in section A6.3.3, a sparse LM algorithm for the estimation of 2D
+homographies, but slightly modified to the present case. The analogy with the 2D homography
+estimation problem is as follows: in estimating 2D homographies, one has a
+mapping H that takes points xi to corresponding points x′
+i; in the present problem, one
+has a mapping represented by a pair of camera matrices P and P′ that map a 3D point
+to a pair of corresponding points (xi, x′
+i).
+For convenience, the notation of section A6.3.3 will be used here. In particular, note
+that in section A6.3.3, and here the notation X is used to denote the total measurement
+vector (in this case (x1, x′
+1, . . . , xn, x′
+n)) and not a 3D point. Also, be careful to
+distinguish between P the parameter vector and P the camera matrix.
+The parameter vector P is partitioned as P = (aT, bT
+1 , . . . , bT
+n)T, where
+(i) a = p′ is made up of the entries of camera matrix P′, and
+610 Appendix 6 Iterative Estimation Methods
+(ii) bi = (Xi, Yi, Ti)T is a 3-vector, parametrizing the i-th 3D point (Xi, Yi, 1, Ti).
+Thus, there are a total of 3n+12 parameters, where n is the number of points. Parameter
+vector a provides a parametrization for the camera P′ and the other camera P is taken
+as [I | 0]. Note also that it is convenient and permissible to set the third coordinate of
+the 3D space point to 1 as here, since a point (Xi, Yi, 0, Ti)T maps to (Xi, Yi, 0)T which
+is an infinite point, not anywhere close to the measured point (xi, yi, 1)T.
+The measurement vector X is partitioned as X = (X
+T
+1 ,X
+T
+2 , . . . ,X
+T
+n)T, where each
+Xi = (xT
+i , x′
+i
+T)T, the measured images of the i-th point.
+Now, the Jacobian matrices Ai = ∂bX
+i/∂a and Bi = ∂bX
+i/∂bi may be computed and
+algorithm A6.3 applied to estimate the parameters, and hence P′, from which F may be
+computed.
+Partial derivative matrices
+Since bX
+i = (ˆxT
+i , ˆx′
+i
+T)T one may compute that Ai and Bi have a form similar to the
+Jacobian matrices in section A6.4:
+Ai =
+"
+0
+∂ˆx′
+i/∂a
+#
+Bi =
+"
+I2×2|0
+∂ˆx′
+i/∂bi
+#
+.
+The covariance matrix Xi breaks up into diagonal blocks diag(Si, S′
+i), where
+Si = −1
+xi
+and S′
+i = −1
+x′
+i
+. Now, calculating the intermediate expressions in step 2 of
+algorithm A6.3, we find
+Vi = B
+T
+i diag(Si, S′
+i)Bi = [I2×2 | 0]T
+Si[I2×2 | 0] + (∂ˆx′
+i/∂b)T
+S′
+i(∂ˆx′
+i/∂b) (A6.15)
+The abstract form of AT
+i
+−1
+Xi
+Ai is the same as in the 2D homography case, and the other
+expressions Wi = AT
+i
+−1
+Xi
+Bi, ǫBi = BT
+i
+−1
+Xi
+ǫi, and ǫAi = AT
+i
+−1
+Xi
+ǫi may easily be computed.
+The estimation procedure otherwise proceeds precisely as in algorithm A6.3.
+Covariance of F
+According to the discussion of section A6.3.3 and in particular algorithm A6.3, the
+covariance matrix of the camera parameters, namely the entries of P′, is given by
+P′ = (U −
+X
+i
+WiV−1
+i
+W
+T
+i )+ (A6.16)
+with notation as in algorithm A6.3.
+In computing this pseudo-inverse, it is useful to know the expected rank of P′ . In
+this case, this rank is 7, since the total number of degrees of freedom in the solution
+involving two cameras and n point matches is 3n + 7. Looked at another way, P′ is
+not determined uniquely, since if P′ = [M | m], then any other matrix [M + tmT | αm]
+also determines the same fundamental matrix. Thus, in computing the pseudo-inverse
+appearing in the right hand side of (A6.16), one should set five of the singular values
+to zero.
+The foregoing discussion shows how to compute the covariance matrix of the entries
+of P′. We desire to compute the covariance matrix of the entries of F. However, there
+is a simple formula for the entries of F in terms of the entries of P′ = [M | m], namely
+A6.6 Application of sparse LM to multiple image bundle adjustment 611
+F = [m]×M. If one desires to compute the covariance matrix of F normalized so that
+kFk = 1, then one writes F = [m]×M/(k[m]×Mk). Therefore, one may express the
+entries of F as a simple function in terms of the entries of P′. Let J be the Jacobian
+matrix of this function. The covariance of F is then computed by propagating the
+covariance of P′ using result 5.6(p139) to get
+F = JP′J
+T = J(U −
+X
+i
+WiV−1
+i
+W
+T
+i )+J
+T (A6.17)
+where P′ is given by (A6.16). This is the covariance of the fundamental matrix estimated
+according to an ML algorithm from the given point correspondences.
+A6.6 Application of sparse LM to multiple image bundle adjustment
+In the previous section, the application of the sparse Levenberg–Marquardt algorithm to
+the computation of the fundamental matrix was considered. This is essentially a reconstruction
+problem from two views. It should be clear how this may easily be extended
+to the computation of the trifocal tensor and the quadrifocal tensor. More generally, one
+may apply it to the simultaneous estimation of multiple camera and points to compute
+projective structure, or perhaps affine or metric structure given appropriate constraints.
+This technique is called bundle adjustment.
+In the case of multiple cameras, one may also take advantage of the lack of interaction
+between parameters of the different cameras, as will be shown now. In the
+following discussion, for simplicity of notation it will be assumed that each point is
+visible in all the views. This is not at all necessary – points may in general be visible
+in some arbitrary subset of the available views.
+We use the same notation as in section A6.3.3. The measurement data may be expressed
+as a vector X, which may be divided up into parts Xi, representing the measured
+image coordinates of some 3D point in all views. One may further subdivide Xi writing
+Xi = (xT
+i1, xT
+i2, . . . , xT
+im)T where xij is the image of the i-th point in the j-th image.
+The parameter vector a (camera parameters) may correspondingly be partitioned as
+a = (aT
+1 , aT
+2 , . . . , aT
+m)T, where aj are the parameters of the j-th camera. Since the
+image point xij does not depend on the parameters of any but the j-th camera, one
+observes that ∂ˆxij/∂ak = 0 unless j = k. In a similar way for derivatives with respect
+to the parameters bk of the k-th 3D point, one has ∂ˆxij/∂bk = 0 unless i = k.
+The form of the Jacobian matrix J for this problem and the resulting normal equations
+JTJδ = JTǫ are shown schematically in figure A6.1 and figure A6.2. Referring
+to the Jacobian matrices defined in algorithm A6.3, one sees that Ai = [∂bX
+i/∂a] is a
+block diagonal matrix Ai = diag(Ai1, . . . , Aim), where Aij = ∂ˆxij/∂aj . Similarly, matrix
+Bi = [∂bX
+i/∂bi] decomposes as Bi = [BT
+i1, . . . , BT
+im]T, where Bij = ∂ˆxij/∂bi. It may
+normally be assumed also that Xi has a diagonal structure Xi = diag(xi1 , . . . , xim),
+meaning that the measurements of the projected points in separate images are independent
+(or more precisely, uncorrelated). With these assumptions, one is easily able to
+adapt algorithm A6.3, as shown in algorithm A6.4, as the reader is left to verify.
+612 Appendix 6 Iterative Estimation Methods
+P1 P2 P3 X1 X2 X3 X4
+1j
+x
+2j
+x
+3j
+x
+Camera
+parameters
+Feature
+parameters
+Fig. A6.1. Form of the Jacobian matrix for a bundle-adjustment problem consisting of 3 cameras and 4
+points.
+U1
+U2
+U3
+V1
+V2
+V3
+V4
+W
+WT
+􀀧(P1)
+􀀧(P2)
+􀀧(P3)
+􀀧(X1)
+􀀧(X2)
+􀀧(X3)
+􀀧(X4)
+􀁈(P1)
+􀁈(P2)
+􀁈(P3)
+􀁈(X1)
+􀁈(X2)
+􀁈(X3)
+􀁈(X4)
+Fig. A6.2. Form of the normal equations for the bundle-adjustment problem consisting of 3 cameras
+and 4 points.
+Missing data. Typically, in a bundle-adjustment problem some points are not visible
+in every image. Thus, some measurement xij may not exist, meaning that i-th point
+is not visible in the j-th image. Algorithm A6.4 is easily adapted to this situation,
+by ignoring terms subscripted by ij where the measurement xij does not exist. Such
+missing terms are simply omitted from the relevant summations. This includes all of
+Aij , Bij , −1
+xij
+, Wij and Yij . It may be seen that this is equivalent to setting Aij and Bij to
+zero, thus effectively giving zero weight to the missing measurements.
+This is convenient when programming this algorithm, since the above quantities subscripted
+by ij may be associated only with existing measurements in a common data
+structure.
+A6.7 Sparse methods for equation solving 613
+(i) Compute the derivative matrices Aij = [∂ˆxij/∂aj ] and Bij = [∂ˆxij/∂bi] and the error
+vectors ǫij = xij − ˆxij .
+(ii) Compute the intermediate values
+Uj =
+X
+i
+A
+T
+ij
+−1
+xij
+Aij Vi =
+X
+j
+B
+T
+ij
+−1
+xij
+Bij Wij = A
+T
+ij
+−1
+xij
+Bij
+ǫaj =
+X
+i
+A
+T
+ij
+−1
+xij
+ǫij ǫbi =
+X
+j
+B
+T
+ij
+−1
+xij
+ǫij Yij = WijV−1
+i
+where in each case i = 1, . . . , n and j = 1, . . . ,m.
+(iii) Compute δa = (δT
+a1 , . . . , δT
+am)T from the equation
+Sδa = (eT
+1 , . . . , eT
+m)T
+where S is an m × m block matrix with blocks Sjk defined by
+Sjj = −
+X
+i
+YijW
+T
+ij + U
+j
+Sjk = −
+X
+i
+YijW
+T
+ik if j 6= k
+and
+ej = ǫaj −
+X
+i
+Yijǫbi
+(iv) Compute each δbi in turn from the equation
+δbi = V−1
+i (ǫbi −
+X
+j
+W
+T
+ij
+δaj )
+Covariance
+(i) Redefine Yij = WijV−1
+i .
+(ii) a = S+, where S is defined as above, without the augmentation represented by the ∗.
+(iii) bibj = YT
+i aYj + δijV−1
+i .
+(iv) abi = −aYi.
+Algorithm A6.4. General sparse Levenberg–Marquardt algorithm.
+A6.7 Sparse methods for equation solving
+In a long sequence of images, it is rare for a point to be tracked through the whole
+sequence, and usually point tracks disappear and new ones start, causing the set of
+point tracks to have a banded structure, as seen in figure 19.7(p492)(c). This banded
+structure of the point track set leads to a banded structure for the set of equations
+that are solved to compute structure and motion – we refer here to the matrix S in
+algorithm A6.4. Thus, for bundle-adjustment problems with banded track structure,
+sparseness can appear at two levels, first at the level of independence of the individual
+point measurements, as exploited in algorithm A6.4, and secondly arising from the
+banded track structure as will be explained in this section.
+Another similar context in which this will occur is solution for structure and motion
+614 Appendix 6 Iterative Estimation Methods
+in section 18.5.1(p448) or simply motion, as in section 18.5.2(p450). In both these
+methods, large sparse sets of equations may arise. In order for large problems of this
+kind to be tractable, it is necessary to take advantage of this sparse structure in order
+to minimize the amount of storage and computation involved. In this section, we will
+consider sparse matrix techniques that are valuable in this context.
+A6.7.1 Banded structure in bundle-adjustment
+The time-consuming step in finding the parameter increments in the iterative step of
+bundle-adjustment, as given in algorithm A6.4 is the solution of the equations Sδa = e
+in step (iii) of the algorithm. As shown there, the matrix S is a symmetric matrix
+with off-diagonal blocks of the form Sjk = −
+P
+i
+WijV∗−1
+i
+WT
+ik. We see that the
+block Sjk is non-zero only when for some i, both Wij and Wik are non-zero. Since
+Wij = [∂ˆxij/∂aj ]T−1
+xij [∂ˆxij/∂bi] it follows that Wij is non-zero only when the corresponding
+measurement ˆxij depends on parameters aj and bi. To be more concrete, if
+aj represents the parameters of the j-th camera, and bi represents the parameters of the
+i-th point, then Wij is non-zero only when the i-th point is visible in the j-th image, and
+xij is its measured image position.
+The condition that for some i both Wij and Wik are non-zero means that there exists
+some point with index i that is visible in both the j-th and k-th images. To summarize,
+• The block Sjk is non-zero only if there exists a point that is visible in both the j-th
+and k-th images.
+Thus, if point tracks extend only over consecutive views, then the matrix S will be
+banded. In particular, if no point track extends over more than B views (B representing
+bandwidth), then the block Sjk is zero unless |j − k| < B.
+Consider tracking points over a long sequence, for instance along a path that may
+loop back and cross itself. In this case, it may be possible to recognize a point that
+had been seen previously in the sequence, and pick up its track again. The set of views
+in which a 3D point is seen will not be a consecutive set of views. This will destroy
+the banded nature of the matrix S, by introducing non-zero blocks possibly far away
+from the central band. Nevertheless, if there is not too much filling-in of off-diagonal
+blocks, sparse solution techniques may still be utilized as we shall see later.
+A6.7.2 Solution of symmetric linear equations
+In solving a set of linear equations Ax = b in which the matrix A is symmetric, it is best
+not to use a general purpose equation solver, such as Gaussian-elimination, but rather
+to take advantage of the symmetry of the matrix A. One way of doing this is the use the
+LDLT decomposition of the matrix A. This relies on the following observation:
+Result A6.1. Any positive-definite symmetric matrix A can be factored as A = LDLT, in
+which L is a lower-triangular matrix with unit diagonal entries, and D is diagonal.
+The reader is advised to consult [Golub-89] for details of efficient implementation and
+numeric properties of LDLT decomposition. The normal equations derived from structure
+and motion problems are always at least positive semi-definite, and with stabilizaA6.7
+Sparse methods for equation solving 615
+a b
+Fig. A6.3. (a) A sparse matrix and (b) its corresponding “skyline” structure. Non-zero entries in the
+original matrix are shown in black. In the skyline format, all non-zero entries lie in the shaded area. For
+each row i, there is an integer mi representing the first non-zero entry in that row. Note that non-zero
+off-diagonal elements cause “fill-in” of the skyline format for that row (or symmetric above-diagonal
+column). If such entries are relatively rare, the skyline format will remain sparse, and techniques for
+skyline matrices may be usefully applied. The LDLT decomposition of a matrix in skyline format has the
+same skyline structure. Thus, the LDLT decomposition of the original sparse matrix shown in (a), will
+have non-zero entries only within the shaded area of (b).
+tion through enhancement, they are positive-definite, and symmetric factorization is
+the recommended method of solution.
+Given the LDLT factorization, the set of linear equations Ax = LDLTx = b may be
+solved for x in three steps as (i) Lx′ = b, (ii) x′′ = D−1x′, (iii) LTx = x′′.
+Solving the equations Lx′ = b is carried out by the process of “forward-substitution.”
+In particular (bearing in mind that L has unit diagonal entries), the components of x
+may be computed in order as
+forward-substitution: x′
+i = bi −
+Xi−1
+j=1
+Lijx′
+j .
+Since LT is upper-triangular, the second set of equations is solved in a similar fashion,
+except that the values xi are computed in inverse order in a process known as “backsubstitution.”
+back-substitution: xi = x′′
+i −
+Xn
+j=i+1
+Ljixj .
+The number of operations involved in this computation is given in [Golub-89], and
+is equal to n3/3, where n is the dimension of the matrix.
+A6.7.3 Solution of sparse symmetric linear systems
+We consider a special type of sparse structure for a symmetric matrix, known as “skyline”
+format. This is illustrated in figure A6.3. An n×n symmetric matrix A in skyline
+format is characterized by the existence of an array of integersmi for i = 1, . . . , n such
+that Aij = 0 for j < mi. A diagonally banded matrix is a special case of a matrix with
+skyline structure.
+616 Appendix 6 Iterative Estimation Methods
+Although a diagonally banded or skyline matrix may be sparse, its inverse is not,
+and in fact will be completely filled out with non-zero elements. Thus, it is a very bad
+idea actually to compute the inverse of A to find the solution x = A−1b to the set of
+equations. However, the importance of matrices in skyline (or banded) form is that
+skyline structure of the matrix is preserved by the LDLT decomposition, as expressed
+in the following result.
+Result A6.2. Let A be a symmetric matrix such that Aij = 0 for j < mi. Let A = LDLT.
+Then Lij = 0 for j < mi.
+In other words, the skyline structure of L is the same as that of A.
+Proof. Suppose that j is the smallest index such that Lij = 0. Then in multiplying out
+A = LDLT, it may be verified that only one product contributes to the (i, j)-th element
+of Aij . Specifically, Aij = LijDjjLjj 6= 0.
+Thus, in computing the LDLT decomposition of A having a sparse skyline structure,
+we know in advance that many of the entries of L will be zero. The algorithm for
+computing the LDLT decomposition for such a matrix is much the same as the that for
+a full symmetric matrix, except that we do not need to consider the zero elements.
+Forward and back substitution involving a matrix L with skyline structure easily take
+advantage of the sparse structure. In fact the forward substitution formula becomes
+x′
+i = bi −
+Xi−1
+j=mi
+Lijx′
+j .
+Back-substitution is left for the reader to work out. More details of implementation are
+given in [Bathe-76].
+A6.8 Robust cost functions
+In estimation problems of the Newton or Levenberg-Marquardt type, an important decision
+to make is the precise form of the cost function. As we have seen, an assumption
+of Gaussian noise without outliers implies that the the Maximum Likelihood estimate
+is given by a least-squares cost function involving the predicted errors in the measurements,
+where the noise is introduced.
+The same analysis may be carried out for other assumed probability models for the
+measurements. Thus, if all measurements are assumed to be independent, and f(δ) is
+the probability distribution of an error δ in the measurement, then the probability of a
+set of measurement with errors δi is given by p(δ1, . . . , δn) =
+Qn
+i=1 f(δi). Taking the
+negative logarithm gives −log(p(δ1, . . . , δn)) = −
+Pn
+i=1 log(f(δi)) and the right-hand
+side of this expression is a suitable cost function for a set of measurements. It is usually
+appropriate to set the cost of an exact measurement to be zero, by subtracting log(f(0)),
+though this is not strictly necessary if our purpose is cost minimization. Graphs of
+various specific cost functions to be discussed next are shown in figure A6.4.
+A6.8 Robust cost functions 617
+Cost function PDF Attenuation factor
+Squarederror
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+Blake-
+Zisserman
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+corrupted
+Gaussian
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+Cauchy
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+L1
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.2
+0.4
+0.6
+0.8
+1
+-20 -15 -10 -5 5 10 15 20
+0.25
+0.5
+0.75
+1
+1.25
+1.5
+1.75
+2
+Huber
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+pseudo-
+Huber
+-7.5 -5 -2.5 2.5 5 7.5
+2
+4
+6
+8
+10
+12
+-4 -2 2 4
+0.1
+0.2
+0.3
+0.4
+0.5
+-20 -15 -10 -5 5 10 15 20
+0.2
+0.4
+0.6
+0.8
+1
+Fig. A6.4. A comparison of different cost functions, C(δ), for robust estimation. Their corresponding
+PDFs, exp(−C(δ)), and attenuation factors (w = C(δ)1/2/δ see text) are also shown.
+618 Appendix 6 Iterative Estimation Methods
+Statistically based cost functions. Determination of a suitable cost function may
+be approached by estimating or guessing the distribution of errors for the particular
+measurement process involved, such as point extraction in an image. In the following
+list, for simplicity, we ignore the normalization constant for Gaussian distributions
+(2πσ2)−1/2, and assume that 2σ2 = 1.
+(i) Squared error. Assuming the data is Gaussian distributed, the Probability
+Distribution Function (PDF) is p(δ) = exp(−δ2) which leads to a cost function
+C(δ) = δ2.
+(ii) Blake-Zisserman. The data is assumed to have a Gaussian distribution for
+inliers with a uniform distribution of outliers. The PDF is taken to be of the
+form p(δ) = exp(−δ2) + ǫ. This is not actually a PDF, since it integrates to
+infinity. Nevertheless, it leads to a cost function of the form
+C(δ) = −log(exp(−δ2) + ǫ).
+For inliers (small δ), this approximates δ2, whereas for outliers (large δ) the
+asymptotic cost is −log ǫ. Thus, the crossover point from inliers to outliers is
+given approximately by δ2 = −log ǫ. The actual cost function used by Blake
+and Zisserman in [Blake-87] was min(δ2, α2) and ǫ = exp(−α2).
+(iii) Corrupted Gaussian. The previous example has the theoretical disadvantage
+that it is not actually a PDF. An alternative is to model the outliers by a
+Gaussian with larger standard deviation, leading to a mixture model probability
+distribution of the form p(δ) = α exp(−δ2) + (1 − α) exp(δ2/w2)/w where
+w is the ratio of standard deviations of the outliers to the inliers, and α is the
+expected fraction of inliers. Then
+C(δ) = −log(α exp(−δ2) + (1 − α) exp(−δ2/w2)/w).
+Heuristic cost functions. Next we consider cost functions justified more by heuristics
+and required noise-immuneness properties than by adherence to a specific noisedistribution
+model. For this reason they will be introduced directly as a cost function,
+rather than a PDF.
+(i) Cauchy cost function. The cost function is given by
+C(δ) = b2 log(1 + δ2/b2)
+for some constant b. For small values of δ, this curve approximates δ2, and the
+value of b determines for what range of δ this approximation is close. The cost
+function is derived from the Cauchy distribution p(δ) = 1/(π(1 + δ2)), which
+is a bell-curve similar to the Gaussian, but with heavier tails.
+(ii) The L1 cost function. Instead of using the sum of squares, we use the sum of
+absolute errors. Thus,
+C(δ) = 2b|δ|
+A6.8 Robust cost functions 619
+where 2b is some positive constant (which normally could just be 1). This cost
+function is known as the total variation.
+(iii) Huber cost function. This cost function is a hybrid between the L1 and
+least-squares cost function. Thus, we define
+C(δ) = δ2 for |δ| < b
+= 2b|δ| − b2 otherwise
+This cost function is continuous with continuous first derivative. The value of
+the threshold b is chosen approximately to equal the outlier threshold.
+(iv) Pseudo-Huber cost function. The cost function
+C(δ) = 2b2(
+q
+1 + (δ/b)2 − 1)
+is very similar to the Huber cost function, but has continuous derivatives of all
+orders. Note that it approximates δ2 for small δ and is linear with slope 2b for
+large δ.
+A6.8.1 Properties of the different cost functions
+Squared error. The most basic cost function is the squared error C(δ) = δ2. Its
+main drawback is that it is not robust to outliers in the measurements, as we shall see.
+Because of the rapid growth of the quadratic curve, distant outliers exert an excessive
+influence, and can draw the cost minimum well away from the desired value.
+Non-convex cost functions. The Blake-Zisserman, corrupted Gaussian and Cauchy
+cost functions seek to mitigate the deleterious effect of outliers by giving them diminished
+weight. As is seen in the plot of the first two of these, once the error exceeds a
+certain threshold, it is classified as an outlier, and the cost remains substantially constant.
+The Cauchy cost function also seeks to deemphasize the cost of outliers, but
+this is done more gradually. These three cost functions are non-convex, which has
+important effects as we will see.
+Asymptotically linear cost functions. The L1 cost function measures the absolute
+value of the error. The main effect of this is to give outliers less weight compared with
+the squared error. The key to understanding the performance of this cost function is to
+observe that it acts to find the median of a set of data. Consider a set of real valued data
+{ai} and a cost function defined by C(x) =
+P
+i |x−ai|. The minimum of this function
+is at the median of the set {ai}. To see this, note that the derivative of |x − ai| with
+respect to x is +1 when x > ai and −1 when x < ai. Thus, the derivative is zero when
+there are as many values of ai less than x as there are greater than x. Thus, the cost is
+minimized at the median of the values ai. Note that the median is immune to changes
+in the values of data ai that lie far from the median. The value of the cost function
+changes, but not the position of its minimum.
+For higher dimensional data ai ∈ IRn P , the minimum of the cost function C(x) =
+i kx − aik has similar stability properties. Note that kx − aik is a convex function
+620 Appendix 6 Iterative Estimation Methods
+of x, and therefore so is a sum of such terms,
+P
+i kx − aik. Consequently, this cost
+function has a single minimum (as do all convex functions).
+The Huber cost function takes the form of a quadratic for small values of the error,
+δ, and becomes linear for values of δ beyond a given threshold. As such, it retains the
+outlier stability of the L1 cost function, while for inliers it reflects the property that the
+squared-error cost function gives the Maximum Likelihood estimate.
+The Pseudo-Huber cost function is also near-quadratic for small δ, and linear for
+large δ. Thus, it may be used as a smooth approximation to the Huber cost function,
+and gives similar results. It is important to note that each of these three cost functions
+has the very desirable property of being convex.
+A6.8.2 Performance of the different cost functions
+To illustrate the properties of the different cost functions we will evaluate the cost P
+i C(x−ai) for two synthetic example data sets {ai}. Of the group of asymptotically
+linear cost functions, only the Huber cost function will be shown, since the other two
+(L1 and pseudo-Huber) give very similar results.
+The data {ai} may be thought of as the outcome of an experiment to measure some
+quantity, with repeated measurements. The measurements are subject to random Gaussian
+noise, with outliers. The purpose of the estimation process is to estimate the value
+of the quantity by minimizing a cost function. The experiments and the results for the
+two data sets are described in the captions of figure A6.5 and figure A6.6.
+Summary of findings. The squared-error cost function is generally very susceptible
+to outliers, and may be regarded as unusable as long as outliers are present. If outliers
+have been thoroughly eradicated, using for instance RANSAC, then it may be used.
+The non-convex cost functions, though generally having a stable minimum, not much
+effected by outliers have the significant disadvantage of having local minima, which
+can make convergence to a global minimum chancy. The estimate is not strongly attracted
+to the minimum from outside of its immediate neighbourhood. Thus, they are
+not useful, unless (or until) the estimate is close to the final correct value.
+The Huber cost function has the pleasant property of being convex, which makes
+convergence to a global minimum more reliable. The minimum is quite immune to the
+baleful influence of outliers since it represents a compromise between the Maximum
+Likelihood estimate of the inliers and the median of the outliers. The pseudo-Huber
+cost function is a good alternative to Huber, but use of L1 should be approached with
+care, because of its non-differentiablity at the origin.
+These findings were illustrated on one-dimensional data, but they carry over to higher
+dimensional data also.
+Parameter minimization. We have seen that the Huber and related cost functions are
+convex, and hence have a single minimum. We refer here to the cost C(δ) as a function
+of the error δ. In general in problems such as structure from motion, the error δ itself is
+a non-linear function of the parameters (such as camera and point positions). For this
+reason, the total cost expressed as a function of the motion and structure parameters
+A6.8 Robust cost functions 621
+-30 -20 -10 10 20 30
+0.05
+0.1
+0.15
+0.2
+0.25
+0.3
+-10 -5 5 10
+10
+20
+30
+40
+50
+60
+70
+-10 -5 5 10
+2
+4
+6
+8
+10
+12
+14
+-10 -5 5 10
+1
+2
+3
+4
+5
+6
+7
+-10 -5 5 10
+1
+2
+3
+4
+5
+6
+-30 -20 -10 10 20 30
+3.6
+3.8
+4.2
+4.4
+-10 -5 5 10
+2.5
+5
+7.5
+10
+12.5
+15
+17.5
+20
+Fig. A6.5. The data {ai} (illustrated in the top left graph) consists of a set of measurements centred
+around 0 with unit Gaussian noise, plus 10% of outliers biased towards the right of the true value. The
+graphs of
+P
+i C(|x − ai|) correspond (left-to-right and top-to-bottom) to the cost functions Squared
+error, Cauchy, corrupted-Gaussian, Blake-Zisserman, a zoom of the Blake-Zisserman, and Huber cost
+functions. Note that the minimum of the squared-error cost function is pulled significantly to the right
+by the outliers, whereas the other cost-functions are relatively outlier-independent.
+The Blake-Zisserman cost function, which is based most nearly on the distribution of the data, has a very
+clear minimum. However, close examination (the zoomed plot) shows an undesirable characteristic,
+which is the presence of local minima near each of the outliers. An iterative method to find the cost
+minimum will fail if it is initiated outside the narrow basin of attraction surrounding the minimum.
+By contrast, the Huber cost function is convex, which means the estimate will be drawn towards the
+single minimum from any initialization point.
+can not be expected to be convex, and local minima are inevitable. Nevertheless, an
+important principle is:
+• choose a parameterization in which the error is as close as possible to being a linear
+function of the parameters, at least locally.
+Observing this principle will lead to simpler cost surfaces with fewer local minima,
+and generally quicker convergence.
+Cost functions and least-squares. Usually cost functions of the type we have
+discussed are used in the context of a parameter minimization procedure, such as
+Levenberg-Marquardt or Newton iteration. Commonly, these procedures seek to minimize
+the norm of some vector  depending on a set of parameters p. Thus, they
+minimize k(p)k2 over all choices of the parameter vector p. For instance in a structure
+and motion problem we may seek to minimize
+P
+i kxi − ˆxik2 =
+P
+i kδik2 = kk2
+where the values xi are measured image coordinates, the ˆxi are the predicted values de622
+Appendix 6 Iterative Estimation Methods
+-30 -20 -10 10 20 30
+0.1
+0.2
+0.3
+0.4
+-30 -20 -10 10 20 30
+50
+100
+150
+200
+250
+-30 -20 -10 10 20 30
+2.5
+5
+7.5
+10
+12.5
+15
+17.5
+20
+-10 -5 5 10 15 20
+2.5
+5
+7.5
+10
+12.5
+15
+17.5
+20
+-30 -20 -10 10 20 30
+1
+2
+3
+4
+5
+6
+-30 -20 -10 10 20 30
+10
+20
+30
+40
+50
+60
+70
+Fig. A6.6. In this experiment, as in figure A6.5, the main part of the data (70%) is centred at the origin,
+with 30% of “outliers” concentrated in a block away from the origin (see top left graph). This type of
+measurement distribution is quite realistic in many imaging scenarios, for instance where point or edge
+measurement is confused by ghost edges. The cost functions in order from the top are: Square error,
+Cauchy, corrupted Gaussian, Blake-Zisserman and Huber.
+The Squared error cost function finds the mean of the measurement distribution, which is significantly
+pulled to the right by the block of outliers. The effect of the outlier block on the non-convex cost functions
+is also shown clearly here. Because of the non-convexity, the total cost function does not have a single
+minimum, but rather two minima around the separate blocks of measurements. Because of its convexity,
+the Huber cost function has a single minimum, which is located close to the median of the data, and is
+hardly influenced by the presence of the 30% of outliers.
+rived from the current parameter values, and  is the vector formed by concatenating
+the individual error vectors δi.
+Since minimization of a squared vector norm kk2 is built into most implementations
+of Levenberg-Marquardt, we need to see how to apply the robust cost function in
+this case. The answer is to replace each vector δi by a weighted vector δ′
+i = wiδi such
+that
+kδ′
+ik2 = w2
+i kδik2 = C(kδik)
+for then
+P
+i C(kδik) =
+P
+i kδik2 as desired. From this equality, we find
+wi = C(kδik)1/2/kδik. (A6.18)
+Thus, the minimization problem is to minimize k′k2 where ′ is the vector obtained
+by concatenating the vectors δ′
+i = wiδi, and each wi is computed from (A6.18). Note
+that wi is a function of kδik, which normally seeks to attenuate the cost of the outliers.
+This attenuation function is shown in the final column of figure A6.4 for the different
+cost functions. For the Squared error cost function, the attenuation factor is 1, meaning
+no attenuation occurs. For the other cost functions, there is little attenuation within an
+inlier region, and points outside this region are attenuated to different degrees.
+A6.9 Parametrization 623
+A6.9 Parametrization
+In the sort of iterative estimate problems we are considering here, an important consideration
+is how the solution space is to be parametrized. Most of the geometric entities
+that we consider do not have a simple Euclidean parametrization. For example, in
+solving a geometric optimization problem, we often wish to iterate over all camera
+orientations, represented by rotations. Rotations are most conveniently represented for
+computational purposes by rotation matrices, but this is a major overparametrization.
+The set of 3D rotations is naturally 3-dimensional (in fact, it forms a 3-dimensional Lie
+group, SO(3)), and we may wish to parametrize it with only 3 parameters.
+Homogeneous vectors or matrices are another common type of representation. It is
+tempting to use a parametrization of a homogeneous n-vector just by using the components
+of the vector itself. However, there are really only n − 1 degrees of freedom in
+a homogeneous n-vector, and it is sometimes advantageous to parametrize it with only
+n − 1 parameters.
+Gauge freedom. There has been much attention paid to gauge freedom and gauge independence
+in recent papers (for instance [McLauchlan-00]). In this context, the word
+gauge means a coordinate system for a parameter set, and gauge-freedom essentially
+refers to a change in the representation of the parameter set that does not essentially
+change the underlying geometry, and hence has no effect on the cost function. The
+most important gauge freedoms commonly encountered are projective or other ambiguities,
+such as those arising in reconstruction problems. However, the scale ambiguity
+of homogeneous vectors can be counted as gauge freedom also. Gauge freedoms in the
+parametrization of an optimization problem cause the normal equations to be singular,
+and hence allow multiple solutions. This problem is avoided by the regularization
+(or enhancement) step in Levenberg-Marquardt, but there is evidence that excessive
+gauge freedoms, causing slop in the parametrization, can lead to slower convergence.
+In addition, when gauge freedoms are present the covariance matrix of the estimated
+parameters is troublesome, in that there will be infinite variance in unconstrained parameter
+directions. For instance, it makes no sense to talk of the covariance matrix of an
+estimated homogeneous vector, unless the scale of the vector is constrained. Therefore,
+in the following pages, we will give some methods for obtaining minimal parametrizations
+for certain common geometric parameter sets.
+What makes a good parametrization? The foremost requirement of a good
+parametrization is that it be singularity-free, at least in the areas that are visited during
+the course of an iterative optimization. This means that the parametrization should be
+locally continuous, differentiable and one-to-one – in short a diffeomorphism. A simple
+example of what is meant by this is given by the latitude-longitude parametrization
+of a sphere, that is, spherical-polar coordinates. This has a singularity at the poles,
+where the mapping from the lat-long coordinates to a neighbourhood of the pole is not
+one-to-one. The difficulty is that the point with coordinates (latitude = 89◦, longitude
+= 0◦) is very close to the point (latitude = 89◦, longitude = 90◦) – they are both points
+very close to the pole. However, they are a long way apart in parameter space. To see
+624 Appendix 6 Iterative Estimation Methods
+the effect of this, suppose that an optimization is taking place on the sphere, tracking
+down a minimum of a cost function, which exists at the point (89◦, 90◦). If the current
+estimate is proceeding in the general direction of this minimum, up the line of zero
+longitude, when it gets near the pole it will find that although close to the minimum,
+it can not get there without a long detour in lat-long parameter space. The difficulty is
+that arbitrarily close points on the sphere, in the neighbourhood of the singularity (the
+pole) can have large differences in parameter values. The same sort of thing happens
+with representations of rotations using Euler angles.
+Now, we move on to consider some specific parametrizations.
+A6.9.1 Parametrization of 3D rotations
+Using the angle-axis formula of (A4.9–p584) we may parametrize a 3 × 3 rotation by
+a 3-vector t. This represents a rotation through an angle ktk about the axis determined
+by the vector t. We denote the corresponding rotation matrix by R(t).
+Regarding this representation, we may make certain simple observations:
+(i) The identity map (no rotation) is represented by the zero vector t = 0.
+(ii) If some rotation R is represented by a vector t, then the inverse rotation is represented
+by −t. In symbols: R(t)−1 = R(−t).
+(iii) If t is small, then the rotation matrix is approximated by I + [t]×.
+(iv) For small rotations represented by t1 and t2, the composite rotation is represented
+to first-order by t1 + t2. In other words R(t1)R(t2) ≈ R(t1 + t2). Thus
+the mapping t 7→ R(t) is to first order a group isomorphism for small t. In fact,
+for small t, the map is an isometry (distance preserving map) in terms of the
+distance between two rotations R1 and R2 defined to equal to the angle of the
+rotation R1R−1
+2 .
+(v) Any rotation may be represented as R(t) for some t such that ktk ≤ π. That
+is, any rotation is a rotation through an angle of at most π radians about some
+axis. The mapping t 7→ R(t) is one-to-one for ktk < π and two-to-one for
+ktk < 2π. If ktk = 2π, then R(t) is the identity map, regardless of t. Thus, the
+parametrization has a singularity at ktk = 2π.
+(vi) Normalization: In parametrizing rotations by a vector t it is best to maintain
+the condition that ktk ≤ π, in order to keep away from the singularity when
+ktk = 2π. If ktk > π, then it may be replaced by the vector (ktk−2π)t/ktk =
+t(1 − 2π/ktk), which represents the same rotation.
+A6.9.2 Parametrization of homogeneous vectors
+The quaternion representation of a rotation (section A4.3.3(p585)) is a redundant representation
+in that it contains 4 parameters where 3 will suffice. The angle-axis representation
+on the other hand is a minimum parametrization. Many entities in projective
+geometry are represented by homogeneous quantities, either vectors or matrices, for
+instance points in projective space or the fundamental matrix to name a few. For computational
+purposes, it is possible to represent such quantities as vectors with a minA6.9
+Parametrization 625
+imum number of parameters in a similar way to which the angle-axis representation
+gives an alternative to the quaternion representation of a rotation.
+Let v be a vector of any dimension, and represent by ¯v the unit vector
+(sinc(kvk/2)vT, cos(kvk/2))T. This mapping v 7→ ¯v maps the disk of radius π
+(that is, the set of vectors of length at most π) smoothly and one-to-one onto the set
+of unit vectors ¯v with non-negative final coordinate. Thus, it provides a mapping onto
+the set of homogeneous vectors. The only difficult point with this mapping is that it
+takes any vector of length 2π to the same vector (0,−1)T. However, this singular point
+may be avoided by renormalizing any vector v of length kvk > π, replacing it with
+(kvk − 2π)v/kvk which represents the same homogeneous vector ¯v.
+A6.9.3 Parametrization of the n-sphere
+Commonly it occurs in geometric optimization problems that some vector of parameters
+is required to lie on a unit sphere. As an example, consider a complete Euclidean
+bundle-adjustment with two views. The two cameras may be taken as P = [I | 0] and
+P′ = [R|t], where R is a rotation and t is a translation. In addition, 3D points Xi are
+defined, which are to map via the two camera matrices to image points. This defines an
+optimization problem in which the parameters are R, t and the points Xi, and the cost to
+be minimized is a geometric residual of the projections with respect to the image measurements.
+In this problem, there is an overall scale ambiguity, and this is conveniently
+resolved by requiring that ktk = 1.
+A minimum parametrization for the rotation matrix R is given by the rotation
+parametrization of section A6.9.1. Similarly, the points Xi are conveniently
+parametrized as homogeneous 4-vectors, using the parametrization of section A6.9.2.
+We consider in this section how one may parametrize the unit vector t. Note that we can
+not simply parametrize t as a homogeneous vector, since change of sign of t changes
+the projection P′X = [R|t]X.
+The same problem arises in multiple-view Euclidean bundle-adjustment. In this case
+we have many camera matrices Pi = [Ri|ti] and we may fix P0 = [I | 0]. The set
+of translations ti for all i > 0 are subject to scale ambiguity. We can minimally
+parametrize the translations by requiring that kTk = 1, where T is the vector formed
+by concatenating all the ti for i > 0.
+There may be several ways of parametrizing a unit vector. We consider one particular
+parametrization here based on a local parametrization of the tangent plane to the unit
+sphere. We consider a sphere of dimension n, which consists of the set of (n + 1)-
+vectors of unit length. Let x be a such a vector. Let Hv(x) be a Householder matrix (see
+section A4.1.2(p580)) such that Hv(x)x = (0, . . . , 0, 1)T. Thus, we have transformed
+the vector x to lie along the coordinate axis. Now, we consider a parametrization of the
+unit sphere in the vicinity of (0, . . . , 0, 1)T. Such a parametrization is a map IRn → Sn
+that is well behaved in the vicinity of the origin. There are many choices, of which two
+possibilities are
+(i) f(y) = ˆy/kˆyk where ˆy = (yT, 1)T
+(ii) f(y) = (sinc(kyk/2)yT, cos(kyk)/2)T .
+626 Appendix 6 Iterative Estimation Methods
+Both these functions map the origin (0, . . . , 0)T to (0, . . . , 0, 1)T, and their Jacobian is
+∂f/∂y = [I|0]T. Note that although we are interested in these functions just as local
+parametrizations, the first provides a parametrization for half the sphere, whereas for
+kyk ≤ π the second map parametrizes the whole of the sphere with no singularity
+except at kyk = 2π.
+The composite map y 7→ Hv(x)f(y) provides a local parametrization for a neighbourhood
+of the point x on the sphere (note here that we should write H−1
+v(x), but
+Hv(x) = H−1
+v(x)). The Jacobian of this map is simply Hv(x)[I|0]T, which consists of
+the first n columns of the Householder matrix, and hence is easy to compute.
+In minimization problems, we usually need to compute a Jacobian matrix ∂C/∂y,
+of a vector valued cost function C with respect to a set of parameters y. In the case
+where the parameters are constrainted to lie on a sphere Sn in IRn+1 the cost function is
+nonetheless usually defined for all values of the parameter x in IRn+1. As an example,
+in the Euclidean bundle-adjustment problem considered at the start of this section, the
+cost function (for instance residual reprojection error) can be defined for all pairs of
+cameras P = [I | 0] and P′ = [R|t] with t taking any value. Nevertheless, we may wish
+to minimize the cost function constraining t to lie on a sphere.
+Thus, consider the case where a cost function C(x) is defined for x ∈ IRn+1, but we
+parametrize x to lie on a sphere by setting x = Hv(x)f(y) with y ∈ IRn. In this case,
+we see that
+J =
+∂C
+∂y
+=
+∂C
+∂x
+∂x
+∂y
+=
+∂C
+∂x
+Hv(x)[I|0]T.
+In summary, by using local parametrizations, a parameter vector may be constrained
+to lie on an n-sphere with a modest added computational cost compared with the overparametrization
+of allowing the vector to vary over the whole of IRn+1. The key points
+of the method are as follows.
+(i) Store the parameter vector x ∈ IRn+1, satisfying kxk = 1.
+(ii) In forming the linear update equations, compute the Jacobian matrix ∂C/∂x,
+and multiply it by Hv(x)[I|0]T to obtain the Jacobian with respect to a minimal
+parameter set y. Multiplication of ∂C/∂x by Hv(x)[I|0]T is efficiently carried
+out by the method of (A4.4–p580).
+(iii) The iteration step provides an increment parameter vector δy. Compute the
+new value of x = Hv(x)f(δy).
+Essentially the same method of using local-parametrizations may be used more generally
+in other situations where a minimal parametrization is required. For instance,
+in section 11.4.2(p285) it was seen how the fundamental matrix may be parametrized
+locally with a minimum number of parameters, but no minimal parametrization can
+cover the whole set of fundamental matrices.
+A6.10 Notes and exercises
+(i) We prove in various steps the form of the pseudo-inverse of a block matrix
+given in (A6.13–p606).
+A6.10 Notes and exercises 627
+(a) Recall that H+ = G(GTHG)−1GT if and only if NL(G) = NL(H) (see
+section A5.2(p590)).
+(b) Let G be invertible. Then (GHGT)+ = G−TH+G−1 if and only if
+NL(H)GT = NL(H)G−1.
+(c) Applying this condition to (A6.12–p605) the necessary and sufficient
+condition for (A6.13–p606) to be valid is that NL(U − WV−1WT) ⊆
+NL(Y) = NL(W).
+(d) With U, V and W defined in terms of A and B as in (A6.11–p605) this is
+equivalent to the condition span(A) ∩ span(B) = ∅.
+(ii) Investigate conditions under which the condition span(A)∩span(B) = ∅ is true.
+It may be interpreted as meaning that the effects of varying the parameters a
+(for instance camera parameters) and the effects of varying b (point parameters)
+can not be complementary. Clearly this is not the case with (for instance) unconstrained
+projective reconstruction where both cameras and points may vary
+without affecting the measurements. In such a case, the variance of parameters
+a and b is infinite in directions δa and δb such that Aδa = Bδb.　-->
+</p><p>
+</p><p>
+    </body>
+</html>

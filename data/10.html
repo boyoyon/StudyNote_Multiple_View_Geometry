@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>10章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>10章 カメラと構造の3D再構築</center></h1>
+<p>
+
+この章では、2つのビューからシーンとカメラの空間レイアウトをどのように、そしてどの程度復元できるかを説明します。画像の対応点集合\(x_i\leftrightarrow x^\prime\)が与えられていると仮定します。これらの対応点は、未知の3次元点集合\(X_i\)から得られるものと仮定します。同様に、カメラの位置、向き、キャリブレーションも不明です。再構成タスクは、カメラ行列\(P\)と\(P^\prime\)、および3次元点\(X_i\)を次式のように求めることです。
+
+<!-- This chapter describes how and to what extent the spatial layout of a scene and the
+cameras can be recovered from two views. Suppose that a set of image correspondences
+\(x_i\leftrightarrow x^\prime\) are given. It is assumed that these correspondences come from a set of 3D points \(X_i\), which are unknown. Similarly, the position, orientation and calibration of the cameras are not known. The reconstruction task is to find the camera matrices \(P\) and \(P^\prime\), as well as the 3D points \(X_i\) such that -->
+
+\[
+x_i = PX_i　x^\prime = P^\prime X_i　for\; all\; i
+\]
+
+点数が少なすぎると、このタスクは不可能です。しかし、基礎行列を一意に計算できるだけの十分な数の点の対応関係があれば、射影曖昧性を除いてシーンを再構成できる可能性があります。これは非常に重要な結果であり、非較正アプローチの主要な成果の一つです。
+
+<!-- Given too few points, this task is not possible. However, if there are sufficiently many
+point correspondences to allow the fundamental matrix to be computed uniquely, then
+the scene may be reconstructed up to a projective ambiguity. This is a very significant
+result, and one of the major achievements of the uncalibrated approach. -->
+
+</p><p>
+
+カメラやシーンに関する追加情報があれば、再構成における曖昧さを軽減できる可能性があります。本稿では、まず曖昧さをアフィン変換し、次に距離変換する2段階のアプローチについて説明します。各段階では、適切なクラスの情報が必要となります。
+
+<!-- The ambiguity in the reconstruction may be reduced if additional information is supplied on the cameras or scene. We describe a two-stage approach where the ambiguity
+is first reduced to affine, and second to metric; each stage requiring information of the
+appropriate class. -->
+
+</p>
+<h2><center>10.1 再構築方法の概要</center></h2>
+<p>
+
+2つのビューから再構成する手法を以下のように記述する。
+<div class="styleBullet">
+<ul>
+<li>(i) 点の対応から基礎行列を計算する。
+</li><br><li>(ii) 基礎行列からカメラ行列を計算する。
+</li><br><li>(iii) 各点の対応 \(x_i\leftrightarrow x^\prime\) について、これら2つの画像点に投影される空間内の点を計算する。</li>
+</ul>
+</div>
+
+<!-- We describe a method for reconstruction from two views as follows.
+(i) Compute the fundamental matrix from point correspondences.
+(ii) Compute the camera matrices from the fundamental matrix.
+(iii) For each point correspondence \(x_i\leftrightarrow x^\prime\), compute the point in space that projects to these two image points. -->
+
+</p><p>
+
+<!-- Many variants on this method are possible. For instance, if the cameras are calibrated,
+then one will compute the essential matrix instead of the fundamental matrix. Furthermore,
+one may use information about the motion of the camera, scene constraints or
+partial camera calibration to obtain refinements of the reconstruction.
+
+</p><p>
+
+Each of the steps of this reconstruction method will be discussed briefly in the following
+paragraphs. The method described is no more than a conceptual approach to
+reconstruction. The reader is warned not to implement a reconstruction method based
+solely on the description given in this section. For real images where measurements are “noisy” preferred methods for reconstruction, based on this general outline, are
+described in chapter 11 and chapter 12.
+
+</p><p>
+
+Fig. 10.1. Triangulation. The image points x and x′ back project to rays. If the epipolar constraint
+x′TFx = 0 is satisfied, then these two rays lie in a plane, and so intersect in a point X in 3-space.
+
+</p><p>
+
+
+<strong>Computation of the fundamental matrix.</strong><br> 
+Given a set of correspondences xi $ x′
+i
+in two images the fundamental matrix F satisfies the condition x′
+i
+Fxi = 0 for all i. With
+the xi and x′
+i known, this equation is linear in the (unknown) entries of the matrix F. In
+fact, each point correspondence generates one linear equation in the entries of F. Given
+at least 8 point correspondences it is possible to solve linearly for the entries of F up to
+scale (a non-linear solution is available for 7 point correspondences). With more than
+8 equations a least-squares solution is found. This is the general principle of a method
+for computing the fundamental matrix.
+Recommended methods of computing the fundamental matrix from a set of point
+correspondences will be described later in chapter 11.
+Computation of the camera matrices. A pair of camera matrices P and P′ corresponding
+to the fundamental matrix F are easily computed using the direct formula in
+result 9.14.
+Triangulation. Given the camera matrices P and P′, let x and x′ be two points in the
+two images that satisfy the epipolar constraint, x′TFx = 0. As shown in chapter 9 this
+constraint may be interpreted geometrically in terms of the rays in space corresponding
+to the two image points. In particular it means that x′ lies on the epipolar line Fx. In
+turn this means that the two rays back-projected from image points x and x′ lie in a
+common epipolar plane, that is, a plane passing through the two camera centres. Since
+the two rays lie in a plane, they will intersect in some point. This point X projects
+via the two cameras to the points x and x′ in the two images. This is illustrated in
+figure 10.1.
+The only points in 3-space that cannot be determined from their images are points on
+the baseline between the two cameras. In this case the back-projected rays are collinear
+(both being equal to the baseline) and intersect along their whole length. Thus, the point
+264 10 3D Reconstruction of Cameras and Structure
+X cannot be uniquely determined. Points on the baseline project to the epipoles in both
+images.
+Numerically stable methods of actually determining the point X at the intersection
+of the two rays back-projected from x and x′ will be described later in chapter 12.
+10.2 Reconstruction ambiguity
+In this section we discuss the inherent ambiguities involved in reconstruction of a scene
+from point correspondences. This topic will be discussed in a general context, without
+reference to a specific method of carrying out the reconstruction.
+Without some knowledge of a scene’s placement with respect to a 3D coordinate
+frame, it is generally not possible to reconstruct the absolute position or orientation
+of a scene from a pair of views (or in fact from any number of views). This is true
+independently of any knowledge which may be available about the internal parameters
+of the cameras, or their relative placement. For instance the exact latitude and longitude
+of the scene in figure 9.8(p248) (or any scene) cannot be computed, nor is it possible to
+determine whether the corridor runs north-south or east-west. This may be expressed
+by saying that the scene is determined at best up to a Euclidean transformation (rotation
+and translation) with respect to the world frame.
+Only slightly less obvious is the fact that the overall scale of the scene cannot be
+determined. Considering figure 9.8(p248) once more, it is impossible based on the
+images alone to determine the width of the corridor. It may be two metres, one metre.
+It is even possible that this is an image of a doll’s house and the corridor is 10 cm
+wide. Our common experience leads us to expect that ceilings are approximately 3m
+from the floor, which allows us to perceive the real scale of the scene. This extra
+information is an example of subsidiary knowledge of the scene not derived from image
+measurements. Without such knowledge therefore the scene is determined by the image
+only up to a similarity transformation (rotation, translation and scaling).
+To give a mathematical basis to this observation, let Xi be a set of points and P, P′
+be a pair of cameras projecting Xi to image points xi and x′
+i. The points Xi and the
+camera pair constitute a reconstruction of the scene from the image correspondences.
+Now let
+HS =
+"
+R t
+0T 
+#
+be any similarity transformation: R is a rotation, t a translation and −1 represents overall
+scaling. Replacing each point Xi by HSXi and cameras P and P′ by PH−1
+S and P′H−1
+S
+respectively does not change the observed image points, since PXi = (PH−1
+S )(HSXi).
+Furthermore, if P is decomposed as P = K[RP | tP], then one computes
+PH−1
+S = K[RPR−1 | t′]
+for some t′ that we do not need to compute more exactly. This result shows that multiplying
+by H−1
+S does not change the calibration matrix of P. Consequently this ambiguity
+of reconstruction exists even for calibrated cameras. It was shown by Longuet-Higgins
+10.2 Reconstruction ambiguity 265
+Similarity
+Projective
+a b
+Fig. 10.2. Reconstruction ambiguity. (a) If the cameras are calibrated then any reconstruction must
+respect the angle between rays measured in the image. A similarity transformation of the structure
+and camera positions does not change the measured angle. The angle between rays and the baseline
+(epipoles) is also unchanged. (b) If the cameras are uncalibrated then reconstructions must only respect
+the image points (the intersection of the rays with the image plane). A projective transformation of the
+structure and camera positions does not change the measured points, although the angle between rays
+is altered. The epipoles are also unchanged (intersection with baseline).
+([LonguetHiggins-81]) that for calibrated cameras, this is the only ambiguity of reconstruction.
+Thus for calibrated cameras, reconstruction is possible up to a similarity
+transformation. This is illustrated in figure 10.2a.
+Projective ambiguity. If nothing is known of the calibration of either camera, nor the
+placement of one camera with respect to the other, then the ambiguity of reconstruction
+is expressed by an arbitrary projective transformation. In particular, if H is any 4 × 4
+invertible matrix, representing a projective transformation of IP3, then replacing points
+Xi by HXi and matrices P and P′ by PH−1 and P′H−1 (as in the previous paragraph)
+does not change the image points. This shows that the points Xi and the cameras can
+be determined at best only up to a projective transformation. It is an important result,
+proved in this chapter (section 10.3), that this is the only ambiguity in the reconstruction
+of points from two images. Thus reconstruction from uncalibrated cameras is possible
+up to a projective transformation. This is illustrated in figure 10.2b.
+Other types of reconstruction ambiguity result from certain assumptions on the types
+of motion, or partial knowledge of the cameras. For instance,
+(i) If the two cameras are related via a translational motion, without change of
+calibration, then reconstruction is possible up to an affine transformation.
+(ii) If the two cameras are calibrated apart from their focal lengths, then reconstruction
+is still possible up to a similarity transformation.
+These two cases will be considered later in section 10.4.1 and example 19.8(p472),
+respectively.
+Terminology. In any reconstruction problem derived from real data, consisting of
+point correspondences xi $ x′
+i, there exists a true reconstruction consisting of the actual
+points ¯Xi and actual cameras ¯P, ¯P
+′ that generated the measured observations. The
+266 10 3D Reconstruction of Cameras and Structure
+reconstructed point set Xi and cameras differ from the true reconstruction by a transformation
+belonging to a given class or group (for instance a similarity, projective or
+affine transformation). One speaks of projective reconstruction, affine reconstruction,
+similarity reconstruction, and so on, to indicate the type of transformation involved.
+However, the term metric reconstruction is normally used in preference to similarity
+reconstruction, being identical in meaning. The term indicates that metric properties,
+such as angles between lines and ratios of lengths, can be measured on the reconstruction
+and have their veridical values (since these are similarity invariants). In addition,
+the term Euclidean reconstruction is frequently used in the published literature to mean
+the same thing as a similarity or metric reconstruction, since true Euclidean reconstruction
+(including determination of overall scale) is not possible without extraneous
+information.
+10.3 The projective reconstruction theorem
+In this section the basic theorem of projective reconstruction from uncalibrated cameras
+is proved. Informally, the theorem may be stated as follows.
+• If a set of point correspondences in two views determine the fundamental matrix
+uniquely, then the scene and cameras may be reconstructed from these correspondences
+alone, and any two such reconstructions from these correspondences are projectively
+equivalent.
+Points lying on the line joining the two camera centres must be excluded, since such
+points cannot be reconstructed uniquely even if the camera matrices are determined.
+The formal statement is:
+Theorem 10.1 (Projective reconstruction theorem). Suppose that xi $ x′
+i is a set
+of correspondences between points in two images and that the fundamental matrix F
+is uniquely determined by the condition x′
+i
+TFxi = 0 for all i. Let (P1, P′
+1, {X1i}) and
+(P2, P′
+2, {X2i}) be two reconstructions of the correspondences xi $ x′
+i. Then there
+exists a non-singular matrix H such that P2 = P1H−1, P′
+2 = P′
+1
+H−1 and X2i = HX1i for
+all i, except for those i such that Fxi = x′
+i
+TF = 0.
+Proof. Since the fundamental matrix is uniquely determined by the point correspondences,
+one deduces that F is the fundamental matrix corresponding to the camera pair
+(P1, P′
+1) and also to (P2, P′
+2). According to theorem 9.10(p254) there is a projective
+transformation H such that P2 = P1H−1 and P′
+2 = P′
+1
+H−1 as required.
+As for the points, one observes that P2(HX1i) = P1H−1HX1i = P1X1i = xi. On the
+other hand P2X2i = xi, so P2(HX1i) = P2X2i. Thus both HX1i and X2i map to the same
+point xi under the action of the camera P2. It follows that both HX1i and X2i lie on the
+same ray through the camera centre of P2. Similarly, it may be deduced that these two
+points lie on the same ray through the camera centre of P′
+2. There are two possibilities:
+either X2i = HX1i as required, or they are distinct points lying on the line joining the
+two camera centres. In this latter case, the image points xi and x′
+i coincide with the
+epipoles in the two images, and so Fxi = x′
+i
+TF = 0.
+10.4 Stratified reconstruction 267
+a
+b
+Fig. 10.3. Projective reconstruction. (a) Original image pair. (b) 2 views of a 3D projective reconstruction
+of the scene. The reconstruction requires no information about the camera matrices, or
+information about the scene geometry. The fundamental matrix F is computed from point correspondences
+between the images, camera matrices are retrieved from F, and then 3D points are computed by
+triangulation from the correspondences. The lines of the wireframe link the computed 3D points.
+This is an enormously significant result, since it implies that one may compute a
+projective reconstruction of a scene from two views based on image correspondences
+alone, without knowing anything about the calibration or pose of the two cameras involved.
+In particular the true reconstruction is within a projective transformation of the
+projective reconstruction. Figure 10.3 shows an example of 3D structure computed as
+part of a projective reconstruction from two images.
+In more detail suppose the true Euclidean reconstruction is (PE, P′
+E, {XEi}) and the
+projective reconstruction is (P, P′, {Xi}), then the reconstructions are related by a nonsingular
+matrix H such that
+PE = PH−1, P′
+E = P′H−1, and XEi = HXi (10.1)
+where H is a 4 × 4 homography matrix which is unknown but the same for all points.
+For some applications projective reconstruction is all that is required. For example,
+questions such as “at what point does a line intersect a plane?”, “what is the mapping
+between two views induced by particular surfaces, such as a plane or quadric?” can be
+dealt with directly from the projective reconstruction. Furthermore it will be seen in
+the sequel that obtaining a projective reconstruction of a scene is the first step towards
+affine or metric reconstruction.
+10.4 Stratified reconstruction
+The “stratified” approach to reconstruction is to begin with a projective reconstruction
+and then to refine it progressively to an affine and finally a metric reconstruction, if
+268 10 3D Reconstruction of Cameras and Structure
+possible. Of course, as has just been seen, affine and metric reconstruction are not
+possible without further information either about the scene, the motion or the camera
+calibration.
+10.4.1 The step to affine reconstruction
+The essence of affine reconstruction is to locate the plane at infinity by some means,
+since this knowledge is equivalent to an affine reconstruction. This equivalence is
+explained in the 2D case in section 2.7(p47). To see this equivalence for reconstruction,
+suppose we have determined a projective reconstruction of a scene, consisting of a
+triple (P, P′, {Xi}). Suppose further that by some means a certain plane  has been
+identified as the true plane at infinity. The plane  is expressed as a 4-vector in the
+coordinate frame of the projective reconstruction. In the true reconstruction,  has
+coordinates (0, 0, 0, 1)T, and we may find a projective transformation that maps  to
+(0, 0, 0, 1)T. Considering the way a projective transformation acts on planes, we want
+to find H such that H−T
+ = (0, 0, 0, 1)T. Such a transformation is given by
+H =
+"
+I | 0
+
+T
+#
+. (10.2)
+Indeed, it is immediately verified that HT(0, 0, 0, 1)T = , and thus H−T
+ =
+(0, 0, 0, 1)T, as desired. The transformation H is now applied to all points and the two
+cameras. Notice, however that this formula will not work if the final coordinate of 
+T
+is zero. In this case, one may compute a suitable H by computing H−T as a Householder
+matrix (A4.2–p580) such that H−T
+ = (0, 0, 0, 1)T.
+At this point, the reconstruction that one has is not necessarily the true reconstruction
+– all one knows is that the plane at infinity is correctly placed. The present reconstruction
+differs from the true reconstruction by a projective transformation that fixes the
+plane at infinity. However, according to result 3.7(p80), a projective transformation
+fixing the plane at infinity is an affine transformation. Hence the reconstruction differs
+by an affine transformation from the true reconstruction – it is an affine reconstruction.
+An affine reconstruction may well be sufficient for some applications. For example,
+the mid-point of two points and the centroid of a set of points may now be computed,
+and lines constructed parallel to other lines and to planes. Such computations are not
+possible from a projective reconstruction.
+As has been stated, the plane at infinity cannot be identified unless some extra information
+is given. We will now give several examples of the type of information that
+suffices for this identification.
+Translational motion
+Consider the case where the camera is known to undergo a purely translational motion.
+In this case, it is possible to carry out affine reconstruction from two views. A simple
+way of seeing this is to observe that a point X on the plane at infinity will map to the
+same point in two images related by a translation. This is easily verified formally. It is
+also part of our common experience that as one moves in a straight line (for instance in
+10.4 Stratified reconstruction 269
+a car on a straight road), objects at a great distance (such as the moon) do not appear
+to move – only the nearby objects move past the field of view. This being so, one may
+invent any number of matched points xi $ xi where a point in one image corresponds
+with the same point in the other image. Note that one does not actually have to observe
+such a correspondence in the two images – any point and the same point in the other
+image will do. Given a projective reconstruction, one may then reconstruct the point
+Xi corresponding to the match xi $ xi. Point Xi will lie on the plane at infinity.
+From three such points one can get three points on the plane at infinity – sufficient to
+determine it uniquely.
+Although this argument gives a constructive proof that affine reconstruction is possible
+from a translating camera, this does not mean that this is the best way to proceed
+numerically. In fact in this case, the assumption of translational motion implies
+a very restricted form for the fundamental matrix – it is skew-symmetric as shown in
+section 9.3.1. This special form should be taken into account when solving for the
+fundamental matrix.
+Result 10.2. Suppose the motion of the cameras is a pure translation with no rotation
+and no change in the internal parameters. As shown in example 9.6(p249) F = [e]× =
+[e′]×, and for an affine reconstruction one may choose the two cameras as P = [I | 0]
+and P′ = [I | e′].
+Scene constraints
+Scene constraints or conditions may also be used to obtain an affine reconstruction.
+As long as three points can be identified that are known to lie on the plane at infinity,
+then that plane may be identified, and the reconstruction transformed to an affine
+reconstruction.
+Parallel lines. The most obvious such condition is the knowledge that 3D lines are in
+reality parallel. The intersection of the two parallel lines in space gives a point on the
+plane at infinity. The image of this point is the vanishing point of the line, and is the
+point of intersection of the two imaged lines. Suppose that three sets of parallel lines
+can be identified in the scene. Each set intersects in a point on the plane at infinity.
+Provided each set has a different direction, the three points will be distinct. Since three
+points determine a plane, this information is sufficient to identify the plane .
+The best way of actually computing the intersection of lines in space is a somewhat
+delicate problem, since in the presence of noise, lines that are intended to intersect
+rarely do. It is discussed in some detail in chapter 12. Correct numerical procedures
+for computing the plane are given in chapter 13. An example of an affine reconstruction
+computed from three sets of parallel scene lines is given in figure 10.4.
+Note that it is not necessary to find the vanishing point in both images. Suppose
+the vanishing point v is computed from imaged parallel lines in the first image, and
+l′ is a corresponding line in the second image. Vanishing points satisfy the epipolar
+constraint, so the corresponding vanishing point v′ in the second image may be computed
+as the intersection of l′ and the epipolar line Fv of v. The construction of the
+270 10 3D Reconstruction of Cameras and Structure
+a
+b
+Fig. 10.4. Affine reconstruction. The projective reconstruction of figure 10.3 may be upgraded to affine
+using parallel scene lines. (a) There are 3 sets of parallel lines in the scene, each set with a different
+direction. These 3 sets enable the position of the plane at infinity, ∞, to be computed in the projective
+reconstruction. The wireframe projective reconstruction of figure 10.3 is then affinely rectified using the
+homography (10.2). (b) Shows two orthographic views of the wireframe affine reconstruction. Note that
+parallel scene lines are parallel in the reconstruction, but lines that are perpendicular in the scene are
+not perpendicular in the reconstruction.
+3-space point X can be neatly expressed algebraically as the solution of the equations
+([v]×P)X = 0 and (l′TP′)X = 0. These equations expresses the fact that X maps to v
+in the first image, and to a point on l′ in the second image.
+Distance ratios on a line. An alternative to computing vanishing points as the intersection
+of imaged parallel scene lines is to use knowledge of affine length ratios in
+the scene. For example, given two intervals on a line with a known length ratio, the
+point at infinity on the line may be determined. This means that from an image of a
+line on which a world distance ratio is known, for example that three points are equally
+spaced, the vanishing point may be determined. This computation, and other means of
+computing vanishing points and vanishing lines, are described in section 2.7(p47).
+The infinite homography
+Once the plane at infinity has been located, so that we have an affine reconstruction,
+then we also have an image-to-image map called the “infinite homography”. This map,
+which is a 2D homography , is described in greater detail in chapter 13. Briefly, it is
+the map that transfers points from the P image to the P′ image via the plane at infinity
+as follows: the ray corresponding to a point x is extended to meet the plane at infinity
+in a point X; this point is projected to a point x′ in the other image. The homography
+from x to x′ is written as x′ = H∞x.
+Having an affine reconstruction is equivalent to knowing the infinite homography as
+will now be shown. Given two cameras P = [M | m] and P′ = [M′ | m′] of an affine
+reconstruction, the infinite homography is given by H∞ = M′M−1. This is because a
+point X = (˜X
+T
+, 0)T on the plane at infinity maps to x = M˜X in one image and x′ = M′ ˜X
+in the other, so x′ = M′M−1x for points on ∞. Furthermore, it may be verified that
+10.4 Stratified reconstruction 271
+this is unchanged by a 3-space affine transformation of the cameras. Hence, the infinite
+homography may be computed explicitly from an affine reconstruction, and vice versa:
+Result 10.3. If an affine reconstruction has been obtained in which the camera matrices
+are P = [I | 0] and P′ = [M′ | e′], then the infinite homography is given by H∞ = M′.
+Conversely, if the infinite homography H∞ has been obtained, then the cameras of an
+affine reconstruction may be chosen as P = [I | 0] and P′ = [H∞ | e′].
+The infinite homography may be computed directly from corresponding image entities,
+rather than indirectly from an affine reconstruction. For example, H∞ can be
+computed from the correspondence of three vanishing points together with F, or the
+correspondence of a vanishing line and vanishing point, together with F. The correct
+numerical procedure for these computations is given in chapter 13. However, such
+direct computations are completely equivalent to determining ∞ in a projective reconstruction.
+One of the cameras is affine
+Another important case in which affine reconstruction is possible is when one of the
+cameras is known to be an affine camera as defined in section 6.3.1(p166). To see that
+this implies that affine reconstruction is possible, refer to section 6.3.5(p172) where it
+was shown that the principal plane of an affine camera is the plane at infinity. Hence to
+convert a projective reconstruction to an affine reconstruction, it is sufficient to find the
+principal plane of the camera supposed to be affine and map it to the plane (0, 0, 0, 1)T.
+Recall (section 6.2(p158)) that the principal plane of a camera is simply the third row
+of the camera matrix. For example, consider a projective reconstruction with camera
+matrices P = [I | 0] and P′, for which the first camera is supposed to be affine. To map
+the third row of P to (0, 0, 0, 1) it is sufficient to swap the last two columns of the two
+camera matrices, while at the same time swapping the 3rd and 4th coordinates of each
+Xi. This is a projective transformation corresponding to a permutation matrix H. This
+shows:
+Result 10.4. Let (P, P′, {Xi}) be a projective reconstruction from a set of point correspondences
+for which P = [I | 0]. Suppose in truth, P is known to be an affine camera,
+then an affine reconstruction is obtained by swapping the last two columns of P and P′
+and the last two coordinates of each Xi.
+Note that the condition that one of the cameras is affine places no restriction on
+the fundamental matrix, since any canonical camera pair P = [I | 0] and P′ can be
+transformed to a pair in which P is affine. If both the cameras are known to be affine,
+then it will be seen that the fundamental matrix has the restricted form given in (14.1–
+p345). In this case, for numerical stability, one must solve for the fundamental matrix
+enforcing this special form of the fundamental matrix.
+Of course there is no such thing as a real affine camera – the affine camera model
+is an approximation which is only valid when the set of points seen in the image has
+small depth variation compared with the distance from the camera. Nevertheless, an
+assumption of an affine camera may be useful to effect the significant restriction from
+projective to affine reconstruction.
+272 10 3D Reconstruction of Cameras and Structure
+10.4.2 The step to metric reconstruction
+Just as the key to affine reconstruction is the identification of the plane at infinity, the
+key to metric reconstruction is the identification of the absolute conic (section 3.6-
+(p81)). Since the absolute conic, 
+∞, is a planar conic, lying in the plane at infinity,
+identifying the absolute conic implies identifying the plane at infinity.
+In a stratified approach, one proceeds from projective to affine to metric reconstruction,
+so one knows the plane at infinity before finding the absolute conic. Suppose one
+has identified the absolute conic on the plane at infinity. In principle the next step is
+to apply an affine transformation to the affine reconstruction such that the identified
+absolute conic is mapped to the absolute conic in the standard Euclidean frame (it will
+then have the equation X
+2
+1 + X
+2
+2 + X
+2
+3 = 0, on ∞). The resulting reconstruction is
+then related to the true reconstruction by a projective transformation which fixes the
+absolute conic. It follows from result 3.9(p82) that the projective transformation is a
+similarity transformation, so we have achieved a metric reconstruction.
+In practice the easiest way to accomplish this is to consider the image of the absolute
+conic in one of the images. The image of the absolute conic (as any conic) is a conic
+in the image. The back-projection of this conic is a cone, which will meet the plane at
+infinity in a single conic, which therefore defines the absolute conic. Remember that
+the image of the absolute conic is a property of the image itself, and like any image
+point, line or other feature, is not dependent on any particular reconstruction, hence it
+is unchanged by 3D transformations of the reconstruction.
+Suppose that in the affine reconstruction the image of the absolute conic as seen
+by the camera with matrix P = [M | m] is a conic !. We will show how ! may be
+used to define the homography H which transforms the affine reconstruction to a metric
+reconstruction:
+Result 10.5. Suppose that the image of the absolute conic is known in some image to
+be !, and one has an affine reconstruction in which the corresponding camera matrix
+is given by P = [M | m]. Then, the affine reconstruction may be transformed to a metric
+reconstruction by applying a 3D transformation of the form
+H =
+"
+A−1
+1
+#
+where A is obtained by Cholesky factorization from the equation AAT = (MT
+!M)−1.
+Proof. Under the transformation H, the camera matrix P is transformed to a matrix
+PM = PH−1 = [MM | mM]. If H−1 is of the form
+H−1 =
+"
+A 0
+0T 1
+#
+then MM = MA. However, the image of the absolute conic is related to the camera matrix
+PM of a Euclidean frame by the relationship
+!
+∗ = MMM
+T
+M .
+10.4 Stratified reconstruction 273
+This is because the camera matrix may be decomposed as MM = KR, and from (8.11–
+p210) !
+∗ = !
+−1 = KKT. Combining this with MM = MA gives !
+−1 = MAATMT, which
+may be rearranged as AAT = (MT
+!M)−1. A particular value of A that satisfies this
+relationship is found by taking the Cholesky factorization of (MT
+!M)−1. This latter
+matrix is guaranteed to be positive-definite (see result A4.5(p582)), otherwise no such
+matrix A will exist, and metric reconstruction will not be possible.
+This approach to metric reconstruction relies on identifying the image of the absolute
+conic. There are various ways of doing this and these are discussed next. Three sources
+of constraint on the image of the absolute conic are given, and in practice a combination
+of these constraints is used.
+1. Constraints arising from scene orthogonality. Pairs of vanishing points, v1 and
+v2, arising from orthogonal scene lines place a single linear constraint on !:
+vT
+1
+!v2 = 0.
+Similarly, a vanishing point v and a vanishing line l arising from a direction and plane
+which are orthogonal place two constraints on !:
+l = !v.
+A common example is the vanishing point for the vertical direction and a vanishing line
+from the horizontal ground plane. Finally an imaged scene plane containing metric
+information, such as a square grid, places two constraints on !.
+2. Constraints arising from known internal parameters. If the calibration matrix
+of a camera is equal to K, then the image of the absolute conic is ! = K−TK−1. Thus,
+knowledge of the internal parameters (6.10–p157) contained in K may be used to constrain
+or determine the elements of !. In the case where K is known to have zero skew
+(s = 0),
+!12 = !21 = 0
+and if the pixels are square (zero skew and 
+x = 
+y) then
+!11 = !22.
+These first two sources of constraint are discussed in detail in section 8.8(p223) on
+single view calibration, where examples are given of calibrating a camera solely from
+such information. Here there is an additional source of constraints available arising
+from the multiple views.
+3. Constraints arising from the same cameras in all images. One of the properties
+of the absolute conic is that its projection into an image depends only on the calibration
+matrix of the camera, and not on the position or orientation of the camera. In the case
+where both cameras P and P′ have the same calibration matrix (usually meaning that
+both the images were taken with the same camera with different pose) one has that
+! = !
+′, that is the image of the absolute conic is the same in both images. Given
+274 10 3D Reconstruction of Cameras and Structure
+a
+b
+Fig. 10.5. Metric reconstruction. The affine reconstruction of figure 10.4 is upgraded to metric by
+computing the image of the absolute conic. The information used is the orthogonality of the directions
+of the parallel line sets shown in figure 10.4, together with the constraint that both images have square
+pixels. The square pixel constraint is transferred from one image to the other using H∞. (a) Two
+views of the metric reconstruction. Lines which are perpendicular in the scene are perpendicular in the
+reconstruction and also the aspect ratio of the sides of the house is veridical. (b) Two views of a texture
+mapped piecewise planar model built from the wireframes.
+sufficiently many images, one may use this property to obtain a metric reconstruction
+from an affine reconstruction. This method of metric reconstruction, and its use for
+self-calibration of a camera, will be treated in greater detail in chapter 19. For now, we
+give just the general principle.
+Since the absolute conic lies on the plane at infinity, its image may be transferred
+from one view to the other via the infinite homography. This implies an equation (see
+result 2.13(p37))
+!
+′ = H−T
+∞
+!H−1
+∞ (10.3)
+where ! and !
+′ are images of 
+∞ in the two views. In forming these equations it is
+necessary to have an affine reconstruction already, since the infinite homography must
+be known. If ! = !
+′, then (10.3) gives a set of linear equations in the entries of !. In
+general this set of linear equations places four constraints on !, and since ! has 5 degrees
+of freedom it is not completely determined. However, by combining these linear
+equations with those above provided by scene orthogonality or known internal parameters,
+! may be determined uniquely. Indeed (10.3) may be used to transfer constraints
+on ! to constraints on !
+′. Figure 10.5 shows an example of a metric reconstruction
+computed by combining constraints in this manner.
+10.5 Direct reconstruction – using ground truth 275
+10.4.3 Direct metric reconstruction using !
+The previous discussion showed how knowledge of the image of the absolute conic
+(IAC) may be used to transform an affine to a metric reconstruction. However, knowing
+! it is possible to proceed directly to metric reconstruction, given at least two views.
+This can be accomplished in at least two different ways. The most evident approach
+is to use the IAC to compute calibration of each of the cameras, and then carry out a
+calibrated reconstruction.
+This method relies on the connection of ! to the calibration matrix K, namely
+! = (KKT)−1. Thus one can compute K from ! by inverting it and then applying
+Cholesky factorization to obtain K. If the IAC is known in each image, then both
+cameras may be calibrated in this way. Next with calibrated cameras, a metric reconstruction
+of the scene may be computed using the essential matrix, as in section 9.6.
+Note that four possible solutions may result. Two of these are just mirror images, but
+the other two are different, forming a twisted pair. (Though all solutions but one may
+be ruled out by consideration of points lying in front of the cameras.)
+A more conceptual approach to metric reconstruction is to use knowledge of the
+IAC to directly determine the plane at infinity and the absolute conic. Knowing the
+camera matrices P and P′ in a projective frame, and a conic (specifically the image of
+the absolute conic) in each image, then 
+∞ may be explicitly computed in 3-space.
+This is achieved by back-projecting the conics to cones, which must intersect in the
+absolute conic. Thus, 
+∞ and its support plane ∞ are determined (see exercise (x)
+on page 342 for an algebraic solution). However, two cones will in general intersect in
+two different plane conics, each lying in a different support plane. Thus there are two
+possible solutions for the absolute conic, which one can identify as belonging to the
+two different reconstructions constituting the twisted pair ambiguity.
+10.5 Direct reconstruction – using ground truth
+It is possible to jump directly from a projective reconstruction to a metric reconstruction
+if “ground control points” (that is points with known 3D locations in a Euclidean
+world frame) are given. Suppose we have a set of n such ground control points {XEi}
+which are imaged at xi $ x′
+i. We wish to use these points to transform the projective
+reconstruction to metric.
+The 3D location {Xi} of the control points in the projective reconstruction may be
+computed from their image correspondences xi $ x′
+i. Since the projective reconstruction
+is related by a homography to the true reconstruction we then have from (10.1) the
+equations:
+XEi = HXi, i = 1, . . . , n.
+Each point correspondence provides 3 linearly independent equations on the elements
+of H, and since H has 15 degrees of freedom a linear solution is obtained provided
+n  5 (and no four of the control points are coplanar). This computation, and the
+proper numerical procedures, are described in chapter 4.
+Alternatively, one may bypass the computation of the Xi and compute H by relating
+276 10 3D Reconstruction of Cameras and Structure
+a b c
+Fig. 10.6. Direct reconstruction. The projective reconstruction of figure 10.3 may be upgraded to
+metric by specifying the position of five (or more) world points: (a) the five points used; (b) the corresponding
+points on the projective reconstruction of figure 10.3; (c) the reconstruction after the five
+points are mapped to their world positions.
+the known ground control points directly to image measurements. Thus as in the DLT
+algorithm for camera resection (section 7.1(p178)) the equation
+xi = PH−1
+XEi
+provides two linearly independent equations in the entries of the unknown H−1, all other
+quantities being known. Similarly equations may be derived from the other image if
+x′
+i is known. It is not necessary for the ground control points to be visible in both
+images. Note however that if both xi and x′
+i are visible for a given control point XEi
+then because of the coplanarity constraint on x and x′, the four equations generated in
+this way contain only three independent ones.
+Once H has been computed it may be used to transform the cameras P, P′ of the
+projective reconstruction to their true Euclidean counterparts. An example of metric
+structure computed by this direct method is shown in figure 10.6.
+10.6 Closure
+In this chapter we have overviewed the steps necessary to produce a metric reconstruction
+from a pair of images. This overview is summarized in algorithm 10.1, and the
+computational procedures for these steps are described in the following chapters. As
+usual the general discussion has been restricted mainly to points, but the ideas (triangulation,
+ambiguity, stratification) apply equally to other image features such as lines,
+conics etc.
+It has been seen that for a metric reconstruction it is necessary to identify two entities
+in the projective frame; these are the plane at infinity ∞ (for affine), together with
+the absolute conic 
+∞ (for metric). Conversely, given F and a pair of calibrated cameras
+then ∞ and 
+∞ may be explicitly computed in 3-space. These entities each have
+an image-based counterpart: specification of the infinite homography, H∞, is equivalent
+to specifying ∞ in 3-space; and specifying the image of the absolute conic, !,
+in each view is equivalent to specifying ∞ and 
+∞ in 3-space. This equivalence is
+summarized in table 10.1.
+Finally, it is worth noting that if metric precision is not the goal then an acceptable
+metric reconstruction is generally obtained directly from the projective if approximately
+correct internal parameters are guessed. Such a “quasi-Euclidean reconstruction”
+is often suitable for visualization purposes.
+10.6 Closure 277
+Objective
+Given two uncalibrated images compute a metric reconstruction (PM,
+P′
+M, {XMi}) of the cameras
+and scene structure, i.e. a reconstruction that is within a similarity transformation of the
+true cameras and scene structure.
+Algorithm
+(i) Compute a projective reconstruction (P
+,
+P′
+, {Xi}):
+(a) Compute the fundamental matrix from point correspondences xi $ x′
+i between
+the images.
+(b) Camera retrieval: compute the camera matrices P
+,
+P′ from the fundamental
+matrix.
+(c) Triangulation: for each point correspondence xi $ x′
+i, compute the point Xi
+in space that projects to these two image points.
+(ii) Rectify the projective reconstruction to metric:
+• either Direct method: Compute the homography H such that XEi = HXi from five
+or more ground control pointsXEi with known Euclidean positions. Then the metric
+reconstruction is
+PM = PH−1
+,
+P′
+M = P′H−1
+,
+XMi = HXi.
+• or Stratified method:
+(a) Affine reconstruction: Compute the plane at infinity, ∞, as described
+in section 10.4.1, and then upgrade the projective reconstruction to an affine
+reconstruction with the homography
+H =
+
+I | 0
+
+T
+∞
+
+.
+(b) Metric reconstruction: Compute the image of the absolute conic, !, as
+described in section 10.4.2, and then upgrade the affine reconstruction to a
+metric reconstruction with the homography
+H =
+
+A−1
+1
+
+where A is obtained by Cholesky factorization from the equation AAT =
+(MT
+!M)−1, and M is the first 3 × 3 submatrix of the camera in the affine
+reconstruction for which ! is computed.
+Algorithm 10.1. Computation of a metric reconstruction from two uncalibrated images.
+10.6.1 The literature
+Koenderink and van Doorn [Koenderink-91] give a very elegant discussion of stratification
+for affine cameras. This was extended to perspective in [Faugeras-95b], with developments
+given by Luong and Vi´eville [Luong-94, Luong-96]. The possibility of projective
+reconstruction given F appeared in [Faugeras-92b] and Hartley et al. [Hartley-92c].
+The method of computing affine reconstruction from pure translation first appeared
+in Moons et al. [Moons-94]. Combining scene and internal parameter constraints over
+multiple views is described in [Faugeras-95c, Liebowitz-99b, Sturm-99c].
+278 10 3D Reconstruction of Cameras and Structure
+Image information View relations and 3-space Reconstruction
+provided projective objects objects ambiguity
+Point correspondences F Projective
+Point correspondences F, H∞ ∞ Affine
+including vanishing points
+Point correspondences and F, H∞ ∞ Metric
+internal camera calibration !
+,
+!
+′ 
+∞
+Table 10.1. The two-view relations, image entities, and their 3-space counterparts for various classes
+of reconstruction ambiguity.
+10.6.2 Notes and exercises
+(i) Using only (implicit) image relations (i.e. without an explicit 3D reconstruction)
+and given the images of a line L and point X (not on L) in two views,
+together with H∞ between the views, compute the image of the line in 3-space
+parallel to L and through X. Other examples of this implicit approach to computation
+are given in [Zeller-96].　-->
+</p><p>
+</p><p>
+    </body>
+</html>

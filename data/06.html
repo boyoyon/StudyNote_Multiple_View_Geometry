@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>6章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>6章 カメラモデル</center></h1>
+<p>
+カメラとは、3次元世界（物体空間）と2次元画像との間のマッピングです。本書で主に扱うカメラは中心投影です。本章では、カメラマッピングを表現する特定の特性を持つ行列である、いくつかのカメラモデルを展開します。
+<!-- A camera is a mapping between the 3D world (object space) and a 2D image. The
+principal camera of interest in this book is central projection. This chapter develops a
+number of camera models which are matrices with particular properties that represent
+the camera mapping.-->
+
+</p><p>
+
+中心投影をモデル化するすべてのカメラは、一般的な射影カメラの特殊化であることがわかります。この最も一般的なカメラモデルの構造は、射影幾何学のツールを用いて考察されます。カメラの幾何学的実体、例えば投影中心や像面などは、その行列表現から非常に簡単に計算できることがわかります。一般的な射影カメラの特殊化は、その特性を継承し、例えばその幾何学的形状は同じ代数式を用いて計算されます。
+
+<!-- It will be seen that all cameras modelling central projection are specializations of
+the general projective camera. The anatomy of this most general camera model is
+examined using the tools of projective geometry. It will be seen that geometric entities
+of the camera, such as the projection centre and image plane, can be computed quite
+simply from its matrix representation. Specializations of the general projective camera
+inherit its properties, for example their geometry is computed using the same algebraic
+expressions.-->
+</p><p>
+特殊モデルは、主に2つのクラスに分類されます。1つは、有限の中心を持つカメラをモデル化するモデル、もう1つは「無限遠」の中心を持つカメラをモデル化するモデルです。無限遠にあるカメラの中で、アフィンカメラは平行射影の自然な一般化であるため、特に重要です。
+
+<!-- The specialized models fall into two major classes – those that model cameras with
+a finite centre, and those that model cameras with centre “at infinity”. Of the cameras
+at infinity the affine camera is of particular importance because it is the natural
+generalization of parallel projection.-->
+
+</p><p>
+この章では主に点の投影について扱います。線分などの他の幾何学的実体に対するカメラの作用については、第8章で扱います。
+
+<!-- This chapter is principally concerned with the projection of points. The action of a
+camera on other geometric entities, such as lines, is deferred until chapter 8. -->
+
+</p>
+<h2><center>6.1 有限カメラ</center></h2>
+<p>
+このセクションでは、最も特殊かつ最も単純なカメラモデルである基本的なピンホールカメラから始め、段階的にこのモデルを一般化していきます。
+
+<!-- In this section we start with the most specialized and simplest camera model, which is
+the basic pinhole camera, and then progressively generalize this model through a series
+of gradations. -->
+</p><p>
+
+私たちが開発するモデルは、主にCCDのようなセンサー向けに設計されていますが、X線画像、スキャンされた写真ネガ、拡大されたネガからスキャンされた写真など、他のカメラにも適用できます。<br>
+<strong>基本的なピンホールモデル</strong>　空間内の点を平面に中心投影することを考察します。投影の中心をユークリッド座標系の原点とし、像面または焦点面と呼ばれる平面 \(Z = f\) を考えます。ピンホールカメラモデルでは、座標 \(\mathbf X = (X, Y, Z)^T\) を持つ空間内の点は、点 X と投影中心を結ぶ線が像面と交わる像面上の点に写像されます。これは図 6.1 に示されています。相似三角形を用いることで、点 \((X, Y, Z)^T\) が像面上の点 \((fX/Z, fY/Z, f)^T\) に写像されることが容易に計算できます。最終的な画像座標を無視すると、\[
+(X, Y, Z)^T \to (fX/Z, fY/Z)^T \tag{6.1}
+\]
+は世界座標から画像座標への中心射影写像を記述することがわかります。これは、ユークリッド3次元空間 \(\mathbb R^3\) からユークリッド2次元空間 \(\mathbb R^2\) への写像です。
+
+<!--The models we develop are principally designed for CCD like sensors, but are also
+applicable to other cameras, for example X-ray images, scanned photographic negatives,
+scanned photographs from enlarged negatives, etc.<br>
+<br>
+<strong>The basic pinhole model.</strong> We consider the central projection of points in space onto a
+plane. Let the centre of projection be the origin of a Euclidean coordinate system, and
+consider the plane \(Z = f\), which is called the image plane or focal plane. Under the
+pinhole camera model, a point in space with coordinates \(\mathbf X = (X, Y, Z)^T\) is mapped to
+the point on the image plane where a line joining the point X to the centre of projection
+meets the image plane. This is shown in figure 6.1. By similar triangles, one quickly
+computes that the point \((X, Y, Z)^T\) is mapped to the point \((fX/Z, fY/Z, f)^T\) on the
+image plane. Ignoring the final image coordinate, we see that
+\[
+(X, Y, Z)^T \to (fX/Z, fY/Z)^T \tag{6.1}
+\]
+describes the central projection mapping from world to image coordinates. This is a
+mapping from Euclidean 3-space \(\mathbb R^3\) to Euclidean 2-space \(\mathbb R^2\).-->
+
+
+</p><p>
+図6.1. ピンホールカメラの幾何学的形状。Cはカメラ中心、pは主点である。ここではカメラ中心は座標原点に置かれる。像面はカメラ中心の前方に配置されていることに注意されたい。
+
+<!-- Fig. 6.1. Pinhole camera geometry. C is the camera centre and p the principal point. The camera
+centre is here placed at the coordinate origin. Note the image plane is placed in front of the camera
+centre.-->
+</p><p>
+
+
+<!-- The centre of projection is called the camera centre. It is also known as the optical
+centre. The line from the camera centre perpendicular to the image plane is called the
+principal axis or principal ray of the camera, and the point where the principal axis
+meets the image plane is called the principal point. The plane through the camera
+centre parallel to the image plane is called the principal plane of the camera.
+Central projection using homogeneous coordinates. If the world and image points
+are represented by homogeneous vectors, then central projection is very simply expressed
+as a linear mapping between their homogeneous coordinates. In particular,
+(6.1) may be written in terms of matrix multiplication as
+
+
+X
+Y
+Z
+1
+
+
+7→
+
+
+fX
+fY
+Z
+
+
+=
+
+
+f 0
+f 0
+1 0
+
+
+
+
+X
+Y
+Z
+1
+
+
+. (6.2)
+The matrix in this expression may be written as diag(f, f, 1)[I | 0] where
+diag(f, f, 1) is a diagonal matrix and [I | 0] represents a matrix divided up into a 3×3
+block (the identity matrix) plus a column vector, here the zero vector.
+We now introduce the notation X for the world point represented by the homogeneous
+4-vector (X, Y, Z, 1)T, x for the image point represented by a homogeneous 3-
+vector, and P for the 3×4 homogeneous camera projection matrix. Then (6.2) is written
+compactly as
+x = PX
+which defines the camera matrix for the pinhole model of central projection as
+P = diag(f, f, 1) [I | 0].
+6.1 Finite cameras 155
+y
+0
+0 p
+cam
+x cam
+y
+y
+x x
+Fig. 6.2. Image (x, y) and camera (xcam, ycam) coordinate systems.
+Principal point offset. The expression (6.1) assumed that the origin of coordinates in
+the image plane is at the principal point. In practice, it may not be, so that in general
+there is a mapping
+(X, Y, Z)T 7→ (fX/Z + px, fY/Z + py)T
+where (px, py)T are the coordinates of the principal point. See figure 6.2. This equation
+may be expressed conveniently in homogeneous coordinates as
+
+
+X
+Y
+Z
+1
+
+
+7→
+
+
+fX + Zpx
+fY + Zpy
+Z
+
+
+=
+
+
+f px 0
+f py 0
+1 0
+
+
+
+
+X
+Y
+Z
+1
+
+
+. (6.3)
+Now, writing
+K =
+
+
+f px
+f py
+1
+
+(
+6.4)
+then (6.3) has the concise form
+x = K[I | 0]Xcam. (6.5)
+The matrix K is called the camera calibration matrix. In (6.5) we have written
+(X, Y, Z, 1)T as Xcam to emphasize that the camera is assumed to be located at the
+origin of a Euclidean coordinate system with the principal axis of the camera pointing
+straight down the Z-axis, and the point Xcam is expressed in this coordinate system.
+Such a coordinate system may be called the camera coordinate frame.
+Camera rotation and translation. In general, points in space will be expressed in
+terms of a different Euclidean coordinate frame, known as the world coordinate frame.
+The two coordinate frames are related via a rotation and a translation. See figure 6.3.
+If eX is an inhomogeneous 3-vector representing the coordinates of a point in the world
+coordinate frame, and eXcam represents the same point in the camera coordinate frame,
+then we may write eXcam = R(eX −eC), where eC represents the coordinates of the camera
+156 6 Camera Models
+X
+Z
+Y
+R, t
+Y
+Xcam
+cam
+O
+C
+Zcam
+Fig. 6.3. The Euclidean transformation between the world and camera coordinate frames.
+centre in the world coordinate frame, and R is a 3 × 3 rotation matrix representing the
+orientation of the camera coordinate frame. This equation may be written in homogeneous
+coordinates as
+Xcam =
+"
+R −ReC
+0 1
+#
+
+
+X
+Y
+Z
+1
+
+
+=
+"
+R −ReC
+0 1
+#
+X. (6.6)
+Putting this together with (6.5) leads to the formula
+x = KR[I | −eC]X (6.7)
+where X is now in a world coordinate frame. This is the general mapping given by a
+pinhole camera. One sees that a general pinhole camera, P = KR[I | −eC], has 9 degrees
+of freedom: 3 for K (the elements f, px, py), 3 for R, and 3 for eC. The parameters
+contained in K are called the internal camera parameters, or the internal orientation
+of the camera. The parameters of R and eCwhich relate the camera orientation and
+position to a world coordinate system are called the external parameters or the exterior
+orientation.
+It is often convenient not to make the camera centre explicit, and instead to represent
+the world to image transformation as eXcam = ReX +t. In this case the camera matrix is
+simply
+P = K[R | t] (6.8)
+where from (6.7) t = −ReC.
+CCD cameras. The pinhole camera model just derived assumes that the image coordinates
+are Euclidean coordinates having equal scales in both axial directions. In the
+case of CCD cameras, there is the additional possibility of having non-square pixels. If
+image coordinates are measured in pixels, then this has the extra effect of introducing
+unequal scale factors in each direction. In particular if the number of pixels per unit
+6.1 Finite cameras 157
+distance in image coordinates are mx and my in the x and y directions, then the transformation
+from world coordinates to pixel coordinates is obtained by multiplying (6.4)
+on the left by an extra factor diag(mx,my, 1). Thus, the general form of the calibration
+matrix of a CCD camera is
+K =
+
+
+
+x x0
+
+y y0
+1
+
+
+(6.9)
+where 
+x = fmx and 
+y = fmy represent the focal length of the camera in terms
+of pixel dimensions in the x and y direction respectively. Similarly, ˜x0 = (x0, y0)
+is the principal point in terms of pixel dimensions, with coordinates x0 = mxpx and
+y0 = mypy. A CCD camera thus has 10 degrees of freedom.
+Finite projective camera. For added generality, we can consider a calibration matrix
+of the form
+K =
+
+
+
+x s x0
+
+y y0
+1
+
+
+. (6.10)
+The added parameter s is referred to as the skew parameter. The skew parameter
+will be zero for most normal cameras. However, in certain unusual instances which are
+described in section 6.2.4, it can take non-zero values.
+A camera
+P = KR[I | −eC] (6.11)
+for which the calibration matrix K is of the form (6.10) will be called a finite projective
+camera. A finite projective camera has 11 degrees of freedom. This is the same number
+of degrees of freedom as a 3 × 4 matrix, defined up to an arbitrary scale.
+Note that the left hand 3×3 submatrix of P, equal to KR, is non-singular. Conversely,
+any 3 × 4 matrix P for which the left hand 3 × 3 submatrix is non-singular is the
+camera matrix of some finite projective camera, because P can be decomposed as P =
+KR[I | −eC]. Indeed, letting M be the left 3 × 3 submatrix of P, one decomposes M as
+a product M = KR where K is upper-triangular of the form (6.10) and R is a rotation
+matrix. This decomposition is essentially the RQ matrix decomposition, described in
+section A4.1.1(p579), of which more will be said in section 6.2.4. The matrix P can
+therefore be written P = M[I | M−1p4] = KR[I | −eC] where p4 is the last column of P.
+In short
+• The set of camera matrices of finite projective cameras is identical with the set of
+homogeneous 3×4 matrices for which the left hand 3×3 submatrix is non-singular.
+General projective cameras. The final step in our hierarchy of projective cameras is
+to remove the non-singularity restriction on the left hand 3 × 3 submatrix. A general
+projective camera is one represented by an arbitrary homogeneous 3×4 matrix of rank
+3. It has 11 degrees of freedom. The rank 3 requirement arises because if the rank is
+158 6 Camera Models
+Camera centre. The camera centre is the 1-dimensional right null-spaceCof P, i.e. PC = 0.
+⋄ Finite camera (M is not singular) C =
+
+−M−1p4
+1
+
+⋄ Camera at infinity (M is singular) C =
+
+d
+0
+
+where d is the null 3-vector of M,
+i.e. Md = 0.
+Column points. For i = 1, . . . , 3, the column vectors pi are vanishing points in the image
+corresponding to the X, Y and Z axes respectively. Column p4 is the image of the
+coordinate origin.
+Principal plane. The principal plane of the camera is P3, the last row of P.
+Axis planes. The planes P1 and P2 (the first and second rows of P) represent planes in space
+through the camera centre, corresponding to points that map to the image lines x = 0
+and y = 0 respectively.
+Principal point. The image point x0 = Mm3 is the principal point of the camera, wherem3T
+is the third row of M.
+Principal ray. The principal ray (axis) of the camera is the ray passing through the camera
+centre C with direction vector m3T. The principal axis vector v = det(M)m3 is
+directed towards the front of the camera.
+Table 6.1. Summary of the properties of a projective camera P. The matrix is represented by the block
+form P = [M | p4].
+less than this then the range of the matrix mapping will be a line or point and not the
+whole plane; in other words not a 2D image.
+6.2 The projective camera
+A general projective camera P maps world points X to image points x according to
+x = PX. Building on this mapping we will now dissect the camera model to reveal
+how geometric entities, such as the camera centre, are encoded. Some of the properties
+that we consider will apply only to finite projective cameras and their specializations,
+whilst others will apply to general cameras. The distinction will be evident from the
+context. The derived properties of the camera are summarized in table 6.1.
+6.2.1 Camera anatomy
+A general projective camera may be decomposed into blocks according to P = [M | p4],
+where M is a 3 × 3 matrix. It will be seen that if M is non-singular, then this is a finite
+camera, otherwise it is not.
+Camera centre. The matrix P has a 1-dimensional right null-space because its rank
+is 3, whereas it has 4 columns. Suppose the null-space is generated by the 4-vector
+C, that is PC = 0. It will now be shown that C is the camera centre, represented as a
+homogeneous 4-vector.
+Consider the line containing C and any other point A in 3-space. Points on this line
+may be represented by the join
+X() = A + (1 − )C .
+6.2 The projective camera 159
+p
+1
+p
+2
+p
+3
+Y
+O
+X
+Z
+C
+Fig. 6.4. The three image points defined by the columns pi, i = 1, . . . , 3, of the projection matrix are
+the vanishing points of the directions of the world axes.
+Under the mapping x = PX points on this line are projected to
+x = PX() = PA + (1 − )PC = PA
+since PC = 0. That is all points on the line are mapped to the same image point PA,
+which means that the line must be a ray through the camera centre. It follows that C
+is the homogeneous representation of the camera centre, since for all choices of A the
+line X() is a ray through the camera centre.
+This result is not unexpected since the image point (0, 0, 0)T = PC is not defined,
+and the camera centre is the unique point in space for which the image is undefined. In
+the case of finite cameras the result may be established directly, since C = (eC
+T
+, 1)T
+is clearly the null-vector of P = KR[I | −eC]. The result is true even in the case where
+the first 3×3 submatrix M of P is singular. In this singular case, though, the null-vector
+has the form C = (dT, 0)T where Md = 0. The camera centre is then a point at infinity.
+Camera models of this class are discussed in section 6.3.
+Column vectors. The columns of the projective camera are 3-vectors which have a
+geometric meaning as particular image points. With the notation that the columns of P
+are pi, i = 1, . . . , 4, then p1, p2, p3 are the vanishing points of the world coordinate X,
+Y and Z axes respectively. This follows because these points are the images of the axes’
+directions. For example the x-axis has direction D = (1, 0, 0, 0)T, which is imaged at
+p1 = PD. See figure 6.4. The column p4 is the image of the world origin.
+Row vectors. The rows of the projective camera (6.12) are 4-vectors which may be
+interpreted geometrically as particular world planes. These planes are examined next.
+We introduce the notation that the rows of P are PiT so that
+P =
+
+
+p11 p12 p13 p14
+p21 p22 p23 p24
+p31 p32 p33 p34
+
+
+=
+
+
+P1T
+P2T
+P3T
+
+
+. (6.12)
+160 6 Camera Models
+P 3 y x
+P
+y x
+2
+principal plane
+Fig. 6.5. Two of the three planes defined by the rows of the projection matrix.
+The principal plane. The principal plane is the plane through the camera centre parallel
+to the image plane. It consists of the set of points X which are imaged on the line
+at infinity of the image. Explicitly, PX = (x, y, 0)T. Thus a point lies on the principal
+plane of the camera if and only if P3T
+X = 0. In other words, P3 is the vector representing
+the principal plane of the camera. If C is the camera centre, then PC = 0, and
+so in particular P3T
+C = 0. That is C lies on the principal plane of the camera.
+Axis planes. Consider the set of points X on the plane P1. This set satisfies P1T
+X = 0,
+and so is imaged at PX = (0, y,w)T which are points on the image y-axis. Again it
+follows from PC = 0 that P1T
+C = 0 and so C lies also on the plane P1. Consequently
+the plane P1 is defined by the camera centre and the line x = 0 in the image. Similarly
+the plane P2 is defined by the camera centre and the line y = 0.
+Unlike the principal plane P3, the axis planes P1 and P2 are dependent on the image
+x- and y-axes, i.e. on the choice of the image coordinate system. Thus they are less
+tightly coupled to the natural camera geometry than the principal plane. In particular
+the line of intersection of the planes P1 and P2 is a line joining the camera centre and
+image origin, i.e. the back-projection of the image origin. This line will not coincide
+in general with the camera principal axis. The planes arising from Pi are illustrated
+in figure 6.5.
+The camera centre C lies on all three planes, and since these planes are distinct (as
+the P matrix has rank 3) it must lie on their intersection. Algebraically, the condition
+for the centre to lie on all three planes is PC = 0 which is the original equation for the
+camera centre given above.
+The principal point. The principal axis is the line passing through the camera centre
+C, with direction perpendicular to the principal plane P3. The axis intersects the image
+plane at the principal point. We may determine this point as follows. In general, the
+normal to a plane  = (1, 2, 3, 4)T is the vector (1, 2, 3)T. This may alternatively
+be represented by a point (1, 2, 3, 0)T on the plane at infinity. In the case of
+the principal plane P3 of the camera, this point is (p31, p32, p33, 0)T, which we denote
+bP
+3
+. Projecting that point using the camera matrix P gives the principal point of the
+6.2 The projective camera 161
+camera PbP
+3
+. Note that only the left hand 3 × 3 part of P = [M | p4] is involved in this
+formula. In fact the principal point is computed as x0 = Mm3 where m3T is the third
+row of M.
+The principal axis vector. Although any point X not on the principal plane may be
+mapped to an image point according to x = PX, in reality only half the points in space,
+those that lie in front of the camera, may be seen in an image. Let P be written as
+P = [M | p4]. It has just been seen that the vector m3 points in the direction of the
+principal axis. We would like to define this vector in such a way that it points in the
+direction towards the front of the camera (the positive direction). Note however that P
+is only defined up to sign. This leaves an ambiguity as to whether m3 or −m3 points
+in the positive direction. We now proceed to resolve this ambiguity.
+We start by considering coordinates with respect to the camera coordinate frame.
+According to (6.5), the equation for projection of a 3D point to a point in the image
+is given by x = PcamXcam = K[I | 0]Xcam, where Xcam is the 3D point expressed in
+camera coordinates. In this case observe that the vector v = det(M)m3 = (0, 0, 1)T
+points towards the front of the camera in the direction of the principal axis, irrespective
+of the scaling of Pcam. For example, if Pcam → kPcam then v → k4v which has the
+same direction.
+If the 3D point is expressed in world coordinates then P = kK[R | −ReC] = [M | p4],
+where M = kKR. Since det(R) > 0 the vector v = det(M)m3 is again unaffected by
+scaling. In summary,
+• v = det(M)m3 is a vector in the direction of the principal axis, directed towards the
+front of the camera.
+6.2.2 Action of a projective camera on points
+Forward projection. As we have already seen, a general projective camera maps a
+point in space X to an image point according to the mapping x = PX. Points D =
+(dT, 0)T on the plane at infinity represent vanishing points. Such points map to
+x = PD = [M | p4]D = Md
+and thus are only affected by M, the first 3 × 3 submatrix of P.
+Back-projection of points to rays. Given a point x in an image, we next determine
+the set of points in space that map to this point. This set will constitute a ray in space
+passing through the camera centre. The form of the ray may be specified in several
+ways, depending on how one wishes to represent a line in 3-space. A Pl¨ucker representation
+is postponed until section 8.1.2(p196). Here the line is represented as the join of
+two points.
+We know two points on the ray. These are the camera centre C (where PC = 0)
+and the point P+x, where P+ is the pseudo-inverse of P. The pseudo-inverse of P is the
+matrix P+ = PT(PPT)−1, for which PP+ = I (see section A5.2(p590)). Point P+x lies
+162 6 Camera Models
+C
+X
+m3
+X . m 3
+Fig. 6.6. If the camera matrix P = [M | p4] is normalized so that km3k = 1 and det M > 0, and
+x = w(x, y, 1)T = PX, where X = (X, Y, Z, 1)T, then w is the depth of the point X from the camera
+centre in the direction of the principal ray of the camera.
+on the ray because it projects to x, since P(P+x) = Ix = x. Then the ray is the line
+formed by the join of these two points
+X() = P+x + C. (6.13)
+In the case of finite cameras an alternative expression can be developed. Writing
+P = [M | p4], the camera centre is given by eC = −M−1p4. An image point x backprojects
+to a ray intersecting the plane at infinity at the point D = ((M−1x)T, 0)T, and
+D provides a second point on the ray. Again writing the line as the join of two points
+on the ray,
+X(μ) = μ
+ 
+M−1x
+0
+!
++
+ 
+−M−1p4
+1
+!
+=
+ 
+M−1(μx − p4)
+1
+!
+. (6.14)
+6.2.3 Depth of points
+Next, we consider the distance a point lies in front of or behind the principal
+plane of the camera. Consider a camera matrix P = [M | p4], projecting a point
+X = (X, Y, Z, 1)T = (eX
+T
+, 1)T in 3-space to the image point x = w(x, y, 1)T = PX. Let
+C = (eC, 1)T be the camera centre. Then w = P3T
+X = P3T(X − C) since PC = 0 for
+the camera centre C. However, P3T(X − C) = m3T(eX − eC) where m3 is the principal
+ray direction, so w = m3T(eX −eC) can be interpreted as the dot product of the ray from
+the camera centre to the point X, with the principal ray direction. If the camera matrix
+is normalized so that det M > 0 and km3k = 1, then m3 is a unit vector pointing in the
+positive axial direction. Then w may be interpreted as the depth of the point X from the
+camera centre C in the direction of the principal ray. This is illustrated in figure 6.6.
+Any camera matrix may be normalized by multiplying it by an appropriate factor.
+However, to avoid having always to deal with normalized camera matrices, the depth
+of a point may be computed as follows:
+Result 6.1. Let X = (X, Y, Z, T)T be a 3D point and P = [M | p4] be a camera matrix
+for a finite camera. Suppose P(X, Y, Z, T)T = w(x, y, 1)T. Then
+depth(X; P) =
+sign(det M)w
+Tkm3k
+(6.15)
+6.2 The projective camera 163
+is the depth of the point X in front of the principal plane of the camera.
+This formula is an effective way to determine if a point X is in front of the camera. One
+verifies that the value of depth(X; P) is unchanged if either the point X or the camera
+matrix P is multiplied by a constant factor k. Thus, depth(X; P) is independent of the
+particular homogeneous representation of X and P.
+6.2.4 Decomposition of the camera matrix
+Let P be a camera matrix representing a general projective camera. We wish to find the
+camera centre, the orientation of the camera and the internal parameters of the camera
+from P.
+Finding the camera centre. The camera centre C is the point for which PC = 0.
+Numerically this right null-vector may be obtained from the SVD of P, see section
+A4.4(p585). Algebraically, the centre C = (X, Y, Z, T)T may be obtained as (see (3.5–
+p67))
+X = det([p2, p3, p4]) Y = −det([p1, p3, p4])
+Z = det([p1, p2, p4]) T = −det([p1, p2, p3]).
+Finding the camera orientation and internal parameters. In the case of a finite
+camera, according to (6.11),
+P = [M | −MeC] = K[R | −ReC].
+We may easily find both K and R by decomposing M as M = KR using the RQdecomposition.
+This decomposition into the product of an upper-triangular and orthogonal
+matrix is described in section A4.1.1(p579). The matrix R gives the orientation of
+the camera, whereas K is the calibration matrix. The ambiguity in the decomposition is
+removed by requiring that K have positive diagonal entries.
+The matrix K has the form (6.10)
+K =
+
+
+
+x s x0
+0 
+y y0
+0 0 1
+
+
+where
+• 
+x is the scale factor in the x-coordinate direction,
+• 
+y is the scale factor in the y-coordinate direction,
+• s is the skew,
+• (x0, y0)T are the coordinates of the principal point.
+The aspect ratio is 
+y/
+x.
+Example 6.2. The camera matrix
+P =
+
+
+3.53553 e+2 3.39645 e+2 2.77744 e+2 −1.44946 e+6
+−1.03528 e+2 2.33212 e+1 4.59607 e+2 −6.32525 e+5
+7.07107 e−1 −3.53553 e−1 6.12372 e−1 −9.18559 e+2
+
+
+164 6 Camera Models
+with P = [M | −MeC], has centre eC = (1000.0, 2000.0, 1500.0)T, and the matrix M
+decomposes as
+M = KR =
+
+
+468.2 91.2 300.0
+427.2 200.0
+1.0
+
+
+
+
+0.41380 0.90915 0.04708
+−0.57338 0.22011 0.78917
+0.70711 −0.35355 0.61237
+
+
+.
+△
+When is s 6= 0? As was shown in section 6.1 a true CCD camera has only four internal
+camera parameters, since generally s = 0. If s 6= 0 then this can be interpreted as
+a skewing of the pixel elements in the CCD array so that the x- and y-axes are not
+perpendicular. This is admittedly very unlikely to happen.
+In realistic circumstances a non-zero skew might arise as a result of taking an image
+of an image, for example if a photograph is re-photographed, or a negative is enlarged.
+Consider enlarging an image taken by a pinhole camera (such as an ordinary film camera)
+where the axis of the magnifying lens is not perpendicular to the film plane or the
+enlarged image plane.
+The most severe distortion that can arise from this “picture of a picture” process is a
+planar homography. Suppose the original (finite) camera is represented by the matrix P,
+then the camera representing the picture of a picture is HP, where H is the homography
+matrix. Since H is non-singular, the left 3 × 3 submatrix of HP is non-singular and can
+be decomposed as the product KR – and K need not have s = 0. Note however that the
+K and R are no longer the calibration matrix and orientation of the original camera.
+On the other hand, one verifies that the process of taking a picture of a picture does
+not change the apparent camera centre. Indeed, since H is non-singular, HPC = 0 if and
+only if PC = 0.
+Where is the decomposition required? If the camera P is constructed from (6.11)
+then the parameters are known and a decomposition is clearly unnecessary. So the
+question arises – where would one obtain a camera for which the decomposition is not
+known? In fact cameras will be computed in myriad ways throughout this book and
+decomposing an unknown camera is a frequently used tool in practice. For example
+cameras can be computed directly by calibration – where the camera is computed from
+a set of world to image correspondences (chapter 7) – and indirectly by computing a
+multiple view relation (such as the fundamental matrix or trifocal tensor) and subsequently
+computing projection matrices from this relation.
+A note on coordinate orientation. In the derivation of the camera model and its
+parametrization (6.10) it is assumed that the coordinate systems used in both the image
+and the 3D world are right handed systems, as shown in figure 6.1(p154). However,
+a common practice in measuring image coordinates is that the y-coordinate increases
+in the downwards direction, thus defining a left handed coordinate system, contrary to
+figure 6.1(p154). A recommended practice in this case is to negate the y-coordinate of
+the image point so that the coordinate system again becomes right handed. However, if
+6.2 The projective camera 165
+the image coordinate system is left handed, then the consequences are not grave. The
+relationship between world and image coordinates is still expressed by a 3 × 4 camera
+matrix. Decomposition of this camera matrix according to (6.11) with K of the form
+(6.10) is still possible with 
+x and 
+y positive. The difference is that R now represents
+the orientation of the camera with respect to the negative Z-axis. In addition, the depth
+of points given by (6.15) will be negative instead of positive for points in front of the
+camera. If this is borne in mind then it is permissible to use left handed coordinates in
+the image.
+6.2.5 Euclidean vs projective spaces
+The development of the sections to this point has implicitly assumed that the world
+and image coordinate systems are Euclidean. Ideas have been borrowed from projective
+geometry (such as directions corresponding to points on ∞) and the convenient
+notation of homogeneous coordinates has allowed central projection to be represented
+linearly.
+In subsequent chapters of the book we will go further and use a projective coordinate
+frame. This is easily achieved, for suppose the world coordinate frame is projective;
+then the transformation between the camera and world coordinate frame (6.6) is again
+represented by a 4 × 4 homogeneous matrix, Xcam = HX, and the resulting map from
+projective 3-space IP3 to the image is still represented by a 3 × 4 matrix P with rank 3.
+In fact, at its most general the projective camera is a map from IP3 to IP2, and covers
+the composed effects of a projective transformation of 3-space, a projection from 3-
+space to an image, and a projective transformation of the image. This follows simply
+by concatenating the matrices representing these mappings:
+P = [3 × 3 homography]
+
+
+1 0 0 0
+0 1 0 0
+0 0 1 0
+
+
+[4 × 4 homography]
+which results in a 3 × 4 matrix.
+However, it is important to remember that cameras are Euclidean devices and simply
+because we have a projective model of a camera it does not mean that we should eschew
+notions of Euclidean geometry.
+Euclidean and affine interpretations. Although a (finite) 3×4 matrix can always be
+decomposed as in section 6.2.4 to obtain a rotation matrix, a calibration matrix K, and
+so forth, Euclidean interpretations of the parameters so obtained are only meaningful if
+the image and space coordinates are in an appropriate frame. In the decomposition case
+a Euclidean frame is required for both image and 3-space. On the other hand, the interpretation
+of the null-vector of P as the camera centre is valid even if both frames are
+projective – the interpretation requires only collinearity, which is a projective notion.
+The interpretation of P3 as the principal plane requires at least affine frames for the image
+and 3-space. Finally, the interpretation ofm3 as the principal ray requires an affine
+image frame but a Euclidean world frame in order for the concept of orthogonality (to
+the principal plane) to be meaningful.
+166 6 Camera Models
+perspective weak perspective
+increasing focal length
+increasing distance from camera
+Fig. 6.7. As the focal length increases and the distance between the camera and object also increases,
+the image remains the same size but perspective effects diminish.
+6.3 Cameras at infinity
+We now turn to consider cameras with centre lying on the plane at infinity. This means
+that the left hand 3 × 3 block of the camera matrix P is singular. The camera centre
+may be found from PC = 0 just as with finite cameras.
+Cameras at infinity may be broadly classified into two different types, affine cameras
+and non-affine cameras. We consider first of all the affine class of cameras which are
+the most important in practice.
+Definition 6.3. An affine camera is one that has a camera matrix P in which the last row
+P3T is of the form (0, 0, 0, 1).
+It is called an affine camera because points at infinity are mapped to points at infinity.
+6.3.1 Affine cameras
+Consider what happens as we apply a cinematographic technique of tracking back
+while zooming in, in such a way as to keep objects of interest the same size1. This
+is illustrated in figure 6.7. We are going to model this process by taking the limit as
+both the focal length and principal axis distance of the camera from the object increase.
+In analyzing this technique, we start with a finite projective camera (6.11). The
+1 See ‘Vertigo’ (Dir. Hitchcock, 1958) and ‘Mishima’ (Dir. Schrader, 1985).
+6.3 Cameras at infinity 167
+camera matrix may be written as
+P0 = KR[I | −eC] = K
+
+
+r1T −r1TeC
+r2T −r2TeC
+r3T −r3TeC
+
+
+(6.16)
+where riT is the i-th row of the rotation matrix. This camera is located at position eC and
+has orientation denoted by matrix R and internal parameters matrix K of the form given
+in (6.10–p157). From section 6.2.1 the principal ray of the camera is in the direction
+of the vector r3, and the value d0 = −r3TeC is the distance of the world origin from the
+camera centre in the direction of the principal ray.
+Now, we consider what happens if the camera centre is moved backwards along the
+principal ray at unit speed for a time t, so that the centre of the camera is moved to
+eC
+− tr3. Replacing eC in (6.16) by eC − tr3 gives the camera matrix at time t:
+Pt = K
+
+
+r1T −r1T(eC − tr3)
+r2T −r2T(eC − tr3)
+r3T −r3T(eC − tr3)
+
+
+= K
+
+
+r1T −r1TeC
+r2T −r2TeC
+r3T dt
+
+
+(6.17)
+where the terms riTr3 are zero for i = 1, 2 because R is a rotation matrix. The scalar
+dt = −r3TeC + t is the depth of the world origin with respect to the camera centre in
+the direction of the principal ray r3 of the camera. Thus
+• The effect of tracking along the principal ray is to replace the (3,4) entry of the matrix
+by the depth dt of the camera centre from the world origin.
+Next, we consider zooming such that the camera focal length is increased by a factor
+k. This magnifies the image by a factor k. It is shown in section 8.4.1(p203) that the
+effect of zooming by a factor k is to multiply the calibration matrix K on the right by
+diag(k, k, 1).
+Now, we combine the effects of tracking and zooming. We suppose that the magnification
+factor is k = dt/d0 so that the image size remains fixed. The resulting camera
+matrix at time t, derived from (6.17), is
+Pt = K
+
+
+dt/d0
+dt/d0
+1
+
+
+
+r1T −
+r1TeC
+r2T −r2TeC
+r3T dt
+
+
+=
+dt
+d0
+K
+
+
+r1T −r1TeC
+r2T −r2TeC
+r3Td0/dt d0
+
+
+and one can ignore the factor dt/d0. When t = 0, the camera matrix Pt corresponds
+with (6.16). Now, in the limit as dt tends to infinity, this matrix becomes
+P∞ = lim
+t→∞
+Pt = K
+
+
+r1T −r1TeC
+r2T −r2TeC
+0T d0
+
+
+(6.18)
+which is just the original camera matrix (6.16) with the first three entries of the last row
+set to zero. From definition 6.3 P∞ is an instance of an affine camera.
+168 6 Camera Models
+6.3.2 Error in employing an affine camera
+It may be noted that the image of any point on the plane through the world origin
+perpendicular to the principal axis direction r3 is unchanged by this combined zooming
+and motion. Indeed, such a point may be written as
+X =
+ 
+
+r1 + r2
+1
+!
+.
+One then verifies that P0X = PtX = P∞X for all t, since r3T(
+r1 + r2) = 0.
+For points not on this plane the images under P0 and P∞ differ, and we will now
+investigate the extent of this error. Consider a point X which is at a perpendicular
+distance  from this plane. The 3D point can be represented as
+X =
+ 
+
+r1 + r2 + r3
+1
+!
+and is imaged by the cameras P0 and P∞ at
+xproj = P0X = K
+
+
+˜x
+˜y
+d0 + 
+
+
+xaffine = P∞X = K
+
+
+˜x
+˜y
+d0
+
+
+where ˜x = 
+ − r1TeC, ˜y =  − r2TeC. Now, writing the calibration matrix as
+K =
+"
+K2×2 ˜x0
+˜0
+T
+1
+#
+,
+where K2×2 is an upper-triangular 2 × 2 matrix, gives
+xproj =
+ 
+K2×2˜x + (d0 + )˜x0
+d0 + 
+!
+xaffine =
+ 
+K2×2˜x + d0˜x0
+d0
+!
+The image point for P0 is obtained by dehomogenizing, by dividing by the third
+element, as ˜xproj = ˜x0 +K2×2˜x/(d0 +), and for P∞ the inhomogeneous image point
+is ˜xaffine = ˜x0 + K2×2˜x/d0. The relationship between the two points is therefore
+˜xaffine − ˜x0 =
+d0 + 
+d0
+(˜xproj − ˜x0)
+which shows that
+• The effect of the affine approximation P∞ to the true camera matrix P0 is to move the
+image of a point X radially towards or away from the principal point ˜x0 by a factor
+equal to (d0 + )/d0 = 1 + /d0.
+This is illustrated in figure 6.8.
+6.3 Cameras at infinity 169
+Affine imaging conditions. From the expressions for ˜xproj and ˜xaffine we can deduce
+that
+˜xaffine − ˜xproj =
+
+d0
+(˜xproj − ˜x0) (6.19)
+which shows that the distance between the true perspective image position and the
+position obtained using the affine camera approximation P∞ will be small provided:
+(i) The depth relief () is small compared to the average depth (d0), and
+(ii) The distance of the point from the principal ray is small.
+The latter condition is satisfied by a small field of view. In general, images acquired
+using a lens with a longer focal length tend to satisfy these conditions as both the field
+of view and the depth of field are smaller than those obtained by a short focal length
+lens with the same CCD array.
+For scenes at which there are many points at different depths, the affine camera is
+not a good approximation. For instance where the scene contains close foreground as
+well as background objects, an affine camera model should not be used. However, a
+different affine model can be used for each region in these circumstances.
+6.3.3 Decomposition of P∞
+The camera matrix (6.18) may be written as
+P∞ =
+"
+K2×2 ˜x0
+ˆ0
+T
+1
+# "
+ˆR ˆt
+0T d0
+#
+where ˆR consists of the two first rows of a rotation matrix, ˆt is the vector
+(−r1TeC,−r2TeC)T, and ˆ0 the vector (0, 0)T. The 2×2 matrix K2×2 is upper-triangular.
+One quickly verifies that
+P∞ =
+"
+K2×2 ˜x0
+ˆ0
+T
+1
+# "
+ˆR ˆt
+0T d0
+#
+=
+"
+d−1
+0
+K2×2 ˜x0
+ˆ0
+T
+1
+# "
+ˆR ˆt
+0T 1
+#
+so we may replace K2×2 by d−1
+0
+K2×2 and assume that d0 = 1. Multiplying out this
+product gives
+P∞ =
+"
+K2×2ˆR K2×2ˆt+ ˜x0
+ˆ0
+T
+1
+#
+=
+"
+K2×2 ˆ0
+ˆ0
+T
+1
+# "
+ˆR ˆt + K−1
+2×2˜x0
+0T 1
+#
+=
+"
+K2×2 K2×2ˆt + ˜x0
+ˆ0
+T
+1
+# "
+ˆR ˆ0
+0T 1
+#
+.
+Thus, making appropriate substitutions for ˆt or ˜x0, we can write the affine camera
+matrix in one of the two forms
+P∞ =
+"
+K2×2 ˆ0
+ˆ0
+T
+1
+# "
+ˆR ˆt
+0T 1
+#
+=
+"
+K2×2 ˜x0
+ˆ0
+T
+1
+# "
+ˆR ˆ0
+0T 1
+#
+. (6.20)
+Consequently, the camera P∞ can be interpreted in terms of these decompositions in
+170 6 Camera Models
+C
+X
+f d 0
+􀀧
+perspective
+weak
+perspective
+Fig. 6.8. Perspective vs weak perspective projection. The action of the weak perspective camera is
+equivalent to orthographic projection onto a plane (at Z = d0), followed by perspective projection from
+the plane. The difference between the perspective and weak perspective image point depends both on
+the distance  of the point X from the plane, and the distance of the point from the principal ray.
+one of two ways, either with ˜x0 = 0 or with ˆt = ˆ0. Using the second decomposition
+of (6.20), the image of the world origin is P∞(0, 0, 0, 1)T = (˜xT
+0 , 1)T. Consequently,
+the value of ˜x0 is dependent on the particular choice of world coordinates, and hence
+is not an intrinsic property of the camera itself. This means that the camera matrix P∞
+does not have a principal point. Therefore, it is preferable to use the first decomposition
+of P∞ in (6.20), and write
+P∞ =
+"
+K2×2 ˆ0
+ˆ0
+T
+1
+# "
+ˆR ˆt
+0T 1
+#
+(6.21)
+where the two matrices represent the internal camera parameters and external camera
+parameters of P∞.
+Parallel projection. In summary the essential differences between P∞ and a finite
+camera are:
+• The parallel projection matrix
+"
+1 0 0 0
+0 1 0 0
+0 0 0 1
+#
+replaces the canonical projection matrix
+[I | 0] of a finite camera (6.5–p155).
+• The calibration matrix
+"
+K2×2 ˆ0 ˆ0
+T
+1
+#
+replaces K of a finite camera (6.10–p157) .
+• The principal point is not defined.
+6.3.4 A hierarchy of affine cameras
+In a similar manner to the development of the finite projection camera taxonomy
+in section 6.1 we can start with the basic operation of parallel projection and build
+a hierarchy of camera models representing progressively more general cases of parallel
+projection.
+6.3 Cameras at infinity 171
+Orthographic projection. Consider projection along the Z-axis. This is represented
+by a matrix of the form
+P =
+
+
+1 0 0 0
+0 1 0 0
+0 0 0 1
+
+
+. (6.22)
+This mapping takes a point (X, Y, Z, 1)T to the image point (X, Y, 1)T, dropping the
+Z-coordinate.
+For a general orthographic projection mapping, we precede this map by a 3D Euclidean
+coordinate change of the form
+H =
+"
+R t
+0T 1
+#
+.
+Writing t = (t1, t2, t3)T, we see that a general orthographic camera is of the form
+P =
+
+
+r1T t1
+r2T t2
+0T 1
+
+
+. (6.23)
+An orthographic camera has five degrees of freedom, namely the three parameters describing
+the rotation matrix R, plus the two offset parameters t1 and t2. An orthographic
+projection matrix P = [M | t] is characterized by a matrix M with last row zero, with the
+first two rows orthogonal and of unit norm, and t3 = 1.
+Scaled orthographic projection. A scaled orthographic projection is an orthographic
+projection followed by isotropic scaling. Thus, in general, its matrix may be written in
+the form
+P =
+
+
+k
+k
+1
+
+
+
+
+r1T t1
+r2T t2
+0T 1
+
+
+=
+
+r1T t
+1
+r2T t2
+0T 1/k
+
+
+. (6.24)
+It has six degrees of freedom. A scaled orthographic projection matrix P = [M | t] is
+characterized by a matrix M with last row zero, and the first two rows orthogonal and of
+equal norm.
+Weak perspective projection. Analogous to a finite CCD camera, we may consider
+the case of a camera at infinity for which the scale factors in the two axial image
+directions are not equal. Such a camera has a projection matrix of the form
+P =
+
+
+
+x
+
+y
+1
+
+
+
+
+r1T t1
+r2T t2
+0T 1
+
+
+. (6.25)
+It has seven degrees of freedom. A weak perspective projection matrix P = [M | t]
+is characterized by a matrix M with last row zero, and first two rows orthogonal (but
+they need not have equal norm as is required in the scaled orthographic case). The
+geometric action of this camera is illustrated in figure 6.8.
+172 6 Camera Models
+The affine camera, PA. As has already been seen in the case of P∞, a general camera
+matrix of the affine form, and with no restrictions on its elements, may be decomposed
+as
+PA =
+
+
+
+x s
+
+y
+1
+
+
+
+
+r1T t1
+r2T t2
+0T 1
+
+
+.
+It has eight degrees of freedom, and may be thought of as the parallel projection version
+of the finite projective camera (6.11–p157).
+In full generality an affine camera has the form
+PA =
+
+
+m11 m12 m13 t1
+m21 m22 m23 t2
+0 0 0 1
+
+
+.
+It has eight degrees of freedom corresponding to the eight non-zero and non-unit matrix
+elements. We denote the top left 2 × 3 submatrix by M2×3. The sole restriction on the
+affine camera is that M2×3 has rank 2. This arises from the requirement that the rank of
+P is 3.
+The affine camera covers the composed effects of an affine transformation of 3-space,
+an orthographic projection from 3-space to an image, and an affine transformation of
+the image. This follows simply by concatenating the matrices representing these mappings:
+PA = [3 × 3 affine]
+
+
+1 0 0 0
+0 1 0 0
+0 0 0 1
+
+
+[4 × 4 affine]
+which results in a 3 × 4 matrix of the affine form.
+Projection under an affine camera is a linear mapping on inhomogeneous coordinates
+composed with a translation:
+ 
+x
+y
+!
+=
+"
+m11 m12 m13
+m21 m22 m23
+#
+
+X
+Y
+Z
+
+
++
+ 
+t1
+t2
+!
+which is written more concisely as
+˜x = M2×3eX +˜t . (6.26)
+The point˜t = (t1, t2)T is the image of the world origin.
+The camera models of this section are seen to be affine cameras satisfying additional
+constraints, thus the affine camera is an abstraction of this hierarchy. For example, in
+the case of the weak perspective camera the rows of M2×3 are scalings of rows of a
+rotation matrix, and thus are orthogonal.
+6.3.5 More properties of the affine camera
+The plane at infinity in space is mapped to points at infinity in the image. This is easily
+seen by computing PA(X, Y, Z, 0)T = (X, Y, 0)T. Extending the terminology of finite
+6.3 Cameras at infinity 173
+projective cameras, we interpret this by saying that the principal plane of the camera is
+the plane at infinity. The optical centre, since it lies on the principal plane, must also
+lie on the plane at infinity. From this we have
+(i) Conversely, any projective camera matrix for which the principal plane is the
+plane at infinity is an affine camera matrix.
+(ii) Parallel world lines are projected to parallel image lines. This follows because
+parallel world lines intersect at the plane at infinity, and this intersection point
+is mapped to a point at infinity in the image. Hence the image lines are parallel.
+(iii) The vector d satisfying M2×3d = 0 is the direction of parallel projection, and
+(dT, 0)T the camera centre since PA
+ 
+d
+0
+!
+= 0.
+Any camera which consists of the composed effects of affine transformations (either
+of space, or of the image) with parallel projection will have the affine form. For
+example, para-perspective projection consists of two such mappings: the first is parallel
+projection onto a plane  through the centroid and parallel to the image plane.
+The direction of parallel projection is the ray joining the centroid to the camera centre.
+This parallel projection is followed by an affine transformation (actually a similarity)
+between  and the image. Thus a para-perspective camera is an affine camera.
+6.3.6 General cameras at infinity
+An affine camera is one for which the principal plane is the plane at infinity. As such,
+its camera centre lies on the plane at infinity. However, it is possible for the camera
+centre to lie on the plane at infinity without the whole principal plane being the plane
+at infinity.
+A camera centre lies at infinity if P = [M | p4] with M a singular matrix. This is
+clearly a weaker condition than insisting that the last row of M is zero, as is the case
+for affine cameras. If M is singular, but the last row of M is not zero, then the camera is
+not affine, but not a finite projective camera either. Such a camera is rather a strange
+object, however, and will not be treated in detail in this book. We may compare the
+properties of affine and non-affine infinite cameras:
+Affine camera Non-affine camera
+Camera centre on ∞ yes yes
+Principal plane is ∞ yes no
+Image of points on ∞ on l∞ yes no in general
+In both cases the camera centre is the direction of projection. Furthermore, in the case
+of an affine camera all non-infinite points are in front of the camera. For a non-affine
+camera space is partitioned into two sets of points by the principal plane.
+A general camera at infinity could arise from a perspective image of an image produced
+by an affine camera. This imaging process corresponds to left-multiplying the
+174 6 Camera Models
+Line of motion
+Instantaneous
+view plane
+Image plane
+Orthographic
+axis
+Perspective
+axis
+x
+y
+Fig. 6.9. Acquisition geometry of a pushbroom camera.
+affine camera by a general 3 × 3 matrix representing the planar homography. The resulting
+3 × 4 matrix is still a camera at infinity, but it does not have the affine form,
+since parallel lines in the world will in general appear as converging lines in the image.
+6.4 Other camera models
+6.4.1 Pushbroom cameras
+The Linear Pushbroom (LP) camera is an abstraction of a type of sensor common in
+satellites, for instance the SPOT sensor. In such a camera, a linear sensor array is
+used to capture a single line of imagery at a time. As the sensor moves the sensor
+plane sweeps out a region of space (hence the name pushbroom), capturing the image
+a single line at a time. The second dimension of the image is provided by the motion of
+the sensor. In the linear pushbroom model, the sensor is assumed to move in a straight
+line at constant velocity with respect to the ground. In addition, one assumes that the
+orientation of the sensor array with respect to the direction of travel is constant. In
+the direction of the sensor, the image is effectively a perspective image, whereas in the
+direction of the sensor motion it is an orthographic projection. The geometry of the LP
+camera is illustrated in figure 6.9. It turns out that the mapping from object space into
+the image may be described by a 3×4 camera matrix, just as with a general projective
+camera. However, the way in which this matrix is used is somewhat different.
+• Let X = (X, Y, Z, 1)T be an object point, and let P be the camera matrix of the
+LP camera. Suppose that PX = (x, y,w)T. Then the corresponding image point
+(represented as an inhomogeneous 2-vector) is (x, y/w)T.
+One must compare this with the projective camera mapping. In that case the point
+represented by (x, y,w)T is (x/w, y/w)T. Note the difference that in the LP case, the
+coordinate x is not divided by the factor w to get the image coordinate. In this formula,
+the x-axis in the image is the direction of the sensor motion, whereas the y-axis is in
+the direction of the linear sensor array. The camera has 11 degrees of freedom.
+6.4 Other camera models 175
+Another way of writing the formula for LP projection is
+˜x = x = P1T
+X ˜y = y/z =
+P2T
+X
+P3T
+X
+(6.27)
+where (˜x, ˜y) is the image point.
+Note that the ˜y-coordinate behaves projectively, whereas the ˜x is obtained by orthogonal
+projection of the point X on the direction perpendicular to the plane P1. The vector
+P1 represents the sweep plane of the camera at time t = 0 – that is the moment when
+the line with coordinates ˜x = 0 is captured.
+Mapping of lines. One of the novel features of the LP camera is that straight lines in
+space are not mapped to straight lines in the image (they are mapped to straight lines
+in the case of a projective camera – see section 8.1.2). The set of points X lying on a
+3D line may be written as X0 +
+D, where X0 = (X, Y, Z, 1)T is a point on the line and
+D = (DX,DY,DZ, 0)T is the intersection of this line with the plane at infinity. In this
+case, we compute from (6.27)
+˜x = P1T(X0 + tD)
+˜y =
+P2T(X0 + tD)
+P3T(X0 + tD)
+.
+This may be written as a pair of equations ˜x = a+bt and (c+dt)˜y = e+ft. Eliminating
+t from these equations leads to an equation of the form 
+˜x˜y +˜x+
+˜y + = 0, which
+is the equation of a hyperbola in the image plane, asymptotic in one direction to the
+line 
+˜x + 
+ = 0, and in the other direction to the line 
+˜y +  = 0. A hyperbola is
+made up of two curves. However, only one of the curves making up the image of a line
+actually appears in the image – the other part of the hyperbola corresponds to points
+lying behind the camera.
+6.4.2 Line cameras
+This chapter has dealt with the central projection of 3-space onto a 2D image. An
+analogous development can be given for the central projection of a plane onto a 1D line
+contained in the plane. See figure 22.1(p535). The camera model for this geometry is
+"
+x
+y
+#
+=
+"
+p11 p12 p13
+p21 p22 p23
+# 
+
+X
+Y
+Z
+
+
+= P2×3x
+which is a linear mapping from homogeneous representation of the plane to a homogeneous
+representation of the line. The camera has 5 degrees of freedom. Again the
+null-space, c, of the P2×3 projection matrix is the camera centre, and the matrix can be
+decomposed in a similar manner to the finite projective camera (6.11–p157) as
+P2×3 = K2×2R2×2[I2×2 | −˜c]
+176 6 Camera Models
+where ˜c is the inhomogeneous 2-vector representing the centre (2 dof), R2×2 is a rotation
+matrix (1 dof), and
+K2×2 =
+"
+
+x x0
+1
+#
+the internal calibration matrix (2 dof).
+6.5 Closure
+This chapter has covered camera models, their taxonomy and anatomy. The subsequent
+chapters cover the estimation of cameras from a set of world to image correspondences,
+and the action of a camera on various geometric objects such as lines and quadrics.
+Vanishing points and vanishing lines are also described in more detail in chapter 8.
+6.5.1 The literature
+[Aloimonos-90] defined a hierarchy of camera models including para-perspective.
+Mundy and Zisserman [Mundy-92] generalized this with the affine camera. Faugeras
+developed properties of the projective camera in his textbook [Faugeras-93]. Further
+details on the linear pushbroom camera are given in [Gupta-97], and on the 2D camera
+in [Quan-97b].
+6.5.2 Notes and exercises
+(i) Let I0 be a projective image, and I1 be an image of I0 (an image of an image).
+Let the composite image be denoted by I′. Show that the apparent camera
+centre of I′ is the same as that of I0. Speculate on how this explains why a
+portrait’s eyes “follow you round the room.” Verify on the other hand that all
+other parameters of I′ and I0 may be different.
+(ii) Show that the ray back-projected from an image point x under a projective
+camera P (as in (6.14–p162)) may be written as
+L∗ = P
+T[x]×P (6.28)
+where L∗ is the dual Pl¨ucker representation of a line (3.9–p71).
+(iii) The affine camera.
+(a) Show that the affine camera is the most general linear mapping on homogeneous
+coordinates that maps parallel world lines to parallel image
+lines. To do this consider the projection of points on ∞, and show that
+only if P has the affine form will they map to points at infinity in the
+image.
+(b) Show that for parallel lines mapped by an affine camera the ratio of
+lengths on line segments is an invariant. What other invariants are there
+under an affine camera?
+(iv) The rational polynomial camera is a general camera model, used extensively
+6.5 Closure 177
+in the satellite surveillance community. Image coordinates are defined by the
+ratios
+x = Nx(X)/Dx(X) y = Ny(X)/Dy(X)
+where the functions Nx,Dx,Ny,Dy are homogeneous cubic polynomials in the
+3-space point X. Each cubic has 20 coefficients, so that overall the camera has
+78 degrees of freedom. All of the cameras surveyed in this chapter (projective,
+affine, pushbroom) are special cases of the rational polynomial camera. Its disadvantage
+is that it is severely over-parametrized for these cases. More details
+are given in Hartley and Saxena [Hartley-97e].
+(v) A finite projective camera (6.11–p157) P may be transformed to an orthographic
+camera (6.22) by applying a 4 × 4 homography H on the right such that
+PH = KR[I | −eC]H =
+
+
+1 0 0 0
+0 1 0 0
+0 0 0 1
+
+
+= Porthog .
+(the last row of H is chosen so that H has rank 4). Then since
+x = P(HH−1)X = (PH)(H−1X) = PorthogX
+′
+imaging under P is equivalent to first transforming the 3-space points X to X′ =
+H−1X and then applying an orthographic projection. Thus the action of any
+camera may be considered as a projective transformation of 3-space followed
+by orthographic projection.-->
+</p><p>
+</p><p>
+    </body>
+</html>

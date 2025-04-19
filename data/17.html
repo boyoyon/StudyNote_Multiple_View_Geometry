@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>17章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>17章 N線型性と多視点テンソル</center></h1>
+<p>
+この章では、4つの視点間の4焦点テンソル \(Q^{ijkl}\) を紹介します。これは、2つの視点における基礎行列と3つの視点における3焦点テンソルの類似物です。4焦点テンソルは、4つの視点で見られる画像点と線の関係をカプセル化します。
+<!--
+This chapter introduces the quadrifocal tensor Qijkl between four views, which is the
+analogue of the fundamental matrix for two and the trifocal tensor for three views. The
+quadrifocal tensor encapsulates the relationships between imaged points and lines seen
+in four views.-->
+</p><p>
+逆投影された線と点の交差特性から、多視点関係が直接的かつ一様に導出できることが示される。この解析から、基礎行列F、三焦点テンソル \(\mathcal T_i^{jk}\)、および四焦点テンソル 
+
+ \(Q^{ijkl}\) が、行列式を含む共通の枠組みの中に現れる。これらのテンソルそれぞれについて、カメラ行列を用いて具体的な公式が与えられる。
+
+<!-- It is shown that multiple view relations may be derived directly and uniformly from
+the intersection properties of back-projected lines and points. From this analysis the
+fundamental matrix F, trifocal tensor \(\mathcal T_i^{jk}\) , and quadrifocal tensor \(Q^{ijkl}\) appear in a
+common framework involving matrix determinants. Specific formulae are given for
+each of these tensors in terms of the camera matrices. -->
+</p><p>
+また、テンソルの自由度と、テンソル計算に必要な点と線の対応の数に関する一般的な計数論を展開する。これらは、一般的な位置における配置と、4つ以上の要素が共面にある重要な特殊なケースについて与えられる。
+<!-- We also develop general counting arguments for the degrees of freedom of the tensors
+and the number of point and line correspondences required for tensor computation.
+These are given for configurations in general position and for the important special
+case where four or more of the elements are coplanar. -->
+</p>
+<h2><center>17.1 双一次関係</center></h2>
+<p>
+まず、2つの異なる視点から見た点の座標間の関係について考察する。ここで、\(x\leftrightarrow x^\prime\) を、2つの異なる視点から見た空間内の同一点 \(X\) の像である対応する点のペアとする。表記を明瞭にするために、2つのカメラ行列を、通常の表記である \(P\) と \(P^\prime\) の代わりに \(A\) と \(B\) で表すと便利である。空間から像への射影は、\(kx = AX\) と \(k^\prime x^\prime = BX\) と表すことができる。ここで、\(k\) と \(k^\prime\) は2つの未定定数である。この2つの式は、1つの式として書き表すことができる。
+<!-- We consider first the relationship that holds between the coordinates of a point seen
+in two separate views. Thus, let \(x\leftrightarrow x^\prime\) be a pair of corresponding points which are
+the images of the same point \(X\) in space as seen in the two separate views. It will be
+convenient, for clarity of notation, to represent the two camera matrices by \(A\) and \(B\),
+instead of the usual notation, \(P\) and \(P^\prime\). The projection from space to image can now be
+expressed as \(kx = AX\) and \(k^\prime x^\prime = BX\) where \(k\) and \(k^\prine\) are two undetermined constants.
+This pair of equations may be written down as one equation -->
+\[
+\left[
+\begin{array}{c}
+A & x & 0 \\
+B & 0 & x^\prime \\
+\end{array}
+\right]
+\left(
+\begin{array}{c}
+X \\
+-k \\
+-k^\prime
+\end{array}
+\right) = 0
+\]
+そして、これが2つの方程式と等価であることは容易に検証できる。これは、行列 \(A\) の \(i\) 行目を \(a^i\)、同様に行列 \(B\) の \(i\) 行目を \(b^i\) と表記することで、より詳細な形で表すことができる。また、\(x = (x^1, x^2, x^3)^T\)、\(x^\prime = (x^{\prime 1}, x^{\prime 2}, x^{\prime 3})^T\) と表記する。方程式の集合は、
+<!-- and it may easily be verified that this is equivalent to the two equations. This can be
+written in a more detailed form by denoting the \(i\)-th row of the matrix \(A\) by \(a^i\), and
+similarly the \(i\)-th row of the matrix \(B\) by \(b^i\). We also write \(x = (x^1, x^2, x^3)^T\) and \(x^\prime = (x^{\prime 1}, x^{\prime 2}, x^{\prime 3})^T\). The set of equations is now
+
+
+a1 x1
+a2 x2
+a3 x3
+b1 x′1
+b2 x′2
+b3 x′3
+
+
+
+
+X
+−k
+−k′
+
+
+= 0. (17.1)
+Now, this is a 6 × 6 set of equations which by hypothesis has a non-zero solution, the
+vector (X
+T,−k,−k′)T. It follows that the matrix of coefficients in (17.1) must have
+zero determinant. It will be seen that this condition leads to a bilinear relationship
+between the entries of the vectors x and x′ expressed by the fundamental matrix F. We
+will now look specifically at the form of this relationship.
+Consider the matrix appearing in (17.1). Denote it by X. The determinant of X may
+be written as an expression in terms of the quantities xi and x′i. Notice that the entries
+xi and x′i appear in only two columns of X. This implies that the determinant of X may
+be expressed as a quadratic expression in terms of the xi and x′i. In fact, since all the
+entries xi appear in the same column, there can be no terms of the form xixj or x′ix′j .
+Briefly, in terms of the xi and x′i, the determinant of X is a bilinear expression. The
+fact that the determinant is zero may be written as an equation
+(x′1, x′2, x′3)F(x1, x2, x3)T = x′ixjFij = 0 (17.2)
+where F is a 3 × 3 matrix, the fundamental matrix.
+We may compute a specific formula for the entries of the matrix F as follows. The
+entry Fij of F is the coefficient of the term x′ixj in the expansion of the determinant
+of X. In order to find this coefficient, we must eliminate the rows and columns of the
+matrix containing x′i and xj , take the determinant of the resulting matrix and multiply
+by ±1 as appropriate. For instance, the coefficient of x′1x1 is obtained by eliminating
+two rows and the last two columns of the matrix X. The remaining matrix is
+
+ a2
+a3
+b2
+b3
+
+
+and the coefficient of x′1x1 is equal to the determinant of this 4 × 4 matrix. In general,
+we may write
+Fji = (−1)i+j det
+"
+ai
+bj
+#
+. (17.3)
+In this expression, the notation ai has been used to denote the matrix obtained from
+A by omitting the row ai. Thus the symbol  may be read as omit, and ai represents
+two rows of A. The determinant appearing on the right side of (17.3) is therefore a 4×4
+determinant.
+17.1 Bilinear relations 413
+A different way of writing the expression for Fji makes use of the tensor ǫrst (defined
+in section A1.1(p563)) as follows:1
+Fji =
+
+1
+4
+
+ǫipqǫjrs det
+
+
+ap
+aq
+br
+bs
+
+
+. (17.4)
+To see this, note that Fji is defined in (17.4) in terms of a sum of determinants over all
+values of p, q, r and s. However, for a given value of i, the tensor ǫipq is zero unless p
+and q are different from i and from each other. This leaves only two remaining choices
+of p and q (for example if i = 1, then we may choose p = 2, q = 3 or p = 3, q = 2).
+Similarly, there are only two different choices of r and s giving rise to non-zero terms.
+Thus the sum consists of four non-zero terms only. Furthermore, the determinants
+appearing in these four terms consist of the same four rows of the matrices A and B and
+hence have equal values, except for sign. However, the value of ǫipqǫjrs is such that the
+four terms all have the same sign and are equal. Thus, the sum (17.4) is equal to the
+single term appearing in (17.3).
+17.1.1 Epipoles as tensors
+The expression (17.3) for the fundamental matrix involves determinants of matrices
+containing two rows from each of A and B. If we consider instead the determinants of
+matrices containing all three rows from one matrix and one row from the other matrix,
+the resulting determinants represent the epipoles. Specifically we have
+ei = det
+"
+ai
+B
+#
+e′j = det
+"
+A
+bj
+#
+(17.5)
+where e and e′ are the epipoles in the two images. To see this, note that the epipole is
+defined by ei = aiC′, where C′ is the centre of the second camera, defined by BC′ = 0.
+The formula (17.5) is now obtained by expanding the determinant by cofactors along
+the first row (in a similar manner to the derivation of (3.4–p67)).
+17.1.2 Affine specialization
+In the case where both the cameras are affine cameras, the fundamental matrix has a
+particularly simple form. Recall that an affine camera matrix is one for which the final
+row is (0, 0, 0, 1). Now, note from (17.3) that if neither i nor j is equal to 3, then the
+third rows of both A and B are present in this expression for Fij . The determinant has
+two equal rows, and hence equals zero. Thus, F is of the form
+FA =
+
+
+a
+b
+c d e
+
+
+1 Of course the factor 1/4 is inessential since F is defined only up to scale. It is included here just to show the relationship to
+(17.3).
+414 17 N-Linearities and Multiple View Tensors
+with all other entries being zero. Thus the affine fundamental matrix has just 5 nonzero
+entries, and hence 4 degrees of freedom. Its properties are described in section
+14.2(p345).
+Note that this argument relies solely on the fact that both cameras have the same
+third row. Since the third row of a camera matrix represents the principal plane of
+the camera (see section 6.2.1(p158)), it follows that the fundamental matrix for two
+cameras sharing the same principal plane is of the above form.
+17.2 Trilinear relations
+The determinant method of deriving the fundamental matrix can be used to derive relationships
+between the coordinates of points seen in three views. This analysis results in
+a formula for the trifocal tensor. Unlike the fundamental matrix, the trifocal tensor relates
+both lines and points in the three images. We begin by describing the relationships
+for corresponding points.
+17.2.1 Trifocal point relations
+Consider a point correspondence across three views: x $ x′ $ x′′. Let the third
+camera matrix be C and let ci be its i-th row. Analogous to (17.1) we can write an
+equation describing the projection of a point X into the three images as
+
+
+A x
+B x′
+C x′′
+
+
+
+
+X
+−k
+−k′
+−k′′
+
+
+= 0. (17.6)
+This matrix, which as before we will call X, has 9 rows and 7 columns. From the
+existence of a solution to this set of equations, we deduce that its rank must be at most
+6. Hence any 7 × 7 minor has zero determinant. This fact gives rise to the trilinear
+relationships that hold between the coordinates of the points x, x′ and x′′.
+There are essentially two different types of 7 × 7 minors of X. In choosing 7 rows of
+X, we may choose either
+(i) Three rows from each of two camera matrices and one row from the third, or
+(ii) Three rows from one camera matrix and two rows from each of the two others.
+Let us consider the first type. A typical such 7 × 7 minor of X is of the form
+
+
+A x
+B x′
+ci x′′i
+
+
+. (17.7)
+Note that this matrix contains only one entry in the last column, namely x′′i. Expanding
+the determinant by cofactors down this last column reveals that the determinant is equal
+to
+x′′i det
+"
+A x
+B x′
+#
+.
+17.2 Trilinear relations 415
+Apart from the factor x′′i, this just leads to the bilinear relationship expressed by the
+fundamental matrix, as discussed in section 17.1.
+The other sort of 7 × 7 minor is of more interest. An example of such a determinant
+is of the form
+det
+
+
+A x
+bj x′j
+bl x′l
+ck x′′k
+cm x′′m
+
+
+. (17.8)
+By the same sort of argument as with the bilinear relations it is seen that setting the
+determinant to zero leads to a trilinear relation of the form f(x, x′, x′′) = 0. By expanding
+this determinant down the column containing xi, we can find a specific formula
+as follows.
+det Xuv = −
+1
+2
+xix′jx′′kǫilmǫjquǫkrv det
+
+
+al
+am
+bq
+cr
+
+
+= 0uv (17.9)
+where u and v are free indices corresponding to the rows omitted from the matrices B
+and C to produce (17.8). We introduce the tensor
+T qr
+i =
+1
+2
+ǫilm det
+
+
+al
+am
+bq
+cr
+
+
+. (17.10)
+The trilinear relationship (17.9) may then be written
+xix′jx′′kǫjquǫkrvT qr
+i = 0uv. (17.11)
+The tensor T qr
+i is the trifocal tensor, and (17.11) is a trilinear relation such as those
+discussed in section 15.2.1(p378). The indices u and v are free indices, and each choice
+of u and v leads to a different trilinear relation.
+Just as in the case of the fundamental matrix, one may write the formula for the
+tensor T qr
+i in a slightly different way
+T qr
+i = (−1)i+1 det
+
+
+ai
+bq
+cr
+
+
+. (17.12)
+As in section 17.1, the expression ai means the matrix A with row i omitted. Note
+that we omit row i from the first camera matrix, but include rows q and r from the other
+two camera matrices.
+In the often-considered case where the first camera matrix A has the canonical form
+[I | 0], the expression (17.12) for the trifocal tensor may be written simply as
+T qr
+i = bq
+i cr
+4 − bq
+4cr
+i . (17.13)
+416 17 N-Linearities and Multiple View Tensors
+Note that there are in fact 27 possible trilinear relations that may be formed in this
+way (refer to (17.8)). Specifically, note that each relation arises from taking all three
+rows from one camera matrix along with two rows from each of the other two matrices.
+This gives the following computation.
+• 3 ways to choose the first camera matrix from which to take all three rows.
+• 3 ways to choose the row to omit from the second camera matrix.
+• 3 ways to choose the row to omit from the third camera matrix.
+This gives a total of 27 trilinear relations. However, among the 9 ways of choosing
+two rows from the second and third camera matrices, only 4 are linearly independent
+(we return to this in section 17.6). This means that there are a total of 12 linearly
+independent trilinear relations.
+It is important to distinguish between the number of trilinear relations, however,
+and the number of different trifocal tensors. As is shown by (17.11), several different
+trilinear relations may be expressed in terms of just one trifocal tensor. In (17.11) each
+distinct choice of the free indices u and v gives rise to a different trilinear relation, all
+of which are expressible in terms of the same trifocal tensor T qr
+i . On the other hand,
+in the definition of the trifocal tensor given in (17.10), the camera matrix A is treated
+differently from the other two, in that A contributes two rows (after omitting row i) to
+the determinant defining any given entry of T qr
+i , whereas the other two camera matrices
+contribute just one row. This means that there are in fact three different trifocal tensors
+corresponding to the choice of which of the three camera matrices contributes two
+rows.
+17.2.2 Trifocal line relations
+A line in an image is represented by a covariant vector li, and the condition for a point
+x to lie on the line is that lixi = 0. Let Xj represent a point X in space, and ai
+j represent
+a camera matrix A. The 3D point Xj is mapped to the image point as xi = ai
+jXj . It
+follows that the condition for the point Xj to project to a point on the line li is that
+liai
+jXj = 0. Another way of looking at this is that liai
+j represents a plane consisting of
+all points that project onto the line li.
+Consider the situation where a point Xj maps to a point xi in one image and to some
+point on lines l′
+q and l′′
+r in two other images. This may be expressed by equations
+xi = kai
+jX
+j l′
+qbq
+jX
+j = 0 l′′
+r cr
+jX
+j = 0.
+These may be written as a single matrix equation of the form
+
+
+A x
+l′
+qbq 0
+l′′
+r cr 0
+
+
+ 
+X
+−k
+!
+= 0. (17.14)
+Since this set of equations has a solution, it follows that det X = 0, where X is the
+matrix on the left of the equation. Expanding this determinant down the last column
+17.2 Trilinear relations 417
+gives
+0 = −det X =
+1
+2
+xiǫilm det
+
+
+al
+am
+l′
+qbq
+l′′
+r cr
+
+
+=
+1
+2
+xil′
+ql′′
+r ǫilm det
+
+
+al
+am
+bq
+cr
+
+
+= xil′
+ql′′
+rT qr
+i . (17.15)
+This shows the connection of the trifocal tensor with sets of lines. The two lines l′
+q
+and l′′
+r back-project to planes meeting in a line in space. The image of this line in the
+first image is a line, which may be represented by li. For any point xi on that line the
+relation (17.15) holds. It follows that l′
+ql′′
+rT qr
+i is the representation of the line li. Thus,
+we see that for three corresponding lines in the three images
+lp = l′
+ql′′
+rT qr
+p (17.16)
+where, of course, the two sides are equal only up to a scale factor. Since the two sides
+of the relation (17.16) are vectors, this may be interpreted as meaning that the vector
+product of the two sides vanishes. Expressing this vector product using the tensor ǫijk,
+we arrive at an equation
+lpl′
+ql′′
+r ǫipwT qr
+i = 0w. (17.17)
+In an analogous manner to the derivation of (17.11) and (17.15) we may derive a
+relationship between corresponding points in two images and a line in a third image.
+In particular, if a point Xj in space maps to points xi and x′j in the first two images,
+and to some point on a line l′′
+r in the third image, then the relation is
+xix′j l′′
+r ǫjquT qr
+i = 0u. (17.18)
+In this relation, the index u is free, and there is one such relation for each choice of
+u = 1, . . . , 3, of which two are linearly independent.
+We summarize the results of this section in table 17.1, where the final column denotes
+the number of linearly independent equations.
+Correspondence Relation Number of equations
+three points xix′jx′′kǫjquǫkrvT qr
+i
+= 0uv 4
+two points, one line xix′j l′′
+r ǫjquT qr
+i
+= 0u 2
+one point, two lines xil′
+ql′′
+r T qr
+i
+= 0 1
+three lines lpl′
+ql′′
+r ǫpiwT qr
+i
+= 0w 2
+Table 17.1. Trilinear relations (see also table 16.1(p391)).
+Note how the different equation sets are related to each other. For instance, the
+second line of the table is derived from the first by replacing x′′kǫkrv by the line l′′
+r and
+deleting the free index v.
+418 17 N-Linearities and Multiple View Tensors
+17.2.3 Relations between two views and the trifocal tensor
+To this point we have considered correspondences across three views and the trifocal
+tensor. Here we describe the constraints that arise if the correspondence is only
+across two views. From the two view case, where point correspondences constrain the
+fundamental matrix, we would expect some constraint on T .
+Consider the case of corresponding points x′j and x′′k in the second and third images.
+This means that there is a point X in space mapping to the points x′j and x′′k. The point
+X also maps to some point xi in the first image, but xi is not known. Nevertheless, there
+exists a relationship xix′jx′′kǫjquǫkrvT qr
+i = 0uv between these points. For each choice
+of u and v, denote Ai,uv = x′jx′′kǫjquǫkrvT qr
+i . The entries of Ai,uv are linear expressions
+in the entries of T qr
+i that may be determined explicitly in terms of the known points x′j
+and x′′k. There exists a point x such that xiAi,uv = 0. For each choice of u, v we may
+consider Ai,uv as being a 3-vector indexed by i, and for the different choices of u and v,
+there are 4 linearly independent such expressions. Thus, A may be considered as a 3×4
+matrix, and the condition that xiAi,uv = 0 means that Ai,uv has rank 2. This means that
+every 3×3 subdeterminant of A is zero, which leads to cubic constraints on the elements
+of the trifocal tensor. For geometric reasons, it appears that the equations xiAi,uv are
+not algebraically independent for the four choices of u and v. Consequently we obtain
+a single cubic constraint on T jk
+i from a two-view point correspondence. Details are left
+to the reader.
+In the case where the point correspondence is between the first and second (or third)
+views the analysis is slightly different. However, the result in each case is that although
+a point correspondence across two views leads to a constraint on the trifocal tensor,
+this constraint is not a linear constraint as it is in the case of correspondences across
+three views.
+17.2.4 Affine trifocal tensor
+In the case where all three cameras are affine, the trifocal tensor satisfies certain constraints.
+A camera matrix is affine if the last row is (0, 0, 0, 1). It follows that if two
+of the rows in the matrix in (17.12) are of this form, then the corresponding element of
+T jk
+i is zero. This is the case for elements T j3
+1 , T j3
+2 , T 3k
+1 , T 3k
+2 and T 33
+3 – a total of 11
+elements. Thus the trifocal tensor contains 16 non-zero entries, defined up to scale. As
+in the case of the affine fundamental matrix, this analysis is equally valid for the case
+of cameras sharing the same principal plane.
+17.3 Quadrilinear relations
+Similar arguments work in the case of four views. Once more, consider a point correspondence
+across 4 views: x $ x′ $ x′′ $ x′′′. With camera matrices A, B, C and D,
+17.3 Quadrilinear relations 419
+the projection equations may be written as
+
+
+A x
+B x′
+C x′′
+D x′′′
+
+
+
+
+X
+−k
+−k′
+−k′′
+−k′′′
+
+
+= 0. (17.19)
+Since this equation has a solution, the matrix X on the left has rank at most 7, and
+so all 8 × 8 determinants are zero. As in the trilinear case, any determinant containing
+only one row from one of the camera matrices gives rise to a trilinear or bilinear relation
+between the remaining views. A different case occurs when we consider 8×8 determinants
+containing two rows from each of the camera matrices. Such a determinant leads
+to a new quadrilinear relationship of the form
+xix′jx′′kx′′′lǫipwǫjqxǫkryǫlszQpqrs = 0wxyz (17.20)
+where each choice of the free variables w, x, y and z gives a different equation, and the
+4-dimensional quadrifocal tensor Qpqrs is defined by
+Qpqrs = det
+
+
+ap
+bq
+cr
+ds
+
+
+. (17.21)
+Note that the four indices of the four-view tensor are contravariant, and there is no distinguished
+view as there is in the case of the trifocal tensor. There is only one four-view
+tensor corresponding to four given views, and this one tensor gives rise to 81 different
+quadrilinear relationships, of which 16 are linearly independent (see section 17.6).
+As in the case of the trifocal tensor, there are also relations between lines and points
+in the case of the four-view tensor. Equations relating points are really just special
+cases of the relationship for lines. In the case of a 4-line correspondence, however,
+something different happens, as will now be explained. The relationship between a set
+of four lines and the quadrifocal tensor is given by the formula
+lpl′
+ql′′
+r l′′′
+s Qpqrs = 0 (17.22)
+for any set of corresponding lines lp, l′
+q, l′′
+r and l′′′
+s . However, the derivation shows that
+this condition will hold as long as there is a single point in space that projects onto the
+four image lines. It is not necessary that the four image lines correspond (in the sense
+that they are the image of a common line in space). This configuration is illustrated in
+figure 17.1a.
+Now, consider the case where three of the lines (for instance l′
+q, l′′
+r and l′′′
+s ) correspond
+by deriving from a single 3D line (figure 17.1b). Now let lp be any arbitrary line in the
+first image. The back-projection of this line is a plane, which will meet the 3D line in
+a single point, X, and the conditions are present for (17.22) to hold. Since this is true
+for any arbitrary line lp, it must follow that l′
+ql′′
+r l′′′
+s Qpqrs = 0p. This gives three linearly
+independent equations involving l′
+q, l′′
+r and l′′′
+s . However, given a set of corresponding
+420 17 N-Linearities and Multiple View Tensors
+/
+l / /
+/ /
+C
+l
+X
+l///
+C
+C
+C/ / /
+/
+l
+a
+/
+/
+l / /
+L
+/ /
+C
+l
+l
+X
+l///
+C
+C
+C/ / /
+b
+Fig. 17.1. Four line “correspondence”. The four lines l, l′, l′′, l′′′ satisfy the quadrilinear relation
+(17.22) since their back-projections intersect in a common point X. (a) No three planes intersect in a
+common line. (b) The three lines l′ $ l′′ $ l′′′ are the image of the same line L in 3-space.
+lines in four images, as above, we may choose a subset of three lines, and for each linetriplet
+obtain three equations in this way. Since there are four choices of line-triplets,
+the total number of equations is thus 12.
+However only 9 of these equations are independent, and this may be seen as follows.
+Suppose that l = l′ = l′′ = l′′′ = (1, 0, 0)T. This is equivalent to the general situation
+since by applying projective transformations to each of the four images we can transform
+an arbitrary line correspondence to this case. Now the equation l′
+ql′′
+r l′′′
+s Qpqrs = 0p
+means that any element Qp111 = 0. Applying this argument to all four triplets of three
+views, we find that Qpqrs = 0 whenever at least three of the indices are 1. There are
+a total of 9 such elements. Since the set of equations generated by the line correspondence
+is equivalent to setting each of these elements to zero, among the total of 12
+equations there are just 9 independent ones.
+The four-view relations are summarized in table 17.2. No equation is given here for
+the case of three lines and one point, since this gives no more restrictions on the tensor
+than just the three-line correspondence.
+17.4 Intersections of four planes 421
+Correspondence Relation Number of equations
+four points xix′jx′′kx′′′lǫipwǫjqxǫkryǫlszQpqrs = 0wxyz 16
+three points, one line xix′jx′′kl′′′
+s ǫipwǫjqxǫkryQpqrs = 0wxy 8
+two points, two lines xix′j l′′
+r l′′′
+s ǫipwǫjqxQpqrs = 0wx 4
+three lines lpl′
+ql′′
+rQpqrs = 0s 3
+four lines lpl′
+ql′′
+rQpqrs = 0s, lpl′
+ql′′′
+s Qpqrs = 0r, . . . 9
+Table 17.2. Quadrilinear relations.
+17.4 Intersections of four planes
+The multi-view tensors may be given a different derivation, which sheds a little more
+light on their meaning. In this interpretation, the basic geometric property is the intersection
+of four planes. Four planes in space will generally not meet in a common point.
+A necessary and sufficient condition for them to do so is that the determinant of the
+4 × 4 matrix formed from the vectors representing the planes should vanish.
+Notation. In this section only we shall represent the determinant of a 4 × 4 matrix
+with rows a, b, c and d by a ^ b ^ c ^ d. In a more general context, the symbol ^ represents
+the meet (or intersection) operator in the double algebra (see literature section
+of this chapter). However, for the present purposes the reader need only consider it as
+a shorthand for the determinant.
+We start with the quadrifocal tensor for which the derivation is easiest. Consider four
+lines l, l′, l′′ and l′′′ in images formed from four cameras with camera matrices A, B,
+C and D. The back projection of a line l through camera A is written as the plane liai,
+with notation as in (17.14). The condition that these four planes are coincident may be
+written as
+(lpap) ^ (l′
+qbq) ^ (l′′
+r cr) ^ (l′′′
+s ds) = 0.
+However, since the determinant is linear in each row, this may be written as
+0 = lpl′
+ql′′
+r l′′′
+s (ap ^ bq ^ cr ^ ds) def = lpl′
+ql′′
+r l′′′
+s Qpqrs. (17.23)
+This corresponds to the definition (17.21) and line relation (17.22) for the quadrifocal
+tensor. The basic geometric property is the intersection of the four planes in space.
+Trifocal tensor derivation. Consider now a point–line–line relationship
+xi $ l′
+j $ l′′
+k for three views and let l1
+p and l2
+q be two lines in the first image that pass
+through the image point x. The planes back-projected from the four lines meet in a
+point (see figure 17.2). So we can write:
+l1
+l l2
+ml′
+ql′′
+r (al ^ am ^ bq ^ cr) = 0 .
+422 17 N-Linearities and Multiple View Tensors
+C
+/
+l
+/
+l / /
+L
+/ /
+C
+x C
+Fig. 17.2. A point–line–line correspondence x $ l′ $ l′′ involving three images may be interpreted as
+follows. Two arbitrary lines are chosen to pass through the point x in the first image. The four lines then
+back-project to planes that meet in a point in space.
+The next step is an algebraic trick – to multiply this equation by the ǫilmǫilm. This is a
+scalar value (in fact equal to 6, the number of permutations of (ilm)). The result after
+regrouping is
+
+l1
+l l2
+mǫilm
+
+l′
+ql′′
+r ǫilm
+
+al ^ am ^ bq ^ cr
+
+= 0 .
+Now the expression l1
+l l2m ǫilm is simply the cross-product of the two lines ll and lm, in
+other words their intersection point, xi. Thus finally we can write
+0 = xil′
+ql′′
+r
+
+ǫilm(al ^ am ^ bq ^ cr)
+
+def = xil′
+ql′′
+rT qr
+i (17.24)
+which are the definition (17.10) and basic incidence relation (17.15) for the trifocal
+tensor.
+Fundamental matrix. We can derive the fundamental matrix in the same manner.
+Given a correspondence x $ x′, select pairs of lines l1
+p and l2
+q passing through x, and
+l′1
+r and l′2
+s passing through x′. The back-projected planes all meet in a point, so we
+write
+l1
+p l2
+q l′1
+r l′2
+s (ap ^ aq ^ br ^ bs) = 0 .
+Multiplying by (ǫipqǫipq)(ǫjrsǫjrs) and proceeding as before leads to the coplanarity
+constraint
+0 = xix′j (ǫipqǫjrs(ap ^ aq ^ br ^ bs)) def = xix′jFji (17.25)
+which can be compared with (17.4).
+17.5 Counting arguments
+In this section we specify the number of points or lines required to carry out reconstruction
+from several views. This analysis is related to counting the number of degrees of
+freedom of the associated tensors. However, in doing this it is necessary to distinguish
+between the number of degrees of freedom of the tensor viewed as an unconstrained
+17.5 Counting arguments 423
+algebraic object, and the number of degrees of freedom that arises from a configuration
+of cameras and their camera matrices.
+For instance, consider the fundamental matrix. At one level, the fundamental matrix
+may be considered as a homogeneous 3×3 matrix, and hence has 8 degrees of freedom
+(9 minus 1 for the indeterminate scale). On the other hand, the fundamental matrix arising
+from a pair of camera matrices according to (17.3–p412) must satisfy the additional
+constraint det F = 0. Hence, such a fundamental matrix has just 7 degrees of freedom.
+Since the camera matrices may be determined up to a 3D projectivity from the fundamental
+matrix (and vice versa), we may count the number of degrees of freedom of a
+fundamental matrix by counting the degrees of freedom of the camera matrices. Two
+camera matrices have a total of 22 degrees of freedom (two homogeneous 3 × 4 matrices).
+A 3D homography is represented by a 4 × 4 homogeneous matrix, and so has
+15 degrees of freedom. This gives a total of 7 = 22 − 15 degrees of freedom for the
+configuration of the two cameras, modulo a projective transformation. This agrees with
+the 7 degrees of freedom of the fundamental matrix, providing a check on the previous
+calculation.
+Similarly, the trifocal tensor encodes the projective structure of three camera matrices,
+and hence has 18 = 311−15 degrees of freedom. In the same way the quadrifocal
+tensor has 29 = 4  11 − 15 degrees of freedom. Generally for m cameras, we have
+# dof = 11m − 15.
+Since the trifocal and quadrifocal tensors, considered just as homogeneous algebraic
+arrays have 26 and 80 degrees of freedom respectively, they must satisfy an additional
+set of constraints, dictated by the camera geometry – 8 constraints for the trifocal tensor
+and 51 constraints for the quadrifocal tensor.
+In computing geometric structure, we may use linear algebraic methods based on
+estimating the multifocal tensor by solving the constraints from the multi-linearities.
+The number of correspondences required is determined from the number of equations
+generated by each point or line correspondence. This linear method takes no account
+of the constraints imposed on the tensors by their geometry.
+On the other hand, the number of correspondences required may be determined by
+counting the number of geometric constraints given by each correspondence and comparing
+with the total number of degrees of freedom of the system. Consider a configuration
+of n points in m views. The total number of degrees of freedom of this system
+is 11m−15+3n, since each of the n 3D points has 3 degrees of freedom. To estimate
+the projective structure the available data are the images of the n points in m images,
+a total of 2mn measurements (each 2D point having two coordinates). Thus for reconstruction
+to be possible, we require 2mn  11m−15+3n, or (2m−3)n  11m−15.
+Thus the required number of points is
+n 
+11m − 15
+2m − 3
+= 5 +
+m
+2m − 3
+.
+One may also think of this by observing that each point correspondence contributes
+424 17 N-Linearities and Multiple View Tensors
+# views tensor # elems # dof linear non-linear
+# points # lines # points # lines
+2 F 9 7 8 — 7∗ —
+3 T 27 18 7 13 6∗ 9∗?
+4 Q 81 29 6 9 6 8?
+Table 17.3. Projective degrees of freedom and constraints. The linear column indicates the minimum
+number of correspondences across all views required to solve linearly for the tensor (up to scale). The
+non-linear is the minimum number of correspondences required. A star indicates multiple solutions, and
+a question-mark indicates that no practical reconstruction method is known.
+2m − 3 constraints on the cameras, that is 2m for the coordinates of the points in each
+view, less 3 for the added degree of freedom of the 3D point.
+An analogous argument applies for line correspondences. A line has four degrees
+of freedom in 3-space, and its image line is described by 2 degrees of freedom, so
+that each line correspondence provides 2m − 4 constraints and the number of lines l
+required is
+l 
+11m − 15
+2m − 4
+.
+In either of these cases, if the number of constraints (equations) is equal to the number
+of degrees of freedom (unknowns) of the cameras and points or lines configuration,
+then we can in general expect multiple solutions, except in the linear case. However,
+if there are more equations than unknowns, the system is over-determined, and in the
+generic case there will exist a single solution.
+Table 17.3 summarizes the number of correspondences required for reconstruction.
+A star (*) indicates that multiple solutions are expected. For the case of non-linear solutions,
+actual methods of solution are not always known, other than by brute-force generation
+and solution of a set of simultaneous polynomial equations. Situations where
+no simple method is known are marked with a question-mark. Note that not much is
+known about non-linear solutions for lines. Specific non-linear algorithms are:
+(i) 7 points in 2 views: see section 11.1.2(p281). Three solutions are possible.
+(ii) 6 points in 3 views: see section 20.2.4(p510). Three solutions are possible.
+This is the dual (see chapter 20) of the previous problem.
+(iii) 6 points in 4 views. Solve using 6 points in 3 views, then use the camera resection
+DLT algorithm (section 7.1(p178)) to find the fourth view and eliminate all
+but one solution. However, unlike the previous two cases, the case of 6 points
+in 4 views is overdetermined, and this solution is only valid for perfect data.
+The estimation for noisy data is discussed in chapter 20.
+17.5 Counting arguments 425
+# views tensor # non-zero # dof linear non-linear
+elements # points # lines # points # lines
+2 FA 5 4 4 — 4 —
+3 TA 16 12 4 8 4 6∗?
+4 QA 48 20 4 6 4 5∗?
+Table 17.4. Affine degrees of freedom and constraints. The camera for each view is affine. See
+caption of table 17.3 for details.
+17.5.1 Affine cameras
+For affine cameras, the reconstruction problem requires fewer correspondences. The
+plane at infinity may be identified in a reconstruction, being the principal plane of all
+of the cameras, and the reconstruction ambiguity is affine, not projective. The number
+of degrees of freedom for m affine cameras is
+# dof = 8m − 12.
+Each view adds 8 degrees of freedom for the new 3 × 4 affine camera matrix, and we
+subtract 12 for the degrees of freedom of a 3D affine transformation.
+As in the projective case a point correspondence imposes 2m − 3 constraints, and a
+line correspondence 2m − 4 constraints. As before the number of required points may
+be computed as n(2m − 3)  8m − 12, i.e.
+n 
+8m − 12
+2m − 3
+= 4.
+For lines the result is
+l 
+8m − 12
+2m − 4
+= 4 +
+2
+m − 2
+.
+As for linear methods, the number of elements in the tensor is 3m. In the affine
+case the tensor is, as always, only defined up to scale, but additionally many of the
+elements are zero, as seen in section 17.1.2 and section 17.2.4. This cuts down on the
+required number of correspondences. Counting results are given in table 17.4. Note
+that for point correspondences, the linear algorithms apply with the minimum number
+of correspondences given by the above equation. Hence, the non-linear algorithms are
+the same as the linear ones.
+17.5.2 Knowing four coplanar points – plane plus parallax
+The previous counting arguments were for the case of points and lines in general position.
+Here we consider the important case that four or more of the 3D points are
+coplanar. It will be see that the computation of the tensors, and consequently projective
+structure, is significantly simplified. This discussion is given in terms of knowing
+426 17 N-Linearities and Multiple View Tensors
+# views tensor # dof points lines
+# points # constraints # lines # constraints
+2 F 2 2 2 —
+3 T 5 2 5 5 5
+4 Q 8 2 8 4 8
+Table 17.5. Number of additional correspondences required to compute projective structure given 2D
+homographies between the views, induced by a plane. The homographies may be computed from four or
+more point matches derived from coplanar points, or by any other means. Points used to compute the
+homographies are not counted in this table.
+four coplanar points in the images. However, all that is really important here is that
+inter-image homographies induced by a plane should be known.
+Computation of the fundamental matrix knowing four coplanar points was considered
+in section 13.3(p334) (see algorithm 13.2(p336)), and for the trifocal tensor in
+section 16.7.1. Now, we consider the four-view case. From the correspondence of 4
+(or more) points derived from 3D points in a plane, we can compute the homographies
+H′, H′′ and H′′′ from the first view to the second, third and fourth views respectively,
+induced by the plane. In a projective reconstruction, we choose the plane containing
+the points as the plane at infinity, in which case H′, H′′ and H′′′ are the infinite homographies.
+Assuming further that the first image is at the origin, the four camera matrices
+may now be written as
+A = [I | 0] B = [H′|t′] C = [H′′|t′′] D = [H′′′|t′′′]
+The vectors t′, t′′, t′′′ may be determined only up to a common scale.
+Since the left hand 3 × 3 blocks of the camera matrices are now known, it is easily
+seen from (17.21) that the entries of Qpqrs are linear in the remaining entries t′, t′′
+and t′′′ of the camera matrices. Using (17.21) we can write down an expression for
+the entries of Qpqrs in terms of the entries of t′, t′′ and t′′′. In fact, we may write this
+explicitly as q = Mt, where M is an 81×9 matrix and q and t are vectors representing the
+entries of Q and t′, . . . , t′′′. Thus, the quadrifocal tensor may be linearly parametrized
+in terms of 9 homogeneous coordinates and hence has 8 degrees of freedom.
+Now, given a set of equations Eq = 0 derived from correspondences as in table 17.2,
+they may be rewritten in terms of the minimal parameter set t by substituting q = Mt
+arriving at EMt = 0. This allows a linear solution for t and hence the camera matrices,
+and (if desired) the tensor, q = Mt. Note the important advantage here that the tensor
+so obtained automatically corresponds to a set of camera matrices, and so satisfies all
+geometric constraints – the troublesome 51 constraints that must be satisfied by the
+quadrifocal tensor disappear into thin air.
+The above analysis was for the computation of the quadrifocal tensor, but it applies
+equally well to the fundamental matrix and trifocal tensor as well.
+17.5 Counting arguments 427
+Counting argument. We return to the general case ofmviews and consider the situation
+from a geometric point of view. The number of degrees of freedom parametrizing
+the tensor is equal to the number of geometric degrees of freedom remaining in the
+camera matrices, namely 3m − 4 where m is the number of views. This arises from
+3(m − 1) for the last column of each camera matrix apart from the first, less one for
+the common scaling.
+Counting the number of constraints imposed by a point or a line correspondence
+is a little tricky, however, and shows that one must always be careful with counting
+arguments not to neglect hidden dependencies. First, consider a line correspondence
+l $ l′ $ l′′ across three views – the argument will hold in general for m  3 views.
+The question to be resolved is just how much information can be derived from the
+measurement of the image lines. Surprisingly, knowledge of the plane homographies
+between the images reduces the amount of information that a line correspondence provides.
+For simplicity of argument, we may assume that planar homographies have been
+applied to the images so that the four coplanar reference points map to the same point
+in each image. As a result any further point in the reference plane will map to the same
+point in each image. Now the 3D line L from which the line correspondence is derived
+must meet the reference plane in a point X. Since it lies on the reference plane, X
+projects to the same point x in all images, and x must lie on all three image lines l, l′, l′′.
+Thus, corresponding lines in the three views cannot be arbitrary – they must all pass
+through a common image point. In the general case the number of degrees of freedom
+of the measurements of the lines in m views is m + 2. To specify the point x requires
+2 degrees of freedom, and each line through the point then has one remaining degree
+of freedom (its orientation). Subtracting 4 for the four added degrees of freedom of the
+line in space, we see
+• Each line correspondence across m views generates m − 2 constraints on the remaining
+degrees of freedom of the cameras.
+Note how the condition that the image lines must meet in a point restricts the number
+of equations generated by the line correspondence. Without observing this condition,
+one would expect 2m − 4 constraints from each line. However, with perfect data the
+set of 2m−4 equations will have rank only m−2. With noisy data the image lines will
+not be exactly coincident, and the system may have full rank, but this will be entirely
+due to noise, and the smallest singular values of the system will be essentially random.
+One should, however, include all available equations in solving the system, since this
+will diminish the noise effects.
+For point correspondences the argument is similar. The line through any two image
+points is the image of a line in space. The projections of this 3D line are constrained
+as discussed in the preceding discussion, and this imposes constraints on the matching
+points. The measurements have 3m + 2 degrees of freedom: 2 for the intersection
+point of the line with the plane and, in each view, one for the line orientation and two
+corresponding to the position of each of the two points on the line. Subtracting 6 for
+the degrees of freedom of the two points in 3-space, the result is
+428 17 N-Linearities and Multiple View Tensors
+• Two point correspondences across m views generate 3m − 4 constraints on the remaining
+degrees of freedom of the cameras.
+Since this is the same as the number of degrees of freedom of the cameras, 2 points are
+sufficient to compute structure.
+Since the number of geometric constraints on the cameras is the same as the number
+of degrees of freedom of the tensor, there is no distinction between constraints on the
+tensor and constraints on the geometry. Thus, point and line correspondences may
+be used to generate linear constraints on the tensor. There is no need for non-linear
+methods. The number of required correspondences is summarized in table 17.5.
+17.6 Number of independent equations
+It was asserted in table 17.2 that each four-view point correspondence gives rise to 16
+linearly independent equations in the entries of the quadrifocal tensor. We now examine
+this point more closely.
+Given sufficiently many point matches across four views, one may solve for the
+tensor Qpqrs. Once Q is known, it is possible to solve for the camera matrices and
+hence compute projective structure. This was shown in [Heyden-95b, Heyden-97c,
+Hartley-98c] but is not discussed further in this book. A curious phenomenon occurs
+however when one counts the number of point matches necessary to do this. As
+indicated above, it appears to be the case that each point match gives 16 linearly independent
+equations in the entries of the tensor Qpqrs, and it seems unlikely that the
+equations derived from two totally unrelated sets of point correspondences could have
+any dependencies. It would therefore appear that from five point correspondences one
+obtains 80 equations, which is enough to solve for the 81 entries of Qpqrs up to scale.
+From this argument it would seem that it is possible to solve for the tensor from only
+five point matches across four views, and thence one may solve for the camera matrices,
+up to the usual projective ambiguity. This conclusion however is contradicted by
+the following remark.
+• It is not possible to determine the positions of four (or any number of) cameras from
+the images of five points.
+This follows from the counting arguments of section 17.5. Obviously there is some
+error in our counting of equations. The truth is contained in the following.
+Result 17.1. The full set of 81 linear equations (17.20) derived from a single point
+correspondence x $ x′ $ x′′ $ x′′′ across four views contains 16 independent
+constraints on Qpqrs. Furthermore, let the equations be written as Aq = 0 where A
+is an 81 × 81 matrix and q is a vector containing the entries of Qpqrs. Then the 16
+non-zero singular values of A are all equal.
+What this result is saying is that indeed as expected one obtains 16 linearly independent
+equations from one point correspondence, and in fact it is possible to reduce this
+set of equations by an orthogonal transformation (multiplication of the equation matrix
+A on the left by an orthogonal matrix U) to a set of 16 orthogonal equations. The proof
+17.6 Number of independent equations 429
+is postponed until the end of this section. The surprising fact however is that the equation
+sets corresponding to two unrelated point correspondences have a dependency, as
+stated in the following result.
+Result 17.2. The set of equations (17.20–p419) derived from a set of n general point
+correspondences across four views has rank 16n − (n2 ), for n  5.
+The notation (n2 ) means the number of choices of 2 among n, specifically, (n2 ) = n(n−
+1)/2. Thus for 5 points there are only 70 independent equations, not enough to solve
+for Qpqrs. For n = 6 points, 16n − (n2 ) = 81, and we have enough equations to solve
+for the 81 entries of Qpqrs.
+We now prove the two results above. The key point in the proof of result 17.1 concerns
+the singular values of a skew-symmetric matrix (see result A4.1(p581)).
+Result 17.3. A 3 × 3 skew-symmetric matrix has two equal non-zero singular values.
+The rest of the proof of result 17.1 is quite straightforward as long as one does not get
+lost in notation.
+Proof. (Result 17.1) The full set of 81 equations derived from a single point correspondence
+is of the form xiǫipwx′jǫjqxx′′kǫkryvx′′′lǫlszQpqrs = 0wxyz. A total of 81 equations
+are generated by varying w, x, y, z over the range 1, . . . , 3. Thus, the equation matrix
+A may be written as
+A(wxyz)(pqrs) = xiǫipwx′jǫjqxx′′kǫkryx′′′lǫlsz (17.26)
+where the indices (wxyz) index the row and (pqrs) index the column of A. We will
+consider a set of indices, such as (wxyz) in this case, as a single index for the row
+or column of a matrix. This situation will be indicated by enclosing the indices in
+parentheses as here, and referring to them as a combined index.
+We consider now the expression xiǫipw. This may be considered as a matrix indexed
+by the free indices p and w. Furthermore, since xiǫipw = −xiǫiwp we see that it is a
+skew-symmetric matrix, and hence has equal singular values. We denote this matrix by
+Swp. Writing result 17.3 using tensor notation, we have
+Uw
+a
+SwpVp
+e = kDae (17.27)
+where the diagonal matrix D is as in result 17.3. The matrix A in (17.26) may be written
+as A(wxyz)(pqrs) = SwpS′
+xq
+S′′
+yr
+S′′′
+zs. Consequently, applying (17.27) we may write
+Uw
+a
+U′x
+b
+U′′y
+c
+U′′′z
+d
+A(wxyz)(pqrs)Vp
+e
+V
+′q
+f
+V′′r
+g
+V′′′s
+h = kk′k′′k′′′DaeDbfDcgDdh. (17.28)
+Now, writing
+ˆU
+(wxyz)
+(abcd) = Uw
+a
+U′x
+b
+U′′y
+c
+U′′′z
+d
+ˆV
+(pqrs)
+(efgh) = Vp
+e
+V
+′q
+f
+V′′r
+g
+V′′′s
+h
+ˆD(abcd)(efgh) = DaeDbfDcgDdh
+and ˆk = kk′k′′k′′′ we see that (17.28) may be written as
+ˆU
+(wxyz)
+(abcd)
+A(wxyz)(pqrs)ˆV
+(pqrs)
+(efgh) = ˆkˆD(abcd)(efgh). (17.29)
+As a matrix, D(abcd)(efgh) is diagonal with 16 non-zero diagonal entries, all equal to
+430 17 N-Linearities and Multiple View Tensors
+unity. To show that (17.29) is the SVD of the matrix A(wxyz)(pqrs), and hence to complete
+the proof, it remains only to show that U
+(wxyz)
+(abcd) and V
+(pqrs)
+(efgh) are orthogonal matrices. It is
+necessary only to show that the columns are orthonormal. This is straightforward and
+is left as an exercise.
+Proof. (Result 17.2) We consider two point correspondences across four views,
+namely xi $ x′i $ x′′i $ x′′′i and yi $ y′i $ y′′i $ y′′′i. These give rise to
+two sets of equations Axq = 0 and Ayq = 0 of the form (17.26). Each of these matrices
+has rank 16, and if the rows of Ax are independent of the rows of Ay, then the
+rank of the combined set of equations is 32. However, if there is a linear dependence
+between the rows of Ax and those of Ay then their combined rank is at most 31.
+We define a vector sx with combined index (pqrs) by s(pqrs)
+x = xpx′qx′′rx′′′s. A vector
+sy is similarly defined. We will demonstrate that sT
+y
+Ax = sT
+x
+Ay, which means that the
+rows of Ax and Ay are linearly dependent.
+Expanding sT
+y
+Ax gives
+sT
+y
+Ax = s(wxyz)
+y
+Ax
+(wxyz)(pqrs)
+= (ywy′′xy′′′yy′′′′z)xiǫipwx′jǫjqxx′′kǫkryx′′′lǫlsz
+= (xix′′jx′′′kx′′′′l)ywǫwpiy′xǫxqjy′′yǫyrky′′′zǫzsl
+= sT
+x
+Ay.
+This demonstrates that the rows of Ax and Ay are dependent, and their combined rank
+is at most 31. We now consider the possibility that the combined rank is less than
+31. In such a case, all 31 × 31 subdeterminants of the matrix [AxT, AyT]T must vanish.
+These subdeterminants may be expressed as polynomial expressions in the coefficients
+of the points x, x′, x′′, x′′′, y, y′, y′′ and y′′′. These 24 coefficients together generate a
+24-dimensional space. Thus, there is a function f : IR24 ! IRN for some N (equal to
+the number of such 31 × 31 subdeterminants), such that the equation matrix has rank
+less than 31 only on the set of zeros of the function f. Any arbitrarily chosen example
+(omitted) may be used to show that the function f is not identically zero. It follows that
+the set of point correspondences for which the set of equations has rank less than 31 is
+a variety in IR24, and hence is nowhere dense. Thus, the set of equations generated by
+a general pair of point correspondences across four views has rank 31.
+We now turn to the general case of n point correspondences across all four views. Note
+that the linear relationship that holds for two point correspondences is non-generic, but
+depends on the pair of correspondences. In general, therefore, given n point correspondences,
+there will be (n2 ) such relationships. This reduces the dimension of the space
+spanned by the set of equations to 16n − (n2 ) as required.
+The three-view case. Similar arguments hold in the three-view case. It can be proved
+in the same manner that the nine equations arising from a point match contain four
+independent equations. This is left to an exercise (see page 432).
+17.7 Choosing equations 431
+17.7 Choosing equations
+In section 17.6 a proof was given that the singular values of the full set of equations
+derived from four point equations are all equal. The proof may easily be adapted to
+the three-view case as well (see exercise, page 432). The key point in the argument is
+that the two non-zero singular values of a 3×3 skew-symmetric matrix are equal. This
+proof may clearly be extended to apply to any of the other sets of equations derived
+from line or point correspondences given in sections 17.2 and 17.3.
+We consider still the four-view case. The results on singular values show that it is in
+general advisable to include all 81 equations derived from this correspondence, rather
+than selecting just 16 independent equations. This will avoid difficulties with near
+singular situations. This conclusion is supported by experimental observation. Indeed,
+numerical examples show that the condition of a set of equations derived from several
+point correspondences is substantially better when all equations are included for each
+point correspondence. In this context, the condition of the equation set is given by the
+ratio of the first (largest) to the n-th singular value, where n is the number of linearly
+independent equations.
+Including all 81 equations rather than just 16 means that the set of equations is larger,
+leading to increased complexity of solution. This can be remedied as follows. The
+basis for the equality of the singular values is that Swp = xiǫipw and the other similarly
+defined terms are skew symmetric matrices, and hence have equal singular values. The
+same effect can be achieved by any other matrix S with equal singular values. We
+require only that the columns of S should represent lines passing through the point x (
+otherwise stated Swpxw = 0p). Matrix S will have equal singular values if its columns
+are orthonormal. These conditions may be achieved with S being a 3×2 matrix. If this
+is done for the point in each view the total number of equations will be reduced from
+34 = 81 to 24 = 16, and the 16 equations will be orthogonal. A convenient way of
+choosing S is to use a Householder matrix (see section A4.1.2(p580)) as shown below.
+This discussion also applies to the trifocal tensor, allowing us to reduce the number
+of equations from 9 to 4, while retaining equal singular values. Summarizing this
+discussion for the trifocal tensor case:
+• Given a point correspondence x $ x′ $ x′′ across three views, generate equations
+of the form
+xiˆl′
+qx
+ˆl
+′′
+ryT qr
+i = 0xy for x, y = 1, 2
+where ˆl′
+q1 and ˆl′
+q2 are two lines through x′ represented by orthonormal vectors (and
+similarlyˆl ′′
+ry). A convenient way to findˆl ′
+qx andˆl′′
+ry is as follows.
+(i) Find Householder matrices h′
+qx and h′′
+ry such that x′qh′
+qx = δ3x and x′′rh′
+ry =
+δ3y.
+(ii) For x, y = 1, 2 setˆl′
+qx = h′
+qx andˆl′′
+ry = h′′
+ry.
+It is evident that essentially this method will work for all the types of equations
+summarized in table 17.1(p417) and table 17.2(p421).
+432 17 N-Linearities and Multiple View Tensors
+This chapter suggests that the most basic relations are the point–line–line correspondence
+equation xil′
+ql′′
+rT qr
+i = 0 in the three-view case, and the line-correspondence
+equation lpl′
+ql′′
+r l′′′
+s Qpqrs = 0 for four views. Indeed numerical robustness may be enhanced
+by reducing other correspondences to this type of correspondence, for carefully
+selected lines.
+17.8 Closure
+17.8.1 The literature
+Although using a slightly different approach, this chapter summarizes previous results
+of [Triggs-95] and Faugeras and Mourrain [Faugeras-95a] on the derivation of multilinear
+relationships between corresponding image coordinates. The formulae for relations
+between mixed point and line correspondences are extensions of the results of
+[Hartley-95b, Hartley-97a].
+The enumeration of the complete set of multilinear relations given in table 17.1-
+(p417) and table 17.2(p421), formulae for the multifocal tensors, and the analysis of
+the number of independent equations derived from point correspondences, are adapted
+from [Hartley-95a]. A similar analysis of the multifocal tensors has also appeared in
+[Heyden-98].
+The quadrifocal tensor was probably first discovered by [Triggs-95]. The quadrilinear
+constraints and their associated tensor have been described in several papers
+[Triggs-95, Faugeras-95a, Shashua-95b, Heyden-95b, Heyden-97c].
+The double (or Grassmann–Cayley) algebra was introduced into the computer vision
+literature in [Carlsson-93], see also [Faugeras-95a, Faugeras-97] for further applications.
+An algorithm for computing the quadrifocal tensor and an algorithm for reconstructing
+it based on the reduced tensor was given in ([Heyden-95b, Heyden-97c]). A later
+paper [Hartley-98c] refined this algorithm.
+17.8.2 Notes and exercises
+(i) Determine the properties of the affine quadrifocal tensor, i.e. the quadrifocal
+tensor computed from affine camera matrices. In particular using the determinant
+definition of the tensor (17.21–p419), verify the number of non-zero
+elements given in table 17.4.
+(ii) Show that the 9 linear equations (17.11–p415) derived from a single point correspondence
+x $ x′ $ x′′ across three views contains 4 linearly independent
+equations. Furthermore, let the equations be written as At = 0 where A is a
+9 × 27 matrix. Then the 4 non-zero singular values of A are equal. Unlike the
+four-view case, the equations resulting from different point matches are linearly
+independent, so n point matches produce 4n independent equations.
+(iii) If a canonical affine basis is chosen for the image coordinates such that three
+corresponding points have coordinates (0, 0), (1, 0), (0, 1) in each view, then the
+resulting tensors have a simpler form. These “reduced tensors” have a greater
+number of zero elements than the general form of the tensors. For example, in
+17.8 Closure 433
+the case of the reduced fundamental matrix the diagonal elements are zero, and
+the reduced trifocal tensor has only 15 nonzero entries. Also the tensors are
+specified by fewer parameters, e.g. four in the case of the reduced fundamental
+matrix, as effectively the basis points specify the other parameters. Further
+details are given in [Heyden-95b, Heyden-95a].
+(iv) Show that if the four camera centres are coplanar then the quadrifocal tensor
+has 28 geometric degrees of freedom.　-->
+</p><p>
+</p><p>
+    </body>
+</html>

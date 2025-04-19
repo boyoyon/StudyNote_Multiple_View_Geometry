@@ -1,0 +1,2200 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>2章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+<h1><center>2章 射影幾何学と2次元の変換</center></h1>
+<p></p>
+この章では、本書で扱う内容を理解するために必要な主要な幾何学的概念と表記法を紹介します。消失点の形成や円錐曲線の表現など、比較的馴染みのある概念もあれば、円点を用いて画像の遠近法の歪みを除去するなど、より難解な概念もあります。これらの概念は、平面（2次元）の場合の方が視覚的に分かりやすいため、より容易に理解できます。本書の後半で扱う3次元空間の幾何学は、この平面の場合を単純に一般化したものにすぎません。
+<!-- This chapter introduces the main geometric ideas and notation that are required to understand
+the material covered in this book. Some of these ideas are relatively familiar,
+such as vanishing point formation or representing conics, whilst others are more esoteric,
+such as using circular points to remove perspective distortion from an image.
+These ideas can be understood more easily in the planar (2D) case because they are
+more easily visualized here. The geometry of 3-space, which is the subject of the later
+parts of this book, is only a simple generalization of this planar case. -->
+<p></p>
+特に、本章では平面の射影変換の幾何学について解説します。これらの変換は、平面を透視カメラで撮影する際に生じる幾何学的歪みをモデル化します。透視撮影では、共線性（直線は直線として撮影される）などの特定の幾何学的特性は保持されますが、他の特性は保持されません。例えば、平行線は一般に平行線として撮影されません。射影幾何学は、この撮影をモデル化し、計算に適した数学的表現も提供します。
+<!-- In particular, the chapter covers the geometry of projective transformations of the
+plane. These transformations model the geometric distortion which arises when a plane
+is imaged by a perspective camera. Under perspective imaging certain geometric properties
+are preserved, such as collinearity (a straight line is imaged as a straight line),
+whilst others are not, for example parallel lines are not imaged as parallel lines in
+general. Projective geometry models this imaging and also provides a mathematical
+representation appropriate for computations.-->
+<p></p>
+まず、同次表記法による点、直線、円錐曲線の表現と、これらの実体が射影変換の下でどのように写像されるかを説明します。無限遠直線と円点を導入し、これらが平面のアフィン特性と距離特性を捉えていることを示します。次に、平面を平行化するアルゴリズムを示し、画像からアフィン特性と距離特性を計算できるようにします。最後に、射影変換の下での不動点について説明します。
+<!-- We begin by describing the representation of points, lines and conics in homogeneous
+notation, and how these entities map under projective transformations. The line
+at infinity and the circular points are introduced, and it is shown that these capture the
+affine and metric properties of the plane. Algorithms for rectifying planes are then
+given which enable affine and metric properties to be computed from images. We end
+with a description of fixed points under projective transformations. -->
+<p></p>
+<h2>2.1 平面幾何学</h2>
+<p></p>
+平面幾何学の基本概念は、たとえ初等レベルであっても数学を学んだ人なら誰でもよく知っています。実際、それらは私たちの日常生活に深く根付いており、当たり前のこととして捉えられています。初等レベルにおいて、幾何学とは点と線、そしてそれらの関係を研究する学問です。
+<!-- The basic concepts of planar geometry are familiar to anyone who has studied mathematics
+even at an elementary level. In fact, they are so much a part of our everyday
+experience that we take them for granted. At an elementary level, geometry is the study
+of points and lines and their relationships.-->
+<p></p>
+純粋主義者にとって、幾何学の研究は「幾何学的」、すなわち座標に依存しない観点から行われるべきである。このアプローチでは、定理は代数を用いない幾何学的プリミティブのみを用いて述べられ、証明される。ユークリッドの古典的なアプローチはこの方法の一例である。しかし、デカルト以来、幾何学は代数化可能であり、実際、幾何学の理論は代数的観点から展開され得ることが明らかにされてきた。本書におけるアプローチは、時には幾何学的手法を用い、時には代数的手法を用いるハイブリッドなアプローチである。代数的アプローチでは、幾何学的実体は座標と代数的実体によって記述される。例えば、点は何らかの座標基底を用いてベクトルと同一視される。直線もまたベクトルと同一視され、円錐曲線（より簡潔に言えば円錐曲線）は対称行列によって表される。実際、この同一視は、少なくとも言語上の便宜上、ベクトルが実際には点であるとか、対称行列が円錐曲線であるなどとまで考えてしまうことがよくあります。幾何学への代数的アプローチの大きな利点は、このようにして得られた結果を用いて、アルゴリズムや実用的な計算手法をより容易に導出できることです。本書では計算とアルゴリズムが主要な関心事であり、それが代数的手法の使用を正当化しています。
+<!-- To the purist, the study of geometry ought properly to be carried out from a “geometric”
+or coordinate-free viewpoint. In this approach, theorems are stated and proved in
+terms of geometric primitives only, without the use of algebra. The classical approach
+of Euclid is an example of this method. Since Descartes, however, it has been seen that
+geometry may be algebraicized, and indeed the theory of geometry may be developed
+from an algebraic viewpoint. Our approach in this book will be a hybrid approach,
+sometimes using geometric, and sometimes algebraic methods. In the algebraic approach,
+geometric entities are described in terms of coordinates and algebraic entities.
+Thus, for instance a point is identified with a vector in terms of some coordinate basis.
+A line is also identified with a vector, and a conic section (more briefly, a conic) is
+represented by a symmetric matrix. In fact, we often carry this identification so far as
+to consider that the vector actually is a point, or the symmetric matrix is a conic, at
+least for convenience of language. A significant advantage of the algebraic approach
+to geometry is that results derived in this way may more easily be used to derive algorithms
+and practical computational methods. Computation and algorithms are a major
+concern in this book, which justifies the use of the algebraic method.-->
+<p></p>
+<h2>2.2 2次元射影平面</h2>
+<p></p>
+ご存知のとおり、平面上の点は\(\mathbb R^2\)内の座標対\((x, y)\)で表すことができます。したがって、平面を\(\mathbb R^2\)と同一視するのが一般的です。\(\mathbb R^2\)をベクトル空間と考えると、座標対(x, y)はベクトルとなり、点はベクトルとして同一視されます。この節では、平面上の点と直線の同次表記法を紹介します。
+<!-- As we all know, a point in the plane may be represented by the pair of coordinates
+\((x, y)\) in \(\mathbb R^2\). Thus, it is common to identify the plane with \(\mathbb R^2\). Considering \(\mathbb R^2\) as a
+vector space, the coordinate pair (x, y) is a vector – a point is identified as a vector. In
+this section we introduce the homogeneous notation for points and lines on a plane.
+<p></p>
+Row and column vectors. Later on, we will want to consider linear mappings between
+vector spaces, and represent such mappings as matrices. In the usual manner, the
+product of a matrix and a vector is another vector, the image under the mapping. This
+brings up the distinction between “column” and “row” vectors, since a matrix may be
+multiplied on the right by a column and on the left by a row vector. Geometric entities
+will by default be represented by column vectors. A bold-face symbol such as x always
+represents a column vector, and its transpose is the row vector xT. In accordance with
+this convention, a point in the plane will be represented by the column vector (x, y)T,
+rather than its transpose, the row vector (x, y). We write x = (x, y)T, both sides of this
+equation representing column vectors.
+<p></p>
+<h3>2.2.1 Points and lines</h3>
+<p></p>
+Homogeneous representation of lines. A line in the plane is represented by an equation
+such as ax+by+c = 0, different choices of a, b and c giving rise to different lines.
+Thus, a line may naturally be represented by the vector (a, b, c)T. The correspondence
+between lines and vectors (a, b, c)T is not one-to-one, since the lines ax + by + c = 0
+and (ka)x + (kb)y + (kc) = 0 are the same, for any non-zero constant k. Thus, the
+vectors (a, b, c)T and k(a, b, c)T represent the same line, for any non-zero k. In fact,
+two such vectors related by an overall scaling are considered as being equivalent. An
+equivalence class of vectors under this equivalence relationship is known as a homogeneous
+vector. Any particular vector (a, b, c)T is a representative of the equivalence
+class. The set of equivalence classes of vectors in IR3 − (0, 0, 0)T forms the projective
+space IP2. The notation −(0, 0, 0)T indicates that the vector (0, 0, 0)T, which does not
+correspond to any line, is excluded.
+<p></p>
+Homogeneous representation of points. A point x = (x, y)T lies on the line l =
+(a, b, c)T if and only if ax + by + c = 0. This may be written in terms of an inner
+product of vectors representing the point as (x, y, 1)(a, b, c)T = (x, y, 1)l = 0; that is
+the point (x, y)T in IR2 is represented as a 3-vector by adding a final coordinate of 1.
+Note that for any non-zero constant k and line l the equation (kx, ky, k)l = 0 if and
+only if (x, y, 1)l = 0. It is natural, therefore, to consider the set of vectors (kx, ky, k)T
+for varying values of k to be a representation of the point (x, y)T in IR2. Thus, just as
+with lines, points are represented by homogeneous vectors. An arbitrary homogeneous
+vector representative of a point is of the form x = (x1, x2, x3)T, representing the point
+(x1/x3, x2/x3)T in IR2. Points, then, as homogeneous vectors are also elements of IP2.
+One has a simple equation to determine when a point lies on a line, namely
+<p></p>
+Result 2.1. The point x lies on the line l if and only if xTl = 0.
+Note that the expression xTl is just the inner or scalar product of the two vectors l
+and x. The scalar product xTl = lTx = x.l. In general, the transpose notation lTx
+will be preferred, but occasionally, we will use a . to denote the inner product. We
+distinguish between the homogeneous coordinates x = (x1, x2, x3)T of a point, which
+is a 3-vector, and the inhomogeneous coordinates (x, y)T, which is a 2-vector.
+<p></p>
+Degrees of freedom (dof). It is clear that in order to specify a point two values must
+be provided, namely its x- and y-coordinates. In a similar manner a line is specified
+by two parameters (the two independent ratios {a : b : c}) and so has two degrees
+of freedom. For example, in an inhomogeneous representation, these two parameters
+could be chosen as the gradient and y intercept of the line.
+<p></p>
+Intersection of lines. Given two lines l = (a, b, c)T and l′ = (a′, b′, c′)T, we wish to
+find their intersection. Define the vector x = l × l′, where × represents the vector or
+cross product. From the triple scalar product identity l.(l × l′) = l′.(l × l′) = 0, we
+see that lTx = l′Tx = 0. Thus, if x is thought of as representing a point, then x lies on
+both lines l and l′, and hence is the intersection of the two lines. This shows:
+<p></p>
+Result 2.2. The intersection of two lines l and l′ is the point x = l × l′.
+Note that the simplicity of this expression for the intersection of the two lines is a direct
+consequence of the use of homogeneous vector representations of lines and points.
+<p></p>
+Example 2.3. Consider the simple problem of determining the intersection of the lines
+x = 1 and y = 1. The line x = 1 is equivalent to −1x + 1 = 0, and thus has
+homogeneous representation l = (−1, 0, 1)T. The line y = 1 is equivalent to −1y+1 =
+0, and thus has homogeneous representation l′ = (0,−1, 1)T. From result 2.2 the
+intersection point is
+x = l × l′ =
+
+i j k
+−1 0 1
+0 −1 1
+
+=
+
+
+1
+1
+1
+
+
+which is the inhomogeneous point (1, 1)T as required. △
+
+<p></p>
+Line joining points. An expression for the line passing through two points x and x′
+may be derived by an entirely analogous argument. Defining a line l by l = x × x′, it
+may be verified that both points x and x′ lie on l. Thus
+<p></p>
+Result 2.4. The line through two points x and x′ is l = x × x′.
+<p></p>
+<h3>2.2.2 Ideal points and the line at infinity</h3>
+<p></p>
+Intersection of parallel lines. Consider two lines ax+by+c = 0 and ax+by+c′ = 0.
+These are represented by vectors l = (a, b, c)T and l′ = (a, b, c′)T for which the first two
+coordinates are the same. Computing the intersection of these lines gives no difficulty,
+using result 2.2. The intersection is l × l′ = (c′ − c)(b,−a, 0)T, and ignoring the scale
+factor (c′ − c), this is the point (b,−a, 0)T.
+<p></p>
+Now if we attempt to find the inhomogeneous representation of this point, we obtain
+(b/0,−a/0)T, which makes no sense, except to suggest that the point of intersection
+has infinitely large coordinates. In general, points with homogeneous coordinates
+(x, y, 0)T do not correspond to any finite point in IR2. This observation agrees with the
+usual idea that parallel lines meet at infinity.
+<p></p>
+Example 2.5. Consider the two lines x = 1 and x = 2. Here the two lines are parallel,
+and consequently intersect “at infinity”. In homogeneous notation the lines are l =
+(−1, 0, 1)T, l′ = (−1, 0, 2)T, and from result 2.2 their intersection point is
+x = l × l′ =
+
+i j k
+−1 0 1
+−1 0 2
+
+=
+
+
+0
+1
+0
+
+
+which is the point at infinity in the direction of the y-axis. △
+<p></p>
+Ideal points and the line at infinity. Homogeneous vectors x = (x1, x2, x3)T such
+that x3 6= 0 correspond to finite points in IR2. One may augment IR2 by adding points
+with last coordinate x3 = 0. The resulting space is the set of all homogeneous 3-
+vectors, namely the projective space IP2. The points with last coordinate x3 = 0 are
+known as ideal points, or points at infinity. The set of all ideal points may be written
+(x1, x2, 0)T, with a particular point specified by the ratio x1 : x2. Note that this set lies
+on a single line, the line at infinity, denoted by the vector l∞ = (0, 0, 1)T. Indeed, one
+verifies that (0, 0, 1)(x1, x2, 0)T = 0.
+<p></p>
+Using result 2.2 one finds that a line l = (a, b, c)T intersects l∞ in the ideal point
+(b,−a, 0)T (since (b,−a, 0)l = 0). A line l′ = (a, b, c′)T parallel to l intersects l∞
+in the same ideal point (b,−a, 0)T irrespective of the value of c′. In inhomogeneous
+notation (b,−a)T is a vector tangent to the line, and orthogonal to the line normal
+(a, b), and so represents the line’s direction. As the line’s direction varies the ideal
+point (b,−a, 0)T varies over l∞. For these reasons the line at infinity can be thought of
+as the set of directions of lines in the plane.
+<p></p>
+Note how the introduction of the concept of points at infinity serves to simplify the
+intersection properties of points and lines. In the projective plane IP2, one may state
+without qualification that two distinct lines meet in a single point and two distinct points lie on a single line. This is not true in the standard Euclidean geometry of IR2,
+in which parallel lines form a special case.
+<p></p>
+
+<p></p>
+Fig. 2.1. A model of the projective plane. Points and lines of IP2 are represented by rays and planes,
+respectively, through the origin in IR3. Lines lying in the x1x2-plane represent ideal points, and the
+x1x2-plane represents l∞.
+<p></p>
+
+
+The study of the geometry of IP2 is known as projective geometry. In a coordinatefree
+purely geometric study of projective geometry, one does not make any distinction
+between points at infinity (ideal points) and ordinary points. It will, however, serve
+our purposes in this book sometimes to distinguish between ideal points and non-ideal
+points. Thus, the line at infinity will at times be considered as a special line in projective
+space.
+<p></p>
+A model for the projective plane. A fruitful way of thinking of IP2 is as a set of
+rays in IR3. The set of all vectors k(x1, x2, x3)T as k varies forms a ray through the
+origin. Such a ray may be thought of as representing a single point in IP2. In this
+model, the lines in IP2 are planes passing through the origin. One verifies that two nonidentical
+rays lie on exactly one plane, and any two planes intersect in one ray. This
+is the analogue of two distinct points uniquely defining a line, and two lines always
+intersecting in a point.
+Points and lines may be obtained by intersecting this set of rays and planes by the
+plane x3 = 1. As illustrated in figure 2.1 the rays representing ideal points and the
+plane representing l∞ are parallel to the plane x3 = 1.
+<p></p>
+Duality. The reader has probably noticed how the role of points and lines may be
+interchanged in statements concerning the properties of lines and points. In particular,
+the basic incidence equation lTx = 0 for line and point is symmetric, since lTx = 0
+implies xTl = 0, in which the positions of line and point are swapped. Similarly,
+result 2.2 and result 2.4 giving the intersection of two lines and the line through two
+points are essentially the same, with the roles of points and lines swapped. One may
+enunciate a general principle, the duality principle as follows:
+<p></p>
+Result 2.6. Duality principle. To any theorem of 2-dimensional projective geometry
+there corresponds a dual theorem, which may be derived by interchanging the roles of
+points and lines in the original theorem.
+<p></p>
+In applying this principle, concepts of incidence must be appropriately translated as
+well. For instance, the line through two points is dual to the point through (that is the
+point of intersection of) two lines.
+<p></p>
+Note that is it not necessary to prove the dual of a given theorem once the original
+theorem has been proved. The proof of the dual theorem will be the dual of the proof
+of the original theorem.
+<p></p>
+<h3>2.2.3 Conics and dual conics</h3>
+<p></p>
+A conic is a curve described by a second-degree equation in the plane. In Euclidean
+geometry conics are of three main types: hyperbola, ellipse, and parabola (apart from
+so-called degenerate conics, to be defined later). Classically these three types of conic
+arise as conic sections generated by planes of differing orientation (the degenerate conics
+arise from planes which contain the cone vertex). However, it will be seen that
+in 2D projective geometry all non-degenerate conics are equivalent under projective
+transformations.
+<p></p>
+The equation of a conic in inhomogeneous coordinates is
+ax2 + bxy + cy2 + dx + ey + f = 0
+i.e. a polynomial of degree 2. “Homogenizing” this by the replacements:
+x 7→ x1/x3, y 7→ x2/x3 gives
+ax1
+2 + bx1x2 + cx2
+2 + dx1x3 + ex2x3 + fx3
+2 = 0 (2.1)
+or in matrix form
+xT
+Cx = 0 (2.2)
+where the conic coefficient matrix C is given by
+C =
+
+
+a b/2 d/2
+b/2 c e/2
+d/2 e/2 f
+
+
+. (2.3)
+Note that the conic coefficient matrix is symmetric. As in the case of the homogeneous
+representation of points and lines, only the ratios of the matrix elements are important,
+since multiplying C by a non-zero scalar does not affect the above equations. Thus C is
+a homogeneous representation of a conic. The conic has five degrees of freedom which
+can be thought of as the ratios {a : b : c : d : e : f} or equivalently the six elements of
+a symmetric matrix less one for scale.
+<p></p>
+Five points define a conic. Suppose we wish to compute the conic which passes
+through a set of points, xi. How many points are we free to specify before the conic
+is determined uniquely? The question can be answered constructively by providing an
+algorithm to determine the conic. From (2.1) each point xi places one constraint on the
+conic coefficients, since if the conic passes through (xi, yi) then
+axi
+2 + bxiyi + cyi
+2 + dxi + eyi + f = 0.
+This constraint can be written as
+
+x2
+i xiyi y2
+i xi yi 1
+
+c = 0
+where c = (a, b, c, d, e, f)T is the conic C represented as a 6-vector.
+
+<p></p>
+Stacking the constraints from five points we obtain
+
+
+x2
+1 x1y1 y2
+1 x1 y1 1
+x2
+2 x2y2 y2
+2 x2 y2 1
+x2
+3 x3y3 y2
+3 x3 y3 1
+x2
+4 x4y4 y2
+4 x4 y4 1
+x2
+5 x5y5 y2
+5 x5 y5 1
+
+
+c = 0 (2.4)
+and the conic is the null vector of this 5 × 6 matrix. This shows that a conic is determined
+uniquely (up to scale) by five points in general position. The method of fitting
+a geometric entity (or relation) by determining a null space will be used frequently in
+the computation chapters throughout this book.
+<p></p>
+Tangent lines to conics. The line l tangent to a conic at a point x has a particularly
+simple form in homogeneous coordinates:
+<p></p>
+Result 2.7. The line l tangent to C at a point x on C is given by l = Cx.
+<p></p>
+Proof. The line l = Cx passes through x, since lTx = xTCx = 0. If l has one-point
+contact with the conic, then it is a tangent, and we are done. Otherwise suppose that l
+meets the conic in another point y. Then yTCy = 0 and xTCy = lTy = 0. From this
+it follows that (x + αy)TC(x + αy) = 0 for all α, which means that the whole line
+l = Cx joining x and y lies on the conic C, which is therefore degenerate (see below).
+<p></p>
+Dual conics. The conic C defined above is more properly termed a point conic, as it
+defines an equation on points. Given the duality result 2.6 of IP2 it is not surprising
+that there is also a conic which defines an equation on lines. This dual (or line) conic
+is also represented by a 3 × 3 matrix, which we denote as C∗. A line l tangent to the
+conic C satisfies lTC∗l = 0. The notation C∗ indicates that C∗ is the adjoint matrix of C
+(the adjoint is defined in section A4.2(p580) of appendix 4(p578)). For a non-singular
+symmetric matrix C∗ = C−1 (up to scale).
+<p></p>
+The equation for a dual conic is straightforward to derive in the case that C has full
+rank: From result 2.7, at a point x on C the tangent is l = Cx. Inverting, we find the
+point x at which the line l is tangent to C is x = C−1l. Since x satisfies xTCx = 0 we
+obtain (C−1l)TC(C−1l) = lTC−1l = 0, the last step following from C−T = C−1 because
+C is symmetric.
+Dual conics are also known as conic envelopes, and the reason for this is illustrated
+32 2 Projective Geometry and Transformations of 2D
+a b
+Fig. 2.2. (a) Points x satisfying xTCx = 0 lie on a point conic. (b) Lines l satisfying lTC∗l = 0 are
+tangent to the point conic C. The conic C is the envelope of the lines l.
+in figure 2.2. A dual conic has five degrees of freedom. In a similar manner to points
+defining a point conic, it follows that five lines in general position define a dual conic.
+Degenerate conics. If the matrix C is not of full rank, then the conic is termed degenerate.
+Degenerate point conics include two lines (rank 2), and a repeated line (rank
+1).
+Example 2.8. The conic
+C = lmT +mlT
+is composed of two lines l and m. Points on l satisfy lTx = 0, and are on the conic
+since xTCx = (xTl)(mTx) + (xTm)(lTx) = 0. Similarly, points satisfying mTx = 0
+also satisfy xTCx = 0. The matrix C is symmetric and has rank 2. The null vector is
+x = l ×m which is the intersection point of l and m. △
+Degenerate line conics include two points (rank 2), and a repeated point (rank 1).
+For example, the line conic C∗ = xyT + yxT has rank 2 and consists of lines passing
+through either of the two points x and y. Note that for matrices that are not invertible
+(C∗)∗ 6= C.
+2.3 Projective transformations
+In the view of geometry set forth by Felix Klein in his famous “Erlangen Program”,
+[Klein-39], geometry is the study of properties invariant under groups of transformations.
+From this point of view, 2D projective geometry is the study of properties of
+the projective plane IP2 that are invariant under a group of transformations known as
+projectivities.
+A projectivity is an invertible mapping from points in IP2 (that is homogeneous 3-
+vectors) to points in IP2 that maps lines to lines. More precisely,
+Definition 2.9. A projectivity is an invertible mapping h from IP2 to itself such that
+three points x1, x2 and x3 lie on the same line if and only if h(x1), h(x2) and h(x3) do.
+Projectivities form a group since the inverse of a projectivity is also a projectivity, and
+so is the composition of two projectivities. A projectivity is also called a collineation
+2.3 Projective transformations 33
+(a helpful name), a projective transformation or a homography: the terms are synonymous.
+In definition 2.9, a projectivity is defined in terms of a coordinate-free geometric
+concept of point line incidence. An equivalent algebraic definition of a projectivity is
+possible, based on the following result.
+Theorem 2.10. A mapping h : IP2 → IP2 is a projectivity if and only if there exists a
+non-singular 3 × 3 matrix H such that for any point in IP2 represented by a vector x it
+is true that h(x) = Hx.
+To interpret this theorem, any point in IP2 is represented as a homogeneous 3-vector,
+x, and Hx is a linear mapping of homogeneous coordinates. The theorem asserts that
+any projectivity arises as such a linear transformation in homogeneous coordinates, and
+that conversely any such mapping is a projectivity. The theorem will not be proved in
+full here. It will only be shown that any invertible linear transformation of homogeneous
+coordinates is a projectivity.
+Proof. Let x1, x2 and x3 lie on a line l. Thus lTxi = 0 for i = 1, . . . , 3. Let H be a
+non-singular 3 × 3 matrix. One verifies that lTH−1Hxi = 0. Thus, the points Hxi all lie
+on the line H−Tl, and collinearity is preserved by the transformation.
+The converse is considerably harder to prove, namely that each projectivity arises in
+this way.
+As a result of this theorem, one may give an alternative definition of a projective
+transformation (or collineation) as follows.
+Definition 2.11. Projective transformation. A planar projective transformation is a
+linear transformation on homogeneous 3-vectors represented by a non-singular 3 × 3
+matrix:
+
+
+x′
+1
+x′
+2
+x′
+3
+
+
+=
+
+
+h11 h12 h13
+h21 h22 h23
+h31 h32 h33
+
+
+
+
+x1
+x2
+x3
+
+
+, (2.5)
+or more briefly, x′ = Hx.
+Note that the matrix H occurring in this equation may be changed by multiplication
+by an arbitrary non-zero scale factor without altering the projective transformation.
+Consequently we say that H is a homogeneous matrix, since as in the homogeneous
+representation of a point, only the ratio of the matrix elements is significant. There are
+eight independent ratios amongst the nine elements of H, and it follows that a projective
+transformation has eight degrees of freedom.
+A projective transformation projects every figure into a projectively equivalent figure,
+leaving all its projective properties invariant. In the ray model of figure 2.1 a projective
+transformation is simply a linear transformation of IR3.
+34 2 Projective Geometry and Transformations of 2D
+O
+x y
+x
+􀁓 􀁓 /
+/
+/
+x
+x /
+y
+Fig. 2.3. Central projection maps points on one plane to points on another plane. The projection
+also maps lines to lines as may be seen by considering a plane through the projection centre which intersects
+with the two planes  and 
+′. Since lines are mapped to lines, central projection is a projectivity
+and may be represented by a linear mapping of homogeneous coordinates x′ = Hx.
+Mappings between planes. As an example of how theorem 2.10 may be applied,
+consider figure 2.3. Projection along rays through a common point (the centre of projection)
+defines a mapping from one plane to another. It is evident that this point-topoint
+mapping preserves lines in that a line in one plane is mapped to a line in the other.
+If a coordinate system is defined in each plane and points are represented in homogeneous
+coordinates, then the central projection mapping may be expressed by x′ = Hx
+where H is a non-singular 3×3 matrix. Actually, if the two coordinate systems defined
+in the two planes are both Euclidean (rectilinear) coordinate systems then the mapping
+defined by central projection is more restricted than an arbitrary projective transformation.
+It is called a perspectivity rather than a full projectivity, and may be represented
+by a transformation with six degrees of freedom. We return to perspectivities in section
+A7.4(p632).
+Example 2.12. Removing the projective distortion from a perspective image of a
+plane.
+Shape is distorted under perspective imaging. For instance, in figure 2.4a the windows
+are not rectangular in the image, although the originals are. In general parallel
+lines on a scene plane are not parallel in the image but instead converge to a finite
+point. We have seen that a central projection image of a plane (or section of a plane)
+is related to the original plane via a projective transformation, and so the image is a
+projective distortion of the original. It is possible to “undo” this projective transformation
+by computing the inverse transformation and applying it to the image. The result
+will be a new synthesized image in which the objects in the plane are shown with their
+correct geometric shape. This will be illustrated here for the front of the building of
+figure 2.4a. Note that since the ground and the front are not in the same plane, the
+projective transformation that must be applied to rectify the front is not the same as the
+one used for the ground.
+Computation of a projective transformation from point-to-point correspondences will
+be considered in great detail in chapter 4. For now, a method for computing the trans2.3
+Projective transformations 35
+a b
+Fig. 2.4. Removing perspective distortion. (a) The original image with perspective distortion – the
+lines of the windows clearly converge at a finite point. (b) Synthesized frontal orthogonal view of the
+front wall. The image (a) of the wall is related via a projective transformation to the true geometry of the
+wall. The inverse transformation is computed by mapping the four imaged window corners to corners
+of an appropriately sized rectangle. The four point correspondences determine the transformation. The
+transformation is then applied to the whole image. Note that sections of the image of the ground are
+subject to a further projective distortion. This can also be removed by a projective transformation.
+formation is briefly indicated. One begins by selecting a section of the image corresponding
+to a planar section of the world. Local 2D image and world coordinates are
+selected as shown in figure 2.3. Let the inhomogeneous coordinates of a pair of matching
+points x and x′ in the world and image plane be (x, y) and (x′, y′) respectively.
+We use inhomogeneous coordinates here instead of the homogeneous coordinates of
+the points, because it is these inhomogeneous coordinates that are measured directly
+from the image and from the world plane. The projective transformation of (2.5) can
+be written in inhomogeneous form as
+x′ =
+x′
+1
+x′
+3
+=
+h11x + h12y + h13
+h31x + h32y + h33
+, y′ =
+x′
+2
+x′
+3
+=
+h21x + h22y + h23
+h31x + h32y + h33
+.
+Each point correspondence generates two equations for the elements of H, which
+after multiplying out are
+x′ (h31x + h32y + h33) = h11x + h12y + h13
+y′ (h31x + h32y + h33) = h21x + h22y + h23.
+These equations are linear in the elements of H. Four point correspondences lead to
+eight such linear equations in the entries of H, which are sufficient to solve for H up to
+an insignificant multiplicative factor. The only restriction is that the four points must
+be in “general position”, which means that no three points are collinear. The inverse
+of the transformation H computed in this way is then applied to the whole image to
+undo the effect of perspective distortion on the selected plane. The results are shown
+in figure 2.4b. △
+Three remarks concerning this example are appropriate: first, the computation of
+the rectifying transformation H in this way does not require knowledge of any of the
+camera’s parameters or the pose of the plane; second, it is not always necessary to
+36 2 Projective Geometry and Transformations of 2D
+ !
+ !
+ 
+ 
+!
+!
+   ! !
+ !
+ 
+ 
+!
+!  
+ ! !
+   ! !
+ !  
+ ! !
+   ! !
+planar surface
+image 1 image 2
+R,t
+x
+X
+x
+ ! !
+ ! !
+ ! !  !
+ !  ! !
+ 
+ 
+!
+  !
+ 
+!
+!
+  
+  
+!!
+!!
+ ! !
+ 
+ 
+!
+!
+X
+x
+image 1 x
+image 2
+/
+x
+x
+a b c
+Fig. 2.5. Examples of a projective transformation, x′ = Hx, arising in perspective images. (a)
+The projective transformation between two images induced by a world plane (the concatenation of two
+projective transformations is a projective transformation); (b) The projective transformation between
+two images with the same camera centre (e.g. a camera rotating about its centre or a camera varying its
+focal length); (c) The projective transformation between the image of a plane (the end of the building)
+and the image of its shadow onto another plane (the ground plane). Figure (c) courtesy of Luc Van Gool.
+know coordinates for four points in order to remove projective distortion: alternative
+approaches, which are described in section 2.7, require less, and different types of,
+information; third, superior (and preferred) methods for computing projective transformations
+are described in chapter 4.
+Projective transformations are important mappings representing many more situations
+than the perspective imaging of a world plane. A number of other examples are
+illustrated in figure 2.5. Each of these situations is covered in more detail later in the
+book.
+2.3.1 Transformations of lines and conics
+Transformation of lines. It was shown in the proof of theorem 2.10 that if points xi
+lie on a line l, then the transformed points x′
+i = Hxi under a projective transformation
+lie on the line l′ = H−Tl. In this way, incidence of points on lines is preserved, since
+l′Tx′
+i = lTH−1Hxi = 0. This gives the transformation rule for lines:
+Under the point transformation x′ = Hx, a line transforms as
+l′ = H−Tl. (2.6)
+One may alternatively write l′T = lTH−1. Note the fundamentally different way
+in which lines and points transform. Points transform according to H, whereas lines
+(as rows) transform according to H−1. This may be explained in terms of “covariant”
+or “contravariant” behaviour. One says that points transform contravariantly and lines
+transform covariantly. This distinction will be taken up again, when we discuss tensors
+in chapter 15 and is fully explained in appendix 1(p562).
+Transformation of conics. Under a point transformation x′ = Hx, (2.2) becomes
+xT
+Cx = x′T[H−1]T
+CH−1x′
+= x′TH−T
+CH−1x′
+2.4 A hierarchy of transformations 37
+a b c
+Fig. 2.6. Distortions arising under central projection. Images of a tiled floor. (a) Similarity: the
+circular pattern is imaged as a circle. A square tile is imaged as a square. Lines which are parallel or
+perpendicular have the same relative orientation in the image. (b) Affine: The circle is imaged as an
+ellipse. Orthogonal world lines are not imaged as orthogonal lines. However, the sides of the square
+tiles, which are parallel in the world are parallel in the image. (c) Projective: Parallel world lines are
+imaged as converging lines. Tiles closer to the camera have a larger image than those further away.
+which is a quadratic form x′TC′x′ with C′ = H−TCH−1. This gives the transformation
+rule for a conic:
+Result 2.13. Under a point transformation x′ = Hx, a conic C transforms to
+C′ = H−TCH−1.
+The presence of H−1 in this equation may be expressed by saying that a conic transforms
+covariantly. The transformation rule for a dual conic is derived in a similar manner.
+This gives:
+Result 2.14. Under a point transformation x′ = Hx, a dual conic C∗ transforms to
+C∗′ = HC∗HT.
+2.4 A hierarchy of transformations
+In this section we describe the important specializations of a projective transformation
+and their geometric properties. It was shown in section 2.3 that projective transformations
+form a group. This group is called the projective linear group, and it will be seen
+that these specializations are subgroups of this group.
+The group of invertible n × n matrices with real elements is the (real) general linear
+group on n dimensions, or GL(n). To obtain the projective linear group the matrices
+related by a scalar multiplier are identified, giving PL(n) (this is a quotient group of
+GL(n)). In the case of projective transformations of the plane n = 3.
+The important subgroups of PL(3) include the affine group, which is the subgroup
+of PL(3) consisting of matrices for which the last row is (0, 0, 1), and the Euclidean
+group, which is a subgroup of the affine group for which in addition the upper left hand
+2 × 2 matrix is orthogonal. One may also identify the oriented Euclidean group in
+which the upper left hand 2 × 2 matrix has determinant 1.
+We will introduce these transformations starting from the most specialized, the
+isometries, and progressively generalizing until projective transformations are reached.
+38 2 Projective Geometry and Transformations of 2D
+This defines a hierarchy of transformations. The distortion effects of various transformations
+in this hierarchy are shown in figure 2.6.
+Some transformations of interest are not groups, for example, perspectivities (because
+the composition of two perspectivities is a projectivity, not a perspectivity). This
+point is covered in section A7.4(p632).
+Invariants. An alternative to describing the transformation algebraically, i.e. as a matrix
+acting on coordinates of a point or curve, is to describe the transformation in terms
+of those elements or quantities that are preserved or invariant. A (scalar) invariant of a
+geometric configuration is a function of the configuration whose value is unchanged by
+a particular transformation. For example, the separation of two points is unchanged by
+a Euclidean transformation (translation and rotation), but not by a similarity (e.g. translation,
+rotation and isotropic scaling). Distance is thus a Euclidean, but not similarity
+invariant. The angle between two lines is both a Euclidean and a similarity invariant.
+2.4.1 Class I: Isometries
+Isometries are transformations of the plane IR2 that preserve Euclidean distance (from
+iso = same, metric = measure). An isometry is represented as
+
+
+x′
+y′
+1
+
+
+=
+
+
+ǫ cos θ −sin θ tx
+ǫ sin θ cos θ ty
+0 0 1
+
+
+
+
+x
+y
+1
+
+
+where ǫ = ±1. If ǫ = 1 then the isometry is orientation-preserving and is a Euclidean
+transformation (a composition of a translation and rotation). If ǫ = −1 then the isometry
+reverses orientation. An example is the composition of a reflection, represented by
+the matrix diag(−1, 1, 1), with a Euclidean transformation.
+Euclidean transformations model the motion of a rigid object. They are by far the
+most important isometries in practice, and we will concentrate on these. However, the
+orientation reversing isometries often arise as ambiguities in structure recovery.
+A planar Euclidean transformation can be written more concisely in block form as
+x′ = HEx =
+"
+R t
+0T 1
+#
+x (2.7)
+where R is a 2 × 2 rotation matrix (an orthogonal matrix such that RTR = RRT = I),
+t a translation 2-vector, and 0 a null 2-vector. Special cases are a pure rotation (when
+t = 0) and a pure translation (when R = I). A Euclidean transformation is also known
+as a displacement.
+A planar Euclidean transformation has three degrees of freedom, one for the rotation
+and two for the translation. Thus three parameters must be specified in order to define
+the transformation. The transformation can be computed from two point correspondences.
+Invariants. The invariants are very familiar, for instance: length (the distance between
+two points), angle (the angle between two lines), and area.
+2.4 A hierarchy of transformations 39
+Groups and orientation. An isometry is orientation-preserving if the upper left
+hand 2 × 2 matrix has determinant 1. Orientation-preserving isometries form a group,
+orientation-reversing ones do not. This distinction applies also in the case of similarity
+and affine transformations which now follow.
+2.4.2 Class II: Similarity transformations
+A similarity transformation (or more simply a similarity) is an isometry composed with
+an isotropic scaling. In the case of a Euclidean transformation composed with a scaling
+(i.e. no reflection) the similarity has matrix representation
+
+
+x′
+y′
+1
+
+
+=
+
+
+s cos θ −s sin θ tx
+s sin θ s cos θ ty
+0 0 1
+
+
+
+
+x
+y
+1
+
+
+. (2.8)
+This can be written more concisely in block form as
+x′ = HSx =
+"
+sR t
+0T 1
+#
+x (2.9)
+where the scalar s represents the isotropic scaling. A similarity transformation is also
+known as an equi-form transformation, because it preserves “shape” (form). A planar
+similarity transformation has four degrees of freedom, the scaling accounting for one
+more degree of freedom than a Euclidean transformation. A similarity can be computed
+from two point correspondences.
+Invariants. The invariants can be constructed from Euclidean invariants with suitable
+provision being made for the additional scaling degree of freedom. Angles between
+lines are not affected by rotation, translation or isotropic scaling, and so are similarity
+invariants. In particular parallel lines are mapped to parallel lines. The length between
+two points is not a similarity invariant, but the ratio of two lengths is an invariant,
+because the scaling of the lengths cancels out. Similarly a ratio of areas is an invariant
+because the scaling (squared) cancels out.
+Metric structure. A term that will be used frequently in the discussion on reconstruction
+(chapter 10) is metric. The description metric structure implies that the structure
+is defined up to a similarity.
+2.4.3 Class III: Affine transformations
+An affine transformation (or more simply an affinity) is a non-singular linear transformation
+followed by a translation. It has the matrix representation
+
+
+x′
+y′
+1
+
+
+=
+
+
+a11 a12 tx
+a21 a22 ty
+0 0 1
+
+
+
+
+x
+y
+1
+
+
+(2.10)
+40 2 Projective Geometry and Transformations of 2D
+􀁉
+rotation deformation
+􀁔
+a b
+Fig. 2.7. Distortions arising from a planar affine transformation. (a) Rotation by R(θ). (b) A deformation
+R(−φ) D R(φ). Note, the scaling directions in the deformation are orthogonal.
+or in block form
+x′ = HAx =
+"
+A t
+0T 1
+#
+x (2.11)
+with A a 2 × 2 non-singular matrix. A planar affine transformation has six degrees of
+freedom corresponding to the six matrix elements. The transformation can be computed
+from three point correspondences.
+A helpful way to understand the geometric effects of the linear component A of
+an affine transformation is as the composition of two fundamental transformations,
+namely rotations and non-isotropic scalings. The affine matrix A can always be decomposed
+as
+A = R(θ) R(−φ) D R(φ) (2.12)
+where R(θ) and R(φ) are rotations by θ and φ respectively, and D is a diagonal matrix:
+D =
+"
+λ1 0
+0 λ2
+#
+.
+This decomposition follows directly from the SVD (section A4.4(p585)): writing A =
+UDVT = (UVT)(VDVT) = R(θ) (R(−φ) D R(φ)), since U and V are orthogonal matrices.
+The affine matrix A is hence seen to be the concatenation of a rotation (by φ); a
+scaling by λ1 and λ2 respectively in the (rotated) x and y directions; a rotation back
+(by −φ); and finally another rotation (by θ). The only “new” geometry, compared to
+a similarity, is the non-isotropic scaling. This accounts for the two extra degrees of
+freedom possessed by an affinity over a similarity. They are the angle φ specifying the
+scaling direction, and the ratio of the scaling parameters λ1 : λ2. The essence of an
+affinity is this scaling in orthogonal directions, oriented at a particular angle. Schematic
+examples are given in figure 2.7.
+2.4 A hierarchy of transformations 41
+Invariants. Because an affine transformation includes non-isotropic scaling, the similarity
+invariants of length ratios and angles between lines are not preserved under an
+affinity. Three important invariants are:
+(i) Parallel lines. Consider two parallel lines. These intersect at a point
+(x1, x2, 0)T at infinity. Under an affine transformation this point is mapped
+to another point at infinity. Consequently, the parallel lines are mapped to lines
+which still intersect at infinity, and so are parallel after the transformation.
+(ii) Ratio of lengths of parallel line segments. The length scaling of a line segment
+depends only on the angle between the line direction and scaling directions.
+Suppose the line is at angle α to the x-axis of the orthogonal scaling
+direction, then the scaling magnitude is
+q
+λ2
+1 cos2 α + λ2
+2 sin2 α. This scaling is
+common to all lines with the same direction, and so cancels out in a ratio of
+parallel segment lengths.
+(iii) Ratio of areas. This invariance can be deduced directly from the decomposition
+(2.12). Rotations and translations do not affect area, so only the scalings by
+λ1 and λ2 matter here. The effect is that area is scaled by λ1λ2 which is equal to
+det A. Thus the area of any shape is scaled by det A, and so the scaling cancels
+out for a ratio of areas. It will be seen that this does not hold for a projective
+transformation.
+An affinity is orientation-preserving or -reversing according to whether det A is positive
+or negative respectively. Since det A = λ1λ2 the property depends only on the sign of
+the scalings.
+2.4.4 Class IV: Projective transformations
+A projective transformation was defined in (2.5). It is a general non-singular linear
+transformation of homogeneous coordinates. This generalizes an affine transformation,
+which is the composition of a general non-singular linear transformation of inhomogeneous
+coordinates and a translation. We have earlier seen the action of a projective
+transformation (in section 2.3). Here we examine its block form
+x′ = HPx =
+"
+A t
+vT v
+#
+x (2.13)
+where the vector v = (v1, v2)T. The matrix has nine elements with only their ratio
+significant, so the transformation is specified by eight parameters. Note, it is not always
+possible to scale the matrix such that v is unity since v might be zero. A projective
+transformation between two planes can be computed from four point correspondences,
+with no three collinear on either plane. See figure 2.4.
+Unlike the case of affinities, it is not possible to distinguish between orientation
+preserving and orientation reversing projectivities in IP2. We will return to this point
+in section 2.6.
+42 2 Projective Geometry and Transformations of 2D
+Invariants. The most fundamental projective invariant is the cross ratio of four
+collinear points: a ratio of lengths on a line is invariant under affinities, but not under
+projectivities. However, a ratio of ratios or cross ratio of lengths on a line is a
+projective invariant. We return to properties of this invariant in section 2.5.
+2.4.5 Summary and comparison
+Affinities (6 dof) occupy the middle ground between similarities (4 dof) and projectivities
+(8 dof). They generalize similarities in that angles are not preserved, so that shapes
+are skewed under the transformation. On the other hand their action is homogeneous
+over the plane: for a given affinity the det A scaling in area of an object (e.g. a square)
+is the same anywhere on the plane; and the orientation of a transformed line depends
+only on its initial orientation, not on its position on the plane. In contrast, for a given
+projective transformation, area scaling varies with position (e.g. under perspective a
+more distant square on the plane has a smaller image than one that is nearer, as in
+figure 2.6); and the orientation of a transformed line depends on both the orientation
+and position of the source line (however, it will be seen later in section 8.6(p213) that
+a line’s vanishing point depends only on line orientation, not position).
+The key difference between a projective and affine transformation is that the vector
+v is not null for a projectivity. This is responsible for the non-linear effects of the
+projectivity. Compare the mapping of an ideal point (x1, x2, 0)T under an affinity and
+projectivity: First the affine transformation
+"
+A t
+0T 1
+#
+
+x1
+x2
+0
+
+
+=
+
+
+A
+ 
+x1
+x2
+!
+0
+
+
+. (2.14)
+Second the projective transformation
+"
+A t
+vT v
+#
+
+x1
+x2
+0
+
+
+=
+
+
+A
+ 
+x1
+x2
+!
+v1x1 + v2x2
+
+
+. (2.15)
+In the first case the ideal point remains ideal (i.e. at infinity). In the second it is mapped
+to a finite point. It is this ability which allows a projective transformation to model
+vanishing points.
+2.4.6 Decomposition of a projective transformation
+A projective transformation can be decomposed into a chain of transformations, where
+each matrix in the chain represents a transformation higher in the hierarchy than the
+previous one.
+H = HS HA HP =
+"
+sR t
+0T 1
+# "
+K 0
+0T 1
+# "
+I 0
+vT v
+#
+=
+"
+A t
+vT v
+#
+(2.16)
+with A a non-singular matrix given by A = sRK+tvT, and K an upper-triangular matrix
+normalized as det K = 1. This decomposition is valid provided v 6= 0, and is unique if
+s is chosen positive.
+2.4 A hierarchy of transformations 43
+Each of the matrices HS, HA, HP is the “essence” of a transformation of that type (as
+indicated by the subscripts S, A, P). Consider the process of rectifying the perspective
+image of a plane as in example 2.12: HP (2 dof) moves the line at infinity; HA (2 dof)
+affects the affine properties, but does not move the line at infinity; and finally, HS is a
+general similarity transformation (4 dof) which does not affect the affine or projective
+properties. The transformation HP is an elation, described in section A7.3(p631).
+Example 2.15. The projective transformation
+H =
+
+
+1.707 0.586 1.0
+2.707 8.242 2.0
+1.0 2.0 1.0
+
+
+may be decomposed as
+H =
+
+
+2 cos 45◦ −2 sin 45◦ 1
+2 sin 45◦ 2 cos 45◦ 2
+0 0 1
+
+
+
+
+0.5 1 0
+0 2 0
+0 0 1
+
+
+
+
+1 0 0
+0 1 0
+1 2 1
+
+
+.
+△
+This decomposition can be employed when the objective is to only partially determine
+the transformation. For example, if one wants to measure length ratios from the
+perspective image of a plane, then it is only necessary to determine (rectify) the transformation
+up to a similarity. We return to this approach in section 2.7.
+Taking the inverse of H in (2.16) gives H−1 = H−1
+P
+H−1
+A
+H−1
+S . Since H−1
+P , H−1
+A and H−1
+S are
+still projective, affine and similarity transformations respectively, a general projective
+transformation may also be decomposed in the form
+H = HP HA HS =
+"
+I 0
+vT 1
+# "
+K 0
+0T 1
+# "
+sR t
+0T 1
+#
+(2.17)
+Note that the actual values of K, R, t and v will be different from those of (2.16).
+2.4.7 The number of invariants
+The question naturally arises as to how many invariants there are for a given geometric
+configuration under a particular transformation. First the term “number” needs to be
+made more precise, for if a quantity is invariant, such as length under Euclidean transformations,
+then any function of that quantity is invariant. Consequently, we seek a
+counting argument for the number of functionally independent invariants. By considering
+the number of transformation parameters that must be eliminated in order to form
+an invariant, it can be seen that:
+Result 2.16. The number of functionally independent invariants is equal to, or greater
+than, the number of degrees of freedom of the configuration less the number of degrees
+of freedom of the transformation.
+44 2 Projective Geometry and Transformations of 2D
+Group Matrix Distortion Invariant properties
+Projective
+8 dof
+"
+h11 h12 h13
+h21 h22 h23
+h31 h32 h33
+# Concurrency, collinearity, order of contact:
+intersection (1 pt contact); tangency (2 pt contact);
+inflections
+(3 pt contact with line); tangent discontinuities
+and cusps. cross ratio (ratio of ratio of lengths).
+Affine
+6 dof
+"
+a11 a12 tx
+a21 a22 ty
+0 0 1
+# Parallelism, ratio of areas, ratio of lengths on
+collinear or parallel lines (e.g. midpoints), linear
+combinations of vectors (e.g. centroids).
+The line at infinity, l∞.
+Similarity
+4 dof
+"
+sr11 sr12 tx
+sr21 sr22 ty
+0 0 1
+#
+Ratio of lengths, angle. The circular points, I, J
+(see section 2.7.3).
+Euclidean
+3 dof
+"
+r11 r12 tx
+r21 r22 ty
+0 0 1
+#
+Length, area
+Table 2.1. Geometric properties invariant to commonly occurring planar transformations. The
+matrix A = [aij ] is an invertible 2 × 2 matrix, R = [rij ] is a 2D rotation matrix, and (tx, ty) a 2D translation.
+The distortion column shows typical effects of the transformations on a square. Transformations
+higher in the table can produce all the actions of the ones below. These range from Euclidean, where
+only translations and rotations occur, to projective where the square can be transformed to any arbitrary
+quadrilateral (provided no three points are collinear).
+For example, a configuration of four points in general position has 8 degrees of freedom
+(2 for each point), and so 4 similarity, 2 affinity and zero projective invariants since
+these transformations have respectively 4, 6 and 8 degrees of freedom.
+Table 2.1 summarizes the 2D transformation groups and their invariant properties.
+Transformations lower in the table are specializations of those above. A transformation
+lower in the table inherits the invariants of those above.
+2.5 The projective geometry of 1D
+The development of the projective geometry of a line, IP1, proceeds in much the same
+way as that of the plane. A point x on the line is represented by homogeneous coordinates
+(x1, x2)T, and a point for which x2 = 0 is an ideal point of the line. We will use
+the notation ¯x to represent the 2-vector (x1, x2)T. A projective transformation of a line
+is represented by a 2 × 2 homogeneous matrix,
+¯x′ = H2×2¯x
+and has 3 degrees of freedom corresponding to the four elements of the matrix less one
+for overall scaling. A projective transformation of a line may be determined from three
+corresponding points.
+2.5 The projective geometry of 1D 45
+Fig. 2.8. Projective transformations between lines. There are four sets of four collinear points in this
+figure. Each set is related to the others by a line-to-line projectivity. Since the cross ratio is an invariant
+under a projectivity, the cross ratio has the same value for all the sets shown.
+The cross ratio. The cross ratio is the basic projective invariant of IP1. Given 4 points
+¯xi the cross ratio is defined as
+Cross(¯x1, ¯x2, ¯x3, ¯x4) =
+|¯x1¯x2||¯x3¯x4|
+|¯x1¯x3||¯x2¯x4|
+where
+|¯xi¯xj | = det
+"
+xi1 xj1
+xi2 xj2
+#
+.
+A few comments on the cross ratio:
+(i) The value of the cross ratio is not dependent on which particular homogeneous
+representative of a point ¯xi is used, since the scale cancels between numerator
+and denominator.
+(ii) If each point ¯xi is a finite point and the homogeneous representative is chosen
+such that x2 = 1, then |¯xi¯xj | represents the signed distance from ¯xi to ¯xj .
+(iii) The definition of the cross ratio is also valid if one of the points ¯xi is an ideal
+point.
+(iv) The value of the cross ratio is invariant under any projective transformation of
+the line: if ¯x′ = H2×2¯x then
+Cross(¯x′
+1, ¯x′
+2, ¯x′
+3, ¯x′
+4) = Cross(¯x1, ¯x2, ¯x3, ¯x4). (2.18)
+The proof is left as an exercise. Equivalently stated, the cross ratio is invariant
+to the projective coordinate frame chosen for the line.
+Figure 2.8 illustrates a number of projective transformations between lines with equivalent
+cross ratios.
+Under a projective transformation of the plane, a 1D projective transformation is
+induced on any line in the plane.
+Concurrent lines. A configuration of concurrent lines is dual to collinear points on
+a line. This means that concurrent lines on a plane also have the geometry IP1. In
+particular four concurrent lines have a cross ratio as illustrated in figure 2.9a.
+46 2 Projective Geometry and Transformations of 2D
+l
+l
+l
+l
+l
+x
+x
+x
+x 1
+1
+2
+2
+3
+4
+4
+3
+1
+2
+3
+l
+x
+x
+x
+x
+c
+x 1
+x2
+x3
+x 4
+4
+a b
+Fig. 2.9. Concurrent lines. (a) Four concurrent lines li intersect the line l in the four points ¯xi. The
+cross ratio of these lines is an invariant to projective transformations of the plane. Its value is given
+by the cross ratio of the points, Cross(¯x1, ¯x2, ¯x3, ¯x4). (b) Coplanar points xi are imaged onto a line l
+(also in the plane) by a projection with centre c. The cross ratio of the image points ¯xi is invariant to
+the position of the image line l.
+Note how figure 2.9b may be thought of as representing projection of points in IP2
+into a 1-dimensional image. In particular, if c represents a camera centre, and the line
+l represents an image line (1D analogue of the image plane), then the points ¯xi are the
+projections of points xi into the image. The cross ratio of the points ¯xi characterizes
+the projective configuration of the four image points. Note that the actual position
+of the image line is irrelevant as far as the projective configuration of the four image
+points is concerned – different choices of image line give rise to projectively equivalent
+configurations of image points.
+The projective geometry of concurrent lines is important to the understanding of the
+projective geometry of epipolar lines in chapter 9.
+2.6 Topology of the projective plane
+We make brief mention of the topology of IP2. Understanding of this section is not
+required for following the rest of the book.
+We have seen that the projective plane IP2 may be thought of as the set of all homogeneous
+3-vectors. A vector of this type x = (x1, x2, x3)T may be normalized by
+multiplication by a non-zero factor so that x2
+1 + x2
+2 + x2
+3 = 1. Such a point lies on the
+unit sphere in IR3. However, any vector x and −x represent the same point in IP2, since
+they differ by a multiplicative factor, −1. Thus, there is a two-to-one correspondence
+between the unit sphere S2 in IR3 and the projective plane IP2. The projective plane
+may be pictured as the unit sphere with opposite points identified. In this representation,
+a line in IP2 is modelled as a great circle on the unit sphere (as ever, with opposite
+points identified). One may verify that any two distinct (non-antipodal) points on the
+sphere lie on exactly one great circle, and any two great circles intersect in one point
+(since antipodal points are identified).
+In the language of topology, the sphere S2 is a 2-sheeted covering space of IP2. This
+implies that IP2 is not simply-connected, which means that there are loops in IP2 which
+cannot be contracted to a point inside IP2. To be technical, the fundamental group of
+IP2 is the cyclic group of order 2.
+2.7 Recovery of affine and metric properties from images 47
+a b c d
+Fig. 2.10. Topology of surfaces. Common surfaces may be constructed from a paper square (topologically
+a disk) with edges glued together. In each case, the matching arrow edges of the square are to
+be glued together in such a way that the directions of the arrows match. One obtains (a) a sphere, (b)
+a torus, (c) a Klein bottle and (d) a projective plane. Only the sphere and torus are actually realizable
+with a real sheet of paper. The sphere and torus are orientable but the projective plane and Klein bottle
+are not.
+In the model for the projective plane as a sphere with opposite points identified one
+may dispense with the lower hemisphere of S2, since points in this hemisphere are
+the same as the opposite points in the upper hemisphere. In this case, IP2 may be
+constructed from the upper hemisphere by identifying opposite points on the equator.
+Since the upper hemisphere of S2 is topologically the same as a disk, IP2 is simply
+a disk with opposite points on its boundary identified, or glued together. This is not
+physically possible. Constructing topological spaces by gluing the boundary of a disk
+is a common method in topology, and in fact any 2-manifold may be constructed in this
+way. This is illustrated in figure 2.10.
+A notable feature of the projective plane IP2 is that it is non-orientable. This means
+that it is impossible to define a local orientation (represented for instance by a pair of
+oriented coordinate axes) that is consistent over the whole surface. This is illustrated
+in figure 2.11 in which it is shown that the projective plane contains an orientationreversing
+path.
+The topology of IP1. In a similar manner, the 1-dimensional projective line may be
+identified as a 1-sphere S1 (that is, a circle) with opposite points identified. If we omit
+the lower half of the circle, as being duplicated by the top half, then the top half of a
+circle is topologically equivalent to a line segment. Thus IP1 is topologically equivalent
+to a line segment with the two endpoints identified – namely a circle, S1.
+2.7 Recovery of affine and metric properties from images
+We return to the example of projective rectification of example 2.12(p34) where the
+aim was to remove the projective distortion in the perspective image of a plane to the
+extent that similarity properties (angles, ratios of lengths) could be measured on the
+original plane. In that example the projective distortion was completely removed by
+specifying the position of four reference points on the plane (a total of 8 degrees of
+freedom), and explicitly computing the transformation mapping the reference points to
+their images. In fact this overspecifies the geometry – a projective transformation has
+only 4 degrees of freedom more than a similarity, so it is only necessary to specify 4
+48 2 Projective Geometry and Transformations of 2D
+a b
+Fig. 2.11. Orientation of surfaces. A coordinate frame (represented by an L in the diagram) may
+be transported along a path in the surface eventually coming back to the point where it started. (a)
+represents a projective plane. In the path shown, the coordinate frame (represented by a pair of axes) is
+reversed when it returns to the same point, since the identification at the boundary of the square swaps
+the direction of one of the axes. Such a path is called an orientation-reversing path, and a surface that
+contains such a path is called non-orientable. (b) shows the well known example of a M¨obius strip
+obtained by joining two opposite edges of a rectangle (M.C. Escher’s “Moebius Strip II [Red Ants]”,
+1963. 
+c 2000 Cordon Art B.V. – Baarn-Holland. All rights reserved). As can be verified, a path once
+around the strip is orientation-reversing.
+degrees of freedom (not 8) in order to determine metric properties. In projective geometry
+these 4 degrees of freedom are given “physical substance” by being associated with
+geometric objects: the line at infinity l∞ (2 dof), and the two circular points (2 dof)
+on l∞. This association is often a more intuitive way of reasoning about the problem
+than the equivalent description in terms of specifying matrices in the decomposition
+chain (2.16).
+In the following it is shown that the projective distortion may be removed once the
+image of l∞ is specified, and the affine distortion removed once the image of the circular
+points is specified. Then the only remaining distortion is a similarity.
+2.7.1 The line at infinity
+Under a projective transformation ideal points may be mapped to finite points (2.15),
+and consequently l∞ is mapped to a finite line. However, if the transformation is an
+affinity, then l∞ is not mapped to a finite line, but remains at infinity. This is evident
+directly from the line transformation (2.6–p36):
+l′
+∞ = H−T
+A l∞ =
+"
+A−T 0
+−tTA−T 1
+#
+
+0
+0
+1
+
+
+=
+
+
+0
+0
+1
+
+
+= l∞.
+The converse is also true, i.e. an affine transformation is the most general linear transformation
+that fixes l∞, and may be seen as follows. We require that a point at infinity,
+say x = (1, 0, 0)T, be mapped to a point at infinity. This requires that h31 = 0. Similarly,
+h32 = 0, so the transformation is an affinity. To summarize,
+Result 2.17. The line at infinity, l∞, is a fixed line under the projective transformation
+H if and only if H is an affinity.
+However, l∞ is not fixed pointwise under an affine transformation: (2.14) showed
+that under an affinity a point on l∞ (an ideal point) is mapped to a point on l∞, but
+2.7 Recovery of affine and metric properties from images 49
+l
+/
+􀁓 􀁓 􀁓 1 2 3
+H H
+H
+P P
+A
+l = H ( ) P
+Fig. 2.12. Affine rectification. A projective transformation maps l∞ from (0, 0, 1)T on a Euclidean
+plane 1 to a finite line l on the plane 2. If a projective transformation is constructed such that l is
+mapped back to (0, 0, 1)T then from result 2.17 the transformation between the first and third planes
+must be an affine transformation since the canonical position of l∞ is preserved. This means that affine
+properties of the first plane can be measured from the third, i.e. the third plane is within an affinity of the
+first.
+it is not the same point unless A(x1, x2)T = k(x1, x2)T. It will now be shown that
+identifying l∞ allows the recovery of affine properties (parallelism, ratio of areas).
+2.7.2 Recovery of affine properties from images
+Once the imaged line at infinity is identified in an image of a plane, it is then possible to
+make affine measurements on the original plane. For example, lines may be identified
+as parallel on the original plane if the imaged lines intersect on the imaged l∞. This
+follows because parallel lines on the Euclidean plane intersect on l∞, and after a projective
+transformation the lines still intersect on the imaged l∞ since intersections are
+preserved by projectivities. Similarly, once l∞ is identified a length ratio on a line may
+be computed from the cross ratio of the three points specifying the lengths together
+with the intersection of the line with l∞ (which provides the fourth point for the cross
+ratio), and so forth.
+However, a less tortuous path which is better suited to computational algorithms is
+simply to transform the identified l∞ to its canonical position of l∞ = (0, 0, 1)T. The
+(projective) matrix which achieves this transformation can be applied to every point
+in the image in order to affinely rectify the image, i.e. after the transformation, affine
+measurements can be made directly from the rectified image. The key idea here is
+illustrated in figure 2.12.
+If the imaged line at infinity is the line l = (l1, l2, l3)T, then provided l3 6= 0 a suitable
+projective point transformation which will map l back to l∞ = (0, 0, 1)T is
+H = HA
+
+
+1 0 0
+0 1 0
+l1 l2 l3
+
+
+(2.19)
+50 2 Projective Geometry and Transformations of 2D
+a b
+c
+Fig. 2.13. Affine rectification via the vanishing line. The vanishing line of the plane imaged in (a) is
+computed (c) from the intersection of two sets of imaged parallel lines. The image is then projectively
+warped to produce the affinely rectified image (b). In the affinely rectified image parallel lines are now
+parallel. However, angles do not have their veridical world value since they are affinely distorted. See
+also figure 2.17.
+where HA is any affine transformation (the last row of H is lT). One can verify that under
+the line transformation (2.6–p36) H−T(l1, l2, l3)T = (0, 0, 1)T = l∞.
+Example 2.18. Affine rectification
+In a perspective image of a plane, the line at infinity on the world plane is imaged as the
+vanishing line of the plane. This is discussed in more detail in chapter 8. As illustrated
+in figure 2.13 the vanishing line l may be computed by intersecting imaged parallel
+lines. The image is then rectified by applying a projective warping (2.19) such that l is
+mapped to its canonical position l∞ = (0, 0, 1)T. △
+This example shows that affine properties may be recovered by simply specifying a
+line (2 dof). It is equivalent to specifying only the projective component of the transformation
+decomposition chain (2.16). Conversely if affine properties are known, these
+may be used to determine points and the line at infinity. This is illustrated in the following
+example.
+Example 2.19. Computing a vanishing point from a length ratio. Given two intervals
+on a line with a known length ratio, the point at infinity on the line may be
+determined. A typical case is where three points a′, b′ and c′ are identified on a line in
+an image. Suppose a, b and c are the corresponding collinear points on the world line,
+and the length ratio d(a, b) : d(b, c) = a : b is known (where d(x, y) is the Euclidean
+2.7 Recovery of affine and metric properties from images 51
+Fig. 2.14. Two examples of using equal length ratios on a line to determine the point at infinity. The
+line intervals used are shown as the thin and thick white lines delineated by points. This construction
+determines the vanishing line of the plane. Compare with figure 2.13c.
+distance between the points x and y). It is possible to find the vanishing point using
+the cross ratio. Equivalently, one may proceed as follows:
+(i) Measure the distance ratio in the image, d(a′, b′) : d(b′, c′) = a′ : b′.
+(ii) Points a, b and c may be represented as coordinates 0, a and a+b in a coordinate
+frame on the line ha, b, ci. For computational purposes, these points are represented
+by homogeneous 2-vectors (0, 1)T, (a, 1)T and (a + b, 1)T. Similarly,
+a′, b′ and c′ have coordinates 0, a′ and a′ + b′, which may also be expressed as
+homogeneous vectors.
+(iii) Relative to these coordinate frames, compute the 1D projective transformation
+H2×2 mapping a 7→ a′, b 7→ b′ and c 7→ c′.
+(iv) The image of the point at infinity (with coordinates (1, 0)T) under H2×2 is the
+vanishing point on the line ha′, b′, c′i.
+An example of vanishing points computed in this manner is shown in figure 2.14. △
+Example 2.20. Geometric construction of vanishing points from a length ratio.
+The vanishing points shown in figure 2.14 may also be computed by a purely geometric
+construction consisting of the following steps:
+(i) Given: three collinear points, a′, b′ and c′, in an image corresponding to
+collinear world points with interval ratio a : b.
+(ii) Draw any line l through a′ (not coincident with the line a′c′), and mark off
+points a = a′, b and c such that the line segments habi, hbci have length ratio
+a : b.
+(iii) Join bb′ and cc′ and intersect in o.
+(iv) The line through o parallel to l meets the line a′c′ in the vanishing point v′.
+This construction is illustrated in figure 2.15. △
+52 2 Projective Geometry and Transformations of 2D
+o
+v/
+b/
+c/
+b l
+a/
+b
+a a c
+Fig. 2.15. A geometric construction to determine the image of the point at infinity on a line given a
+known length ratio. The details are given in the text.
+2.7.3 The circular points and their dual
+Under any similarity transformation there are two points on l∞ which are fixed. These
+are the circular points (also called the absolute points) I, J, with canonical coordinates
+I =
+
+
+1
+i
+0
+
+
+J =
+
+
+1
+−i
+0
+
+
+.
+The circular points are a pair of complex conjugate ideal points. To see that they are
+fixed under an orientation-preserving similarity:
+I
+′ = HSI
+=
+
+
+s cos θ −s sin θ tx
+s sin θ s cos θ ty
+0 0 1
+
+
+
+
+1
+i
+0
+
+
+= se−i
+
+
+1
+i
+0
+
+=
+I
+with an analogous proof for J. A reflection swaps I and J. The converse is also true,
+i.e. if the circular points are fixed then the linear transformation is a similarity. The
+proof is left as an exercise. To summarize,
+Result 2.21. The circular points, I, J, are fixed points under the projective transformation
+H if and only if H is a similarity.
+The name “circular points” arises because every circle intersects l∞ at the circular
+points. To see this, start from equation (2.1–p30) for a conic. In the case that the conic
+is a circle: a = c and b = 0. Then
+x2
+1 + x2
+2 + dx1x3 + ex2x3 + fx2
+3 = 0
+2.7 Recovery of affine and metric properties from images 53
+where a has been set to unity. This conic intersects l∞ in the (ideal) points for which
+x3 = 0, namely
+x2
+1 + x2
+2 = 0
+with solution I = (1, i, 0)T, J = (1,−i, 0)T, i.e. any circle intersects l∞ in the circular
+points. In Euclidean geometry it is well known that a circle is specified by three points.
+The circular points enable an alternative computation. A circle can be computed using
+the general formula for a conic defined by five points (2.4–p31), where the five points
+are the three points augmented with the two circular points.
+In section 2.7.5 it will be shown that identifying the circular points (or equivalently
+their dual, see below) allows the recovery of similarity properties (angles, ratios of
+lengths). Algebraically, the circular points are the orthogonal directions of Euclidean
+geometry, (1, 0, 0)T and (0, 1, 0)T, packaged into a single complex conjugate entity,
+e.g.
+I = (1, 0, 0)T + i(0, 1, 0)T.
+Consequently, it is not so surprising that once the circular points are identified, orthogonality,
+and other metric properties, are then determined.
+The conic dual to the circular points. The conic
+C∗
+∞ = IJ
+T + JI
+T (2.20)
+is dual to the circular points. The conic C∗
+∞ is a degenerate (rank 2) line conic
+(see section 2.2.3), which consists of the two circular points. In a Euclidean coordinate
+system it is given by
+C∗
+∞ =
+
+
+1
+i
+0
+
+
+
+1 −i 0
+
++
+
+
+1
+−i
+0
+
+
+
+1 i 0
+
+=
+
+
+1 0 0
+0 1 0
+0 0 0
+
+
+.
+The conic C∗
+∞ is fixed under similarity transformations in an analogous fashion to
+the fixed properties of circular points. A conic is fixed if the same matrix results (up to
+scale) under the transformation rule. Since C∗
+∞ is a dual conic it transforms according to
+result 2.14(p37) (C∗′ = HC∗HT), and one can verify that under the point transformation
+x′ = HSx,
+C∗
+∞
+′ = HSC∗
+∞
+H
+T
+S = C∗
+∞.
+The converse is also true, and we have
+Result 2.22. The dual conic C∗
+∞ is fixed under the projective transformation H if and
+only if H is a similarity.
+Some properties of C∗
+∞ in any projective frame:
+(i) C∗
+∞ has 4 degrees of freedom: a 3 × 3 homogeneous symmetric matrix has
+5 degrees of freedom, but the constraint det C∗
+∞ = 0 reduces the degrees of
+freedom by 1.
+54 2 Projective Geometry and Transformations of 2D
+(ii) l∞ is the null vector of C∗
+∞. This is clear from the definition: the circular points
+lie on l∞, so that I
+Tl∞ = J
+Tl∞ = 0; then
+C∗
+∞l∞ = (IJ
+T + JI
+T)l∞ = I(J
+Tl∞) + J(I
+Tl∞) = 0.
+2.7.4 Angles on the projective plane
+In Euclidean geometry the angle between two lines is computed from the dot product
+of their normals. For the lines l = (l1, l2, l3)T and m = (m1,m2,m3)T with normals
+parallel to (l1, l2)T, (m1,m2)T respectively, the angle is
+cos θ =
+l1m1 + l2m2 q
+(l2
+1 + l2
+2)(m2
+1 + m2
+2)
+. (2.21)
+The problem with this expression is that the first two components of l and m do not
+have well defined transformation properties under projective transformations (they are
+not tensors), and so (2.21) cannot be applied after an affine or projective transformation
+of the plane. However, an analogous expression to (2.21) which is invariant to
+projective transformations is
+cos θ =
+lTC∗
+∞m
+q
+(lTC∗
+∞l)(mTC∗
+∞m)
+(2.22)
+where C∗
+∞ is the conic dual to the circular points. It is clear that in a Euclidean coordinate
+system (2.22) reduces to (2.21). It may be verified that (2.22) is invariant
+to projective transformations by using the transformation rules for lines (2.6–p36)
+(l′ = H−Tl) and dual conics (result 2.14(p37)) (C∗′ = HC∗HT) under the point transformation
+x′ = Hx. For example, the numerator transforms as
+lT
+C∗
+∞m 7→ lT
+H−1
+HC∗
+∞
+H
+T
+H−Tm = lT
+C∗
+∞m.
+It may also be verified that the scale of the homogeneous objects cancels between the
+numerator and denominator. Thus (2.22) is indeed invariant to the projective frame. To
+summarize, we have shown
+Result 2.23. Once the conic C∗
+∞ is identified on the projective plane then Euclidean
+angles may be measured by (2.22).
+Note, as a corollary,
+Result 2.24. Lines l and m are orthogonal if lTC∗
+∞m = 0.
+Geometrically, if l and m satisfy lTC∗
+∞m = 0, then the lines are conjugate
+(see section 2.8.1) with respect to the conic C∗
+∞.
+Length ratios may also be measured once C∗
+∞ is identified. Consider the triangle
+shown in figure 2.16 with vertices a, b, c. From the standard trigonometric sine rule
+the ratio of lengths d(b, c) : d(a, c) = sin α : sin β, where d(x, y) denotes the Euclidean
+distance between the points x and y. Using (2.22), both cos α and cos β may
+be computed from the lines l′ = a′ × b′, m′ = c′ × a′ and n′ = b′ × c′ for any
+2.7 Recovery of affine and metric properties from images 55
+b
+c
+c
+n
+m
+a b / /
+/
+/
+/
+a l /
+􀁄 􀁅
+Fig. 2.16. Length ratios. Once C∗
+∞ is identified the Euclidean length ratio d(b, c) : d(a, c) may be
+measured from the projectively distorted figure. See text for details.
+projective frame in which C∗
+∞ is specified. Consequently both sin α, sin β, and thence
+the ratio d(a, b) : d(c, a), may be determined from the projectively mapped points.
+2.7.5 Recovery of metric properties from images
+A completely analogous approach to that of section 2.7.2 and figure 2.12, where affine
+properties are recovered by specifying l∞, enables metric properties to be recovered
+from an image of a plane by transforming the circular points to their canonical position.
+Suppose the circular points are identified in an image, and the image is then rectified
+by a projective transformation H that maps the imaged circular points to their canonical
+position (at (1,±i, 0)T) on l∞. From result 2.21 the transformation between the world
+plane and the rectified image is then a similarity since it is projective and the circular
+points are fixed.
+Metric rectification using C∗
+∞. The dual conic C∗
+∞ neatly packages all the information
+required for a metric rectification. It enables both the projective and affine components
+of a projective transformation to be determined, leaving only similarity distortions.
+This is evident from its transformation under a projectivity. If the point transformation
+is x′ = Hx, where the x-coordinate frame is Euclidean and x′ projective, C∗
+∞ transforms
+according to result 2.14(p37) (C∗′ = HC∗HT). Using the decomposition chain (2.17–
+p43) for H
+C∗
+∞
+′ = (HP HA HS) C∗
+∞ (HP HA HS)T = (HP HA)
+
+HS C∗
+∞
+H
+T
+S
+ 
+H
+T
+A
+H
+T
+P
+
+= (HP HA) C∗
+∞
+
+H
+T
+A
+H
+T
+P
+
+=
+"
+KKT KKTv
+vTKKT vTKKTv
+#
+. (2.23)
+It is clear that the projective (v) and affine (K) components are determined directly from
+the image of C∗
+∞, but (since C∗
+∞ is invariant to similarity transformation by result 2.22)
+the similarity component is undetermined. Consequently,
+Result 2.25. Once the conic C∗
+∞ is identified on the projective plane then projective
+distortion may be rectified up to a similarity.
+Actually, a suitable rectifying homography may be obtained directly from the identified
+C∗
+∞
+′ in an image using the SVD (section A4.4(p585)): writing the SVD of C∗
+∞
+′
+56 2 Projective Geometry and Transformations of 2D
+as
+C∗
+∞
+′ = U
+
+
+1 0 0
+0 1 0
+0 0 0
+
+
+U
+T
+then by inspection from (2.23) the rectifying projectivity is H = U up to a similarity.
+The following two examples show typical situations where C∗
+∞ may be identified in
+an image, and thence a metric rectification obtained.
+Example 2.26. Metric rectification I
+Suppose an image has been affinely rectified (as in example 2.18 above), then we require
+two constraints to specify the 2 degrees of freedom of the circular points in order
+to determine a metric rectification. These two constraints may be obtained from two
+imaged right angles on the world plane.
+Suppose the lines l′,m′ in the affinely rectified image correspond to an orthogonal
+line pair l,m on the world plane. From result 2.24 l′TC∗
+∞
+′m′ = 0, and using (2.23)
+with v = 0
+
+l′
+1 l′
+2 l′
+3
+ "
+KKT 0
+0T 0
+#
+
+m′
+1
+m′
+2
+m′
+3
+
+
+= 0
+which is a linear constraint on the 2 × 2 matrix S = KKT. The matrix S = KKT is
+symmetric with three independent elements, and thus 2 degrees of freedom (as the
+overall scaling is unimportant). The orthogonality condition reduces to the equation
+(l′
+1, l′
+2)S(m′
+1,m′
+2)T = 0 which may be written as
+(l′
+1m′
+1, l′
+1m′
+2 + l′
+2m′
+1, l′
+2m′
+2) s = 0,
+where s = (s11, s12, s22)T is S written as a 3-vector. Two such orthogonal line pairs
+provide two constraints which may be stacked to give a 2 × 3 matrix with s determined
+as the null vector. Thus S, and hence K, is obtained up to scale (by Cholesky
+decomposition, section A4.2.1(p582)). Figure 2.17 shows an example of two orthogonal
+line pairs being used to metrically rectify the affinely rectified image computed
+in figure 2.13. △
+Alternatively, the two constraints required for metric rectification may be obtained from
+an imaged circle or two known length ratios. In the case of a circle, the image conic
+is an ellipse in the affinely rectified image, and the intersection of this ellipse with the
+(known) l∞ directly determines the imaged circular points.
+The conic C∗
+∞ can alternatively be identified directly in a perspective image, without
+first identifying l∞, as is illustrated in the following example.
+Example 2.27. Metric rectification II
+We start here from the original perspective image of the plane (not the affinely rectified
+image of example 2.26). Suppose lines l and m are images of orthogonal lines on the
+world plane; then from result 2.24 lTC∗
+∞m = 0, and in a similar manner to constraining
+2.7 Recovery of affine and metric properties from images 57
+a b
+Fig. 2.17. Metric rectification via orthogonal lines I. The affine transformation required to metrically
+rectify an affine image may be computed from imaged orthogonal lines. (a) Two (non-parallel) line pairs
+identified on the affinely rectified image (figure 2.13) correspond to orthogonal lines on the world plane.
+(b) The metrically rectified image. Note that in the metrically rectified image all lines orthogonal in the
+world are orthogonal, world squares have unit aspect ratio, and world circles are circular.
+a b
+Fig. 2.18. Metric rectification via orthogonal lines II. (a) The conic C∗
+∞ is determined on the perspectively
+imaged plane (the front wall of the building) using the five orthogonal line pairs shown. The
+conic C∗
+∞ determines the circular points, and equivalently the projective transformation necessary to
+metrically rectify the image (b). The image shown in (a) is the same perspective image as that of figure
+2.4(p35), where the perspective distortion was removed by specifying the world position of four image
+points.
+a conic to contain a point (2.4–p31), this provides a linear constraint on the elements
+of C∗
+∞, namely
+(l1m1, (l1m2 + l2m1)/2, l2m2, (l1m3 + l3m1)/2, (l2m3 + l3m2)/2, l3m3) c = 0
+where c = (a, b, c, d, e, f)T is the conic matrix (2.3–p30) of C∗
+∞ written as a 6-vector.
+Five such constraints can be stacked to form a 5 × 6 matrix, and c, and hence C∗
+∞,
+is obtained as the null vector. This shows that C∗
+∞ can be determined linearly from
+the images of five line pairs which are orthogonal on the world plane. An example of
+metric rectification using such line pair constraints is shown in figure 2.18. △
+Stratification. Note, in example 2.27 the affine and projective distortions are determined
+in one step by specifying C∗
+∞. In the previous example 2.26 first the projective
+and subsequently the affine distortions were removed. This two-step approach is
+termed stratified. Analogous approaches apply in 3D, and are employed in chapter 10
+58 2 Projective Geometry and Transformations of 2D
+l x
+y
+C
+Fig. 2.19. The pole–polar relationship. The line l = Cx is the polar of the point x with respect to the
+conic C, and the point x = C−1l is the pole of l with respect to C. The polar of x intersects the conic at
+the points of tangency of lines from x. If y is on l then yTl = yTCx = 0. Points x and y which satisfy
+yTCx = 0 are conjugate.
+on 3D reconstruction and chapter 19 on auto-calibration, when obtaining a metric from
+a 3D projective reconstruction.
+2.8 More properties of conics
+We now introduce an important geometric relation between a point, line and conic,
+which is termed polarity. Applications of this relation (to the representation of orthogonality)
+are given in chapter 8.
+2.8.1 The pole–polar relationship
+A point x and conic C define a line l = Cx. The line l is called the polar of x with
+respect to C, and the point x is the pole of l with respect to C.
+• The polar line l = Cx of the point x with respect to a conic C intersects the conic in
+two points. The two lines tangent to C at these points intersect at x.
+This relationship is illustrated in figure 2.19.
+Proof. Consider a point y on C. The tangent line at y is Cy, and this line contains x
+if xTCy = 0. Using the symmetry of C, the condition xTCy = (Cx)Ty = 0 is that the
+point y lies on the line Cx. Thus the polar line Cx intersects the conic in the point y at
+which the tangent line contains x.
+As the point x approaches the conic the tangent lines become closer to collinear, and
+their contact points on the conic also become closer. In the limit that x lies on C, the
+polar line has two-point contact at x, and we have:
+• If the point x is on C then the polar is the tangent line to the conic at x.
+See result 2.7(p31).
+2.8 More properties of conics 59
+Example 2.28. A circle of radius r centred on the x-axis at x = a has the equation
+(x − a)2 + y2 = r2, and is represented by the conic matrix
+C =
+
+
+1 0 −a
+0 1 0
+−a 0 a2 − r2
+
+
+.
+The polar line of the origin is given by l = C(0, 0, 1)T = (−a, 0, a2 − r2)T. This is a
+vertical line at x = (a2 − r2)/a. If r = a the origin lies on the circle. In this case the
+polar line is the y-axis and is tangent to the circle. △
+It is evident that the conic induces a map between points and lines of IP2. This map is
+a projective construction since it involves only intersections and tangency, both properties
+that are preserved under projective transformations. A projective map between
+points and lines is termed a correlation (an unfortunate name, given its more common
+usage).
+Definition 2.29. A correlation is an invertible mapping from points of IP2 to lines of
+IP2. It is represented by a 3 × 3 non-singular matrix A as l = Ax.
+A correlation provides a systematic way to dualize relations involving points and lines.
+It need not be represented by a symmetric matrix, but we will only consider symmetric
+correlations here, because of the association with conics.
+• Conjugate points. If the point y is on the line l = Cx then yTl = yTCx = 0. Any
+two points x, y satisfying yTCx = 0 are conjugate with respect to the conic C.
+The conjugacy relation is symmetric:
+• If x is on the polar of y then y is on the polar of x.
+This follows simply because of the symmetry of the conic matrix – the point x is on
+the polar of y if xTCy = 0, and the point y is on the polar of x if yTCx = 0. Since
+xTCy = yTCx, if one form is zero, then so is the other. There is a dual conjugacy
+relationship for lines: two lines l and m are conjugate if lTC∗m = 0.
+2.8.2 Classification of conics
+This section describes the projective and affine classification of conics.
+Projective normal form for a conic. Since C is a symmetric matrix it has real eigenvalues,
+and may be decomposed as a product C = UTDU (see section A4.2(p580)),
+where U is an orthogonal matrix, and D is diagonal. Applying the projective transformation
+represented by U, conic C is transformed to another conic C′ = U−TCU−1 =
+U−TUTDUU−1 = D. This shows that any conic is equivalent under projective transformation
+to one with a diagonal matrix. Let D = diag(ǫ1d1, ǫ2d2, ǫ3d3) where ǫi = ±1 or 0
+and each di > 0. Thus, D may be written in the form
+D = diag(s1, s2, s3)Tdiag(ǫ1, ǫ2, ǫ3)diag(s1, s2, s3)
+60 2 Projective Geometry and Transformations of 2D
+l l l
+a b c
+Fig. 2.20. Affine classification of point conics. A conic is an (a) ellipse, (b) parabola, or (c) hyperbola;
+according to whether it (a) has no real intersection, (b) is tangent to (2-point contact), or (c) has 2 real
+intersections with l∞. Under an affine transformation l∞ is a fixed line, and intersections are preserved.
+Thus this classification is unaltered by an affinity.
+where s2
+i = di. Note that diag(s1, s2, s3)T = diag(s1, s2, s3). Now, transforming once
+more by the transformation diag(s1, s2, s3), the conic D is transformed to a conic with
+matrix diag(ǫ1, ǫ2, ǫ3), with each ǫi = ±1 or 0. Further transformation by permutation
+matrices may be carried out to ensure that values ǫi = 1 occur before values ǫi = −1
+which in turn precede values ǫi = 0. Finally, by multiplying by −1 if necessary, one
+may ensure that there are at least as many +1 entries as −1. The various types of conics
+may now be enumerated, and are shown in table 2.2.
+Diagonal Equation Conic type
+(1, 1, 1) x2 + y2 + w2 = 0 Improper conic – no real points.
+(1, 1,−1) x2 + y2 − w2 = 0 Circle
+(1, 1, 0) x2 + y2 = 0 Single real point (0, 0, 1)T
+(1,−1, 0) x2 − y2 = 0 Two lines x = ±y
+(1, 0, 0) x2 = 0 Single line x = 0 counted twice.
+Table 2.2. Projective classification of point conics. Any plane conic is projectively equivalent to one
+of the types shown in this table. Those conics for which ǫi = 0 for some i are known as degenerate
+conics, and are represented by a matrix of rank less than 3. The conic type column only describes the
+real points of the conics – for example as a complex conic x2+y2 = 0 consists of the line pair x = ±iy.
+Affine classification of conics. The classification of (non-degenerate, proper) conics
+in Euclidean geometry into hyperbola, ellipse and parabola is well known. As shown
+above in projective geometry these three types of conic are projectively equivalent to
+a circle. However, in affine geometry the Euclidean classification is still valid because
+it depends only on the relation of l∞ to the conic. The relation for the three types of
+conic is illustrated in figure 2.20.
+2.9 Fixed points and lines 61
+e
+e
+e
+1
+2
+3
+e
+e
+e
+1
+2
+3
+x x/
+H
+Fig. 2.21. Fixed points and lines of a plane projective transformation. There are three fixed points,
+and three fixed lines through these points. The fixed lines and points may be complex. Algebraically,
+the fixed points are the eigenvectors, ei, of the point transformation (x′ = Hx), and the fixed lines
+eigenvectors of the line transformation ( l′ = H−Tl). Note, the fixed line is not fixed pointwise: under
+the transformation, points on the line are mapped to other points on the line; only the fixed points are
+mapped to themselves.
+2.9 Fixed points and lines
+We have seen, by the examples of l∞ and the circular points, that points and lines may
+be fixed under a projective transformation. In this section the idea is investigated more
+thoroughly.
+Here, the source and destination planes are identified (the same) so that the transformation
+maps points x to points x′ in the same coordinate system. The key idea
+is that an eigenvector corresponds to a fixed point of the transformation, since for an
+eigenvector e with eigenvalue λ,
+He = λe
+and e and λe represent the same point. Often the eigenvector and eigenvalue have
+physical or geometric significance in computer vision applications.
+A 3×3 matrix has three eigenvalues and consequently a plane projective transformation
+has up to three fixed points, if the eigenvalues are distinct. Since the characteristic
+equation is a cubic in this case, one or three of the eigenvalues, and corresponding
+eigenvectors, is real. A similar development can be given for fixed lines, which, since
+lines transform as (2.6–p36) l′ = H−Tl, correspond to the eigenvectors of HT.
+The relationship between the fixed points and fixed lines is shown in figure 2.21.
+Note the lines are fixed as a set, not fixed pointwise, i.e. a point on the line is mapped
+to another point on the line, but in general the source and destination points will differ.
+There is nothing mysterious here: The projective transformation of the plane induces a
+1D projective transformation on the line. A 1D projective transformation is represented
+by a 2×2 homogeneous matrix (section 2.5). This 1D projectivity has two fixed points
+corresponding to the two eigenvectors of the 2×2 matrix. These fixed points are those
+of the 2D projective transformation.
+A further specialization concerns repeated eigenvalues. Suppose two of the eigenvalues
+(λ2, λ3 say) are identical, and that there are two distinct eigenvectors (e2, e3),
+corresponding to λ2 = λ3. Then the line containing the eigenvectors e2, e3 will be
+fixed pointwise, i.e. it is a line of fixed points. For suppose x = αe2 + βe3; then
+Hx = λ2αe2 + λ2βe3 = λ2x
+62 2 Projective Geometry and Transformations of 2D
+i.e. a point on the line through two degenerate eigenvectors is mapped to itself (only
+differing by scale). Another possibility is that λ2 = λ3, but that there is only one
+corresponding eigenvector. In this case, the eigenvector has algebraic dimension equal
+to two, but geometric dimension equal to one. Then there is one fewer fixed point (2
+instead of 3). Various cases of repeated eigenvalues are discussed further in appendix
+7(p628).
+We now examine the fixed points and lines of the hierarchy of projective transformation
+subgroups of section 2.4. Affine transformations, and the more specialized forms,
+have two eigenvectors which are ideal points (x3 = 0), and which correspond to the
+eigenvectors of the upper left 2 × 2 matrix. The third eigenvector is finite in general.
+A Euclidean matrix. The two ideal fixed points are the complex conjugate pair of circular
+points I, J, with corresponding eigenvalues {ei, e−i}, where θ is the rotation angle.
+The third eigenvector, which has unit eigenvalue, is called the pole. The Euclidean
+transformation is equal to a pure rotation by θ about this point with no translation.
+A special case is that of a pure translation (i.e. where θ = 0). Here the eigenvalues
+are triply degenerate. The line at infinity is fixed pointwise, and there is a pencil of
+fixed lines through the point (tx, ty, 0)T which corresponds to the translation direction.
+Consequently lines parallel to t are fixed. This is an example of an elation (see section
+A7.3(p631)).
+A similarity matrix. The two ideal fixed points are again the circular points. The
+eigenvalues are {1, sei, se−i}. The action can be understood as a rotation and
+isotropic scaling by s about the finite fixed point. Note that the eigenvalues of the
+circular points again encode the angle of rotation.
+An affine matrix. The two ideal fixed points can be real or complex conjugates, but
+the fixed line l∞ = (0, 0, 1)T through these points is real in either case.
+2.10 Closure
+2.10.1 The literature
+A gentle introduction to plane projective geometry, written for computer vision researchers,
+is given in the appendix of Mundy and Zisserman [Mundy-92]. A more
+formal approach is that of Semple and Kneebone [Semple-79], but [Springer-64] is
+more readable.
+On the recovery of affine and metric scene properties for an imaged plane, Collins
+and Beveridge [Collins-93] use the vanishing line to recover affine properties from
+satellite images, and Liebowitz and Zisserman [Liebowitz-98] use metric information
+on the plane, such as right angles, to recover the metric geometry.
+2.10.2 Notes and exercises
+(i) Affine transformations.
+2.10 Closure 63
+(a) Show that an affine transformation can map a circle to an ellipse, but
+cannot map an ellipse to a hyperbola or parabola.
+(b) Prove that under an affine transformation the ratio of lengths on parallel
+line segments is an invariant, but that the ratio of two lengths that are
+not parallel is not.
+(ii) Projective transformations. Show that there is a three-parameter family of
+projective transformations which fix (as a set) a unit circle at the origin, i.e. a
+unit circle at the origin is mapped to a unit circle at the origin (hint, use result
+2.13(p37) to compute the transformation). What is the geometric interpretation
+of this family?
+(iii) Isotropies. Show that two lines have an invariant under a similarity transformation;
+and that two lines and two points have an invariant under a projective
+transformation. In both cases the equality case of the counting argument (result
+2.16(p43)) is violated. Show that for these two cases the respective transformation
+cannot be fully determined, although it is partially determined.
+(iv) Invariants. Using the transformation rules for points, lines and conics show:
+(a) Two lines, l1, l2, and two points, x1, x2, not lying on the lines have the
+invariant
+I =
+(lT
+1 x1)(lT
+2 x2)
+(lT
+1 x2)(lT
+2 x1)
+(see the previous question).
+(b) A conic C and two points, x1 and x2, in general position have the invariant
+I =
+(xT
+1
+Cx2)2
+(xT
+1 Cx1)(xT
+2 Cx2)
+.
+(c) Show that the projectively invariant expression for measuring angles
+(2.22) is equivalent to Laguerre’s projectively invariant expression
+involving a cross ratio with the circular points (see [Springer-64]).
+(v) The cross ratio. Prove the invariance of the cross ratio of four collinear
+points under projective transformations of the line (2.18–p45). Hint, start with
+the transformation of two points on the line written as ¯x′
+i = λiH2×2¯xi and
+¯x′
+j = λjH2×2¯xj , where equality is not up to scale, then from the properties of
+determinants show that |¯x′
+i¯x′
+j | = λiλj det H2×2|¯xi¯xj | and continue from here.
+An alternative derivation method is given in [Semple-79].
+(vi) Polarity. Figure 2.19 shows the geometric construction of the polar line for a
+point x outside an ellipse. Give a geometric construction for the polar when the
+point is inside. Hint, start by choosing any line through x. The pole of this line
+is a point on the polar of x.
+(vii) Conics. If the sign of the conic matrix C is chosen such that two eigenvalues
+are positive and one negative, then internal and external points may be distinguished
+according to the sign of xTCx: the point x is inside/on/outside the conic
+64 2 Projective Geometry and Transformations of 2D
+C if xTCx is negative/zero/positive respectively. This can seen by example from
+a circle C = diag(1, 1,−1). Under projective transformations internality is invariant,
+though its interpretation requires care in the case of an ellipse being
+transformed to a hyperbola (see figure 2.20).
+(viii) Dual conics. Show that the matrix [l]×C[l]× represents a rank 2 dual conic
+which consists of the two points at which the line l intersects the (point) conic
+C (the notation [l]× is defined in (A4.5–p581)).
+(ix) Special projective transformations. Suppose points on a scene plane are related
+by reflection in a line: for example, a plane object with bilateral symmetry.
+Show that in a perspective image of the plane the points are related by a projectivity
+H satisfying H2 = I. Furthermore, show that under H there is a line
+of fixed points corresponding to the imaged reflection line, and that H has an
+eigenvector, not lying on this line, which is the vanishing point of the reflection
+direction (H is a planar harmonic homology, see section A7.2).
+Now suppose that the points are related by a finite rotational symmetry: for
+example, points on a hexagonal bolt head. Show in this case that Hn = I,
+where n is the order of rotational symmetry (6 for a hexagonal symmetry),
+that the eigenvalues of H determine the rotation angle, and that the eigenvector
+corresponding to the real eigenvalue is the image of the centre of the rotational
+symmetry. -->
+<p></p>
+    </body>
+</html>

@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>14章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>14　アフィン・エピポーラ幾何学</center></h1>
+<p>
+この章では、前章までの2視点幾何学の発展と目的を要約しますが、ここでは射影カメラの代わりにアフィンカメラを使用します。アフィンカメラは、多くの実用的な状況において非常に有用で条件付きの良好な近似です。その大きな利点は、その線形性により、多くの最適アルゴリズム（逆行列、特異値分解など）を線形代数によって実装できることです。一方、射影の場合、解は高次多項式（三角測量など）を必要とするか、数値最小化（Fのゴールドスタンダード推定など）によってのみ可能になります。
+<!-- This chapter recapitulates the developments and objectives of the previous chapters
+on two-view geometry, but here with affine cameras replacing projective cameras. The
+affine camera is an extremely usable and well conditioned approximation in many practical
+situations. Its great advantage is that, because of its linearity, many of the optimal
+algorithms can be implemented by linear algebra (matrix inverses, SVD etc.), whereas
+in the projective case solutions either involve high order polynomials (such as for triangulation)
+or are only possible by numerical minimization (such as in the Gold Standard
+estimation of F). -->
+
+</p><p>
+まず、2台のアフィンカメラのエピポーラ幾何学の特性と、点の対応関係からの最適な計算法について述べる。続いて、三角測量とアフィン再構成について述べる。最後に、平行投影に起因する再構成における曖昧性について概説し、エピポーラ幾何学から曖昧性のない運動パラメータを計算する。
+
+<!-- We first describe properties of the epipolar geometry of two affine cameras, and its
+optimal computation from point correspondences. This is followed by triangulation,
+and affine reconstruction. Finally the ambiguities in reconstruction that result from
+parallel projection are sketched, and the non-ambiguous motion parameters are computed
+from the epipolar geometry. -->
+</p>
+<h2><center>14.1 アフィン・エピポーラ幾何学</center></h2>
+<p>
+多くの点で、2台のアフィンカメラのエピポーラ幾何学は、2台の透視カメラのエピポーラ幾何学と同一です。例えば、一方のビューの点はもう一方のビューのエピポーラ線を定義し、そのようなエピポーラ線の束はエピポールで交差します。違いは、カメラがアフィンであるため、中心が無限遠にあり、シーンから画像への平行投影がある点です。これにより、アフィンエピポーラ幾何学にはいくつかの簡略化がもたらされます。<br>
+
+<!-- In many respects the epipolar geometry of two affine cameras is identical to that of
+two perspective cameras, for example a point in one view defines an epipolar line
+in the other view, and the pencil of such epipolar lines intersect at the epipole. The
+difference is that because the cameras are affine their centres are at infinity, and there
+is parallel projection from scene to image. This leads to certain simplifications in the
+affine epipolar geometry:-->
+
+<br>
+<strong>エピポーラ線。</strong><br>
+最初のビューで2点 x1、x2 を考えます。これらの点は、3次元空間において平行な光線に逆投影されます。これは、すべての投影光線が平行であるためです。2番目のビューでは、エピポーラ線は逆投影された光線の像です。アフィンカメラは平行なシーン線を平行な像線に写すため、2番目のビューにおけるこれらの2つの光線の像も平行です。したがって、すべてのエピポーラ線は平行であり、エピポーラ平面も平行です。<br>
+<br>
+
+<strong>エピポール。</strong><br>
+エピポーラ線はエピポールで交差し、すべてのエピポーラ線は平行であるため、エピポールは無限遠にあります。
+
+<!-- 
+<strong>Epipolar lines. </strong><br>
+Consider two points, x1, x2, in the first view. These points backproject
+to rays which are parallel in 3-space, since all projection rays are parallel. In
+the second view an epipolar line is the image of a back-projected ray. The images of
+these two rays in the second view are also parallel since an affine camera maps parallel
+scene lines to parallel images lines. Consequently, all epipolar lines are parallel, as are
+the epipolar planes.<br>
+<br>
+
+<strong>The epipoles. </strong><br>
+Since epipolar lines intersect in the epipole, and all epipolar lines are
+parallel, it follows that the epipole is at infinity.
+344
+14.2 The affine fundamental matrix 345
+?
+?
+?
+x
+X
+l
+x /
+/
+centre lies
+at infinity
+3
+/
+1
+2
+3 X
+X
+X
+x x x
+3
+1 2
+3
+2
+x
+l
+/
+l
+l 1
+/
+/
+epipolar
+planes
+parallel
+a b
+Fig. 14.1. Affine epipolar geometry. (a) Correspondence geometry: Projection rays are parallel and
+intersect at infinity. A point x back-projects to a ray in 3-space defined by the first camera centre (at
+infinity) and x. This ray is imaged as a line l′ in the second view. The 3-space point X which projects
+to x lies on this ray, so the image of X in the second view lies on l′. (b) Epipolar lines and planes are
+parallel.
+These points are illustrated schematically in figure 14.1, and examples on images are
+shown in figure 14.2.
+14.2 The affine fundamental matrix
+The affine epipolar geometry is represented algebraically by a matrix termed the affine
+fundamental matrix, FA. It will be seen in the following that:
+Result 14.1. The fundamental matrix resulting from two cameras with the affine form
+(i.e. the third row is (0, 0, 0, 1)) has the form
+FA =
+
+
+0 0 ∗ 0 0 ∗
+∗ ∗ ∗
+
+
+where ∗ indicates a non-zero entry.
+It will be convenient to write the five non-zero entries as
+FA =
+
+
+0 0 a
+0 0 b
+c d e
+
+
+. (14.1)
+Note that in general FA has rank 2.
+14.2.1 Derivation
+Geometric derivation. This derivation is the analogue of that given in section 9.2.1-
+(p242) for a pair of projective cameras. The map from a point in one image to the
+corresponding epipolar line in the other image is decomposed into two steps, as illustrated
+in figure 14.5 on page 352:
+346 14 Affine Epipolar Geometry
+a b
+c d
+e f
+Fig. 14.2. Affine epipolar lines. (a), (b) Two views of a hole punch acquired under affine imaging conditions.
+For the points marked in (c) the epipolar lines are superimposed on (d). Note that corresponding
+points lie on their epipolar lines, and that all epipolar lines are parallel. The epipolar geometry is computed
+from point correspondences using algorithm 14.1. (e) and (f) show the “flow” for selected points
+in the image (the lines link a point in one image to the point’s position in the other image). This demonstrates
+that even though the epipolar lines are parallel the movement of imaged points between the views
+contains both rotational and translational components.
+(i) Point transfer via a plane . Since both cameras are affine, points are mapped
+between an image and a scene plane by parallel projection, so the map between
+ and the images is a planar affine transformation; the composition of the affine
+transformations between the first view and , and  and the second view, is also
+an affine transformation, i.e. x′ = HAx.
+(ii) Constructing the epipolar line. The epipolar line is obtained as the line
+through x′ and the epipole e′, i.e. l′ = e′ × HAx = FAx, so that FA = [e′]×HA.
+14.3 Estimating FA from image point correspondences 347
+We now take note of the special forms of the affine matrix HA, and the skew matrix
+[e′]× when e′ is at infinity, and so has a zero last element:
+FA = [e′]×HA =
+
+
+0 0 ∗ 0 0 ∗
+∗ ∗ 0
+
+
+
+
+∗ ∗ ∗
+∗ ∗ ∗ 0 0 1
+
+
+=
+
+
+0 0 ∗ 0 0 ∗
+∗ ∗ ∗
+
+
+(14.2)
+where ∗ indicates a non-zero entry. This derives the affine form of F using only the
+geometric properties that the camera centres are on the plane at infinity.
+Algebraic derivation. In the case that the cameras are both affine, the affine form
+of the fundamental matrix is obtained directly from the expression (9.1–p244) for F in
+terms of the pseudo-inverse, namely F = [e′]×P′P+, where e′ = P′C, with C the camera
+centre which is the null-vector of P. Details are left as an exercise. An elegant derivation
+of FA in terms of determinants formed from rows of the affine camera matrices is
+given in section 17.1.2(p413).
+14.2.2 Properties
+The affine fundamental matrix is a homogeneous matrix with five non-zero elements,
+it thus has 4 degrees of freedom. These are accounted as: one for each of the two
+epipoles (the epipoles lie on l∞, so only their direction need be specified); and two for
+the 1D affine transformation mapping the pencil of epipolar lines from one view to the
+other.
+The geometric entities (epipoles etc.) are encoded in FA in the same manner as their
+encoding in F. However, often the expressions are far simpler and so can be given
+explicitly.
+The epipoles. The epipole in the first view is the right null-vector of FA, i.e. FAe = 0.
+This determines e = (−d, c, 0)T, which is a point (direction) on l∞. Since all epipolar
+lines intersect the epipole this shows that all epipolar lines are parallel.
+Epipolar lines. The epipolar line in the second view corresponding to x in the first is
+l′ = FAx = (a, b, cx + dy + e)T. Again it is evident that all epipolar lines are parallel
+since the line orientation, (a, b), is independent of (x, y).
+These properties, and others, are summarized in table 14.1.
+14.3 Estimating FA from image point correspondences
+The fundamental matrix is defined by the equation x′TFAx = 0 for any pair of matching
+points x ↔ x′ in two images. Given sufficiently many point matches xi ↔ x′
+i, this
+equation can be used to compute the unknown matrix FA. In particular, writing xi =
+(xi, yi, 1)T and x′
+i = (x′
+i, y′
+i , 1)T each point match gives rise to one linear equation
+ax′
+i + by′
+i + cxi + dyi + e = 0 (14.3)
+in the unknown entries {a, b, c, d, e} of FA.
+348 14 Affine Epipolar Geometry
+• FA is a rank 2 homogeneous matrix with 4 degrees of freedom. It has the form
+FA =
+"
+0 0 a
+0 0 b
+c d e
+#
+.
+• Point correspondence: If x and x′ are corresponding image points under an affine camera,
+then x′TFAx = 0. For finite points
+ax′ + by′ + cx + dy + e = 0.
+• Epipolar lines:
+⋄ l′ = FAx = (a, b, cx + dy + e)T is the epipolar line corresponding to x.
+⋄ l = FA
+Tx′ = (c, d, ax + by + e)T is the epipolar line corresponding to x′.
+• Epipoles:
+⋄ From FAe = 0, e = (−d, c, 0)T.
+⋄ From FA
+Te′ = 0, e′ = (−b, a, 0)T.
+• Computation from camera matrices PA, P′
+A:
+⋄ General cameras,
+FA = [e′]×P′
+A
+P+
+A , where P+
+A is the pseudo-inverse of PA, and e′ is the epipole defined by
+e′ = P′
+A
+C, where C is the centre of the first camera.
+⋄ Canonical cameras,
+PA =
+"
+1 0 0 0
+0 1 0 0
+0 0 0 1
+#
+P
+′
+A =
+
+M2×3 t
+0 0 0 1
+
+a = m23, b = −m13, c = m13m21 − m11m23
+d = m13m22 − m12m23, e = m13t2 − m23t1
+Table 14.1. Summary of affine fundamental matrix properties.
+14.3.1 The linear algorithm
+In the usual manner a solution for FA may be obtained by rewriting (14.3) as
+(x′
+i, y′
+i, xi, yi, 1) f = 0
+with f = (a, b, c, d, e)T. From a set of n point matches, we obtain a set of linear
+equations of the form Af = 0, where A is a n × 5 matrix:
+
+
+x′
+1 y′
+1 x1 y1 1
+...
+...
+...
+...
+...
+x′
+n y′
+n xn yn 1
+
+
+f = 0.
+A minimal solution is obtained for n = 4 point correspondences as the right nullspace
+of the 4 × 5 matrix A. Thus FA can be computed uniquely from only 4 point
+14.3 Estimating FA from image point correspondences 349
+correspondences, provided the 3-space points are in general position. The conditions
+for general position are described in section 14.3.3 below.
+If there are more than 4 correspondences, and the data is not exact, then the rank
+of A may be greater than 4. In this case, one may find a least-squares solution, subject
+to kfk = 1, in essentially the same manner as that of section 4.1.1(p90), as the
+singular vector corresponding to the smallest singular value of A. Refer to algorithm
+4.2(p109) for details. This linear solution is the equivalent of the 8-point algorithm
+11.1(p282) for the computation of a general fundamental matrix. We do not recommend
+this approach for estimating FA because the Gold Standard algorithm described
+below may be implemented with equal computational ease, and in general will have
+superior performance.
+The singularity constraint. The form (14.1) of FA ensures that the matrix has rank
+no greater than 2. Consequently, if FA is estimated by the linear method above it is
+not necessary to subsequently impose a singularity constraint. This is a considerable
+advantage over the estimation of a general F by the linear 8-point algorithm, where
+the estimated matrix is not guaranteed to have rank 2, and thus must be subsequently
+corrected.
+Geometric interpretation. As has been seen at several points in this book, computing
+a two-view relation from point correspondences is equivalent to fitting a surface
+(variety) to points x, y, x′, y′ in IR4. In the case of the equation x′TFAx = 0 the relation
+ax′
+i + by′
+i + cxi + dyi + e = 0 is linear in the coordinates, and the variety VFA defined
+by the affine fundamental matrix is a hyperplane.
+This results in two simplifications: first, finding the best estimate of FA may be formulated
+as a (familiar) plane-fitting problem; second, the Sampson error is identical
+to the geometric error, whereas in the case of a general (non-affine) fundamental matrix
+(11.9–p287) it is only a first-order approximation. As discussed in section 4.2.6-
+(p98) this latter property arises generally with affine (linear) relations because the tangent
+plane of the Sampson approximation is equivalent to the surface.
+14.3.2 The Gold Standard algorithm
+Given a set of n corresponding image points {xi ↔ x′
+i}, we seek the Maximum Likelihood
+estimate of FA under the assumption that the noise in the image measurements
+obeys an isotropic, homogeneous Gaussian distribution. This estimate is obtained by
+minimizing a cost function on geometric image distances:
+min
+{FA,ˆxi,ˆx
+′
+i}
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2 (14.4)
+where as usual xi ↔ x′
+i are the measured correspondences, and ˆxi and ˆx′
+i are estimated
+“true” correspondences that satisfy ˆx′
+i
+TFAˆxi = 0 exactly for the estimated affine fundamental
+matrix. The distances are illustrated in figure 14.3. The true correspondences
+are subsidiary variables that must also be estimated.
+As discussed above, and in section 4.2.5(p96), minimizing the cost function (14.4)
+350 14 Affine Epipolar Geometry
+for x
+/
+/
+/
+/
+d
+x
+x
+for x
+d/
+n =( ) /
+n =( )
+x
+x
+/
+epipolar line
+epipolar line
+x x
+y c y
+d a
+b
+Fig. 14.3. The MLE of FA from a set of measured corresponding points {xi ↔ x′
+i} involves estimating
+the five parameters a, b, c, d, e together with a set of correspondences {ˆxi ↔ ˆx
+′
+i} which exactly satisfy
+ˆx
+′
+i
+TFAˆxi = 0. There is a linear solution to this problem.
+x
+x
+x
+d
+y
+n
+Fig. 14.4. In 2D a line is the analogue of the hyperplane defined by FA, and the problem of estimating
+the true correspondence given a measured correspondence, is the problem of determining the closest
+point (ˆx, ˆy) on the line ax + by + c to a measurement point (x, y). The normal to the line has direction
+(a, b), and the perpendicular distance of the point (x, y) from the line is d⊥ = (ax+by+c)/√a2 + b2,
+so that (ˆx, ˆy)T = (x, y)T − d⊥ˆn, where ˆn = (a, b)/√a2 + b2.
+is equivalent to fitting a hyperplane to set of points Xi = (x′
+i, y′
+i, xi, yi)T in IR4. The
+estimated points bX
+i = (ˆx′
+i, ˆy′
+i, ˆxi, ˆyi)T satisfy the equation ˆx′
+i
+TFAˆxi = 0 which may be
+written as (bX
+T
+i , 1)f = 0, where f = (a, b, c, d, e)T. This is the equation of a point in IR4
+on the plane f . We seek the plane f which minimizes the squared distance between the
+measured and estimated points, and consequently which minimizes the sum of squared
+perpendicular distances to the points Xi = (x′
+i, y′
+i , xi, yi)T.
+Geometrically the solution is very simple, and an analogue for line fitting in 2D is
+illustrated in figure 14.4. The perpendicular distance of a point Xi = (xi, yi, x′
+i, y′
+i )T
+from the plane f is
+d⊥(Xi, f ) =
+ax′
+i + by′
+i + cxi + dyi + e
+√a2 + b2 + c2 + d2
+.
+Then the matrix FA which minimizes (14.4) is determined by minimizing the cost function
+C =
+X
+i
+d⊥(Xi, f )2 =
+1
+a2 + b2 + c2 + d2
+X
+i
+(ax′
+i + by′
+i + cxi + dyi + e)2
+(14.5)
+14.3 Estimating FA from image point correspondences 351
+Objective
+Given n ≥ 4 image point correspondences {xi ↔ x′
+i}, i = 1, . . . , n, determine the Maximum
+Likelihood estimate FA of the affine fundamental matrix.
+Algorithm
+A correspondence is represented as Xi = (x′
+i, y′
+i, xi, yi)T.
+(i) Compute the centroid X = 1
+n
+P
+i
+Xi and centre the vectors Xi = Xi − X.
+(ii) Compute the n × 4 matrix A with rows XT
+i .
+(iii) Then N = (a, b, c, d)T is the singular vector corresponding to the smallest singular
+value of A, and e = −NTX. The matrix FA has the form (14.1).
+Algorithm 14.1. The Gold Standard algorithm for estimating FA from image correspondences.
+over the 5 parameters {a, b, c, d, e} of f . Writing N = (a, b, c, d)T for the normal to the
+hyperplane then
+C =
+1
+kNk2
+X
+i
+
+N
+T
+Xi + e
+2
+.
+This cost function can be minimized by a very simple linear algorithm, equivalent to
+the classical problem of orthogonal regression to a plane. There are two steps:
+The first step is to minimize C over the parameter e. We obtain
+@C
+@e
+=
+1
+kNk2
+X
+i
+2(N
+T
+Xi + e) = 0
+and hence
+e = −
+1
+n
+X
+i
+(N
+T
+Xi) = −N
+T
+X
+so the solution hyperplane passes through the data centroid X. Substituting for e in the
+cost function reduces C to
+C =
+1
+kNk2
+X
+i
+
+N
+TXi
+2
+where Xi = Xi − X is the vector Xi relative to the data centroid X.
+The second step is to minimize this reduced cost function over N. Writing A for the
+matrix with rows X
+T
+i , it is evident that
+C = kANk2/kNk2.
+Minimizing this expression is equivalent to minimizing kANk subject to kNk = 1,
+which is our usual homogeneous minimization problem solved by the SVD. These
+steps are summarized in algorithm 14.1.
+It is worth noting that the Gold Standard algorithm produces an identical estimate of
+FA to that obtained by the factorization algorithm 18.1(p437) for an affine reconstruction
+from n point correspondences.
+352 14 Affine Epipolar Geometry
+x
+X1
+2
+X2
+x1
+x
+/
+X
+3
+x
+3 x/
+2
+x1
+/
+x
+4
+4
+x /
+4
+􀁓
+H
+X3
+A
+A 4 H x
+Fig. 14.5. Computing the affine epipolar line for a minimal configuration of four points. The line is
+computed by the virtual parallax induced by the plane . Compare figure 13.7(p335).
+Objective
+Given four image point correspondences {xi ↔ x′
+i}, i = 1, . . . , 4, compute the affine fundamental
+matrix.
+Algorithm
+The first three 3-space points Xi, i = 1, . . . , 3 define a plane . See figure 14.5.
+(i) Compute the affine transformation matrix HA, such that x′
+i = HAxi, i = 1, . . . , 3.
+(ii) Determine the epipolar line in the second view from l′ = (HAx4) × x′
+4. The epipole
+e′ = (−l′
+2, l′
+1, 0)T.
+(iii) Then for any point x the epipolar line in the second view is e′ × (HAx) = FAx. Hence
+FA = [(−l′
+2, l′
+1, 0)T]×HA.
+Algorithm 14.2. The computation of FA for a minimal configuration of four point correspondences.
+14.3.3 The minimal configuration
+We return to the minimal configuration for estimating FA, namely the corresponding
+images of four points in 3-space in general position. A geometric computation method
+of FA for this configuration is described in algorithm 14.2. This minimal solution is
+useful in the case of robust estimation algorithms, such as RANSAC, and will be used
+here to illustrate degenerate configurations. Note that for this minimal configuration an
+exact solution is obtained for FA, and the linear algorithm of section 14.3.1, the Gold
+Standard algorithm 14.1, and the minimal algorithm 14.2 give an identical result.
+General position. The configuration of four points shown in figure 14.5 demonstrates
+the conditions necessary for general position of the 3-space points when computing FA.
+Configurations for which FA cannot be computed are degenerate. These fall into two
+classes: first, degenerate configurations depending only on the structure, for example
+if the four points are coplanar (so there is no parallax), or if the first three points are
+collinear (so that HA can’t be computed); second, those degeneracies which depend
+14.4 Triangulation 353
+only on the cameras, for example if the two cameras have the same viewing direction
+(and so have common centres on the plane at infinity).
+Note once again the importance of parallax – as the point X4 approaches the plane
+defined by the other three points in figure 14.5 the parallax vector, which determines the
+epipolar line direction, is monotonically reduced in length. Consequently, the accuracy
+of the line direction is correspondingly reduced. This result for the minimal configuration
+is true also of the Gold Standard algorithm 14.1: as relief reduces to zero, i.e. the
+point set approaches coplanarity, the covariance of the estimated FA will increase.
+14.4 Triangulation
+Suppose we have a measured correspondence (x, y) ↔ (x′, y′) and the affine fundamental
+matrix FA. We wish to determine the Maximum Likelihood estimate of the true
+correspondence, (ˆx, ˆy) ↔ (ˆx′, ˆy′), under the usual assumption that image measurement
+error is Gaussian. The 3D point may then be determined from the ML estimate
+correspondence.
+As we have seen earlier in chapter 12, the MLE involves determining a
+“true” correspondence which exactly obeys the affine epipolar geometry, i.e.
+(ˆx′, ˆy′, 1)FA(ˆx, ˆy, 1)T = 0, and also minimizes the image distance to the measured
+points,
+(x − ˆx)2 + (y − ˆy)2 + (x′ − ˆx′)2 + (y′ − ˆy′)2.
+Geometrically the solution is very simple, and is illustrated in 2D in figure 14.4. We
+seek the closest point on the hyperplane defined by FA to the measured correspondence
+X = (x′, y′, x, y)T in IR4. Again, the Sampson correction (4.11–p99) is exact in this
+case. Algebraically, the normal to the hyperplane has direction N = (a, b, c, d)T and the
+perpendicular distance of a point X to the hyperplane is given by d⊥ = (N
+T
+X+e)/kNk,
+so that
+bX
+= X − d⊥
+N
+kNk
+or in its full detail
+
+
+ˆx′
+ˆy′
+ˆx
+ˆy
+
+
+=
+
+
+x′
+y′
+x
+y
+
+− (ax′ + by′ + cx + dy + e)
+(a2 + b2 + c2 + d2)
+
+
+a
+b
+c
+d
+
+
+.
+14.5 Affine reconstruction
+Suppose we have n ≥ 4 image point correspondences xi ↔ x′, i = 0, . . . , n−1, which
+for the moment will be assumed noise-free, then we may compute a reconstruction of
+the 3D points and cameras. In the case of projective cameras (with n ≥ 7 points) the
+reconstruction was projective. In the affine case, not surprisingly, the reconstruction is
+affine. We will now give a simple constructive derivation of this result.
+An affine coordinate frame in 3-space may be specified by four finite non-coplanar
+basis points Xi, i = 0, . . . , 3. As illustrated in figure 14.6 one point X0 is chosen as the
+354 14 Affine Epipolar Geometry
+E1
+E2
+E3
+E
+X
+2
+X
+X
+X
+0
+1
+3
+3
+X
+X
+Y
+Z
+= (X,Y,Z)
+E 2
+E1
+a b
+Fig. 14.6. Affine coordinates. (a) four non-coplanar points in 3-space (X1, X2, X3 and origin X0)
+define a set of axes in terms of which other points X can be assigned affine coordinates (X, Y, Z). (b)
+Each affine coordinate is defined by a ratio of lengths in parallel directions (which is an affine invariant).
+For example, X may be computed by the following two operations: first, X is projected parallel to eE
+2
+onto the plane spanned by eE
+1 and eE
+3. Second, this projected point is projected parallel to eE
+3 onto the
+eE
+1 axis. The value of the coordinate X is the ratio of the length from the origin of this final projected
+point to the length of eE
+1.
+x
+0
+Image 1
+2
+3
+1
+Image 2
+0
+x
+x
+x
+x
+x
+/
+/
+/
+/
+/
+x
+e
+e
+x
+3
+x
+2
+x
+1
+2
+1
+/
+e /
+3
+e
+3 e 1
+/
+e2
+Fig. 14.7. Reconstruction from two images. The affine coordinates of the 3D point X with image x, x′
+in two views may be computed linearly from the projection of the basis points xi and basis vectors ˜ei of
+figure 14.6.
+origin, and the three other points then define basis vectors eE
+i = eX
+i − eX
+0, i = 1, . . . , 3,
+where eX
+i is the inhomogeneous 3-vector corresponding to Xi. The position of a point
+X may then be specified by simple vector addition as
+eX
+= eX
+0 + XeE
+1 + YeE
+2 + ZeE
+3
+and (X, Y, Z) are the affine coordinates of eX
+with respect to this basis. This means that
+the basis points Xi have the canonical coordinates (X, Y, Z)T:
+eX
+0 =
+
+
+0
+0
+0
+
+
+eX
+1 =
+
+
+1
+0
+0
+
+
+eX
+2 =
+
+
+0
+1
+0
+
+
+eX
+3 =
+
+
+0
+0
+1
+
+
+. (14.6)
+Given the affine projection of the four basis points in two views, the 3D affine coordinates
+of any other point can be directly recovered from its image, as will now be
+demonstrated (see figure 14.7).
+14.6 Necker reversal and the bas-relief ambiguity 355
+Projection with an affine camera may be represented as (6.26–p172)
+˜x = M2×3eX
++˜t
+where ˜x = (x, y)T is the inhomogeneous 2-vector corresponding to x. Differences of
+vectors eliminate˜t. For example the basis vectors project as ˜ei = M2×3eE
+i, i = 1, . . . , 3.
+Consequently for any point X, its image in the first view is
+˜x − ˜x0 = X˜e1 + Y˜e2 + Z˜e3 (14.7)
+and similarly the image (˜x′ = M′
+2×3
+eX
++˜t
+′
+) in the second view is
+˜x′ − ˜x′
+0 = X˜e′
+1 + Y˜e′
+2 + Z˜e′
+3. (14.8)
+Each equation (14.7) and (14.8) imposes two linear constraints on the unknown affine
+coordinates X, Y, Z of the space point X. All the other terms in the equations are known
+from image measurements (for example the image basis vectors ˜ei, ˜e′
+i are computed
+from the projection of the four basis points eX
+i, i = 0, . . . , 3). Thus, there are four linear
+simultaneous equations in the three unknowns X, Y, Z, and the solution is straightforward.
+This demonstrates that the affine coordinates of a point X may be computed
+from its image in two views.
+The cameras for the two views, PA, P′
+A, may be computed from the correspondences
+between the 3-space points eX
+i, with coordinates given in (14.6), and their measured
+images. For example, PA is computed from the correspondence ˜xi ↔ eX
+i, i = 0, . . . , 3.
+The above development is not optimal, because the basis points are treated as exact,
+and all measurement error associated with the fifth point X. An optimal reconstruction
+algorithm, where reprojection error is minimized over all points, is very straightforward
+in the affine case. However, its description is postponed until section 18.2(p436) because
+the factorization algorithm described there is applicable to any number of views.
+Example 14.2. Affine reconstruction
+A 3D reconstruction is computed for the hole punch images of figure 14.2 by choosing
+four points as the affine basis, and then computing the affine coordinates of each of
+the remaining points in turn by the linear method above. Two views of the resulting
+reconstruction are shown in figure 14.8. Note, however, that this five-point method
+is not recommended. Instead the optimal affine reconstruction algorithm 18.1(p437)
+should be used. △
+14.6 Necker reversal and the bas-relief ambiguity
+We have seen in the previous section that in the absence of any calibration information,
+an affine reconstruction is obtained from point correspondences alone. In this
+section we show that even if the camera calibration is known there remains a family of
+reconstruction ambiguities which cannot be resolved in the two-view case.
+This situation differs from that of perspective projection where once the internal
+calibration is determined the camera motion is determined up to a finite number of
+356 14 Affine Epipolar Geometry
+a b
+c
+Fig. 14.8. Affine reconstruction. (a)(b) Wireframe outline of the hole punch from the two images of
+figure 14.2. The circles show the points selected as the affine basis. The lines are for visualization only.
+(c) Two views of the 3D affine structure computed from the vertices of the wireframe.
+ambiguities (from the essential matrix, see section 9.6(p257)). For parallel projection
+there are two important additional ambiguities: a finite reflection ambiguity (Necker
+reversal); and a one-parameter family rotation ambiguity (the bas-relief ambiguity).
+Necker reversal ambiguity. This arises because an object rotating by  and its
+mirror image rotating by − generate the same image under parallel projection, see
+figure 14.9(a). Thus, structure is only recovered up to a reflection about the frontal
+plane. This ambiguity is absent in the perspective case because the points have different
+depths in the two interpretations and so do not project to coincident image points.
+The bas-relief ambiguity. This is illustrated in figure 14.9(b). Imagine a set of
+parallel rays from one camera, and consider adjusting a set of parallel rays from a
+second camera until each ray intersects its corresponding ray. The rays lie in a family
+of parallel epipolar planes, and there remains the freedom to rotate one camera about
+the normal to these planes whilst maintaining incidence of the rays. This bas-relief (or
+depth–turn) ambiguity is a one-parameter family of solutions for the rotation angle and
+depth. The parameters of depth, Z, and rotation, sin , are confounded and cannot be
+determined individually – only their product can be computed. Consequently, a shallow
+object experiencing a large turn (i.e. small Z and large ) generates the same image
+as a deep object experiencing a small turn (i.e. large Z and small ). The name arises
+from bas-relief sculptures. Fixing the depth or the angle  determines the structure and
+the motion uniquely. Extra points cannot resolve this ambiguity, but an additional view
+(i.e. three views) will in general resolve it.
+14.7 Computing the motion 357
+X
+Z
+Frontal plane
+X
+Z
+􀀐􀁕
+􀁕
+􀀐􀁕
+􀁕
+parallel perspective
+a
+􀀧 Z1
+􀁕
+X
+?
+?
+?
+􀁕
+l
+l
+A
+x x
+A’
+/
+b c
+Fig. 14.9. Motion ambiguities under parallel projection. (a) Necker reversal: a rotating object generates
+the same image as its mirror object rotating in the opposite sense. Under perspective projection
+the images are different. (b) The cameras can rotate (by ) and still preserve ray intersections. This
+cannot happen for perspective cameras. (c) The bas-relief ambiguity: consider a rod of length l, which
+rotates through an angle . That is x′ − x = l sin . This bas–relief (or depth–turn) ambiguity is sonamed
+because a shallow object experiencing a large turn (i.e. small l and big ) generates the same
+image as a deep object experiencing a small turn (i.e. large l and small ).
+This ambiguity casts light on the stability of reconstruction from two perspective
+cameras: as imaging conditions approach affine the rotation angle will be poorly estimated,
+but the product of the rotation angle and depth will be stable.
+14.7 Computing the motion
+In this section expressions for computing the camera motion from FA will be given for
+the case of two weak perspective cameras (section 6.3.4(p170)). These cameras may
+be chosen as
+P =
+
+
+
+x
+
+y
+1
+
+  
+1 0 0 0
+0 1 0 0
+0 0 0 1
+
+
+P′ =
+
+
+
+′
+x
+
+′
+y
+1
+
+
+
+
+r1T t1
+r2T t2
+0T 1
+
+
+where r1 and r2 are the first and second rows of the rotation matrix R between the
+views. We will assume that the aspect ratio 
+y/
+x is known in both cameras, but that
+the relative scaling s = 
+′
+x /
+x is unknown. s>1 for a “looming” object and s<1 for
+one that is “receding”. As has been seen, the complete rotation R cannot be computed
+from two weak perspective views, resulting in the bas-relief ambiguity. Nevertheless
+358 14 Affine Epipolar Geometry
+X
+image image
+Y
+X
+Z
+Y
+Z
+􀀩
+􀁕
+􀁉
+􀁔
+a b
+Fig. 14.10. The rotation representation. (a) rotation by  about the Z-axis; (b) subsequent rotation by
+ about a fronto–parallel axisangled at  to the X-axis. The-axis has components (cos , sin , 0)T.
+/ /
+/ / l
+l
+l
+l l
+l
+l
+l
+X X
+I1 I 2 I1 I 2
+I1
+I 2
+I1
+I 2
+􀁕 􀁕
+Axis􀀩
+􀁓
+􀁓
+Axis 􀀩
+􀁉 􀁉 􀁉􀀐􀁔 􀁉
+a b
+Fig. 14.11. The camera rotates about the axis  which is parallel to the image plane. The intersection
+of the epipolar plane  with the image planes gives epipolar lines l and l′, and the projections of  in
+the images are orthogonal to these epipolar lines: (a) no cyclotorsion occurs ( = 0◦); (b) the camera
+counter-rotates by  in I1, so the orientation of the epipolar lines changes by .
+the remaining motion parameters can be computed from FA, and their computation is
+straightforward.
+To represent the motion we will use a rotation representation introduced by Koenderink
+and van Doorn [Koenderink-91]. As will be seen, this has the advantage that it
+isolates the parameter  of the bas-relief ambiguity, which cannot be computed from
+the affine epipolar geometry. In this representation the rotation R between the views is
+decomposed into two rotations (see figure 14.10),
+R = R R. (14.9)
+First, there is a cyclo-rotation R in the image plane through an angle  (i.e. about the
+line of sight). This is followed by a rotation R through an angle  about an axis  with
+direction parallel to the image plane, and angled at  to the positive X-axis, i.e. a pure
+rotation out of the image plane.
+14.7 Computing the motion 359
+􀀬 􀀔
+􀁓
+3
+􀁓
+2
+􀁓1
+Axis
+Parallel
+epipolar
+planes
+􀁕
+􀁕
+a
+b
+􀀬
+2a 􀀬
+2b
+Fig. 14.12. The scene can be sliced into parallel epipolar planes. The magnitude of  has no effect on
+the epipolar geometry (provided  6= 0), so it is indeterminate from two views.
+􀁔 􀁕
+􀁉
+a b c d
+Fig. 14.13. The effect of scale and rotation angles on the epipolar lines for an object moving relative to
+a stationary camera. This also illustrates the assumed sequence of events accounting for the transition
+from I1 to I2: (a) I1; (b) cyclotorsion (); (c) rotation out of the plane ( and ); (d) scaling, giving I2.
+Solving for s,  and . It is now shown that the scale factor (s), the projection of the
+axis of rotation () and the cyclo-rotation angle () may be computed directly from the
+affine epipolar geometry. The solution is preceded by a geometric explanation of how
+the epipolar lines relate to the unknown motion parameters.
+Consider a camera rotating about an axis  lying parallel to the image plane
+(figure 14.11(a)). The epipolar plane  is perpendicular to both this axis and the two
+images, and intersects the images in the epipolar lines l and l′. Consequently:
+• The projection of the axis of rotation  is perpendicular to the epipolar lines.
+This relation still holds if there is additionally a cyclotorsion  in the image plane
+(figure 14.11(b)); the axis  and intersection l′ remain fixed in space, and are simply
+observed at a new angle in the image, maintaining the orthogonality between the
+epipolar lines and the projected axis. The orientations of the epipolar lines in the two
+images therefore differ by . Importantly, changing the magnitude of the turn angle 
+doesn’t alter the epipolar geometry in any way (figure 14.12). This angle is therefore
+indeterminate from two views, a consequence of the bas-relief ambiguity.
+360 14 Affine Epipolar Geometry
+a b
+Fig. 14.14. Computing motion from affine epipolar geometry. (a)(b) Two views of a buggy rotating
+on a turntable. The computed rotation axis is superimposed on the image, drawn to pass through the
+image centre. The ground truth axis is, of course, perpendicular to the turntable in the world.
+Figure 14.13 illustrates the effect of scale. Consider a 3D object to be sliced into
+parallel epipolar planes, with each plane constraining how a particular slice of the
+object moves. Altering the effective size of the object (e.g. by moving closer to it)
+simply changes the relative spacing between successive epipolar planes.
+In summary, cyclotorsion simply rotates the epipolar lines, rotation out of the plane
+causes foreshortening along the epipolar lines (orthogonal to ), and a scale change
+uniformly alters the epipolar line spacing (figure 14.13).
+It can be shown (and is left as exercise) that s,  and  can be computed directly from
+the affine epipolar geometry as
+tan  =
+b
+a
+, tan( − ) =
+d
+c
+and s2 =
+c2 + d2
+a2 + b2 , (14.10)
+with s > 0 (by definition). Note that  is the angle of projection in I2 of the axis of
+rotation out of the plane, while ( − ) is its angle of projection in I1.
+Example 14.3. Motion computed from the affine fundamental matrix
+figure 14.14 shows two images of a buggy rotating on a turntable. The image is
+256 × 256 pixels with an aspect ratio of 0.65. The affine fundamental matrix is computed
+using algorithm 14.1, and the motion parameters computed from FA using (14.10)
+above. The computed rotation axis is superimposed on the image. △
+14.8 Closure
+14.8.1 The literature
+Koenderink and van Doorn [Koenderink-91] set the scene for affine reconstruction
+from two affine cameras. This paper should be read by all. The affine fundamental
+matrix was first defined in [Zisserman-92]. The computation of the motion parameters
+from FA is described in Shapiro et al. [Shapiro-95], and in particular the cases where
+a third view does not resolve the bas–relief ambiguity. A helpful eigenvector analysis
+of the ambiguity is given in [Szeliski-96]. The three view affine motion case is treated
+quite elegantly in [Shimshoni-99].
+14.8 Closure 361
+14.8.2 Notes and exercises
+(i) A scene plane induces an affine transformation between two affine cameras.
+There is a three-parameter family of such affinities defined by the threeparameter
+family of planes in IR3. Given FA, this family of affinities may be
+written as (result 13.3(p328)) HA = [e′]×FA + e′vT, where FA
+Te′ = 0, and
+the 3-vector v parametrizes the family of planes. Conversely, show that given
+HA, the homography induced by a scene plane, then FA is determined up to a
+one-parameter ambiguity.
+(ii) Consider a perspective camera, i.e. the matrix does not have the affine form.
+Show that if the camera motion consists of a translation parallel to the image
+plane, and a rotation about the principal axis, then F has the affine form. This
+shows that a fundamental matrix with affine form does not imply that the imaging
+conditions are affine. Are there other camera motions which generate a
+fundamental matrix with the affine form?
+(iii) Two affine cameras, PA, P′
+A, uniquely define an affine fundamental matrix FA
+by (9.1–p244). Show that if the cameras are transformed on the right by a
+common affine transformation, i.e. PA 7→ PAHA, P′
+A 7→ P′
+A
+HA, the transformed
+cameras define the original FA. This shows that the affine fundamental matrix
+is invariant to an affine transformation of the world coordinates.
+(iv) Suppose one of the cameras is affine and the other is a perspective camera.
+Show that in general in this case the epipoles in both views are finite.
+(v) The 4 × 4 permutation homography
+H =
+
+
+1 0 0 0
+0 1 0 0
+0 0 0 1
+0 0 1 0
+
+
+maps the canonical matrix of a finite projective camera P = [I | 0] into the
+canonical matrix of parallel projection PA:
+PA = [I | 0] H =
+"
+1 0 0 0
+0 1 0 0
+0 0 0 1
+#
+.
+Show, by applying this transformation to a pair of finite projective camera matrices,
+that the results of this chapter (such as the properties listed in table 14.1-
+(p348)) can be generated directly from their non-affine counterparts of the previous
+chapters. In particular derive an expression for a pair of affine cameras
+PA, P′
+A consistent with FA.
+
+Part III
+Three-View Geometry
+Lord Shiva, c. 1920-40 (print).
+Shiva is depicted as having three eyes. The third eye in the centre of the
+forehead symbolizes spiritual knowledge and power.
+Image courtesy of http://www.healthyplanetonline.com
+Outline
+This part contains two chapters on the geometry of three-views. The scene is imaged
+with three cameras perhaps simultaneously in a trinocular rig, or sequentially from a
+moving camera.
+Chapter 15 introduces a new multiple view object – the trifocal tensor. This has analogous
+properties to the fundamental matrix of two-view geometry: it is independent of
+scene structure depending only on the (projective) relations between the cameras. The
+camera matrices may be retrieved from the trifocal tensor up to a common projective
+transformation of 3-space, and the fundamental matrices for view-pairs may be
+retrieved uniquely.
+The new geometry compared with the two-view case is the ability to transfer from
+two views to a third: given a point correspondence over two views the position of the
+point in the third view is determined; and similarly, given a line correspondence over
+two views the position of the line in the third view is determined. This transfer property
+is of great benefit when establishing correspondences over multiple views.
+If the essence of the epipolar constraint over two views is that rays back-projected
+from corresponding points are coplanar, then the essence of the trifocal constraint over
+three views is the geometry of a point–line–line correspondence arising from the image
+of a point on a line in 3-space: corresponding image lines in two views back-project
+to planes which intersect in a line in 3-space, and the ray back-projected from a corresponding
+image point in a third view must intersect this line.
+Chapter 16 describes the computation of the trifocal tensor from point and line correspondences
+over three-views. Given the tensor, and thus the retrieved camera matrices,
+a projective reconstruction may be computed from correspondences over multiple
+views. The reconstruction may be upgraded to similarity or metric as additional information
+is provided in the same manner as in the two view case.
+It is in reconstruction that there is another gain over two-view geometry. Given the
+cameras, in the two-view case each point correspondence provided four measurements
+on the three degrees of freedom (the position) of the point in 3-space. In three views
+there are six measurements on, again, three degrees of freedom. However, it is for lines
+that there is the more significant gain. In two-views the number ofmeasurements equals
+the number of degrees of freedom of the line in 3-space, namely four. Consequently,
+there is no possibility of removing the effects of measurement errors. However, in
+three views there are six measurements on four degrees of freedom, so a scene line is
+over-determined and can be estimated by a suitable minimization over measurement
+errors.
+364
+</p><p>
+</p><p>
+    </body>
+</html>

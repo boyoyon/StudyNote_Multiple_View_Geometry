@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録2</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録2</center><center>ガウス分布(正規分布)と\(\chi^2\)分布</center></h1>
+
+<h2><center>A2.1 ガウス確率分布</center></h2>
+<p>
+確率変数 \(x_i\; i = 1, . . . ,N\) のベクトル \(\mathbf X\) が与えられ、平均 \(\overline{\mathbf X} = E[\mathbf X]\)、ここで \(E[·]\) は期待値、\(\Delta \mathbf X = \mathbf X − \overline{\mathbf X}\) , 共分散行列 \(\Sigma\)は \(N × N\) 行列であり、次式で与えられる。
+
+<!-- Given a vector \(\mathbf X\) of random variables \(x_i\; for i = 1, . . . ,N\), with mean \(overline{\mathbf X} = E[\mathbf X]\), where \(E[·]\) represents the expected value, and \(\Delta \mathbf X = \mathbf X − \overline{\mathbf X}\), the covariance matrix \(\Sigma\) is an \(N × N\) matrix given by -->
+\[
+\Sigma = E[\Delta\mathbf X\,\Delta\mathbf X^T]
+\]
+つまり、\(\sum_{ij} = E[\Delta x_i\,\Delta x_j]\) となります。行列 \(\Sigma\) の対角要素は個々の変数 \(x_i\) の分散であり、非対角要素は相互共分散値です。
+
+<!-- so that \(\sum_{ij} = E[\Delta x_i\,\Delta x_j]\). The diagonal entries of the matrix \(\Sigma\) are the variances of the individual variables \(x_i\), whereas the off-diagonal entries are the cross-covariance values. -->
+
+</p><p>
+変数 \(x_i\) は、\(\mathbf X\) の確率分布が次の形式である場合、結合ガウス分布に従うという。
+
+<!-- The variables xi are said to conform to a joint Gaussian distribution, if the probability
+distribution of X is of the form -->
+
+\[
+P(\overline{\mathbf X} + \Delta\mathbf X) = (2\pi)^{-N/2} det(\Sigma^{-1})^{1/2} exp
+\Big(-(\Delta\mathbf X)^T\Sigma^{-1}(\Delta\mathbf X)/2\Big) \tag{A2.1}
+\]
+
+ある半正定値行列 \(\Sigma^{-1}\) について、\(\overline{\mathbf X}\) と \(\Sigma\) は分布の平均と共分散であることが検証できる。ガウス分布は、その平均と共分散によって一意に決定される。係数 \((2\pi)^{-N/2} det(\Sigma^{-1})^{1/2}\) は、分布の全積分を 1 にするために必要な正規化係数である。
+
+<!-- for some positive-semidefinite matrix \(\Sigma^{-1}\). It may be verified that \(\overline{\mathbf X}\) and \(\Sigma\) are the mean
+and covariance of the distribution. A Gaussian distribution is uniquely determined by
+its mean and covariance. The factor \((2\pi)^{-N/2} det(\Sigma^{-1})^{1/2}\)  is just the normalizing factor
+necessary to make the total integral of the distribution equal to 1. -->
+
+</p><p>
+\(\Sigma\) がスカラー行列 \(\Sigma=\sigma^2I\) である特別なケースでは、ガウス分布の確率密度関数は
+単純な形をとる。
+
+<!-- In the special case where \(\Sigma\) is a scalar matrix \(\Sigma=\sigma^2I\) the Gaussian PDF takes a
+simple form -->
+\[
+P(\mathbf X) = (\sqrt{2\pi}\sigma)^{-N} exp\Big(-\sum_{i=1}^N (x_i-\overline{x}_i)^2/2\sigma^2\Big)
+\]
+<!--
+where \(\mathbf X = (x_1, x_2, . . . , x_N)^T\). This distribution is called an isotropic Gaussian distribution.<br>
+<br>
+
+<strong>Mahalanobis distance. </strong><br>
+Note that in this case the value of the PDF at a point X is
+simply a function of the Euclidean distance \(\Big(\sum_{i=1}^N (x_i-\overline{x}_i)^2\Big)^{1/2}\) of the point \(\mathbf X\) from the mean \(\overlineX = (¯x1, . . . , ¯xN)T. By analogy with this one may define the Mahalanobis
+distance between two vectors X and Y to be
+\[
+||\mathbf X - \mathbf Y||_\Sigma=\Big((\mathbf X - \mathbf Y)^T\Sigma^{-1}(\mathbf X - \mathbf Y)\Big)^{1/2}
+\]
+
+One verifies that for a positive-definite matrix , this defines a metric on IRN. Using
+this notation, the general form of the Gaussian PDF may be written as
+P(X) ≈ exp
+
+−kX − Xk2
+/2
+
+where the normalizing factor has been omitted. Thus, the value of the Gaussian PDF is
+a function of the Mahalanobis distance of the point X from the mean.
+Change of coordinates. Since  is symmetric and positive-definite, it may be written
+as  = UTDU, where U is an orthogonal matrix and D = (2
+1, 2
+2, . . . , 2
+N) is diagonal.
+Writing X′ = UX and X
+′ = UX, and substituting in (A2.1), leads to
+exp
+
+−(X − X)T
+−1(X − X)/2
+
+= exp
+
+−(X
+′ − X
+′)T
+U−1U
+T(X
+′ − X
+′)/2
+
+= exp
+
+−(X
+′ − X
+′)T
+D−1(X
+′ − X
+′)/2
+
+Thus, the orthogonal change of coordinates from X to X′ = UX transforms a general
+Gaussian PDF into one with diagonal covariance matrix. A further scaling by i in
+each coordinate direction may be applied to transform it to an isotropic Gaussian distribution.
+Equivalently stated, a change of coordinates may be applied to transform
+Mahalanobis distance to ordinary Euclidean distance.
+A2.2 2 distribution
+The 2
+n distribution is the distribution of the sum of squares of n independent Gaussian
+random variables. As applied to a Gaussian random vector v with non-singular covariance
+matrix , the value of (v − ¯v)T−1(v − ¯v) satisfies a 2
+n distribution, where n is
+the dimension of v. If the covariance matrix  is singular, then we must replace −1
+with the pseudo-inverse +. In this case
+• If v is a Gaussian random vector with mean ¯v and covariance matrix , then the
+value of (v − ¯v)T+(v − ¯v) satisfies a 2
+r distribution, where r = rank.
+The cumulative chi-squared distribution is defined as Fn(k2) =
+R k2
+0 2
+n()d. This
+represents the probability that the value of the 2
+n random variable is less than k2.
+Graphs of the 2
+n distribution and inverse cumulative 2
+n distributions for n = 1, . . . , 4
+are shown in figure A2.1 A program for computing the cumulative chi-squared distribution
+Fn(k2) is given in [Press-88]. Since it is a monotonically increasing function,
+one may compute the inverse function by any simple technique such as subdivision,
+and values are tabulated in table A2.1 (compare with figure A2.1).
+A2.2 2 distribution 567
+2 4 6 8 10
+0.1
+0.2
+0.3
+0.4
+0.5
+0.2 0.4 0.6 0.8 1
+2
+4
+6
+8
+10
+12
+14
+Fig. A2.1. The 2
+n distribution (left) and inverse cumulative 2
+n distribution F−1
+n (right) for n =
+1, . . . , 4. In both cases, graphs are for n = 1, . . . , 4 bottom to top (at middle point of horizontal axis).
+n 
+ = 0.95 
+ = 0.99
+1 3.84 6.63
+2 5.99 9.21
+3 7.81 11.34
+4 9.49 13.28
+Table A2.1. Values of k2 for which Fn(k2), the cumulative 2 distribution with n degrees of freedom,
+equals 
+, i.e. k2 = F−1
+n (
+), where 
+ is the probability. -->
+</p><p>
+</p><p>
+    </body>
+</html>

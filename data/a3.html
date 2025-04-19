@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録3</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録3</center><center>パラメータ推定</center></h1>
+<p>
+パラメータ推定については、推定値のバイアスや分散といった特性を扱う理論が数多く存在します。この理論は、測定データの確率密度関数とパラメータ空間の解析に基づいています。この付録では、推定値のバイアス、分散、分散のCramer-Rao下界、事後分布といったトピックについて論じます。ここでは、主に例題に基づき、再構成の文脈でこれらの概念を探究しながら、簡略化して説明します。
+
+<!-- There is much theory about parameter estimation, dealing with properties such as the
+bias and variance of the estimate. This theory is based on analysis of the probability
+density functions of the measurements and the parameter space. In this appendix, we
+discuss such topics as bias of an estimator, the variance, the Cram´er-Rao lower bound
+on the variance, and the posterior distribution. The treatment will be largely informal,
+based on examples, and exploring these concepts in the context of reconstruction.-->
+
+</p><p>
+この議論から得られる一般的な教訓は、これらの概念の多くが、モデルの特定のパラメータ化に強く依存しているということです。3次元射影再構成のような、好ましいパラメータ化が存在しない問題では、これらの概念は明確に定義されていないか、想定されるノイズモデルに非常に強く依存しています。
+
+<!-- The general lesson to be learnt from this discussion is that many of these concepts
+depend strongly on the particular parametrization of the model. In problems such as 3D
+projective reconstruction, where there is no preferred parametrization, these concepts
+are not well defined, or depend very strongly on assumed noise models. -->
+
+</p><p>
+単純な幾何学的推定問題。ここで考察する問題は、空間内の点を2枚の画像への投影から決定する三角測量問題に関連しています。しかし、この問題を単純化するために、2次元の類似例を考えます。さらに、光線の1つを固定することで、問題は、1枚の画像で観測された点の位置から、既知の直線に沿った点の位置を推定する問題に簡略化されます。
+
+<!-- A simple geometric estimation problem. The problem we shall consider is related
+to the triangulation problem of determining a point in space from its projection into two
+images. To simplify this problem, however, we consider its 2-dimensional analog. In
+addition, we fix one of the rays reducing the problem to one of estimating the position
+of a point along a known line from observing it in a single image. -->
+
+</p><p>
+<!-- Thus, consider a line camera (that is, one forming a 1D image as in section 6.4.2-
+(p175)) observing points on a single line. Let the camera be located at the origin (0, 0)
+and point in the positive Y direction. Further, assume that it has unit focal length. Thus,
+the camera matrix for this camera is simply [I2×2|0]. Now, suppose that the camera is
+observing points on the line Y = X+1 (the “world line”). A point (X, X+1) on this line
+will be mapped to the image point x = X/(X + 1). However, we assume that a point is
+measured with a certain inaccuracy, which may be modelled with a probability density
+function (PDF). The usual practice is to model the noise using a Gaussian distribution.
+Let us assume at least that the mode (maximum) of the distribution is at zero. The
+imaging setup is illustrated in figure A3.1.
+
+</p><p>
+The estimation problem we consider is the following: given the image coordinates of
+a point, estimate the position of the “world point” on the line y = x + 1. To consider a
+specific scenario, we may think of the line as a scintillator being flooded with gammarays.
+A camera is used to measure the location of each scintillation and determine its
+position along the line. The problem seems to be ridiculously simple, but it will turn
+out that there are some surprises.
+
+</p><p>
+Fig. A3.1. The imaging setup for a simple estimation problem. A point on the line Y = X + 1 is imaged
+by a line camera. The projection mapping is given by f :  7→ x = /(1 + ), where  parametrizes the
+points on the line Y = X + 1. Measurement is subject to noise with a zero-mode distribution.
+
+</p><p>
+Probability density function. We start by parametrizing the world line Y = X + 1
+by a parameter , where the most convenient parametrization is  = X so that the 2D
+point parametrized by  is (,  + 1). This point projects to /( + 1). We denote this
+projection function from the world line to the image line by f, so that f() = /(+1).
+The measurement of this point is corrupted by noise, resulting in a random variable x
+with probability distribution given by p(x|) = g(x − f()). For instance, if g is a
+zero-mean Gaussian distribution with variance 2, then
+\[
+\]
+
+</p><p>
+Maximum Likelihood estimate. An estimate of the parameter vector  given a measured
+value x is a function denoted ˆ(x), assigning a parameter vector  to a measurement
+x. The maximum likelihood (ML) estimate is given by
+\[
+\]
+
+
+In the current estimation problem it is easily seen that the ML estimate is obtained
+simply by back-projecting the measured point x and selecting its intersection with the
+world line, according to the formula
+\[
+\]
+This is the ML estimate, because the resulting point, with parameter ˆ(x), projects
+forward to x, hence p(x|ˆ) = g(x−x) = g(0) which by assumption gives the maximum
+(mode) of the probability density function g. Any other choice of parameter  will give
+a smaller value of p(x|).
+</p>
+<h2><center>A3.1 バイアス</center></h2>
+<p>
+A desirable property of an estimator is that it can be expected to give the right answer
+on the average. Given a parameter , or equivalently in our case a point on the world
+line, we consider all possible measurements x and from them reestimate the parameter
+, namely ˆ(x). The estimator is known as unbiased if on the average we obtain
+
+</p><p>
+Fig. A3.2. The ML estimate of the world-point position ˆ(x) = f−1(x) = x/(1 − x) for different
+measurements of the image point x. Note that for values of x greater than 1, the ML estimate switches
+to “behind” the camera.
+</p><p>
+
+the original parameter  (the true value). In forming this average, we weight the measurements
+x according to their probability. More formally, the bias of the estimator is
+defined as
+\[
+\]
+and the estimator is unbiased if E[ˆ(x)] =  for all . Here E stands for the expected
+value given , defined as shown.
+
+</p><p>
+Another way of thinking of bias is in terms of repeating an experiment many times
+with identical model parameters and a different instance of the noise at each trial. The
+bias is the difference between the average value of the estimated parameters and the true
+parameter value. It is worth noting that for the bias to be defined, it is not necessary
+that the parameter space have an a priori distribution defined on it, not even that it be
+a measure space. It is necessary, however that it have some affine structure so that the
+average (or integral) can be formed.
+
+</p><p>
+Now, we determine whether the ML estimate of  is unbiased in the case where
+f() = /( + 1). The integral becomes
+\[
+\]
+
+It turns out that this integral diverges, and hence the bias is undefined. The difficulty is
+that with an assumed Gaussian distribution of noise, for any value of , there is always
+a finite (though perhaps very small) probability p(x|) that x > 1. For values of x > 1,
+the corresponding ray does not meet the world line in front of the camera (since the ray
+is parallel to the world line at x = 1). The estimate ˆ(x) as a function of x is shown in
+figure A3.2, showing how it results in estimated world-points behind the camera. Even
+if values of ˆ(x) behind the camera are ignored, the ML estimator has infinite bias, as
+is explained in figure A3.3.
+
+</p><p>
+Limiting the range of parameters. Since the range of the parameter  is from −1 to
+∞, it makes sense to limit its range. In fact, we may have knowledge that all “events”
+on the world-line lie in a more restricted range. As an example, suppose that we assume
+that  lies in the range −1 ≤  ≤ 1, and hence noise-free projected points are in the
+range −∞ < x < 1/2. In this case, the ML estimate for any image point x > 1/2 will
+A3.1 Bias 571
+-1 -0.5 0.5 1
+0.25
+0.5
+0.75
+1
+1.25
+1.5
+1.75
+2
+-1 -0.5 0.5 1
+-1
+1
+2
+3
+4
+5
+-1 -0.5 0.5 1
+-0.2
+-0.1
+0.1
+0.2
+0.3
+0.4
+a b c
+Fig. A3.3. The reason that the ML estimate with Gaussian noise model has infinite bias. (a) The
+distribution of possible values of the image measurement given a world-point at x = 0, y = 1 assuming
+Gaussian noise distribution with  = 0.4 – in symbols p(x| = 0). (b) The ML estimate of the world
+point for different values of the image point, ˆ(x) = x/(1−x). Note that as the image point approaches
+1, the estimated point on the world-line recedes to infinity. (c) Product ˆ(x) p(x| = 0). The integral
+of this function from x = −∞ to x = 1 gives the bias of the ML estimator. Note that as x approaches
+1, the graph increases abruptly to infinity. The integral is unbounded, meaning that the estimator has
+infinite bias.
+-1 -0.5 0.5 1
+-1
+-0.5
+0.5
+1
+1.5
+-0.4 -0.2 0.2 0.4 0.6 0.8 1
+-0.00075
+-0.0005
+-0.00025
+0.00025
+0.0005
+a b
+Fig. A3.4. (a) If the range of possible values of the world-point parameter  is limited to the range
+ ≤ 1, then the ML estimate of any point x > 1/2 will be  = 1. This will prevent infinite bias in the
+estimate, but there will still be bias. (b) The bias E[ˆ(x)] −  =
+R
+x
+ˆ(x)p(x|)dx −  as a function of
+. Measurement noise is Gaussian with  = 0.01.
+be at ˆ(x) = 1. With this restriction on the parameter , the ML estimate is still biased,
+as shown in figure A3.4.
+If the noise-distribution has finite support, then the bias will also be finite for most
+values of , even if the range of the parameter  is unrestricted. This is shown in
+figure A3.5. One learns from this that the bias of the estimator can be very dependent
+on the noise-model – a factor that is usually not within our control.
+Dependency of bias on parametrization. The reason for the infinite bias for the ML
+estimator with Gaussian noise model in this example is the projective mapping between
+the world line and the image line. It is possible to parametrize the world line differently
+in a way that will change the bias.
+Let the world line Y = X + 1 be parametrized in such a way that parameter  represents
+the point (/(1 − ), 1/(1 − )) on the line. The part of the line in front of the
+camera (having positive y coordinate) is parametrized by  in the range −∞ <  < 1.
+Under the projection (X, Y) 7→ X/Y, the projection map f is given by f() = X/Y = ,
+thus the point with parameter  maps to . In other words, points on the world line are
+572 Appendix 3 Parameter Estimation
+-0.75 -0.5 -0.25 0.25 0.5 0.75 1
+0.00005
+0.0001
+0.00015
+0.0002
+20 40 60 80
+5
+10
+15
+20
+25
+a b
+Fig. A3.5. If the noise-model has finite support then the bias will be finite. In this example the noise
+model is 3(1 − (x/)2)/42, for − ≤ x ≤ , where  = 0.01. (a) Bias as a function of  for
+small values of . (b) Percentage bias (E[ˆ(x)] − )/. The bias is relatively small for small values
+of , but larger (up to 20% ) for large values. The position of the point along the world-line is always
+over-estimated.
+parametrized by the coordinate of the point that they project to under the camera mapping.
+Now, in this case, the ML estimate is given by ˆ(x) = f−1(x) = x, and the bias is
+Z
+x
+ˆ(x)p(x|)dx −  =
+Z
+x
+xg(x − f())dx − 
+=
+Z
+x
+(x + f())g(x)dx − 
+=
+Z
+x
+xg(x)dx + f()
+Z
+x
+g(x)dx − 
+= 0 + f() −  = 0
+Assuming that the distribution g(x) is zero-mean. Note, this shows that the estimate of
+the original measurement x is unbiased.
+Lessons about bias. By a change of parametrization of the world line, the bias has
+been changed from infinite to zero. In the present example, there is a natural affine
+parametrization of the world line, for which we have seen that the bias is infinite.
+However, if we are working in a projective context, then the parameter space has no
+natural affine parametrization. In this case, it is somewhat meaningless to speak of any
+absolute measurement of bias. A second lesson from the above example is that the ML
+estimate of the corrected measurement (as opposed to the world point) is unbiased.
+It was also seen that the value of bias is strongly dependent on the noise distribution.
+Even the very small tails of the Gaussian distribution have a very large effect on the
+computed bias. Of course, a Gaussian distribution of the noise is only a convenient
+model for modelling image measurement errors. The exact distribution of image measurement
+noise is generally unknown, and the conclusion is inescapable that one can
+not theoretically compute an exact value for the bias of a given estimator, except for
+synthetic data with known noise model.
+A3.2 Variance of an estimator 573
+A3.2 Variance of an estimator
+The other important attribute of an estimator is its variance. Consider an experiment
+being repeated many times with the same model parameters, but a different instantiation
+of the noise at each trial. Applying our estimator to the measured data, we obtain
+an estimate for each of these trials. The variance of the estimator is the variance (or
+covariance matrix) of the estimated values. More precisely, we can define the variance
+for an estimation problem involving a single parameter as
+Var(ˆ) = E[(ˆ(x) − ¯)2] =
+Z
+x
+(ˆ(x) − ¯)2p(x|)dx
+where
+¯ = E[ˆ(x)] =
+Z
+x
+ˆ(x)p(x|)dx =  + bias(ˆ)
+In the case where the parameters  form a vector, Var(ˆ) is the covariance matrix
+Var(ˆ) = E[(ˆ(x) − ¯)(ˆ(x) − ¯)T] (A3.1)
+In many cases we might be more interested in the variability of the estimate with respect
+to the original parameter , which is the mean-squared error of the estimator. This is
+easily computed from
+E[(ˆ(x) − )(ˆ(x) − )T] = Var(ˆ) + bias(ˆ) bias(ˆ)T.
+It should be noted that, as with the bias, the variance of an estimator makes good sense
+only when there is a natural affine structure on the parameter set, at least locally.
+Most estimation algorithms will give the right answer if there is no noise. If an algorithm
+performs badly when noise is added, this means that either the bias or variance
+of the algorithm is high. This is the case, for instance with the DLT algorithm 4.1(p91),
+or the unnormalized 8-point algorithm discussed in section 11.1(p279). The variance
+of the algorithm grows quickly with added noise.
+The Cram´er-Rao lower bound. It is evident that by adding noise to a set of measurements
+information is lost. Consequently, it is not to be expected that any estimator
+can have zero bias and variance in the presence of noise on the measurements. For
+unbiased estimators, this notion is formalized in the Cram´er-Rao lower bound, which
+is a bound on the variance of an unbiased estimator. To explain the Cram´er-Rao bound,
+we need a few definitions. Given a probability distribution p(x|), the Fisher score is
+defined as V(x) = @ log p(x|). The Fisher Information Matrix is defined to be
+F() = E[V(x)V(x)T]
+=
+Z
+x
+V(x)V(x)Tp(x|)dx.
+The relevance of the Fisher Information Matrix is expressed in the following result.
+Result A3.1. Cram´er-Rao lower bound. For an unbiased estimator ˆ(x),
+det(E[(ˆ − )(ˆ − )T]) ≥ 1/ det F().
+A Cram´er-Rao lower bound may also be given in the case of a biased estimator.
+574 Appendix 3 Parameter Estimation
+A3.3 The posterior distribution
+An alternative to the ML estimate is to consider the probability distribution for the
+parameters, given the measurements, namely p(|x). This is known as the posterior
+distribution, namely the distribution for the parameters after the measurements have
+been taken. To compute it, we need a prior distribution p() for the parameters before
+any measurement has been taken. The posterior distribution can then be computed
+from Bayes Law
+p(|x) =
+p(x|) p()
+p(x)
+.
+Since the measurement x is fixed, so is its probability p(x), so we may ignore it, leading
+to p(|x) ≈ p(x|) p(). The maximum of the posterior distribution is known as the
+Maximum A Posteriori (MAP) estimate.
+Note. Though the MAP estimate may seem like a good idea, it is important to realize
+that it depends on the parametrization of the parameter space. The posterior probability
+distribution is proportional to p(x|)p(). However, p() is dependent on the
+parametrization of . For instance if p() is a uniform distribution in one parametrization,
+it will not be a uniform distribution in a different parametrization that differs
+by a non-affine transformation. On the other hand, p(x|) does not depend on the
+parametrization of . Therefore, the result of a change of parametrization is to alter
+the posterior distribution in such a way that its maximum will change. If the parameter
+space does not have a natural affine coordinate system (for instance if the parameter
+space is projective) then the MAP estimate does not really make a lot of sense.
+Other estimates based on the posterior distribution are also possible. Given a measurement
+x, and the posterior distribution p(|x), we may wish to make a different
+estimate of the parameter . One sensible choice is the estimate that minimizes the
+expected squared error in the estimate, namely
+ˆ(x) = argminY E[kY − k2] = argminY
+Z
+kY − k2p(|x)d,
+which is the mean of the posterior distribution.
+A further alternative is to minimize the expected absolute error
+ˆ(x) = argminY E[kY − k] = argminY
+Z
+kY − kp(|x)d,
+which is the median of the posterior distribution. Examples of these estimates are
+shown in figure A3.6 and figure A3.7.
+More properties of these estimates are listed in the notes at the end of this appendix.
+A3.4 Estimation of corrected measurements
+We have seen that in geometric estimation problems, particularly those that involve
+projective models, concepts such as bias and variance of the estimator are dependent
+on the particular parametrization of the model, for instance a particular projective coordinate
+frame chosen. Even in cases where a natural affine parametrization of the model
+A3.4 Estimation of corrected measurements 575
+-0.4 -0.2 0.2 0.4 0.6 0.8 1
+0.25
+0.5
+0.75
+1
+1.25
+1.5
+1.75
+2
+-0.4 -0.2 0.2 0.4 0.6 0.8 1
+-0.4
+-0.2
+0.2
+0.4
+a b
+Fig. A3.6. Different estimators for . (a) For the imaging setup of figure A3.1: the a posteriori distribution
+p(|x = 0) assuming a Gaussian noise distribution with  = 0.2, and a prior distribution for
+, uniform on the interval [−1/2, 1]. The mode (maximum) of this distribution is the Maximal Apriori
+(MAP) estimate of , which is identical with the ML estimate, because of the assumed uniform distribution
+for . The mean of this distribution ( = 0.1386) is the estimate that minimizes the expected
+squared error E[(ˆ(x) − ¯)2] with respect to the true measurement ¯. (b) The cumulative a posteriori
+distribution (offset by −0.5). The zero point of this graph is the median of the distribution, namely the
+estimate that minimizes E[|ˆ(x) − ¯|]. The median lies at  = 0.09137.
+-0.4 -0.2 0.2 0.4 0.6 0.8 1
+0.25
+0.5
+0.75
+1
+1.25
+1.5
+1.75
+2
+-0.2 0.2 0.4 0.6
+-0.4
+-0.2
+0.2
+0.4
+a b
+Fig. A3.7. Different estimators with the parabolic noise model. The two graphs show the a posteriori
+distribution of  and its cumulative distribution. In this example, the noise model is 3(1−(x/)2)/42,
+for − ≤ x ≤ , where  = 0.4. The mode of the distribution ( = 0) is the MAP estimate, identical
+with the ML estimate, the mean ( = 0.1109) minimizes the expected squared error in  and the median
+( = 0.0911) minimizes the expected absolute error.
+exists, it may be difficult to find an unbiased estimator. For instance, the ML estimator
+for problems such as triangulation is biased.
+We saw however in the example of 1D back-projection discussed in section A3.1,
+that if instead of attempting to compute the model (namely the back-projected point)
+we estimate the corrected measurement instead, then the ML estimator is unbiased. We
+explore this notion further in this section, and show that in a general setting, the ML
+estimator of the corrected measurements is not only unbiased but attains the Cram´er-
+Rao lower bound, when the noise-model is Gaussian.
+Consider an estimation problem that involves fitting a parametrized model to a set of
+image measurements. As seen in section 5.1.3(p134) this problem may be viewed as
+an estimation problem in a high-dimensional Euclidean space IRN, which is the space
+of all image measurements. This is illustrated in figure 5.2(p135). The estimation
+problem is, given a measurement vector X, to find the closest point lying on a surface
+representing the set of all allowable exact measurements. The vector bX represents the
+576 Appendix 3 Parameter Estimation
+set of “corrected” image measurements that conform to the given model. The model itself
+may depend on a set of parameters , such as the fundamental matrix, hypothesized
+3D points or other parameters appropriate to the problem.
+The estimation of the parameters  is subject to bias in the same way as we have
+seen with the simple problem discussed in section A3.1, and the exact degree of bias
+is dependent on the precise parametrization. Generally (for instance in projectivereconstruction
+problems) there is no natural affine coordinate system for the model
+parameters, though there is a natural affine coordinate system for the image plane.
+If we think of the problem differently, as the problem of directly finding the corrected
+measurement vector bX , then we find a more favourable situation. The measurements
+are carried out in the images, which have a natural affine coordinate system, and so
+questions of bias in estimating the corrected measurements make more sense. We will
+show that, provided the measurement surface is well approximated by its tangent plane,
+the ML estimate of the corrected measurement vector is unbiased, provided the noise
+is zero-mean. In addition, if the noise is Gaussian and isotropic, then the ML estimate
+meets the Cram´er-Rao lower-bound.
+The geometric situation is follows. A point X lies on a measurement surface, as
+shown in figure 5.2(p135). Noise is added to this point to obtain a measured point X.
+The estimate bX of the true point X is obtained by selecting the closest point on the measurement
+surface to the measured point. We make an assumption that the measurement
+surface is effectively planar near X.
+We may choose a coordinate system in which the measurement surface close to X
+is spanned by the first d coordinates. We may write X = (X
+T
+1 , 0T
+N−d)T, where X1 is
+a d-vector. The measured point may similarly be written as X = (X
+T
+1 ,X
+T
+2 )T, and its
+projection onto the tangent plane is bX = (X
+T
+1 , 0T)T = (bX
+T
+1 , 0T)T. We suppose that the
+noise-distribution is given by p(X|X) = g(X − X). Now, the bias of the estimate bX is
+E[(bX − X)] =
+Z
+X
+(bX − X)p(X|X)dX =
+Z
+X
+(bX − X)g(X − X)dX
+=
+Z
+X
+J(X − X)g(X − X)dX
+= J
+Z
+X
+(X − X)g(X − X)dX
+= 0
+where J is the matrix [Id×d|0d×(N−d)]. This shows that the estimate of X is unbiased as
+long at g has zero-mean. The variance of the estimate is equal to
+E[(bX − X)(bX − X)T] =
+Z
+X
+(bX − X)(bX − X)Tp(X|X)dX =
+Z
+X
+(bX − X)(bX − X)Tg(X − X)dX
+=
+Z
+X
+J(X − X)(X − X)T
+J
+Tg(X − X)dX
+= J
+Z
+X
+(X − X)(X − X)Tg(X − X)dXJ
+T
+= JgJ
+T
+where g is the covariance matrix of g.
+A3.5 Notes and exercises 577
+We now compute the Cram´er-Rao lower bound for this estimator, supposing that the
+distribution g(X) is Gaussian defined by g(X) = k exp(−kXk2/22). In this case, the
+variance of the estimator is simply 2Id×d.
+We next compute the Fisher information matrix. The probability distribution is
+p(X|X) = g(X − X) = k exp(−kX − Xk2/22)
+= k exp(−kX1 − X1k2/22) exp(−kX2k2/22).
+Taking logarithms and derivatives with respect to X1 gives
+@X1 log p(X|X) = −(X1 − X1)/2.
+The Fisher information matrix is then
+1/2
+Z
+(X1 − X1)(X1 − X1)Tg(X1 − X1)g(X2)dX1dX2 = Id×d/2.
+Thus, the Fisher information matrix is the inverse of the covariance matrix for the
+estimator. Thus, for the case where the noise distribution is Gaussian, the ML estimator
+meets the Cram´er-Rao lower bound, to the extent that the measurement surface is flat.
+It should be noticed that the Fisher Information Matrix does not depend on the specific
+shape of the measurement surface, but only on its first-order approximation, the
+tangent plane. The properties of the estimate does however depend on the shape of the
+measurement surface, both as regards its bias and variance. It may also be shown that
+if the Cram´er-Rao bound is met, then the noise distribution must be Gaussian. In other
+words, if the noise distribution is not Gaussian, then we can not meet the lower bound.
+A3.5 Notes and exercises
+(i) Show by a specific example that the a posteriori distribution is altered by a
+change of coordinates in the parameter space. Show also that the mean of the
+distribution may be altered by such a coordinate change. Thus the mode (MAP
+estimate) and mean of the posterior distribution are dependent on the choice of
+coordinates for the parameter space.
+(ii) Show for any PDF p() defined on IRn, that argminY
+R
+kY − k2p()d is the
+mean of the distribution.
+(iii) Show for any PDF p() defined on IR, that argminY
+R
+|Y − |p()d is the
+median of the distribution. In higher dimensions, show that
+R
+kY − kp()d
+is a convex function of Y , and hence has a single minimum. The value of Y
+that minimizes this is a higher-dimensional generalization of the median of a
+1-dimensional distribution.
+(iv) Show that the median of a PDF defined on IR is invariant to reparametrization
+of IR. Show by an example that this is not true in higher dimensions, however.-->
+</p><p>
+</p><p>
+    </body>
+</html>

@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>3章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>3章 射影幾何学と3Dの変換</h1>
+<p>
+この章では、射影 3 次元空間、すなわち \(\mathbb P^3\) の性質と実体について説明します。これらの多くは、第 2 章で説明した射影平面の性質と実体の直接的な一般化です。例えば、\(\mathbb P^3\) では、ユークリッド 3 次元空間に、無限遠平面 \(\pi_\infty\) 上の理想点の集合が追加されます。これは、\(\mathbb P^2\) における \(l_\infty\) に相当します。平行線、そして平行平面は、\(\pi_\infty\) 上で交差します。当然のことながら、同次座標がここでも重要な役割を果たし、ここではすべての次元が 1 つ増加します。しかし、追加の次元によって、追加の性質が現れます。例えば、2 本の直線は射影平面上では常に交差しますが、3 次元空間では必ずしも交差する必要はありません。
+
+<!-- This chapter describes the properties and entities of projective 3-space, or \(\mathbb P^3\). Many
+of these are straightforward generalizations of those of the projective plane, described
+in chapter 2. For example, in \(\mathbb P^3\) Euclidean 3-space is augmented with a set of ideal
+points which are on a plane at infinity, \(\pi_\infty\). This is the analogue of \(l_\infty\) in \(\mathbb P^2\). Parallel
+lines, and now parallel planes, intersect on \(\pi_\infty\). Not surprisingly, homogeneous
+coordinates again play an important role, here with all dimensions increased by one.
+However, additional properties appear by virtue of the extra dimension. For example,
+two lines always intersect on the projective plane, but they need not intersect in 3-space.-->
+</p><p>
+読者は、本章を読む前に第2章の考え方と表記法を理解しておく必要があります。ここでは、次元を追加することで生じる違いと追加の幾何学について焦点を当て、前章の内容の大部分は繰り返さないことにします。
+
+<!-- The reader should be familiar with the ideas and notation of chapter 2 before reading
+this chapter. We will concentrate here on the differences and additional geometry
+introduced by adding the extra dimension, and will not repeat the bulk of the material
+of the previous chapter. -->
+</p>
+<h2><center>3.1 点と射影変換</center></h2>
+<p>
+3次元空間の点Xは、同次座標では4次元ベクトルとして表されます。具体的には、\(X_4\neq 0\)となる同次ベクトル\(\mathbf X = (X_1, X_2, X_3, X_4)^T\)は、\(\mathbb R^3\)の非同次座標を持つ点\((X, Y, Z)^T\)を表します。
+
+<!-- A point X in 3-space is represented in homogeneous coordinates as a 4-vector. Specifically,
+the homogeneous vector \(\mathbf X = (X_1, X_2, X_3, X_4)^T\) with \(X_4\neq 0\) represents the point \((X, Y, Z)^T\) of \(\mathbb R^3\) with inhomogeneous coordinates -->
+\[
+X = X_1/X_4, Y = X_2/X_4, Z = X_3/X_4
+\]
+例えば、\((X, Y, Z)^T\)の同次表現は\(X = (X, Y, Z, 1)^T\)です。\(X_4 = 0\)となる同次点は、無限遠点を表します。
+
+<!-- For example, a homogeneous representation of \((X, Y, Z)^T\) is \(X = (X, Y, Z, 1)^T\). Homogeneous
+points with \(X_4 = 0\) represent points at infinity. -->
+</p><p>
+
+<! --A projective transformation acting on IP3 is a linear transformation on homogeneous
+4-vectors represented by a non-singular 4×4 matrix: X′ = HX. The matrix H representing
+the transformation is homogeneous and has 15 degrees of freedom. The degrees of
+freedom follow from the 16 elements of the matrix less one for overall scaling. -->
+
+</p><p>
+平面射影変換の場合と同様に、この写像は共線写像（線を線に写像する）であり、線と平面の交点や接触順序などの接続関係を保存します。
+<!-- As in the case of planar projective transformations, the map is a collineation (lines
+are mapped to lines), which preserves incidence relations such as the intersection point
+of a line with a plane, and order of contact.
+
+</p>
+<h2>3.2 Representing and transforming planes, lines and quadrics</h2>
+<p>
+In IP3 points and planes are dual, and their representation and development is analogous
+to the point–line duality in IP2. Lines are self-dual in IP3.
+</p>
+<h3>3.2.1 Planes</h3>
+<p>
+A plane in 3-space may be written as
+1X + 2Y + 3Z + 4 = 0. (3.1)
+Clearly this equation is unaffected by multiplication by a non-zero scalar, so only the
+three independent ratios {1 : 2 : 3 : 4} of the plane coefficients are significant. It
+follows that a plane has 3 degrees of freedom in 3-space. The homogeneous representation
+of the plane is the 4-vector  = (1, 2, 3, 4)T.
+</p><p>
+Homogenizing (3.1) by the replacements X 7→ X1/X4, Y 7→ X2/X4, Z 7→ X3/X4 gives
+1X1 + 2X2 + 3X3 + 4X4 = 0
+or more concisely
+
+T
+X = 0 (3.2)
+which expresses that the point X is on the plane .
+
+</p><p>
+The first 3 components of  correspond to the plane normal of Euclidean geometry
+– using inhomogeneous notation (3.2) becomes the familiar plane equation written in
+3-vector notation as n.eX + d = 0, where n = (1, 2, 3)T, eX = (X, Y, Z)T, X4 = 1
+and d = 4. In this form d/knk is the distance of the plane from the origin.
+</p><p>
+Join and incidence relations. In IP3 there are numerous geometric relations between
+planes and points and lines. For example,
+<div class="styleBullet">
+<ul>
+<li>(i) A plane is defined uniquely by the join of three points, or the join of a line and
+point, in general position (i.e. the points are not collinear or incident with the
+line in the latter case).</li>
+<li>(ii) Two distinct planes intersect in a unique line.</li>
+<li>(iii) Three distinct planes intersect in a unique point.</li>
+</ul>
+</div>
+</p><p>
+
+These relations have algebraic representations which will now be developed in the
+case of points and planes. The representations of the relations involving lines are not
+as simple as those arising from 3D vector algebra of IP2 (e.g. l = x × y), and are
+postponed until line representations are introduced in section 3.2.2.
+Three points define a plane. Suppose three points Xi are incident with the plane
+. Then each point satisfies (3.2) and thus 
+T
+Xi = 0, i = 1, . . . , 3. Stacking these
+equations into a matrix gives
+
+
+X
+T
+1
+X
+T
+2
+X
+T
+3
+
+
+ = 0. (3.3)
+Since three points X1,X2 and X3 in general position are linearly independent, it follows
+that the 3 × 4 matrix composed of the points as rows has rank 3. The plane
+ defined by the points is thus obtained uniquely (up to scale) as the 1-dimensional
+(right) null-space. If the matrix has only a rank of 2, and consequently the null-space
+is 2-dimensional, then the points are collinear, and define a pencil of planes with the
+line of collinear points as axis.
+</p><p>
+In IP2, where points are dual to lines, a line l through two points x, y can similarly
+be obtained as the null-space of the 2 × 3 matrix with xT and yT as rows. However, a
+more convenient direct formula l = x × y is also available from vector algebra. In IP3
+the analogous expression is obtained from properties of determinants and minors.
+</p><p>
+We start from the matrix M = [X,X1,X2,X3] which is composed of a general point
+X and the three points Xi which define the plane . The determinant det M = 0 when
+X lies on  since the point X is then expressible as a linear combination of the points
+Xi, i = 1, . . . , 3. Expanding the determinant about the column X we obtain
+det M = X1D234 − X2D134 + X3D124 − X4D123
+whereDjkl is the determinant formed from the jkl rows of the 4×3 matrix [X1,X2,X3].
+Since det M = 0 for points on  we can then read off the plane coefficients as
+ = (D234,−D134,D124,−D123)T . (3.4)
+This is the solution vector (the null-space) of (3.3) above.
+</p><p>
+Example 3.1. Suppose the three points defining the plane are
+X1 =
+ 
+eX
+1
+1
+!
+X2 =
+ 
+eX
+2
+1
+!
+X3 =
+ 
+eX3
+1
+!
+where eX = (X, Y, Z)T. Then
+D234 =
+
+Y1 Y2 Y3
+Z1 Z2 Z3
+1 1 1
+
+=
+
+Y1 − Y3 Y2 − Y3 Y3
+Z1 − Z3 Z2 − Z3 Z3
+0 0 1
+
+=
+
+(eX1 − eX3) × (eX2 − eX3)
+
+1
+and similarly for the other components, giving
+ =
+ 
+(eX1 − eX3) × (eX2 − eX3)
+−eX
+T
+3 (eX1 × eX2)
+!
+.
+This is the familiar result from Euclidean vector geometry where, for example, the
+plane normal is computed as (eX1 − eX3) × (eX2 − eX3). △
+</p><p>
+Three planes define a point. The development here is dual to the case of three
+points defining a plane. The intersection point X of three planes i can be computed
+straightforwardly as the (right) null-space of the 3 × 4 matrix composed of the planes
+as rows: 
+
+
+T
+1
+
+T
+2
+
+T
+3
+
+
+X = 0. (3.5)
+</p><p>
+Fig. 3.1. A line may be specified by its points of intersection with two orthogonal planes. Each intersection
+point has 2 degrees of freedom, which demonstrates that a line in IP3 has a total of 4 degrees of
+freedom.
+</p><p>
+
+A direct solution for X, in terms of determinants of 3 × 3 submatrices, is obtained as
+an analogue of (3.4), though computationally a numerical solution would be obtained
+by algorithm A5.1(p589).
+The two following results are direct analogues of their 2D counterparts.
+</p><p>
+Projective transformation. Under the point transformation X′ = HX, a plane transforms
+as
+
+′ = H−T
+. (3.6)
+Parametrized points on a plane. The points X on the plane  may be written as
+X = Mx (3.7)
+where the columns of the 4×3 matrix M generate the rank 3 null-space of 
+T, i.e. 
+TM =
+0, and the 3-vector x (which is a point on the projective plane IP2) parametrizes points
+on the plane . M is not unique, of course. Suppose the plane is  = (a, b, c, d)T and a is
+non-zero, then MT can be written as MT = [p | I3×3], where p = (−b/a,−c/a,−d/a)T.
+This parametrized representation is simply the analogue in 3D of a line l in IP2
+defined as a linear combination of its 2D null-space as x = μa + b, where lTa =
+lTb = 0.
+</p>
+<h3>3.2.2 Lines</h3>
+<p>
+A line is defined by the join of two points or the intersection of two planes. Lines
+have 4 degrees of freedom in 3-space. A convincing way to count these degrees of
+freedom is to think of a line as defined by its intersection with two orthogonal planes,
+as in figure 3.1. The point of intersection on each plane is specified by two parameters,
+producing a total of 4 degrees of freedom for the line.
+</p><p>
+Lines are very awkward to represent in 3-space since a natural representation for an
+object with 4 degrees of freedom would be a homogeneous 5-vector. The problem is
+that a homogeneous 5 vector cannot easily be used in mathematical expressions together
+with the 4-vectors representing points and planes. To overcome this problem
+a number of line representations have been proposed, and these differ in their mathematical
+complexity. We survey three of these representations. In each case the representation
+provides mechanisms for a line to be defined by: the join of two points,
+a dual version where the line is defined by the intersection of two planes, and also a
+map between the two definitions. The representations also enable join and incidence
+relations to be computed, for example the point at which a line intersects a plane.
+</p><p>
+I. Null-space and span representation. This representation builds on the intuitive
+geometric notion that a line is a pencil (one-parameter family) of collinear points, and is
+defined by any two of these points. Similarly, a line is the axis of a pencil of planes, and
+is defined by the intersection of any two planes from the pencil. In both cases the actual
+points or planes are not important (in fact two points have 6 degrees of freedom and
+are represented by two 4-vectors – far too many parameters). This notion is captured
+mathematically by representing a line as the span of two vectors. Suppose A,B are two
+(non-coincident) space points. Then the line joining these points is represented by the
+span of the row space of the 2 × 4 matrix W composed of A
+T and B
+T as rows:
+W =
+"
+A
+T
+B
+T
+#
+.
+Then:
+<div class="styleBullet>
+<ul>
+<li>(i) The span of WT is the pencil of points A + μB on the line.</li>
+<li>(ii) The span of the 2-dimensional right null-space of W is the pencil of planes with
+the line as axis.</li<
+</ul>
+</div>
+</p><p>
+It is evident that two other points, A′T and B′T, on the line will generate a matrix W′
+with the same span as W, so that the span, and hence the representation, is independent
+of the particular points used to define it.
+</p><p>
+To prove the null-space property, suppose that P and Q are a basis for the null-space.
+Then WP = 0 and consequently A
+T
+P = B
+T
+P = 0, so that P is a plane containing the
+points A and B. Similarly, Q is a distinct plane also containing the points A and B.
+Thus A and B lie on both the (linearly independent) planes P and Q, so the line defined
+by W is the plane intersection. Any plane of the pencil, with the line as axis, is given by
+the span ′P + μ′Q.
+</p><p>
+The dual representation of a line as the intersection of two planes, P,Q, follows in
+a similar manner. The line is represented as the span (of the row space) of the 2 × 4
+matrix W∗ composed of P
+T and Q
+T as rows:
+W∗ =
+"
+P
+T
+Q
+T
+#
+with the properties
+<div class="styleBullet">
+<ul>
+<li>(i) The span of W∗T is the pencil of planes ′P + μ′Q with the line as axis.</li>
+<li>(ii) The span of the 2-dimensional null-space of W∗ is the pencil of points on the
+line.</li>
+</ul>
+</div>
+
+The two representations are related by W∗ WT = W W∗T = 02×2, where 02×2 is a 2 × 2
+null matrix.
+</p><p>
+Example 3.2. The X-axis is represented as
+W =
+"
+0 0 0 1
+1 0 0 0
+#
+W∗ =
+"
+0 0 1 0
+0 1 0 0
+#
+where the points A and B are here the origin and ideal point in the X-direction, and the
+planes P and Q are the XY- and XZ-planes respectively. △
+Join and incidence relations are also computed from null-spaces.
+(i) The plane  defined by the join of the point X and line W is obtained from the
+null-space of
+M =
+"
+W
+X
+T
+#
+.
+If the null-space of M is 2-dimensional then X is on W, otherwise M = 0.
+(ii) The point X defined by the intersection of the line W with the plane  is obtained
+from the null-space of
+M =
+"
+W∗
+
+T
+#
+.
+If the null-space of M is 2-dimensional then the line W is on , otherwise MX = 0.
+These properties can be derived almost by inspection. For example, the first is equivalent
+to three points defining a plane (3.3).
+The span representation is very useful in practical numerical implementations where
+null-spaces can be computed simply by using the SVD algorithm (see section A4.4-
+(p585)) available with most matrix packages. The representation is also useful in estimation
+problems, where it is often not a problem that the entity being estimated is
+over-parametrized (see the discussion of section 4.5(p110)).
+</p><p>
+II. Pl¨ucker matrices. Here a line is represented by a 4 × 4 skew-symmetric homogeneous
+matrix. In particular, the line joining the two points A,B is represented by the
+matrix L with elements
+lij = AiBj − BiAj
+or equivalently in vector notation as
+L = AB
+T − BA
+T (3.8)
+First a few properties of L:
+(i) L has rank 2. Its 2-dimensional null-space is spanned by the pencil of planes
+with the line as axis (in fact LW∗T = 0, with 0 a 4 × 2 null-matrix).
+(ii) The representation has the required 4 degrees of freedom for a line. This is accounted
+as follows: the skew-symmetric matrix has 6 independent non-zero elements,
+but only their 5 ratios are significant, and furthermore because det L = 0
+the elements satisfy a (quadratic) constraint (see below). The net number of degrees
+of freedom is then 4.
+(iii) The relation L = AB
+T − BA
+T is the generalization to 4-space of the vector
+product formula l = x × y of IP2 for a line l defined by two points x, y all
+represented by 3-vectors.
+(iv) The matrix L is independent of the points A,B used to define it, since if a
+different point C on the line is used, with C = A + μB, then the resulting
+matrix is
+ˆL
+= AC
+T − CA
+T = A(A
+T + μB
+T) − (A + μB)A
+T
+= AB
+T − BA
+T = L.
+(v) Under the point transformation X′ = HX, the matrix transforms as L′ = HLHT,
+i.e. it is a valency-2 tensor (see appendix 1(p562)).
+
+</p><p>
+Example 3.3. From (3.8) the X-axis is represented as
+L =
+
+
+0
+0
+0
+1
+
+
+
+1 0 0 0
+
+−
+
+
+1
+0
+0
+0
+
+
+
+0 0 0 1
+
+=
+
+
+0 0 0 −1
+0 0 0 0
+0 0 0 0
+1 0 0 0
+
+
+where the points A and B are (as in the previous example) the origin and ideal point in
+the X-direction respectively. △
+A dual Pl¨ucker representation L∗ is obtained for a line formed by the intersection of
+two planes P,Q,
+L∗ = PQ
+T − QP
+T (3.9)
+and has similar properties to L. Under the point transformation X′ = HX, the matrix
+L∗ transforms as L∗′ = H−TLH−1. The matrix L∗ can be obtained directly from L by a
+simple rewrite rule:
+l12 : l13 : l14 : l23 : l42 : l34 = l∗
+34 : l∗
+42 : l∗
+23 : l∗
+14 : l∗
+13 : l∗
+12. (3.10)
+The correspondence rule is very simple: the indices of the dual and original component
+always include all the numbers {1, 2, 3, 4}, so if the original is ij then the dual is those
+numbers of {1, 2, 3, 4} which are not ij. For example 12 7→ 34.
+Join and incidence properties are very nicely represented in this notation:
+(i) The plane defined by the join of the point X and line L is
+ = L∗X
+and L∗X = 0 if, and only if, X is on L.
+(ii) The point defined by the intersection of the line L with the plane  is
+X = L
+and L = 0 if, and only if, L is on .
+The properties of two (or more) lines L1, L2, . . . can be obtained from the null-space
+of the matrix M = [L1, L2, . . .]. For example if the lines are coplanar then MT has a
+1-dimensional null-space corresponding to the plane  of the lines.
+</p><p>
+Example 3.4. The intersection of the X-axis with the plane X = 1 is given by X = L
+as
+X =
+
+
+0 0 0 −1
+0 0 0 0
+0 0 0 0
+1 0 0 0
+
+
+
+
+1
+0
+0
+−1
+
+
+=
+
+
+1
+0
+0
+1
+
+
+which is the inhomogeneous point (X, Y, Z)T = (1, 0, 0)T. △
+</p><p>
+III. Pl¨ucker line coordinates. The Pl¨ucker line coordinates are the six non-zero
+elements of the 4 × 4 skew-symmetric Pl¨ucker matrix (3.8) L, namely1
+L = {l12, l13, l14, l23, l42, l34}. (3.11)
+This is a homogeneous 6-vector, and thus is an element of IP5. It follows from evaluating
+det L = 0 that the coordinates satisfy the equation
+l12l34 + l13l42 + l14l23 = 0. (3.12)
+A 6-vector L only corresponds to a line in 3-space if it satisfies (3.12). The geometric
+interpretation of this constraint is that the lines of IP3 define a (co-dimension 1) surface
+in IP5 which is known as the Klein quadric, a quadric because the terms of (3.12) are
+quadratic in the Pl¨ucker line coordinates.
+Suppose two lines L, ˆ L are the joins of the points A,B and bA, bB respectively. The
+lines intersect if and only if the four points are coplanar. A necessary and sufficient
+condition for this is that det[A,B, bA, bB] = 0. It can be shown that the determinant
+expands as
+det[A,B, bA, bB] = l12ˆ l34 +ˆ l12l34 + l13ˆ l42 +ˆ l13l42 + l14ˆ l23 +ˆ l14l23
+= (L| ˆ L). (3.13)
+Since the Pl¨ucker coordinates are independent of the particular points used to define
+them, the bilinear product (L| ˆ L) is independent of the points used in the derivation and
+only depends on the lines L and ˆ L. Then we have
+</p><p>
+Result 3.5. Two lines L and ˆ L are coplanar (and thus intersect) if and only if (L| ˆ L) =
+0.
+This product appears in a number of useful formulae:
+1 The element l42 is conventionally used instead of l24 as it eliminates negatives in many of the subsequent formulae.
+3.2 Representing and transforming planes, lines and quadrics 73
+(i) A 6-vector L only represents a line in IP3 if (L|L) = 0. This is simply repeating
+the Klein quadric constraint (3.12) above.
+(ii) Suppose two lines L, ˆ L are the intersections of the planes P,Q and bP, bQ respectively.
+Then
+(L| ˆ L) = det[P,Q, bP, bQ]
+and again the lines intersect if and only if (L| ˆ L) = 0.
+(iii) If L is the intersection of two planes P and Q and ˆ L is the join of two points A
+and B, then
+(L| ˆ L) = (P
+T
+A)(Q
+T
+B) − (Q
+T
+A)(P
+T
+B). (3.14)
+Pl¨ucker coordinates are useful in algebraic derivations. They will be used in defining
+the map from a line in 3-space to its image in chapter 8.
+</p>
+<h3>3.2.3 Quadrics and dual quadrics</h3>
+<p>
+A quadric is a surface in IP3 defined by the equation
+X
+T
+QX = 0 (3.15)
+where Q is a symmetric 4 × 4 matrix. Often the matrix Q and the quadric surface it
+defines are not distinguished, and we will simply refer to the quadric Q.
+
+</p><p>
+Many of the properties of quadrics follow directly from those of conics in section
+2.2.3(p30). To highlight a few:
+(i) A quadric has 9 degrees of freedom. These correspond to the ten independent
+elements of a 4 × 4 symmetric matrix less one for scale.
+(ii) Nine points in general position define a quadric.
+(iii) If the matrix Q is singular, then the quadric is degenerate, and may be defined
+by fewer points.
+(iv) A quadric defines a polarity between a point and a plane, in a similar manner
+to the polarity defined by a conic between a point and a line (section 2.8.1).
+The plane  = QX is the polar plane of X with respect to Q. In the case that Q
+is non-singular and X is outside the quadric, the polar plane is defined by the
+points of contact with Q of the cone of rays through X tangent to Q. If X lies on
+Q, then QX is the tangent plane to Q at X.
+(v) The intersection of a plane  with a quadric Q is a conic C. Computing the
+conic can be tricky because it requires a coordinate system for the plane. Recall
+from (3.7) that a coordinate system for the plane can be defined by the complement
+space to  as X = Mx. Points on  are on Q if X
+TQX = xTMTQMx = 0.
+These points lie on a conic C, since xTCx = 0, with C = MTQM.
+(vi) Under the point transformation X′ = HX, a (point) quadric transforms as
+Q′ = H−T
+QH−1. (3.16)
+</p><p>
+The dual of a quadric is also a quadric. Dual quadrics are equations on planes: the
+tangent planes  to the point quadric Q satisfy 
+TQ∗ = 0, where Q∗ = adjoint Q,
+or Q−1 if Q is invertible. Under the point transformation X′ = HX, a dual quadric
+transforms as
+Q∗′ = HQ∗H
+T. (3.17)
+The algebra of imaging a quadric is far simpler for a dual quadric than a point quadric.
+This is detailed in chapter 8.
+</p>
+<h3>3.2.4 Classification of quadrics</h3>
+<p>
+Since the matrix, Q, representing a quadric is symmetric, it may be decomposed as
+Q = UTDU where U is a real orthogonal matrix and D is a real diagonal matrix. Further,
+by appropriate scaling of the rows of U, one may write Q = HTDH where D is diagonal
+with entries equal to 0, 1, or −1. We may further ensure that the zero entries of D
+appear last along the diagonal, and that the +1 entries appear first. Now, replacement
+of Q = HTDH by D is equivalent to a projective transformation effected by the matrix
+H (see (3.16)). Thus, up to projective equivalence, we may assume that the quadric is
+represented by a matrix D of the given simple form.
+
+</p><p>
+The signature of a diagonal matrix D, denoted (D), is defined to be the number of
++1 entries minus the number of −1 entries. This definition is extended to arbitrary
+real symmetric matrices Q by defining (Q) = (D) such that Q = HTDH, where H is
+a real matrix. It may be proved that the signature is well defined, being independent
+of the particular choice of H. Since the matrix representing a quadric is defined only
+up to sign, we may assume that its signature is non-negative. Then, the projective type
+of a quadric is uniquely determined by its rank and signature. This will allow us to
+enumerate the different projective equivalence classes of quadrics.
+</p><p>
+A quadric represented by a diagonal matrix diag(d1, d2, d3, d4) corresponds to a set
+of points satisfying an equation d1X
+2 +d2Y
+2 +d3Z
+2 +d4T
+2 = 0. One may set T = 1 to
+get an equation for the non-infinite points on the quadric. See table 3.1. Examples of
+quadric surfaces are shown in figure 3.2 – figure 3.4.
+Rank  Diagonal Equation Realization
+4 4 (1, 1, 1, 1) X
+2 + Y
+2 + Z
+2 + 1 = 0 No real points
+2 (1, 1, 1,−1) X
+2 + Y
+2 + Z
+2 = 1 Sphere
+0 (1, 1,−1,−1) X
+2 + Y
+2 = Z
+2 + 1 Hyperboloid of one sheet
+3 3 (1, 1, 1, 0) X
+2 + Y
+2 + Z
+2 = 0 One point (0, 0, 0, 1)T
+1 (1, 1,−1, 0) X
+2 + Y
+2 = Z
+2 Cone at the origin
+2 2 (1, 1, 0, 0) X
+2 + Y
+2 = 0 Single line (Z-axis)
+0 (1,−1, 0, 0) X
+2 = Y
+2 Two planes X = ±Y
+1 1 (1, 0, 0, 0) X
+2 = 0 The plane X = 0
+Table 3.1. Categorization of point quadrics.
+3.3 Twisted cubics 75
+</p><p>
+Fig. 3.2. Non-ruled quadrics. This shows plots of a sphere, ellipsoid, hyperboloid of two sheets and
+paraboloid. They are all projectively equivalent.
+</p><p>
+Fig. 3.3. Ruled quadrics. Two examples of a hyperboloid of one sheet are given. These surfaces are
+given by equations X
+2 + Y
+2 = Z
+2 + 1 and XY = Z respectively, and are projectively equivalent. Note
+that these two surfaces are made up of two sets of disjoint straight lines, and that each line from one set
+meets each line from the other set. The two quadrics shown here are projectively (though not affinely)
+equivalent.
+</p><p>
+
+Ruled quadrics. Quadrics fall into two classes – ruled and unruled quadrics. A
+ruled quadric is one that contains a straight line. More particularly, as shown in
+figure 3.3, the non-degenerate ruled quadric (hyperboloid of one sheet) contains two
+families of straight lines called generators. For more properties of ruled quadrics, refer
+to [Semple-79].
+</p><p>
+The most interesting of the quadrics are the two quadrics of rank 4. Note that these
+two quadrics differ even in their topological type. The quadric of signature 2 (the
+sphere) is (obviously enough) topologically a sphere. On the other hand, the hyperboloid
+of 1 sheet is not topologically equivalent (homeomorphic) to a sphere. In fact,
+it is topologically a torus (topologically equivalent to S1 × S1). This gives the clearest
+indication that they are not projectively equivalent.
+3.3 Twisted cubics
+The twisted cubic may be considered to be a 3-dimensional analogue of a 2D conic
+(although in other ways it is a quadric surface which is the 3-dimensional analogue of
+a 2D conic.)
+76 3 Projective Geometry and Transformations of 3D
+Fig. 3.4. Degenerate quadrics. The two most important degenerate quadrics are shown, the cone and
+two planes. Both these quadrics are ruled. The matrix representing the cone has rank 3, and the nullvector
+represents the nodal point of the cone. The matrix representing the two (non-coincident) planes
+has rank 2, and the two generators of the rank 2 null-space are two points on the intersection line of the
+planes.
+A conic in the 2-dimensional projective plane may be described as a parametrized
+curve given by the equation
+
+
+x1
+x2
+x3
+
+
+= A
+
+
+1
+
+2
+
+
+=
+
+
+a11 + a12 + a132
+a21 + a22 + a232
+a31 + a32 + a332
+
+
+(3.18)
+where A is a non-singular 3 × 3 matrix.
+In an analogous manner, a twisted cubic is defined to be a curve in IP3 given in
+parametric form as
+
+
+X1
+X2
+X3
+X4
+
+
+= A
+
+
+1
+
+2
+3
+
+
+=
+
+
+a11 + a12 + a132 + a143
+a21 + a22 + a232 + a243
+a31 + a32 + a332 + a343
+a41 + a42 + a432 + a443
+
+
+(3.19)
+where A is a non-singular 4 × 4 matrix.
+Since a twisted cubic is perhaps an unfamiliar object, various views of the curve are
+shown in figure 3.5. In fact, a twisted cubic is a quite benign space curve.
+Properties of a twisted cubic. Let c be a non-singular twisted cubic. Then c is not
+contained within any plane of IP3; it intersects a general plane at three distinct points. A
+twisted cubic has 12 degrees of freedom (counted as 15 for the matrix A, less 3 for a 1D
+projectivity on the parametrization , which leaves the curve unaltered). Requiring the
+curve to pass through a point X places two constraints on c, since X = A(1, , 2, 3)T
+is three independent ratios, but only two constraints once  is eliminated. Thus, there
+is a unique c through six points in general position. Finally, all non-degenerate twisted
+cubics are projectively equivalent. This is clear from the definition (3.19): a projective
+transformation A−1 maps c to the standard form c(′) = (1, ′, ′2, ′3)T, and since
+3.4 The hierarchy of transformations 77
+Fig. 3.5. Various views of the twisted cubic (t3, t2, t, )T. The curve is thickened to a tube to aid in
+visualization.
+all twisted cubics can be mapped to this curve, it follows that all twisted cubics are
+projectively equivalent.
+A classification of the various special cases of a twisted cubic, such as a conic and
+coincident line, are given in [Semple-79]. The twisted cubic makes an appearance as
+the horopter for two-view geometry (chapter 9), and plays the central role in defining
+the degenerate set for camera resectioning (chapter 22).
+3.4 The hierarchy of transformations
+There are a number of specializations of a projective transformation of 3-space which
+will appear frequently throughout this book. The specializations are analogous to the
+strata of section 2.4(p37) for planar transformations. Each specialization is a subgroup,
+and is identified by its matrix form, or equivalently by its invariants. These are
+summarized in table 3.2. This table lists only the additional properties of the 3-space
+transformations over their 2-space counterparts – the transformations of 3-space also
+have the invariants listed in table 2.1(p44) for the corresponding 2-space transformations.
+The 15 degrees of freedom of a projective transformation are accounted for as seven
+for a similarity (three for rotation, three for translation, one for isotropic scaling), five
+for affine scalings, and three for the projective part of the transformation.
+Two of the most important characterizations of these transformations are parallelism
+and angles. For example, after an affine transformation lines which were originally
+parallel remain parallel, but angles are skewed; and after a projective transformation
+parallelism is lost.
+In the following we briefly describe a decomposition of a Euclidean transformation
+that will be useful when discussing special motions later in this book.
+3.4.1 The screw decomposition
+A Euclidean transformation on the plane may be considered as a specialization of a
+Euclidean transformation of 3-space with the restrictions that the translation vector t
+lies in the plane, and the rotation axis is perpendicular to the plane. However, Euclidean
+actions on 3-space are more general than this because the rotation axis and translation
+are not perpendicular in general. The screw decomposition enables any Euclidean
+78 3 Projective Geometry and Transformations of 3D
+Group Matrix Distortion Invariant properties
+Projective
+15 dof
+
+A t
+vT v
+ Intersection and tangency of surfaces
+in contact. Sign of Gaussian
+curvature.
+Affine
+12 dof
+
+A t
+0T 1
+ Parallelism of planes, volume ratios,
+centroids. The plane at infinity,
+∞, (see section 3.5).
+Similarity
+7 dof
+
+sR t
+0T 1
+
+The absolute conic, 
+∞,
+(see section 3.6).
+Euclidean
+6 dof
+
+R t
+0T 1
+
+Volume.
+Table 3.2. Geometric properties invariant to commonly occurring transformations of 3-space. The
+matrix A is an invertible 3 × 3 matrix, R is a 3D rotation matrix, t = (tX, tY, tZ)T a 3D translation, v
+a general 3-vector, v a scalar, and 0 = (0, 0, 0)T a null 3-vector. The distortion column shows typical
+effects of the transformations on a cube. Transformations higher in the table can produce all the actions
+of the ones below. These range from Euclidean, where only translations and rotations occur, to projective
+where five points can be transformed to any other five points (provided no three points are collinear, or
+four coplanar).
+action (a rotation composed with a translation) to be reduced to a situation almost as
+simple as the 2D case. The screw decomposition is that
+Result 3.6. Any particular translation and rotation is equivalent to a rotation about a
+screw axis together with a translation along the screw axis. The screw axis is parallel
+to the rotation axis.
+In the case of a translation and an orthogonal rotation axis (termed planar motion), the
+motion is equivalent to a rotation alone about the screw axis.
+Proof. We will sketch a constructive geometric proof that can easily be visualized.
+Consider first the 2D case – a Euclidean transformation on the plane. It is evident
+from figure 3.6 that a screw axis exists for such 2D transformations. For the 3D case,
+decompose the translation t into two components t = tk + t⊥, parallel and orthogonal
+respectively to the rotation axis direction (tk = (t.a)a, t⊥ = t − (t.a)a).
+Then the Euclidean motion is partitioned into two parts: first a rotation about the screw
+3.5 The plane at infinity 79
+t
+y
+x
+y
+O /
+/
+/
+S
+y
+x
+y
+O /
+/
+/
+R( 􀁔 )
+􀁔
+O x O x
+a b
+Fig. 3.6. 2D Euclidean motion and a “screw” axis. (a) The frame {x, y} undergoes a translation t⊥
+and a rotation by  to reach the frame {x′, y′}. The motion is in the plane orthogonal to the rotation
+axis. (b) This motion is equivalent to a single rotation about the screw axis S. The screw axis lies on the
+perpendicular bisector of the line joining corresponding points, such that the angle between the lines
+joining S to the corresponding points is . In the figure the corresponding points are the two frame
+origins and  has the value 90◦.
+O t
+􀁔
+O/
+S
+a
+screw
+axis
+t
+O O/
+S
+O/
+a
+screw
+axis S /
+a b
+Fig. 3.7. 3D Euclidean motion and the screw decomposition. Any Euclidean rotation R and translation
+t may be achieved by (a) a rotation about the screw axis, followed by (b) a translation along the
+screw axis by tk. Here a is the (unit) direction of the rotation axis (so that Ra = a), and t is decomposed
+as t = tk + t⊥, which are vector components parallel and orthogonal respectively to the rotation axis
+direction The point S is closest to O on the screw axis (so that the line from S to O is perpendicular to
+the direction of a). Similarly S′ is the point on the screw axis closest to O′.
+axis, which covers the rotation and t⊥; second a translation by tk along the screw axis.
+The complete motion is illustrated in figure 3.7.
+The screw decomposition can be determined from the fixed points of the 4×4 matrix
+representing the Euclidean transformation. This idea is examined in the exercises at the
+end of the chapter.
+3.5 The plane at infinity
+In planar projective geometry identifying the line at infinity, l∞, allowed affine properties
+of the plane to be measured. Identifying the circular points on l∞ then allowed
+80 3 Projective Geometry and Transformations of 3D
+the measurement of metric properties. In the projective geometry of 3-space the corresponding
+geometric entities are the plane at infinity, ∞, and the absolute conic, 
+∞.
+The plane at infinity has the canonical position ∞ = (0, 0, 0, 1)T in affine 3-space.
+It contains the directions D = (X1, X2, X3, 0)T, and enables the identification of affine
+properties such as parallelism. In particular:
+• Two planes are parallel if, and only if, their line of intersection is on ∞.
+• A line is parallel to another line, or to a plane, if the point of intersection is on ∞.
+We then have in IP3 that any pair of planes intersect in a line, with parallel planes
+intersecting in a line on the plane at infinity.
+The plane ∞ is a geometric representation of the 3 degrees of freedom required
+to specify affine properties in a projective coordinate frame. In loose terms, the plane
+at infinity is a fixed plane under any affine transformation, but “sees” (is moved by) a
+projective transformation. The 3 degrees of freedom of ∞ thus measure the projective
+component of a general homography – they account for the 15 degrees of freedom of
+this general transformation compared to an affinity (12 dof). More formally:
+Result 3.7. The plane at infinity, ∞, is a fixed plane under the projective transformation
+H if, and only if, H is an affinity.
+The proof is the analogue of the derivation of result 2.17(p48). It is worth clarifying
+two points:
+(i) The plane ∞ is, in general, only fixed as a set under an affinity; it is not fixed
+pointwise.
+(ii) Under a particular affinity (for example a Euclidean motion) there may be
+planes in addition to ∞ which are fixed. However, only ∞ is fixed under
+any affinity.
+These points are illustrated in more detail by the following example.
+Example 3.8. Consider the Euclidean transformation represented by the matrix
+HE =
+"
+R 0
+0T 1
+#
+=
+
+
+cos  −sin  0 0
+sin  cos  0 0
+0 0 1 0
+0 0 0 1
+
+
+. (3.20)
+This is a rotation by  about the Z-axis with a zero translation (it is a planar screw
+motion, see section 3.4.1). Geometrically it is evident that the family of XY-planes orthogonal
+to the rotation axis are simply rotated about the Z-axis by this transformation.
+This means that there is a pencil of fixed planes orthogonal to the Z-axis. The planes
+are fixed as sets, but not pointwise as any (finite) point (not on the axis) is rotated in
+horizontal circles by this Euclidean action. Algebraically, the fixed planes of H are the
+eigenvectors of HT (refer to section 2.9). In this case the eigenvalues are {ei, e−i, 1, 1}
+3.6 The absolute conic 81
+and the corresponding eigenvectors of HT
+E are
+E1 =
+
+
+1
+i
+0
+0
+
+
+E2 =
+
+
+1
+−i
+0
+0
+
+
+E3 =
+
+
+0
+0
+1
+0
+
+
+E4 =
+
+
+0
+0
+0
+1
+
+
+.
+The eigenvectors E1 and E2 do not correspond to real planes, and will not be discussed
+further here. The eigenvectors E3 and E4 are degenerate. Thus there is a pencil of
+fixed planes which is spanned by these eigenvectors. The axis of this pencil is the line
+of intersection of the the planes (perpendicular to the Z-axis) with ∞, and the pencil
+includes ∞. △
+The example also illustrates the connection between the geometry of the projective
+plane, IP2, and projective 3-space, IP3. A plane  intersects ∞ in a line which is
+the line at infinity, l∞, of the plane . A projective transformation of IP3 induces a
+subordinate plane projective transformation on .
+Affine properties of a reconstruction. In later chapters on reconstruction, for example
+chapter 10, it will be seen that the projective coordinates of the (Euclidean) scene
+can be reconstructed from multiple views. Once ∞ is identified in projective 3-space,
+i.e. its projective coordinates are known, it is then possible to determine affine properties
+of the reconstruction such as whether geometric entities are parallel – they are
+parallel if they intersect on ∞.
+A more algorithmic approach is to transform IP3 so that the identified ∞ is moved
+to its canonical position at ∞ = (0, 0, 0, 1)T. After this mapping we then have the
+situation that the Euclidean scene, where ∞ has the coordinates (0, 0, 0, 1)T, and our
+reconstruction are related by a projective transformation that fixes ∞ at (0, 0, 0, 1)T. It
+follows from result 3.7 that the scene and reconstruction are related by an affine transformation.
+Thus affine properties can now be measured directly from the coordinates
+of the entities.
+3.6 The absolute conic
+The absolute conic, 
+∞, is a (point) conic on ∞. In a metric frame ∞ = (0, 0, 0, 1)T,
+and points on 
+∞ satisfy
+X
+2
+1 + X
+2
+2 + X
+2
+3
+X4
+)
+= 0. (3.21)
+Note that two equations are required to define 
+∞.
+For directions on ∞ (i.e. points with X4 = 0 ) the defining equation can be written
+(X1, X2, X3)I(X1, X2, X3)T = 0
+so that 
+∞ corresponds to a conic C with matrix C = I. It is thus a conic of purely
+imaginary points on ∞.
+82 3 Projective Geometry and Transformations of 3D
+The conic 
+∞ is a geometric representation of the 5 additional degrees of freedom
+that are required to specify metric properties in an affine coordinate frame. A key
+property of 
+∞ is that it is a fixed conic under any similarity transformation. More
+formally:
+Result 3.9. The absolute conic, 
+∞, is a fixed conic under the projective transformation
+H if, and only if, H is a similarity transformation.
+Proof. Since the absolute conic lies in the plane at infinity, a transformation fixing it
+must fix the plane at infinity, and hence must be affine. Such a transformation is of the
+form
+HA =
+"
+A t
+0T 1
+#
+.
+Restricting to the plane at infinity, the absolute conic is represented by the matrix I3×3,
+and since it is fixed by HA, one has A−TIA−1 = I (up to scale), and taking inverses gives
+AAT = I. This means that A is orthogonal, hence a scaled rotation, or scaled rotation
+with reflection. This completes the proof.
+Even though 
+∞ does not have any real points, it shares the properties of any conic –
+such as that a line intersects a conic in two points; the pole–polar relationship etc. Here
+are a few particular properties of 
+∞:
+(i) 
+∞ is only fixed as a set by a general similarity; it is not fixed pointwise. This
+means that under a similarity a point on 
+∞ may travel to another point on 
+∞,
+but it is not mapped to a point off the conic.
+(ii) All circles intersect 
+∞ in two points. Suppose the support plane of the circle
+is . Then  intersects ∞ in a line, and this line intersects 
+∞ in two points.
+These two points are the circular points of .
+(iii) All spheres intersect ∞ in 
+∞.
+Metric properties. Once 
+∞ (and its support plane ∞) have been identified in
+projective 3-space then metric properties, such as angles and relative lengths, can be
+measured.
+Consider two lines with directions (3-vectors) d1 and d2. The angle between these
+directions in a Euclidean world frame is given by
+cos  =
+(dT
+1 d2)
+q
+(dT
+1 d1)(dT
+2 d2)
+. (3.22)
+This may be written as
+cos  =
+(dT
+1 
+∞d2)
+q
+(dT
+1 
+∞d1)(dT
+2 
+∞d2)
+(3.23)
+where d1 and d2 are the points of intersection of the lines with the plane ∞ containing
+the conic 
+∞, and 
+∞ is the matrix representation of the absolute conic in that plane.
+3.7 The absolute dual quadric 83
+􀀺 􀁓
+d
+d
+1
+2
+􀀺 􀁓
+d
+l
+a b
+Fig. 3.8. Orthogonality and 
+∞. (a) On ∞ orthogonal directions d1, d2 are conjugate with respect
+to 
+∞. (b) A plane normal direction d and the intersection line l of the plane with ∞ are in pole–polar
+relation with respect to 
+∞.
+The expression (3.23) reduces to (3.22) in a Euclidean world frame where 
+∞ = I.
+However, the expression is valid in any projective coordinate frame as may be verified
+from the transformation properties of points and conics (see (iv)(b) on page 63).
+There is no simple formula for the angle between two planes computed from the
+directions of their surface normals.
+Orthogonality and polarity. We now give a geometric representation of orthogonality
+in a projective space based on the absolute conic. The main device will be the
+pole–polar relationship between a point and line induced by a conic.
+An immediate consequence of (3.23) is that two directions d1 and d2 are orthogonal
+if dT
+1 
+∞d2 = 0. Thus orthogonality is encoded by conjugacy with respect to 
+∞. The
+great advantage of this is that conjugacy is a projective relation, so that in a projective
+frame (obtained by a projective transformation of Euclidean 3-space) directions can
+be identified as orthogonal if they are conjugate with respect to 
+∞ in that frame (in
+general the matrix of 
+∞ is not I in a projective frame). The geometric representation
+of orthogonality is shown in figure 3.8.
+This representation is helpful when considering orthogonality between rays in a
+camera, for example in determining the normal to a plane through the camera centre
+(see section 8.6(p213)). If image points are conjugate with respect to the image of
+
+∞ then the corresponding rays are orthogonal.
+Again, a more algorithmic approach is to projectively transform the coordinates so
+that 
+∞ is mapped to its canonical position (3.21), and then metric properties can be
+determined directly from coordinates.
+3.7 The absolute dual quadric
+Recall that 
+∞ is defined by two equations – it is a conic on the plane at infinity. The
+dual of the absolute conic 
+∞ is a degenerate dual quadric in 3-space called the absolute
+dual quadric, and denoted Q∗
+∞. Geometrically Q∗
+∞ consists of the planes tangent to 
+∞,
+so that 
+∞ is the “rim” of Q∗
+∞. This is called a rim quadric. Think of the set of planes
+tangent to an ellipsoid, and then squash the ellipsoid to a pancake.
+Algebraically Q∗
+∞ is represented by a 4 × 4 homogeneous matrix of rank 3, which in
+84 3 Projective Geometry and Transformations of 3D
+metric 3-space has the canonical form
+Q∗
+∞ =
+"
+I 0
+0T 0
+#
+. (3.24)
+We will show that any plane in the dual absolute quadric envelope is indeed tangent
+to 
+∞, so the Q∗
+∞ is truly a dual of 
+∞. Consider a plane represented by  = (vT, k)T.
+This plane is in the envelope defined by Q∗
+∞ if and only if 
+TQ∗
+∞ = 0, which given
+the form (3.24) is equivalent to vTv = 0. Now, (see section 8.6(p213)) v represents
+the line in which the plane (vT, k)T meets the plane at infinity. This line is tangent to
+the absolute conic if and only if vTIv = 0. Thus, the envelope of Q∗
+∞ is made up of
+just those planes tangent to the absolute conic.
+Since this is an important fact, we consider it from another angle. Consider the absolute
+conic as the limit of a series of squashed ellipsoids, namely quadrics represented
+by the matrix Q = diag(1, 1, 1, k). As k → ∞, these quadrics become increasingly
+close to the plane at infinity, and in the limit the only points they contain are the points
+(X1, X2, X3, 0)T with X
+2
+1 + X
+2
+2 + X
+2
+3 = 0, that is points on the absolute conic. However,
+the dual of Q is the quadric Q∗ = Q−1 = diag(1, 1, 1, k−1), which in the limit becomes
+the absolute dual quadric Q∗
+∞ = diag(1, 1, 1, 0).
+The dual quadric Q∗
+∞ is a degenerate quadric and has 8 degrees of freedom (a symmetric
+matrix has 10 independent elements, but the irrelevant scale and zero determinant
+condition each reduce the degrees of freedom by 1). It is a geometric representation of
+the 8 degrees of freedom that are required to specify metric properties in a projective
+coordinate frame. Q∗
+∞ has a significant advantage over 
+∞ in algebraic manipulations
+because both ∞ and 
+∞ are contained in a single geometric object (unlike 
+∞ which
+requires two equations (3.21) in order to specify it). In the following we give its three
+most important properties.
+Result 3.10. The absolute dual quadric, Q∗
+∞, is fixed under the projective transformation
+H if, and only if, H is a similarity.
+Proof. This follows directly from the invariance of the absolute conic under a similarity
+transform, since the planar tangency relationship between Q∗
+∞ and 
+∞ is transformation
+invariant. Nevertheless, we give an independent direct proof.
+Since Q∗
+∞ is a dual quadric, it transforms according to (3.17–p74), so it is fixed under H
+if and only if Q∗
+∞ = HQ∗
+∞HT. Applying this with an arbitrary transform
+H =
+"
+A t
+vT k
+#
+we find
+"
+I 0
+0T 0
+#
+=
+"
+A t
+vT k
+# "
+I 0
+0T 0
+# "
+AT v
+tT k
+#
+=
+"
+AAT Av
+vTAT vTv
+#
+3.8 Closure 85
+which must be true up to scale. By inspection, this equation holds if and only if v = 0
+and A is a scaled orthogonal matrix (scaling, rotation and possible reflection). In other
+words, H is a similarity transform.
+Result 3.11. The plane at infinity ∞ is the null-vector of Q∗
+∞.
+This is easily verified when Q∗
+∞ has its canonical form (3.24) in a metric frame since
+then, with ∞ = (0, 0, 0, 1)T, Q∗
+∞∞ = 0. This property holds in any frame as may
+be readily seen algebraically from the transformation properties of planes and dual
+quadrics: if X′ = HX, then Q∗
+∞
+′ = H Q∗
+∞ HT, ′
+∞ = H−T
+∞, and
+Q∗
+∞
+′
+
+′
+∞ = (H Q∗
+∞ H
+T)H−T
+∞ = HQ∗
+∞∞ = 0.
+Result 3.12. The angle between two planes 1 and 2 is given by
+cos  =
+
+T
+1 Q∗
+∞2 q
+(
+T
+1 Q∗
+∞1) (
+T
+2 Q∗
+∞2)
+. (3.25)
+Proof. Consider two planes with Euclidean coordinates 1 = (nT
+1 , d1)T,
+2 = (nT
+2 , d2)T. In a Euclidean frame, Q∗
+∞ has the form (3.24), and (3.25) reduces
+to
+cos  =
+nT
+1 n2 q
+(nT
+1 n1) (nT
+2 n2)
+which is the angle between the planes expressed in terms of a scalar product of their
+normals.
+If the planes and Q∗
+∞ are projectively transformed, (3.25) will still determine the angle
+between planes due to the (covariant) transformation properties of planes and dual
+quadrics.
+The details of the last part of the proof are left as an exercise, but are a direct 3D
+analogue of the derivation of result 2.23(p54) on the angle between two lines in IP2
+computed using the dual of the circular points. Planes in IP3 are the analogue of lines
+in IP2, and the absolute dual quadric is the analogue of the dual of the circular points.
+3.8 Closure
+3.8.1 The literature
+The textbooks cited in chapter 2 are also relevant here. See also [Boehm-94] for a general
+background from the perspective of descriptive geometry, and Hilbert and Cohn-
+Vossen [Hilbert-56] for many clearly explained properties of curves and surfaces.
+An important representation for points, lines and planes in IP3, which is omitted
+in this chapter, is the Grassmann–Cayley algebra. In this representation geometric
+operations such as incidence and joins are represented by a “bracket algebra” based on
+matrix determinants. A good introduction to this area is given by [Carlsson-94], and
+its application to multiple view tensors is illustrated in [Triggs-95].
+86 3 Projective Geometry and Transformations of 3D
+Faugeras and Maybank [Faugeras-90] introduced 
+∞ into the computer vision literature
+(in order to determine the multiplicity of solutions for relative orientation), and
+Triggs introduced Q∗
+∞ in [Triggs-97] for use in auto-calibration.
+3.8.2 Notes and exercises
+(i) Pl ¨ucker coordinates.
+(a) Using Pl¨ucker line coordinates, L, write an expression for the point of
+intersection of a line with a plane, and the plane defined by a point and
+a line.
+(b) Now derive the condition for a point to be on a line, and a line to be on
+a plane.
+(c) Show that parallel planes intersect in a line on ∞. Hint, start from (3.9–
+p71) to determine the line of intersection of two parallel planes L∗.
+(d) Show that parallel lines intersect on ∞.
+(ii) Projective transformations. Show that a (real) projective transformation of
+3-space can map an ellipsoid to a paraboloid or hyperboloid of two sheets, but
+cannot map an ellipsoid to a hyperboloid of one sheet (i.e. a surface with real
+rulings).
+(iii) Screw decomposition. Show that the 4 × 4 matrix representing the Euclidean
+transformation {R, t} (with a the direction of the rotation axis, i.e. Ra = a) has
+two complex conjugate eigenvalues, and two equal real eigenvalues, and the
+following eigenvector structure:
+(a) if a is perpendicular to t, then the eigenvectors corresponding to the real
+eigenvalues are distinct;
+(b) otherwise, the eigenvectors corresponding to the real eigenvalues are
+coincident, and on ∞.
+(E.g. choose simple cases such as (3.20), another case is given on page 495).
+In the first case the two real points corresponding to the real eigenvalues define
+a line of fixed points. This is the screw axis for planar motion. In the second
+case, the direction of the screw axis is defined, but it is not a line of fixed points.
+What do the eigenvectors corresponding to the complex eigenvalues represent? -->
+</p>
+    </body>
+</html>

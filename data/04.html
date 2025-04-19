@@ -1,0 +1,2488 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>4章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>4章 推定 – 2次元射影変換</center></h1>
+<p>
+本章では、推定の問題について考察します。本稿では、推定とは、何らかの測定に基づいて、何らかの変換やその他の数学的量を計算することを意味します。この定義はやや曖昧であるため、より具体的にするために、この種の推定問題をいくつか挙げて考察します。
+
+<!-- In this chapter, we consider the problem of estimation. In the present context this
+will be taken to mean the computation of some transformation or other mathematical
+quantity, based on measurements of some nature. This definition is somewhat vague,
+so to make it more concrete, here are a number of estimation problems of the type that
+we would like to consider. -->
+
+<div class="styleBullet">
+<ul>
+<li>(i) <strong>2次元ホモグラフィ</strong>　\(\mathbb P^2\) 内の点集合 \(x_i\) と、同じく \(\mathbb P^2\) 内の対応する点集合 \(x_i^\prime\) が与えられたとき、各 \(x_i\) を \(x_i^\prime\) へ射影変換する射影変換を計算します。実際には、点 \(x_i\) と \(x_i^\prime\) は2つの画像（または同じ画像）上の点であり、各画像は射影平面 \(\mathbb P^2\) とみなされます。 
+</li><br><li>(ii) <strong>3D から 2D へのカメラ投影</strong>　3D 空間内の点集合 \(X_i\) と、画像内の対応する点集合 \(x_i\) が与えられた場合、\(X_i\) を \(x_i\) に写す 3D から 2D への射影写像を求めます。このような 3D から 2D への射影写像は、第 6 章で説明したように、射影カメラによって実行される写像です。
+</li><br><li>(iii) <strong>基礎行列計算</strong>　ある画像内の点集合 \(x_i\) と、別の画像内の対応する点 \(x_i^\prime\) が与えられた場合、これらの対応関係と一致する基礎行列 \(F\) を計算します。第9章で説明した基礎行列は、すべての\(i\)に対して\({x_i^\prime}^TTFx_i = 0\) を満たす特異な \(3×3\) 行列 \(F\) です。
+</li><br><li>(iv) <strong>三焦点テンソルの計算</strong>　3枚の画像にわたる点の対応集合 \(x_i \leftrightarrow x_i^\prime \leftrightarrow x_i^{\prime\prime}\) が与えられた場合、三焦点テンソルを計算します。第15章で説明する三焦点テンソルは、3つのビュー内の点または線を関連付けるテンソル\(\mathcal T_i^{jk}\)です。</li>
+</ul>
+</div>
+
+<!-- (i) <strong>2D homography.</strong> Given a set of points \(x_i\) in \(\mathbb P^2\) and a corresponding set of points \(x_i^\prime\) likewise in \(\mathbb P^2\), compute the projective transformation that takes each \(x_i\) to \(x_i^\prime\). In a practical situation, the points \(x_i\) and \(x_i^\prime\) are points in two images
+(or the same image), each image being considered as a projective plane \(\mathbb P^2\).
+(ii) <strong>3D to 2D camera projection.</strong> Given a set of points \(X_i\) in 3D space, and a set of corresponding points \(x_i\) in an image, find the 3D to 2D projective mapping that maps \(X_i\) to \(x_i\). Such a 3D to 2D projection is the mapping carried out by a projective camera, as discussed in chapter 6.
+(iii) <strong>Fundamental matrix computation.</strong> Given a set of points \(x_i\) in one image, and corresponding points \(x_i^\prime\) in another image, compute the fundamental matrix \(F\) consistent with these correspondences. The fundamental matrix, discussed in chapter 9, is a singular \(3×3\) matrix \(F\) satisfying \({x_i^\prime}^TTFx_i = 0\( for all \(i\).
+(iv) <strong>Trifocal tensor computation.</strong> Given a set of point correspondences \(x_i \leftrightarrow x_i^\prime \leftrightarrow x_i^{\rime\prime}\) across three images, compute the trifocal tensor. The trifocal tensor, discussed in chapter 15, is a tensor \(\mathcal T_i^{jk}\) relating points or lines in three views. -->
+
+</p><p>
+これらの問題には多くの共通点があり、いずれかの問題に関連する考察は他の各問題にも関連しています。したがって、本章では、最初の問題について詳細に検討します。この問題の解決方法について学ぶことは、他の各問題の解決方法を学ぶことにもなります。
+
+<!-- These problems have many features in common, and the considerations that relate to
+one of the problems are also relevant to each of the others. Therefore, in this chapter,
+the first of these problems will be considered in detail. What we learn about ways of
+solving this problem will teach us how to proceed in solving each of the other problems
+as well.
+</p><p>
+Apart from being important for illustrative purposes, the problem of estimating 2D
+projective transformations is of importance in its own right. We consider a set of point
+correspondences xi ↔ x′
+i between two images. Our problem is to compute a 3 × 3
+matrix H such that Hxi = x′
+i for each i.
+</p><p>
+Number of measurements required. The first question to consider is how many
+corresponding points xi ↔ x′
+i are required to compute the projective transformation H.
+A lower bound is available by a consideration of the number of degrees of freedom and
+number of constraints. On the one hand, the matrix H contains 9 entries, but is defined
+only up to scale. Thus, the total number of degrees of freedom in a 2D projective transformation
+is 8. On the other hand, each point-to-point correspondence accounts for two
+constraints, since for each point xi in the first image the two degrees of freedom of the
+point in the second image must correspond to the mapped point Hxi. A 2D point has
+two degrees of freedom corresponding to the x and y components, each of which may
+be specified separately. Alternatively, the point is specified as a homogeneous 3-vector,
+which also has two degrees of freedom since scale is arbitrary. As a consequence, it is
+necessary to specify four point correspondences in order to constrain H fully.
+</p><p>
+Approximate solutions. It will be seen that if exactly four correspondences are given,
+then an exact solution for the matrix H is possible. This is the minimal solution. Such
+solutions are important as they define the size of the subsets required in robust estimation
+algorithms, such as RANSAC, described in section 4.7. However, since points are
+measured inexactly (“noise”), if more than four such correspondences are given, then
+these correspondences may not be fully compatible with any projective transformation,
+and one will be faced with the task of determining the “best” transformation given the
+data. This will generally be done by finding the transformation H that minimizes some
+cost function. Different cost functions will be discussed during this chapter, together
+with methods for minimizing them. There are two main categories of cost function:
+those based on minimizing an algebraic error; and those based on minimizing a geometric
+or statistical image distance. These two categories are described in section 4.2.
+</p><p>
+The Gold Standard algorithm. There will usually be one cost function which is
+optimal in the sense that the H that minimizes it gives the best possible estimate of the
+transformation under certain assumptions. The computational algorithm that enables
+this cost function to be minimized is called the “Gold Standard” algorithm. The results
+of other algorithms are assessed by how well they compare to this Gold Standard. In
+the case of estimating a homography between two views the cost function is (4.8), the
+assumptions for optimality are given in section 4.3, and the Gold Standard is algorithm
+4.3.
+</p>
+<h2>4.1 The Direct Linear Transformation (DLT) algorithm</h2>
+<p>
+We begin with a simple linear algorithm for determining H given a set of four 2D to 2D
+point correspondences, xi ↔ x′
+i. The transformation is given by the equation x′
+i = Hxi.
+Note that this is an equation involving homogeneous vectors; thus the 3-vectors x′
+i and
+Hxi are not equal, they have the same direction but may differ in magnitude by a nonzero
+scale factor. The equation may be expressed in terms of the vector cross product
+as x′
+i × Hxi = 0. This form will enable a simple linear solution for H to be derived.
+4.1 The Direct Linear Transformation (DLT) algorithm 89
+If the j-th row of the matrix H is denoted by hjT, then we may write
+Hxi =
+
+
+h1Txi
+h2Txi
+h3Txi
+
+
+.
+Writing x′
+i = (x′
+i, y′
+i,w′
+i)T, the cross product may then be given explicitly as
+x′
+i × Hxi =
+
+
+y′
+ih3Txi − w′
+ih2Txi
+w′
+ih1Txi − x′
+ih3Txi
+x′
+ih2Txi − y′
+ih1Txi
+
+
+.
+Since hjTxi = xT
+i hj for j = 1, . . . , 3, this gives a set of three equations in the entries
+of H, which may be written in the form
+
+
+0T −w′
+ixT
+i y′
+ixT
+i
+w′
+ixT
+i 0T −x′
+ixT
+i
+−y′
+ixT
+i x′
+ixT
+i 0T
+
+
+
+
+h1
+h2
+h3
+
+
+= 0. (4.1)
+These equations have the form Aih = 0, where Ai is a 3×9 matrix, and h is a 9-vector
+made up of the entries of the matrix H,
+h =
+
+
+h1
+h2
+h3
+
+
+, H =
+
+
+h1 h2 h3
+h4 h5 h6
+h7 h8 h9
+
+
+(4.2)
+with hi the i−th element of h. Three remarks regarding these equations are in order
+here.
+(i) The equation Aih = 0 is an equation linear in the unknown h. The matrix
+elements of Ai are quadratic in the known coordinates of the points.
+(ii) Although there are three equations in (4.1), only two of them are linearly independent
+(since the third row is obtained, up to scale, from the sum of x′
+i times
+the first row and y′
+i times the second). Thus each point correspondence gives
+two equations in the entries of H. It is usual to omit the third equation in solving
+for H ([Sutherland-63]). Then (for future reference) the set of equations
+becomes
+"
+0T −w′
+ixT
+i y′
+ixT
+i
+w′
+ixT
+i 0T −x′
+ixT
+i
+#
+
+h1
+h2
+h3
+
+
+= 0. (4.3)
+This will be written
+Aih = 0
+where Ai is now the 2 × 9 matrix of (4.3).
+(iii) The equations hold for any homogeneous coordinate representation (x′
+i, y′
+i,w′
+i)T
+of the point x′
+i. One may choose w′
+i = 1, which means that (x′
+i, y′
+i) are the
+coordinates measured in the image. Other choices are possible, however, as
+will be seen later.
+90 4 Estimation – 2D Projective Transformations
+Solving for H
+Each point correspondence gives rise to two independent equations in the entries of H.
+Given a set of four such point correspondences, we obtain a set of equations Ah = 0,
+where A is the matrix of equation coefficients built from the matrix rows Ai contributed
+from each correspondence, and h is the vector of unknown entries of H. We seek a
+non-zero solution h, since the obvious solution h = 0 is of no interest to us. If (4.1) is
+used then A has dimension 12 × 9, and if (4.3) the dimension is 8 × 9. In either case
+A has rank 8, and thus has a 1-dimensional null-space which provides a solution for h.
+Such a solution h can only be determined up to a non-zero scale factor. However, H is
+in general only determined up to scale, so the solution h gives the required H. A scale
+may be arbitrarily chosen for h by a requirement on its norm such as khk = 1.
+4.1.1 Over-determined solution
+If more than four point correspondences xi ↔ x′
+i are given, then the set of equations
+Ah = 0 derived from (4.3) is over-determined. If the position of the points is exact
+then the matrix A will still have rank 8, a one dimensional null-space, and there is an
+exact solution for h. This will not be the case if the measurement of image coordinates
+is inexact (generally termed noise) – there will not be an exact solution to the overdetermined
+system Ah = 0 apart from the zero solution. Instead of demanding an
+exact solution, one attempts to find an approximate solution, namely a vector h that
+minimizes a suitable cost function. The question that naturally arises then is: what
+should be minimized? Clearly, to avoid the solution h = 0 an additional constraint is
+required. Generally, a condition on the norm is used, such as khk = 1. The value of
+the norm is unimportant since H is only defined up to scale. Given that there is no exact
+solution to Ah = 0, it seems natural to attempt to minimize the norm kAhk instead,
+subject to the usual constraint, khk = 1. This is identical to the problem of finding
+the minimum of the quotient kAhk/khk. As shown in section A5.3(p592) the solution
+is the (unit) eigenvector of ATA with least eigenvalue. Equivalently, the solution is the
+unit singular vector corresponding to the smallest singular value of A. The resulting
+algorithm, known as the basic DLT algorithm, is summarized in algorithm 4.1.
+4.1.2 Inhomogeneous solution
+An alternative to solving for h directly as a homogeneous vector is to turn the set of
+equations (4.3) into a inhomogeneous set of linear equations by imposing a condition
+hj = 1 for some entry of the vector h. Imposing the condition hj = 1 is justified by
+the observation that the solution is determined only up to scale, and this scale can be
+chosen such that hj = 1. For example, if the last element of h, which corresponds to
+H33, is chosen as unity then the resulting equations derived from (4.3) are
+"
+0 0 0 −xiw′
+i −yiw′
+i −wiw′
+i xiy′
+i yiy′
+i
+xiw′
+i yiw′
+i wiw′
+i 0 0 0 −xix′
+i −yix′
+i
+#
+˜h
+=
+ 
+−wiy′
+i
+wix′
+i
+!
+where ˜h is an 8-vector consisting of the first 8 components of h. Concatenating the
+equations from four correspondences then generates a matrix equation of the form
+4.1 The Direct Linear Transformation (DLT) algorithm 91
+Objective
+Given n ≥ 4 2D to 2D point correspondences {xi ↔ x′
+i}, determine the 2D homography
+matrix H such that x′
+i = Hxi.
+Algorithm
+(i) For each correspondence xi ↔ x′
+i compute the matrix Ai from (4.1). Only the first two
+rows need be used in general.
+(ii) Assemble the n 2 × 9 matrices Ai into a single 2n × 9 matrix A.
+(iii) Obtain the SVD of A (section A4.4(p585)). The unit singular vector corresponding to
+the smallest singular value is the solution h. Specifically, if A = UDVT with D diagonal
+with positive diagonal entries, arranged in descending order down the diagonal, then h
+is the last column of V.
+(iv) The matrix H is determined from h as in (4.2).
+Algorithm 4.1. The basic DLT for H (but see algorithm 4.2(p109) which includes normalization).
+M˜h = b, where M has 8 columns and b is an 8-vector. Such an equation may be solved
+for ˜h using standard techniques for solving linear equations (such as Gaussian elimination)
+in the case where M contains just 8 rows (the minimum case), or by least-squares
+techniques (section A5.1(p588)) in the case of an over-determined set of equations.
+However, if in fact hj = 0 is the true solution, then no multiplicative scale k can
+exist such that khj = 1. This means that the true solution cannot be reached. For this
+reason, this method can be expected to lead to unstable results in the case where the
+chosen hj is close to zero. Consequently, this method is not recommended in general.
+Example 4.1. It will be shown that h9 = H33 is zero if the coordinate origin is mapped
+to a point at infinity by H. Since (0, 0, 1)T represents the coordinate origin x0, and
+also (0, 0, 1)T represents the line at infinity l, this condition may be written as lTHx0 =
+(0, 0, 1)H(0, 0, 1)T = 0, thus H33 = 0. In a perspective image of a scene plane the line
+at infinity is imaged as the vanishing line of the plane (see chapter 8), for example the
+horizon is the vanishing line of the ground plane. It is not uncommon for the horizon to
+pass through the image centre, and for the coordinate origin to coincide with the image
+centre. In this case the mapping that takes the image to the world plane maps the origin
+to the line at infinity, so that the true solution has H33 = h9 = 0. Consequently, an
+h9 = 1 normalization can be a serious failing in practical situations. △
+4.1.3 Degenerate configurations
+Consider a minimal solution in which a homography is computed using four point correspondences,
+and suppose that three of the points x1, x2, x3 are collinear. The question
+is whether this is significant. If the corresponding points x′
+1, x′
+2, x′
+3 are also collinear
+then one might suspect that the homography is not sufficiently constrained, and there
+will exist a family of homographies mapping xi to x′
+i. On the other hand, if the corresponding
+points x′
+1, x′
+2, x′
+3 are not collinear then clearly there can be no transformation
+H taking xi to x′
+i, since a projective transformation must preserve collinearity. Never92
+4 Estimation – 2D Projective Transformations
+theless the set of eight homogeneous equations derived from (4.3) must have a non-zero
+solution, giving rise to a matrix H. How is this apparent contradiction to be resolved?
+The equations (4.3) express the condition that x′
+i × Hxi = 0 for i = 1, . . . , 4, and
+so the matrix H found by solving the system of 8 equations will satisfy this condition.
+Suppose that x1, . . . , x3 are collinear and let l be the line that they lie on, so that lTxi =
+0 for i = 1, . . . , 3. Now define H∗ = x′
+4lT, which is a 3×3 matrix of rank 1. In this case,
+one verifies that H∗xi = x′
+4(lTxi) = 0 for i = 1, . . . , 3, since lTxi = 0. On the other
+hand, H∗x4 = x′
+4(lTx4) = kx′
+4. Therefore the condition x′
+i × H∗xi = 0 is satisfied for
+all i. Note that the vector h∗ corresponding to H∗ is given by h∗T = (x4lT, y4lT,w4lT),
+and one easily verifies that this vector satisfies (4.3) for all i. The problem with this
+solution for H∗ is that H∗ is a rank 1 matrix and hence does not represent a projective
+transformation. As a consequence the points H∗xi = 0 for i = 1, . . . , 3 are not well
+defined.
+We showed that if x1, x2, x3 are collinear then H∗ = x′
+4lT is a solution to (4.1). There
+are two cases: either H∗ is the unique solution (up to scale) or there is a further solution
+H. In the first case, since H∗ is a singular matrix, there exists no transformation taking
+each xi to x′
+i. This occurs when x1, . . . , x3 are collinear but x′
+1, . . . , x′
+3 are not. In the
+second case, where a further solution H exists, then any matrix of the form α H∗ + β H
+is a solution. Thus a 2-dimensional family of transformations exist, and it follows that
+the 8 equations derived from (4.3) are not independent.
+A situation where a configuration does not determine a unique solution for a particular
+class of transformation is termed degenerate. Note that the definition of degeneracy
+involves both the configuration and the type of transformation. The degeneracy problem
+is not limited to a minimal solution, however. If additional (perfect, i.e. error-free)
+correspondences are supplied which are also collinear (lie on l), then the degeneracy is
+not resolved.
+4.1.4 Solutions from lines and other entities
+The development to this point, and for the rest of the chapter, is exclusively in terms of
+computing homographies from point correspondences. However, an identical development
+can be given for computing homographies from line correspondences. Starting
+from the line transformation li = HTl′
+i, a matrix equation of the form Ah = 0 can be
+derived, with a minimal solution requiring four lines in general position. Similarly, a
+homography may be computed from conic correspondences and so forth.
+There is the question then of how many correspondences are required to compute the
+homography (or any other relation). The general rule is that the number of constraints
+must equal or exceed the number of degrees of freedom of the transformation. For
+example, in 2D each corresponding point or line generates two constraints on H, in
+3D each corresponding point or plane generates three constraints. Thus in 2D the
+correspondence of four points or four lines is sufficient to compute H, since 4 × 2 = 8,
+with 8 the number of degrees of freedom of the homography. In 3D a homography has
+15 degrees of freedom, and five points or five planes are required. For a planar affine
+transformation (6 dof) only three corresponding points or lines are required, and so on.
+A conic provides five constraints on a 2D homography.
+4.2 Different cost functions 93
+= =
+Fig. 4.1. Geometric equivalence of point–line configurations. A configuration of two points and two
+lines is equivalent to five lines with four concurrent, or five points with four collinear.
+Care has to be taken when computing H from correspondences of mixed type. For
+example, a 2D homography cannot be determined uniquely from the correspondences
+of two points and two lines, but can from three points and one line or one point and three
+lines, even though in each case the configuration has 8 degrees of freedom. The case of
+three lines and one point is geometrically equivalent to four points, since the three lines
+define a triangle and the vertices of the triangle uniquely define three points. We have
+seen that the correspondence of four points in general position uniquely determines a
+homography, which means that the correspondence of three lines and one point also
+uniquely determines a homography. Similarly the case of three points and a line is
+equivalent to four lines, and again the correspondence of four lines in general position
+(i.e. no three concurrent) uniquely determines a homography. However, as a quick
+sketch shows (figure 4.1), the case of two points and two lines is equivalent to five
+lines with four concurrent, or five points with four collinear. As shown in the previous
+section, this configuration is degenerate and a one-parameter family of homographies
+map the two-point and two-line configuration to the corresponding configuration.
+4.2 Different cost functions
+We will now describe a number of cost functions which may be minimized in order to
+determine H for over-determined solutions. Methods of minimizing these functions are
+described later in the chapter.
+4.2.1 Algebraic distance
+The DLT algorithm minimizes the norm kAhk. The vector ǫ = Ah is called the residual
+vector and it is the norm of this error vector that is minimized. The components of this
+vector arise from the individual correspondences that generate each row of the matrix
+A. Each correspondence xi ↔ x′
+i contributes a partial error vector ǫi from (4.1) or (4.3)
+towards the full error vector ǫ. This vector ǫi is the algebraic error vector associated
+with the point correspondence xi ↔ x′
+i and the homography H. The norm of this vector
+is a scalar which is called the algebraic distance:
+dalg(x′
+i, Hxi)2 = kǫik2 =
+
+
+"
+0T −w′
+ixT
+i y′
+ixT
+i
+w′
+ixT
+i 0T −x′
+ixT
+i
+#
+h
+
+
+2
+. (4.4)
+More generally, and briefly, for any two vectors x1 and x2 we may write
+dalg(x1, x2)2 = a21
++ a22
+where a = (a1, a2, a3)T = x1 × x2.
+94 4 Estimation – 2D Projective Transformations
+The relation of this distance to a geometric distance is described in section 4.2.4.
+Given a set of correspondences, the quantity ǫ = Ah is the algebraic error vector for
+the complete set, and one sees that
+X
+i
+dalg(x′
+i, Hxi)2 =
+X
+i kǫik2 = kAhk2 = kǫk2. (4.5)
+The concept of algebraic distance originated in the conic-fitting work of Bookstein
+[Bookstein-79]. Its disadvantage is that the quantity that is minimized is not
+geometrically or statistically meaningful. As Bookstein demonstrated, the solutions
+that minimize algebraic distance may not be those expected intuitively. Nevertheless,
+with a good choice of normalization (as will be discussed in section 4.4) methods which
+minimize algebraic distance do give very good results. Their particular advantages are
+a linear (and thus a unique) solution, and computational cheapness. Often solutions
+based on algebraic distance are used as a starting point for a non-linear minimization
+of a geometric or statistical cost function. The non-linear minimization gives the solution
+a final “polish”.
+4.2.2 Geometric distance
+Next we discuss alternative error functions based on the measurement of geometric
+distance in the image, and minimization of the difference between the measured and
+estimated image coordinates.
+Notation. Vectors x represent the measured image coordinates; ˆx represent estimated
+values of the points and ¯x represent true values of the points.
+Error in one image. We start by considering error only in the second image, with
+points in the first measured perfectly. Clearly, this will not be true in most practical
+situations with images. An example where the assumption is more reasonable is in
+estimating the projective transformation between a calibration pattern or a world plane,
+where points are measured to a very high accuracy, and its image. The appropriate
+quantity to be minimized is the transfer error. This is the Euclidean image distance
+in the second image between the measured point x′ and the point H¯x at which the
+corresponding point ¯x is mapped from the first image. We use the notation d(x, y) to
+represent the Euclidean distance between the inhomogeneous points represented by x
+and y. Then the transfer error for the set of correspondences is
+X
+i
+d(x′
+i, H¯xi)2. (4.6)
+The estimated homography ˆH is the one for which the error (4.6) is minimized.
+Symmetric transfer error. In the more realistic case where image measurement errors
+occur in both the images, it is preferable that errors be minimized in both images, and
+not solely in the one. One way of constructing a more satisfactory error function is to
+4.2 Different cost functions 95
+consider the forward (H) and backward (H−1) transformation, and sum the geometric
+errors corresponding to each of these two transformations. Thus, the error is
+X
+i
+d(xi, H
+−1x′
+i)2 + d(x′
+i, Hxi)2. (4.7)
+The first term in this sum is the transfer error in the first image, and the second term is
+the transfer error in the second image. Again the estimated homography ˆH is the one
+for which (4.7) is minimized.
+4.2.3 Reprojection error – both images
+An alternative method of quantifying error in each of the two images involves estimating
+a “correction” for each correspondence. One asks how much it is necessary
+to correct the measurements in each of the two images in order to obtain a perfectly
+matched set of image points. One should compare this with the geometric one-image
+transfer error (4.6) which measures the correction that it is necessary to make to the
+measurements in one image (the second image) in order to get a set of perfectly matching
+points.
+In the present case, we are seeking a homography ˆH and pairs of perfectly matched
+points ˆxi and ˆx′
+i that minimize the total error function
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2 subject to ˆx′
+i = ˆHˆxi ∀i. (4.8)
+Minimizing this cost function involves determining both ˆH and a set of subsidiary correspondences
+{ˆxi} and {ˆx′
+i}. This estimation models, for example, the situation that
+measured correspondences xi ↔ x′
+i arise from images of points on a world plane. We
+wish to estimate a point on the world plane bXi from xi ↔ x′
+i which is then reprojected
+to the estimated perfectly matched correspondence ˆxi ↔ ˆx′
+i.
+This reprojection error function is compared with the symmetric error function
+in figure 4.2. It will be seen in section 4.3 that (4.8) is related to the Maximum Likelihood
+estimation of the homography and correspondences.
+4.2.4 Comparison of geometric and algebraic distance
+We return to the case of errors only in the second image. Let x′
+i = (x′
+i, y′
+i,w′
+i)T and
+define a vector (ˆx′
+i, ˆy′
+i, ˆ w′
+i)T = ˆx′
+i = H¯xi. Using this notation, the left hand side of (4.3)
+becomes
+Aih = ǫi =
+ 
+y′
+i ˆ w′
+i − w′
+iˆy′
+i
+w′
+iˆx′
+i − x′
+i ˆ w′
+i
+!
+.
+This vector is the algebraic error vector associated with the point correspondence xi ↔
+x′
+i and the camera mapping H. Thus,
+dalg(x′
+i, ˆx′
+i)2 = (y′
+i ˆ w′
+i − w′
+iˆy′
+i)2 + (w′
+iˆx′
+i − x′
+i ˆ w′
+i)2.
+For points x′
+i and ˆx′
+i the geometric distance is
+d(x′
+i, ˆx′
+i) =
+
+(x′
+i/w′
+i − ˆx′
+i/ ˆ w′
+i)2 + (y′
+i/w′
+i − ˆy′
+i/ ˆ w′
+i)2
+1/2
+96 4 Estimation – 2D Projective Transformations
+x
+x /
+H-1
+H-1
+x /
+image 1 image 2
+x
+H
+x /
+image 1 image 2
+H
+x
+d
+d
+/
+d / d
+Fig. 4.2. A comparison between symmetric transfer error (upper) and reprojection error (lower) when
+estimating a homography. The points x and x′ are the measured (noisy) points. Under the estimated
+homography the points x′ and Hx do not correspond perfectly (and neither do the points x and H−1x′).
+However, the estimated points, ˆx and ˆx′
+, do correspond perfectly by the homography ˆx′ = Hˆx. Using
+the notation d(x, y) for the Euclidean image distance between x and y, the symmetric transfer error is
+d(x, H−1x′)2 + d(x′, Hx)2; the reprojection error is d(x, ˆx)2 + d(x′, ˆx′)2.
+= dalg(x′
+i, ˆx′
+i)/ ˆ w′
+iw′
+i.
+Thus, geometric distance is related to, but not quite the same as, algebraic distance.
+Note, though, that if ˆ w′
+i = w′
+i = 1, then the two distances are identical.
+One can always assume that wi = 1, thus expressing the points xi in the usual form
+xi = (xi, yi, 1)T. For one important class of 2D homographies, the values of ˆ w′
+i will
+always be 1 as well. A 2D affine transformation is represented by a matrix of the
+form (2.10–p39)
+HA =
+
+
+h11 h12 h13
+h21 h22 h23
+0 0 1
+
+
+. (4.9)
+One verifies immediately from ˆx′
+i = HA¯xi that ˆ w′
+i = 1 if wi = 1. This demonstrates
+that in the case of an affine transformation geometric distance and algebraic distance are
+identical. The DLT algorithm is easily adapted to enforce the condition that the last row
+of H has the form (0, 0, 1) by setting h7 = h8 = 0. Hence, for affine transformations,
+geometric distance can be minimized by the linear DLT algorithm based on algebraic
+distance.
+4.2.5 Geometric interpretation of reprojection error
+The estimation of a homography between two planes can be thought of as fitting a “surface”
+to points in a 4D space, IR4. Each pair of image points x, x′ defines a single point
+denoted X in a measurement space IR4, formed by concatenating the inhomogeneous
+coordinates of x and x′. For a given specific homography H, the image correspondences
+x ↔ x′ that satisfy x′ × (Hx) = 0 define an algebraic variety1 VH in IR4 which is the
+1 A variety is the simultaneous zero-set of one or more multivariate polynomials defined in IRN.
+4.2 Different cost functions 97
+intersection of two quadric hypersurfaces. The surface is a quadric in IR4 because each
+row of (4.1) is a degree 2 polynomial in x, y, x′, y′. The elements of H determine the
+coefficient of each term of the polynomial, and so H specifies the particular quadric.
+The two independent equations of (4.1) define two such quadrics.
+Given points Xi = (xi, yi, x′
+i, y′
+i)T in IR4, the task of estimating a homography becomes
+the task of finding a variety VH that passes (or most nearly passes) through the
+points Xi. In general, of course, it will not be possible to fit a variety precisely. In this
+case, let VH be some variety corresponding to a transformation H, and for each point
+Xi, let bXi = (ˆxi, ˆyi, ˆx′
+i, ˆy′
+i)T be the closest point to Xi lying on the variety VH. One sees
+immediately that
+kXi − bXik2 = (xi − ˆxi)2 + (yi − ˆyi)2 + (x′
+i − ˆx′
+i)2 + (y′
+i − ˆy′
+i)2
+= d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2.
+Thus geometric distance in IR4 is equivalent to the reprojection error measured in both
+the images, and finding the variety VH and points bXi on VH that minimize the squared
+sum of distances to the measured points Xi is equivalent to finding the homography ˆH
+and the estimated points ˆxi and ˆx′
+i that minimize the reprojection error function (4.8).
+The point bX on VH that lies closest to a measured point X is a point where the line
+between X and bX is perpendicular to the tangent plane to VH at bX. Thus
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2 = d⊥(Xi, VH)2
+where d⊥(X, VH) is the perpendicular distance of the point X to the variety VH. As may
+be seen from the conic-fitting analogue discussed below, there may be more than one
+such perpendicular from X to VH.
+The distance d⊥(X, VH) is invariant to rigid transformations of IR4, and this includes
+as a special case rigid transformations of the coordinates (x, y), (x′, y′) of each image
+individually. This point is returned to in section 4.4.3.
+Conic analogue. Before proceeding further we will first sketch an analogous estimation
+problem that can be visualized more easily. The problem is fitting a conic to 2D
+points, which occupies a useful intermediate position between fitting a straight line
+(no curvature, too simple) and fitting a homography (four dimensions, with non-zero
+curvature).
+Consider the problem of fitting a conic to a set of n > 5 points (xi, yi)T on the
+plane such that an error based on geometric distance is minimized. The points may
+be thought of as “correspondences” xi ↔ yi. The transfer distance and reprojection
+(perpendicular) distance are illustrated in figure 4.3. It is clear from this figure that d⊥
+is less than or equal to the transfer error.
+The algebraic distance of a point x from a conic C is defined as dalg(x, C)2 = xTCx.
+A linear solution for C can be obtained by minimizing
+P
+i dalg(xi, C)2 with a suitable
+normalization on C. There is no linear expression for the perpendicular distance of
+a point (x, y) to a conic C, since through each point in IR2 there are up to 4 lines
+perpendicular to C. The solution can be obtained from the roots of a quartic. However,
+a function d⊥(x, C) may be defined which returns the shortest distance between a conic
+98 4 Estimation – 2D Projective Transformations
+y
+x
+d
+d
+d
+dy
+y
+x
+d
+b
+a
+b
+a
+C
+Fig. 4.3. A conic may be estimated from a set of 2D points by minimizing “symmetric transfer error”
+d2
+x+d2
+y or the sum of squared perpendicular distances d2
+⊥. The analogue of transfer error is to consider
+x as perfect and measure the distance dy to the conic in the y direction, and similarly for dx. For point
+a it is clear that d⊥ ≤ dx and d⊥ ≤ dy. Also d⊥ is more stable than dx or dy as illustrated by point b
+where dx cannot be defined.
+and a point. A conic can then be estimated by minimizing
+P
+i d⊥(xi, C)2 over the five
+parameters of C, though this cannot be achieved by a linear solution. Given a conic C
+and a measured point x, a corrected point ˆx is obtained simply by choosing the closest
+point on C.
+We return now to estimating a homography. In the case of an affine transformation
+the variety is the intersection of two hyperplanes, i.e. it is a linear subspace of dimension
+2. This follows from the form (4.9) of the affine matrix which for x′ = HAx yields
+one linear constraint between x, x′, y and another between x, y, y′, each of which defines
+a hyperplane in IR4. An analogue of this situation is line fitting to points on the
+plane. In both cases the relation (affine transformation or line) may be estimated by
+minimizing the perpendicular distance of points to the variety. In both cases there is a
+closed form solution as discussed in the following section.
+4.2.6 Sampson error
+The geometric error (4.8) is quite complex in nature, and minimizing it requires the
+simultaneous estimation of both the homography matrix and the points ˆxi, ˆx′
+i. This
+non-linear estimation problem will be discussed further in section 4.5. Its complexity
+contrasts with the simplicity of minimizing the algebraic error (4.4). The geometric
+interpretation of geometric error given in section 4.2.5 leads to a further cost function
+that lies between the algebraic and geometric cost functions in terms of complexity, but
+gives a close approximation to geometric error. We will refer to this cost function as
+Sampson error since Sampson [Sampson-82] used this approximation for conic fitting.
+As described in section 4.2.5, the vector bX that minimizes the geometric error kX − bXk2 is the closest point on the variety VH to the measurement X. This point can not be
+estimated directly except via iteration, because of the non-linear nature of the variety
+VH. The idea of the Sampson error function is to estimate a first-order approximation
+to the point bX, assuming that the cost function is well approximated linearly in the
+neighbourhood of the estimated point. The discussion to follow is related directly to
+4.2 Different cost functions 99
+the 2D homography estimation problem, but applies substantially unchanged to the
+other estimation problems discussed in this book.
+For a given homography H, any point X = (x, y, x′, y′)T that lies on VH will satisfy
+the equation (4.3–p89), or Ah = 0. To emphasize the dependency on X we will write
+this instead as CH(X) = 0, where CH(X) is in this case a 2-vector. To first order, this
+cost function may be approximated by a Taylor expansion
+CH(X + δX) = CH(X) +
+∂CH
+∂X
+δX. (4.10)
+If we write δX = bX − X and desire bX to lie on the variety VH so that CH(bX) = 0, then
+the result is CH(X) + (∂CH/∂X)δX = 0, which we will henceforth write as JδX = −ǫ
+where J is the partial-derivative matrix, and ǫ is the cost CH(X) associated with X. The
+minimization problem that we now face is to find the smallest δX that satisfies this
+equation, namely:
+• Find the vector δX that minimizes kδXk subject to JδX = −ǫ.
+The standard way to solve problems of this type is to use Lagrange multipliers. A
+vector λ of Lagrange multipliers is introduced, and the problem reduces to that of
+finding the extrema of δT
+X
+δX − 2λT(JδX + ǫ), where the factor 2 is simply introduced
+for convenience. Taking derivatives with respect to δX and equating to zero gives
+2δT
+X − 2λT
+J = 0T
+from which we obtain δX = JTλ. The derivative with respect to λ gives JδX + ǫ = 0,
+the original constraint. Substituting for δX leads to
+JJ
+Tλ = −ǫ
+which may be solved for λ giving λ = −(JJT)−1ǫ, and so finally
+δX = −J
+T(JJ
+T)−1ǫ, (4.11)
+and bX = X + δX. The norm kδXk2 is the Sampson error:
+kδXk2 = δT
+X
+δX = ǫT(JJ
+T)−1ǫ. (4.12)
+Example 4.2. Sampson approximation for a conic
+We will compute the Sampson approximation to the geometric distance d⊥(x, C) between
+a point x and conic C shown in figure 4.3. In this case the conic variety VC is
+defined by the equation xTCx = 0, so that X = (x, y)T is a 2-vector, ǫ = xTCx is a
+scalar, and J is the 1 × 2 matrix given by
+J =
+"
+∂(xTCx)
+∂x
+,
+∂(xTCx)
+∂y
+#
+.
+This means that JJT is a scalar. The elements of J may be computed by the chain rule
+as
+∂(xTCx)
+∂x
+=
+∂(xTCx)
+∂x
+∂x
+∂x
+= 2xT
+C(1, 0, 0)T = 2(Cx)1
+100 4 Estimation – 2D Projective Transformations
+where (Cx)i denotes the i-th component of the 3-vector Cx. Then from (4.12)
+d2
+⊥ = kδXk2 = ǫT(JJ
+T)−1ǫ =
+ǫTǫ
+JJT =
+(xTCx)2
+4((Cx)21
++ (Cx)22
+)
+△
+A few points to note:
+(i) For the 2D homography estimation problem, X = (x, y, x′, y′)T where the 2D
+measurements are x = (x, y, 1)T and x′ = (x′, y′, 1)T.
+(ii) ǫ = CH(X) is the algebraic error vector Aih – a 2-vector – and Ai is defined in
+(4.3–p89).
+(iii) J = ∂CH(X)/∂X is a 2 × 4 matrix. For example
+J11 = ∂(−w′
+ixT
+i h2 + y′
+ixT
+i h3)/∂x = −w′
+ih21 + y′
+ih31.
+(iv) Note the similarity of (4.12) to the algebraic error kǫk = ǫTǫ. The Sampson
+error may be interpreted as being the Mahalanobis norm (see section A2.1-
+(p565)), kǫkJJT.
+(v) One could alternatively use A defined by (4.1–p89), in which case J has dimension
+3 × 4 and ǫ is a 3-vector. However, in general the Sampson error,
+and consequently the solution δX, will be independent of whether (4.1–p89) or
+(4.3–p89) is used.
+The Sampson error (4.12) is derived here for a single point pair. In applying this to
+the estimation of a 2D homography H from several point correspondences xi ↔ x′
+i, the
+errors corresponding to all the point correspondences must be summed, giving
+D⊥ =
+X
+i
+ǫT
+i (JiJ
+T
+i )−1ǫi (4.13)
+where ǫ and J both depend on H. To estimate H, this expression must be minimized
+over all values of H. This is a simple minimization problem in which the set of variable
+parameters consists only of the entries (or some other parametrization) of H.
+This derivation of the Sampson error assumed that each point had isotropic (circular)
+error distribution, the same in each image. The appropriate formulae for more general
+Gaussian error distributions are given in the exercises at the end of this chapter.
+Linear cost function
+The algebraic error vector CH(X) = A(X)h is typically multilinear in the entries of X.
+The case where A(X)h is linear is, however, important in its own right. The first point
+to note is that in this case, the first-order approximation to geometric error given by the
+Taylor expansion in (4.10) is exact (the higher order terms are zero), which means that
+the Sampson error is identical to geometric error.
+In addition, the variety VH defined by the equation CH(X) = 0, a set of linear equations,
+is a hyperplane depending on H. The problem of finding H now becomes a
+hyperplane fitting problem – find the best fit to the data Xi among the hyperplanes
+parametrized by H.
+4.2 Different cost functions 101
+As an example of this idea a linear algorithm which minimizes geometric error (4.8)
+for an affine transformation is developed in the exercises at the end of this chapter.
+4.2.7 Another geometric interpretation
+It was shown in section 4.2.5 that finding a homography that takes a set of points xi
+to another set x′
+i is equivalent to the problem of fitting a variety of a given type to a
+set of points in IR4. We now consider a different interpretation in which the set of all
+measurements is represented by a single point in a measurement space IRN.
+The estimation problems we consider may all be fitted into a common framework.
+In abstract terms the estimation problem has two components,
+• a measurement space IRN consisting of measurement vectors X, and
+• a model, which in abstract terms may be thought of simply as a subset S of points in
+IRN. A measurement vector X that lies inside this subset is said to satisfy the model.
+Typically the subspace that satisfies the model is a submanifold, or variety in IRN.
+Now, given a measurement vector X in IRN, the estimation problem is to find the vector
+bX, closest to X, that satisfies the model.
+It will now be pointed out how the 2D homography estimation problem fits into this
+framework.
+Error in both images. Let {xi ↔ x′
+i} be a set of measured matched points for
+i = 1, . . . , n. In all, there are 4n measurements, namely two coordinates in each of
+two images for n points. Thus, the set of matched points represents a point in IRN,
+where N = 4n. The vector made up of the coordinates of all the matched points in
+both images will be denoted X.
+Of course, not all sets of point pairs xi ↔ x′
+i are related via a homography H. A set
+of point correspondences {xi ↔ x′
+i} for which there exists a projective transformation
+H satisfying x′
+i = Hxi for all i constitutes the subset of IRN satisfying the model. In
+general, this set of points will form a submanifold S in IRN (in fact a variety) of some
+dimension. The dimension of this submanifold is equal to the minimal number of
+parameters that may be used to parametrize the submanifold.
+One may arbitrarily choose n points ˆxi in the first image. In addition, a homography
+H may be chosen arbitrarily. Once these choices have been made, the points ˆx′
+i in
+the second image are determined by ˆx′
+i = Hˆxi. Thus, a feasible choice of points is
+determined by a set of 2n + 8 parameters: the 2n coordinates of the points ˆxi, plus
+the 8 independent parameters (degrees of freedom) of the transformation H. Thus, the
+submanifold S ⊂ IRN has dimension 2n + 8, and hence codimension 2n − 8.
+Given a set of measured point pairs {xi ↔ x′
+i}, corresponding to a point X in IRN,
+and an estimated point bX ∈ IRN lying on S, one easily verifies that
+kX − bX k2 =
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2.
+Thus, finding the point bX on S lying closest to X in IRN is equivalent to minimizing
+the cost function given by (4.8). The estimated correct correspondences ˆxi ↔ ˆx′
+i are
+102 4 Estimation – 2D Projective Transformations
+those corresponding to the closest surface point bX in IRN. Once bX is known H may be
+computed.
+Error in one image only. In the case of error in one image, one has a set of correspondences
+{¯xi ↔ x
+′
+i}. The points ¯xi are assumed perfect. The inhomogeneous coordinates
+of the x′
+i constitute the measurement vector X. Hence, in this case the measurement
+space has dimension N = 2n. The vector bX consists of the inhomogeneous coordinates
+of the mapped perfect points {H¯x1, H¯x2, . . . , H¯xn}. The set of measurement
+vectors satisfying the model is the set bX as H varies over the set of all homography
+matrices. Once again this subspace is a variety. Its dimension is 8, since this is the total
+number of degrees of freedom of the homography matrix H. As with the previous case,
+the codimension is 2n − 8. One verifies that
+kX − bX k2 =
+X
+i
+d(x′
+i, H¯xi)2.
+Thus, finding the closest point on S to the measurement vector X is equivalent to minimizing
+the cost function (4.6).
+4.3 Statistical cost functions and Maximum Likelihood estimation
+In section 4.2, various cost functions were considered that were related to geometric
+distance between estimated and measured points in an image. The use of such cost
+functions is now justified and then generalized by a consideration of error statistics of
+the point measurements in an image.
+In order to obtain a best (optimal) estimate of H it is necessary to have a model for
+the measurement error (the “noise”). We are assuming here that in the absence of measurement
+error the true points exactly satisfy a homography, i.e. ¯x′
+i = H¯xi. A common
+assumption is that image coordinate measurement errors obey a Gaussian (or normal)
+probability distribution. This assumption is surely not justified in general, and takes no
+account of the presence of outliers (grossly erroneous measurements) in the measured
+data. Methods for detecting and removing outliers will be discussed later in section 4.7.
+Once outliers have been removed, the assumption of a Gaussian error model, if still not
+strictly justified, becomes more tenable. Therefore, for the present, we assume that
+image measurement errors obey a zero-mean isotropic Gaussian distribution. This distribution
+is described in section A2.1(p565).
+Specifically we assume that the noise is Gaussian on each image coordinate with
+zero mean and uniform standard deviation σ. This means that x = ¯x + x, with x
+obeying a Gaussian distribution with variance σ2. If it is further assumed that the noise
+on each measurement is independent, then, if the true point is ¯x, the probability density
+function (PDF) of each measured point x is
+Pr(x) =
+
+1
+2πσ2
+
+e−d(x,¯x)2/(22). (4.14)
+Error in one image. First we consider the case where the errors are only in the
+second image. The probability of obtaining the set of correspondences {¯xi ↔ x′
+i} is
+4.3 Statistical cost functions and Maximum Likelihood estimation 103
+simply the product of their individual PDFs, since the errors on each point are assumed
+independent. Then the PDF of the noise-perturbed data is
+Pr({x′
+i}|H) =
+Y
+i
+
+1
+2πσ2
+
+e−d(x
+′
+i,H¯xi)2/(22) . (4.15)
+The symbol Pr({x′
+i}|H) is to be interpreted as meaning the probability of obtaining the
+measurements {x′
+i} given that the true homography is H. The log-likelihood of the set
+of correspondences is
+log Pr({x′
+i}|H) = −
+1
+2σ2
+X
+i
+d(x′
+i, H¯xi)2 + constant.
+The Maximum Likelihood estimate (MLE) of the homography, ˆH, maximizes this loglikelihood,
+i.e. minimizes
+X
+i
+d(x′
+i, H¯xi)2.
+Thus, we note that ML estimation is equivalent to minimizing the geometric error function
+(4.6).
+Error in both images. Following a similar development to the above, if the true
+correspondences are {¯xi ↔ H¯xi = ¯x′
+i}, then the PDF of the noise-perturbed data is
+Pr({xi, x′
+i}|H, {¯xi}) =
+Y
+i
+
+1
+2πσ2
+
+e−(d(xi,¯xi)2+d(x
+′
+i,H¯xi)2)/(22).
+The additional complication here is that we have to seek “corrected” image measurements
+that play the role of the true measurements (H¯x above). Thus the ML estimate of
+the projective transformation H and the correspondences {xi ↔ x′
+i}, is the homography
+ˆH and corrected correspondences {ˆxi ↔ ˆx′
+i} that minimize
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2
+with ˆx′
+i = ˆHˆxi. Note that in this case, the ML estimate is identical with minimizing the
+reprojection error function (4.8).
+Mahalanobis distance. In the general Gaussian case, one may assume a vector of
+measurements X satisfying a Gaussian distribution function with covariance matrix
+. The cases above are equivalent to a covariance matrix which is a multiple of the
+identity.
+Maximizing the log-likelihood is then equivalent to minimizing the Mahalanobis
+distance (see section A2.1(p565))
+kX − ¯X k2
+ = (X − ¯X)T
+
+−1(X − ¯X).
+In the case where there is error in each image, but assuming that errors in one image
+are independent of the error in the other image, the appropriate cost function is
+kX − ¯X k2
+ + kX
+′ − ¯X
+′k2
+′
+104 4 Estimation – 2D Projective Transformations
+where  and ′ are the covariance matrices of the measurements in the two images.
+Finally, if we assume that the errors for all the points xi and x′
+i are independent,
+with individual covariance matrices i and ′
+i respectively, then the above expression
+expands to
+X
+kxi − ¯xik2
+i +
+X
+kx′
+i − ¯x′
+ik2
+′
+i
+(4.16)
+This equation allows the incorporation of the type of anisotropic covariance matrices
+that arise for point locations computed as the intersection of two non-perpendicular
+lines. In the case where the points are known exactly in one of the two images, errors
+being confined to the other image, one of the two summation terms in (4.16) disappears.
+4.4 Transformation invariance and normalization
+We now start to discuss the properties and performance of the DLT algorithm of
+section 4.1 and how it compares with algorithms minimizing geometric error. The
+first topic is the invariance of the algorithm to different choices of coordinates in the
+image. It is clear that it would generally be undesirable for the result of an algorithm
+to be dependent on such arbitrary choices as the origin and scale, or even orientation,
+of the coordinate system in an image.
+4.4.1 Invariance to image coordinate transformations
+Image coordinates are sometimes given with the origin at the top-left of the image,
+and sometimes with the origin at the centre. The question immediately occurs whether
+this makes a difference to the results of computing the transformation. Similarly, if
+the units used to express image coordinates are changed by multiplication by some
+factor, then is it possible that the result of the algorithm changes also? More generally,
+to what extent is the result of an algorithm that minimizes a cost function to estimate
+a homography dependent on the choice of coordinates in the image? Suppose, for
+instance, that the image coordinates are changed by some similarity, affine or even
+projective transformation before running the algorithm. Will this materially change the
+result?
+Formally, suppose that coordinates x in one image are replaced by ˜x = Tx, and
+coordinates x′ in the other image are replaced by ˜x′ = T′x′, where T and T′ are 3 × 3
+homographies. Substituting in the equation x′ = Hx, we derive the equation ˜x′ =
+T′HT−1˜x. This relation implies that eH
+= T′HT−1 is the transformation matrix for the
+point correspondences ˜x ↔ ˜x′. An alternative method of finding the transformation
+taking xi to x′
+i is therefore suggested, as follows.
+(i) Transform the image coordinates according to transformations ˜xi = Txi and
+˜x′
+i = T′x′
+i.
+(ii) Find the transformation eH
+from the correspondences ˜xi ↔ ˜x′
+i.
+(iii) Set H = T′−1eH
+T.
+The transformation matrix H found in this way applies to the original untransformed
+point correspondences xi ↔ x′
+i. What choice should be made for the transformations T
+and T′ will be left unspecified for now. The question to be decided now is whether the
+4.4 Transformation invariance and normalization 105
+outcome of this algorithm is independent of the transformations T and T′ being applied.
+Ideally it ought to be, at least when T and T′ are similarity transformations, since the
+choice of a different scale, orientation or coordinate origin in the images should not
+materially affect the outcome of the algorithm.
+In the subsequent sections it will be shown that an algorithm that minimizes geometric
+error is invariant to similarity transformations. On the other hand, for the DLT
+algorithm as described in section 4.1, the result unfortunately is not invariant to similarity
+transformations. The solution is to apply a normalizing transformation to the data
+before applying the DLT algorithm. This normalizing transformation will nullify the
+effect of the arbitrary selection of origin and scale in the coordinate frame of the image,
+and will mean that the combined algorithm is invariant to a similarity transformation
+of the image. Appropriate normalizing transformations will be discussed later.
+4.4.2 Non-invariance of the DLT algorithm
+Consider a set of correspondences xi ↔ x′
+i and a matrix H that is the result of the DLT
+algorithm applied to this set of corresponding points. Consider further a related set
+of correspondences ˜xi ↔ ˜x′
+i where ˜xi = Txi and ˜x′
+i = T′x′
+i, and let eH
+be defined by
+eH
+= T′HT−1. Following section 4.4.1, the question to be decided here is the following:
+• Does the DLT algorithm applied to the correspondence set ˜xi ↔ ˜x′
+i yield the transformation
+eH?
+We will use the following notation: Matrix Ai is the DLT equation matrix (4.3–p89)
+derived from a point correspondence xi ↔ x′
+i, and A is the 2n × 9 matrix formed by
+stacking the Ai. Matrix ˜Ai is similarly defined in terms of the correspondences ˜xi ↔ ˜x′
+i,
+where ˜xi = Txi and ˜x′
+i = T′x′
+i for some projective transformations T and T′.
+Result 4.3. Let T′ be a similarity transformation with scale factor s, and let T be an
+arbitrary projective transformation. Further, suppose H is any 2D homography and let
+˜H be defined by ˜H = T′HT−1. Then k˜A˜hk = skAhk where h and ˜h are the vectors of
+entries of H and ˜H.
+Proof. Define the vector ǫi = x′
+i × Hxi. Note that Aih is the vector consisting of the
+first two entries of ǫi. Let ˜ ǫi be similarly defined in terms of the transformed quantities
+as ˜ǫi = ˜x′
+i ×eH
+˜xi. One computes:
+˜ǫi = ˜x′
+i ×eH
+˜xi = T
+′x′
+i × (T
+′
+HT
+−1)Txi
+= T
+′x′
+i × T
+′
+Hxi = T
+′∗(x′
+i × Hxi)
+= T
+′∗ǫi
+where T′∗ represents the cofactor matrix of T′ and the second-last equality follows
+from lemma A4.2(p581). For a general transformation T, the error vectors Aih and
+˜Ai˜h (namely the first two components of ǫi and ˜ǫi) are not simply related. However, in
+the special case where T′ is a similarity transformation, one may write T′ =
+"
+sR t
+0T 1
+#
+where R is a rotation matrix, t is a translation and s is a scaling factor. In this case, we
+106 4 Estimation – 2D Projective Transformations
+see that T′∗ = s
+"
+R 0
+−tTR s
+#
+. Applying T′∗ just to the first two components of ǫi, one
+sees that
+˜Ai˜h = (˜ǫi1, ˜ǫi2)T = sR(ǫi1, ǫi2)T = sRAih.
+Since rotation does not affect vector norms, one sees that k˜A˜h k = skAhk, as required.
+This result may be expressed in terms of algebraic error as
+dalg(˜x′
+i,eH
+˜xi) = sdalg(x′
+i, Hxi).
+Thus, there is a one-to-one correspondence between H and eH
+giving rise to the same
+error, except for constant scale. It may appear therefore that the matrices H and eH
+minimizing the algebraic error will be related by the formula eH
+= T′HT−1, and hence
+one may retrieve H as the product T′−1eH
+T. This conclusion is false however. For,
+although H and eH
+so defined give rise to the same error ǫ, the condition kHk = 1,
+imposed as a constraint on the solution, is not equivalent to the condition keHk = 1.
+Specifically, kHk and keH
+k are not related in any simple manner. Thus, there is no oneto-
+one correspondence between H and eH
+giving rise to the same error ǫ, subject to the
+constraint kHk = keH
+k = 1. Specifically,
+minimize
+X
+i
+dalg(x′
+i, Hxi)2 subject to kHk = 1
+⇔ minimize
+X
+i
+dalg(˜x′
+i,eH
+˜xi)2 subject to kHk = 1
+⇔6 minimize
+X
+i
+dalg(˜x′
+i,eH
+˜xi)2 subject to keH
+k = 1.
+Thus, the method of transformation leads to a different solution for the computed
+transformation matrix. This is a rather undesirable feature of the DLT algorithm as it
+stands, that the result is changed by a change of coordinates, or even simply a change of
+the origin of coordinates. If the constraint under which the norm kAhk is minimized is
+invariant under the transformation, however, then one sees that the computed matrices
+H and ˜H are related in the right way. Examples of minimization conditions for which H
+is transformation-invariant are discussed in the exercises at the end of this chapter.
+4.4.3 Invariance of geometric error
+It will be shown now that minimizing geometric error to find H is invariant under similarity
+(scaled Euclidean) transformations. As before, consider a point correspondence
+x ↔ x′ and a transformation matrix H. Also, define a related set of correspondences
+˜x ↔ ˜x′ where ˜x = Tx and ˜x′ = T′x′, and leteH
+be defined byeH
+= T′HT−1. Suppose that
+T and T′ represent Euclidean transformations of IP2. One verifies that
+d(˜x′,eH
+˜x) = d(T
+′x′, T
+′
+HT
+−1Tx) = d(T
+′x′, T
+′
+Hx) = d(x′, Hx)
+where the last equality holds because Euclidean distance is unchanged under a Euclidean
+transformation such as T′. This shows that if H minimizes the geometric error
+4.4 Transformation invariance and normalization 107
+for a set of correspondences, then eH
+minimizes the geometric error for the transformed
+set of correspondences, and so minimizing geometric error is invariant under Euclidean
+transformations.
+For similarity transformations, geometric error is multiplied by the scale factor of
+the transformation, hence the minimizing transformations correspond in the same way
+as in the Euclidean transformation case. Minimizing geometric error is invariant to
+similarity transformations.
+4.4.4 Normalizing transformations
+As was shown in section 4.4.2, the result of the DLT algorithm for computing 2D
+homographies depends on the coordinate frame in which points are expressed. In fact
+the result is not invariant to similarity transformations of the image. This suggests
+the question whether some coordinate systems are in some way better than others for
+computing a 2D homography. The answer to this is an emphatic yes. In this section a
+method of normalization of the data is described, consisting of translation and scaling
+of image coordinates. This normalization should be carried out before applying the
+DLT algorithm. Subsequently an appropriate correction to the result expresses the
+computed H with respect to the original coordinate system.
+Apart from improved accuracy of results, data normalization provides a second desirable
+benefit, namely that an algorithm that incorporates an initial data normalization
+step will be invariant with respect to arbitrary choices of the scale and coordinate origin.
+This is because the normalization step undoes the effect of coordinate changes,
+by effectively choosing a canonical coordinate frame for the measurement data. Thus,
+algebraic minimization is carried out in a fixed canonical frame, and the DLT algorithm
+is in practice invariant to similarity transformations.
+Isotropic scaling. As a first step of normalization, the coordinates in each image are
+translated (by a different translation for each image) so as to bring the centroid of the
+set of all points to the origin. The coordinates are also scaled so that on the average a
+point x is of the form x = (x, y,w)T, with each of x, y and w having the same average
+magnitude. Rather than choose different scale factors for each coordinate direction, an
+isotropic scaling factor is chosen so that the x and y-coordinates of a point are scaled
+equally. To this end, we choose to scale the coordinates so that the average distance of
+a point x from the origin is equal to √2. This means that the “average” point is equal
+to (1, 1, 1)T. In summary the transformation is as follows:
+(i) The points are translated so that their centroid is at the origin.
+(ii) The points are then scaled so that the average distance from the origin is equal
+to √2.
+(iii) This transformation is applied to each of the two images independently.
+Why is normalization essential? The recommended version of the DLT algorithm
+with data normalization is given in algorithm 4.2. We will now motivate why this
+108 4 Estimation – 2D Projective Transformations
+version of the algorithm, incorporating data normalization, should be used in preference
+to the basic DLT of algorithm 4.1(p91). Note that normalization is also called
+pre-conditioning in the numerical literature.
+The DLT method of algorithm 4.1 uses the SVD of A = UDVT to obtain a solution
+to the overdetermined set of equations Ah = 0. These equations do not have an exact
+solution (since the 2n × 9 matrix A will not have rank 8 for noisy data), but the vector
+h, given by the last column of V, provides a solution which minimizes kAhk (subject
+to khk = 1). This is equivalent to finding the rank 8 matrix ˆA which is closest to A in
+Frobenius norm and obtaining h as the exact solution of ˆAh = 0. The matrix ˆA is given
+by ˆA = UˆDVT where ˆD is D with the smallest singular value set to zero. The matrix ˆA has
+rank 8 and minimizes the difference to A in Frobenius norm because
+kA − ˆAkF = kUDV
+T − UˆDV
+TkF = kD − ˆDkF.
+where k.kF is the Frobenius norm, i.e. the square root of the sum of squares of all
+entries.
+Without normalization typical image points xi, x′
+i are of the order (x, y,w)T =
+(100, 100, 1)T, i.e., x, y are much larger than w. In A the entries xx′, xy′, yx′, yy′ will
+be of order 104, entries xw′, yw′ etc. of order 102, and entries ww′ will be unity. Replacing
+A by ˆA means that some entries are increased and others decreased such that
+the square sum of differences of these changes is minimal (and the resulting matrix has
+rank 8). However, and this is the key point, increasing the term ww′ by 100 means a
+huge change in the image points, whereas increasing the term xx′ by 100 means only a
+slight change. This is the reason why all entries in A must have similar magnitude and
+why normalization is essential.
+The effect of normalization is related to the condition number of the set of DLT equations,
+or more precisely the ratio d1/dn−1 of the first to the second-last singular value
+of the equation matrix A. This point is investigated in more detail in [Hartley-97c]. For
+the present it is sufficient to say that for exact data and infinite precision arithmetic the
+results will be independent of the normalizing transformation. However, in the presence
+of noise the solution will diverge from the correct result. The effect of a large
+condition number is to amplify this divergence. This is true even for infinite-precision
+arithmetic – this is not a round-off error effect.
+The effect that this data normalization has on the results of the DLT algorithm is
+shown graphically in figure 4.4. The conclusion to be drawn here is that data normalization
+gives dramatically better results. The examples shown in the figure are chosen
+to make the effect easily visible. However, a marked advantage remains even in cases
+of computation from larger numbers of point correspondences, with points more widely
+distributed. To emphasize this point we remark:
+• Data normalization is an essential step in the DLT algorithm. It must not be considered
+optional.
+Data normalization becomes even more important for less well conditioned problems,
+such as the DLT computation of the fundamental matrix or the trifocal tensor, which
+will be considered in later chapters.
+4.4 Transformation invariance and normalization 109
+Objective
+Given n ≥ 4 2D to 2D point correspondences {xi ↔ x′
+i}, determine the 2D homography
+matrix H such that x′
+i = Hxi.
+Algorithm
+(i) Normalization of x: Compute a similarity transformation T, consisting of a translation
+and scaling, that takes points xi to a new set of points ˜xi such that the centroid of the
+points ˜xi is the coordinate origin (0, 0)T, and their average distance from the origin is √2.
+(ii) Normalization of x′: Compute a similar transformation T′ for the points in the second
+image, transforming points x′
+i to ˜x′
+i.
+(iii) DLT: Apply algorithm 4.1(p91) to the correspondences ˜xi ↔ ˜x′
+i to obtain a homography
+eH.
+(iv) Denormalization: Set H = T′−1eHT.
+Algorithm 4.2. The normalized DLT for 2D homographies.
+a b
+Fig. 4.4. Results ofMonte Carlo simulation (see section 5.3(p149) of computation of 2D homographies).
+A set of 5 points (denoted by large crosses) was used to compute a 2D homography. Each of the 5 points
+is mapped (in the noise-free case) to the point with the same coordinates, so that homography H is the
+identity mapping. Now, 100 trials were made with each point being subject to 0.1 pixel Gaussian noise
+in one image. (For reference, the large crosses are 4 pixels across.) The mapping H computed using the
+DLT algorithm was then applied to transfer a further point into the second image. The 100 projections
+of this point are shown with small crosses and the 95% ellipse computed from their scatter matrix is also
+shown. (a) are the results without data normalization, and (b) the results with normalization. The leftand
+rightmost reference points have (unnormalized) coordinates (130, 108) and (170, 108).
+Non-isotropic scaling. Other methods of scaling are also possible. In non-isotropic
+scaling, the centroid of the points is translated to the origin as before. After this translation
+the points form a cloud about the origin. Scaling is then carried out so that
+the two principal moments of the set of points are both equal to unity. Thus, the set
+of points will form an approximately symmetric circular cloud of points of radius 1
+about the origin. Experimental results given in [Hartley-97c] suggest that the extra effort
+required for non-isotropic scaling does not lead to significantly better results than
+isotropic scaling.
+A further variant on scaling was discussed in [Muehlich-98], based on a statistical
+analysis of the estimator, its bias and variance. In that paper it was observed that some
+columns of A are not affected by noise. This applies to the third and sixth columns in
+(4.3–p89), corresponding to the entry wiw′
+i = 1. Such error-free entries in A should not
+be varied in finding ˆA, the closest rank-deficient approximation to A. A method known
+110 4 Estimation – 2D Projective Transformations
+as Total Least Squares - Fixed Columns is used to find the best solution. For estimation
+of the fundamental matrix (see chapter 11), [Muehlich-98] reports slightly improved
+results compared with non-isotropic scaling.
+Scaling with points near infinity. Consider the case of estimation of a homography
+between an infinite plane and an image. If the viewing direction is sufficiently oblique,
+then very distant points in the plane may be visible in the image – even points at infinity
+(vanishing points) if the horizon is visible. In this case it makes no sense to normalize
+the coordinates of points in the infinite plane by setting the centroid at the origin,
+since the centroid may have very large coordinates, or be undefined. An approach to
+normalization in this case is considered in exercise (iii) on page 128.
+4.5 Iterative minimization methods
+This section describes methods for minimizing the various geometric cost functions
+developed in section 4.2 and section 4.3. Minimizing such cost functions requires
+the use of iterative techniques. This is unfortunate, because iterative techniques tend
+to have certain disadvantages compared to linear algorithms such as the normalized
+DLT algorithm 4.2:
+(i) They are slower.
+(ii) They generally need an initial estimate at which to start the iteration.
+(iii) They risk not converging, or converging to a local minimum instead of the
+global minimum.
+(iv) Selection of a stopping criterion for iteration may be tricky.
+Consequently, iterative techniques generally require more careful implementation.
+The technique of iterative minimization generally consists of five steps:
+(i) Cost function. A cost function is chosen as the basis for minimization. Different
+possible cost functions were discussed in section 4.2.
+(ii) Parametrization. The transformation (or other entity) to be computed is expressed
+in terms of a finite number of parameters. It is not in general necessary
+that this be a minimum set of parameters, and there are in fact often advantages
+to over-parametrization. (See the discussion below.)
+(iii) Function specification. A function must be specified that expresses the cost
+in terms of the set of parameters.
+(iv) Initialization. A suitable initial parameter estimate is computed. This will
+generally be done using a linear algorithm such as the DLT algorithm.
+(v) Iteration. Starting from the initial solution, the parameters are iteratively
+refined with the goal of minimizing the cost function.
+A word about parametrization
+For a given cost function, there are often several choices of parametrization. The general
+strategy that guides parametrization is to select a set of parameters that cover the
+complete space over which one is minimizing, while at the same time allowing one to
+4.5 Iterative minimization methods 111
+compute the cost function in a convenient manner. For example, H may be parametrized
+by 9 parameters – that is, it is over-parametrized, since there are really only 8 degrees
+of freedom, overall scale not being significant. A minimal parametrization (i.e. the
+same number of parameters as degrees of freedom) would involve only 8 parameters.
+In general no bad effects are likely to occur if a minimization problem of this type is
+over-parametrized, as long as for all choices of parameters the corresponding object is
+of the desired type. In particular for homogeneous objects, such as the 3×3 projection
+matrix encountered here, it is usually not necessary or advisable to attempt to use a
+minimal parametrization by removing the scale-factor ambiguity.
+The reasoning is the following: it is not necessary to use minimal parametrization
+because a well-performing non-linear minimization algorithm will “notice” that it is
+not necessary to move in redundant directions, such as the matrix scaling direction.
+The algorithm described in Gill and Murray [Gill-78], which is a modification of the
+Gauss–Newton method, has an effective strategy for discarding redundant combinations
+of the parameters. Similarly, the Levenberg-Marquardt algorithm (see section
+A6.2(p600)) handles redundant parametrizations easily. It is not advisable because it
+is found empirically that the cost function surface is more complicated when minimal
+parametrizations are used. There is then a greater possibility of becoming stuck in a
+local minimum.
+One other issue that arises in choosing a parametrization is that of restricting the
+transformation to a particular class. For example, suppose H is known to be a homology,
+then as described in section A7.2(p629) it may be parametrized as
+H = I + (μ − 1)
+vaT
+vTa
+where μ is a scalar, and v and a 3-vectors. A homology has 5 degrees of freedom which
+correspond here to the scalar μ and the directions of v and a. If H is parametrized by its
+9 matrix entries, then the estimated H is unlikely to exactly be a homology. However,
+if H is parametrized by μ, v and a (a total of 7 parameters) then the estimated H is
+guaranteed to be a homology. This parametrization is consistent with a homology (it is
+also an over-parametrization). We will return to the issues of consistent, local, minimal
+and over-parametrization in later chapters. The issues are also discussed further in
+appendix A6.9(p623).
+Function specification
+It has been seen in section 4.2.7 that a general class of estimation problems is concerned
+with a measurement space IRN containing a model surface S. Given a measurement
+X ∈ IRN the estimation task is to find the point bX lying on S closest to X. In the case
+where a non-isotropic Gaussian error distribution is imposed on IRN, the word closest
+is to be interpreted in terms of Mahalanobis distance. Iterative minimization methods
+will now be described in terms of this estimation model. In iterative estimation through
+parameter fitting, the model surface S is locally parametrized, and the parameters are
+allowed to vary to minimize the distance to the measured point. More specifically,
+(i) One has a measurement vector X ∈ IRN with covariance matrix .
+112 4 Estimation – 2D Projective Transformations
+(ii) A set of parameters are represented as a vector P ∈ IRM.
+(iii) A mapping f : IRM → IRN is defined. The range of this mapping is (at least
+locally) the model surface S in IRN representing the set of allowable measurements.
+(iv) The cost function to be minimized is the squared Mahalanobis distance
+kX − f(P)k2
+ = (X − f(P))T
+
+−1(X − f(P)).
+In effect, we are attempting to find a set of parameters P such that f(P) = X, or failing
+that, to bring f(P) as close to X as possible, with respect to Mahalanobis distance.
+The Levenberg–Marquardt algorithm is a general tool for iterative minimization, when
+the cost function to be minimized is of this type. We will now show how the various
+different types of cost functions described in this chapter fit into this format.
+Error in one image. Here one fixes the coordinates of points xi in the first image, and
+varies H so as to minimize cost function (4.6–p94), namely
+X
+i
+d(x′
+i, H¯xi)2.
+The measurement vector X is made up of the 2n inhomogeneous coordinates of the
+points x′
+i. One may choose as parameters the vector h of entries of the homography
+matrix H. The function f is defined by
+f : h 7→ (Hx1, Hx2, . . . , Hxn)
+where it is understood that here, and in the functions below, Hxi indicates the inhomogeneous
+coordinates. One verifies that kX − f(h)k2 is equal to (4.6–p94).
+Symmetric transfer error. In the case of the symmetric cost function (4.7–p95)
+X
+i
+d(xi, H
+−1x′
+i)2 + d(x′
+i, Hxi)2
+one chooses as measurement vector X the 4n-vector made up of the inhomogeneous
+coordinates of the points xi followed by the inhomogeneous coordinates of the points
+x′
+i. The parameter vector as before is the vector h of entries of H, and the function f is
+defined by
+f : h 7→ (H
+−1x′
+1, . . . , H
+−1x′
+n, Hx1, . . . , Hxn).
+As before, we find that kX − f(h)k2 is equal to (4.7–p95).
+Reprojection error. Minimizing the cost function (4.8–p95) is more complex. The
+difficulty is that it requires a simultaneous minimization over all choices of points ˆxi
+as well as the entries of the transformation matrix H. If there are many point correspondences,
+then this becomes a very large minimization problem. Thus, the problem
+may be parametrized by the coordinates of the points ˆxi and the entries of the matrix
+ˆH – a total of 2n + 9 parameters. The coordinates of ˆx′
+i are not required, since they
+are related to the other parameters by ˆx′
+i = ˆHˆxi. The parameter vector is therefore
+4.5 Iterative minimization methods 113
+P = (h, ˆx1, . . . , ˆxn). The measurement vector contains the inhomogeneous coordinates
+of all the points xi and x′
+i. The function f is defined by
+f : (h, ˆx1, . . . , ˆxn) 7→ (ˆx1, ˆx′
+1, . . . , ˆxn, ˆx′
+n)
+where ˆx′
+i = Hˆxi. One verifies that kX−f(P)k2, with X a 4n-vector, is equal to the cost
+function (4.8–p95). This cost function must be minimized over all 2n + 9 parameters.
+Sampson approximation. In contrast with 2n + 9 parameters of reprojection error,
+minimizing the error in one image (4.6–p94) or symmetric transfer error (4.7–p95)
+requires a minimization over the 9 entries of the matrix H only – in general a more
+tractable problem. The Sampson approximation to reprojection error enables reprojection
+error also to be minimized with only 9 parameters.
+This is an important consideration, since the iterative solution of an m-parameter
+non-linear minimization problem using a method such as Levenberg–Marquardt involves
+the solution of an m × m set of linear equations at each iteration step. This is a
+problem with complexity O(m3). Hence, it is appropriate to keep the size of m low.
+The Sampson error avoids minimizing over the 2n+9 parameters of reprojection error
+because effectively it determines the 2n variables {ˆxi} for each particular choice of
+h. Consequently the minimization then only requires the 9 parameters of h. In practice
+this approximation gives excellent results provided the errors are small compared
+to the measurements.
+Initialization
+An initial estimate for the parametrization may be found by employing a linear technique.
+For example, the normalized DLT algorithm 4.2 directly provides H and thence
+the 9-vector h used to parametrize the iterative minimization. In general if there are
+n ≥ 4 correspondences, then all will be used in the linear solution. However, as will be
+seen in section 4.7 on robust estimation, when the correspondences contain outliers it
+may be advisable to use a carefully selected minimal set of correspondences (i.e. four
+correspondences). Linear techniques or minimal solutions are the two initialization
+techniques recommended in this book.
+An alternative method that is sometimes used (for instance see [Horn-90, Horn-91])
+is to carry out a sufficiently dense sampling of parameter space, iterating from each
+sampled starting point and retaining the best result. This is only possible if the dimension
+of the parameter space is sufficiently small. Sampling of parameter space may be
+done either randomly, or else according to some pattern. Another initialization method
+is simply to do without any effective initialization at all, starting the iteration at a given
+fixed point in parameter space. This method is not often viable. Iteration is very likely
+to fall into a false minimum or not converge. Even in the best case, the number of
+iteration steps required will increase the further one starts from the final solution. For
+this reason using a good initialization method is the best plan.
+114 4 Estimation – 2D Projective Transformations
+Objective
+Given n > 4 image point correspondences {xi ↔ x′
+i}, determine the Maximum Likelihood
+estimate ˆH of the homography mapping between the images.
+The MLE involves also solving for a set of subsidiary points {ˆxi}, which minimize
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2
+where ˆx′
+i = ˆHˆxi.
+Algorithm
+(i) Initialization: Compute an initial estimate of ˆH to provide a starting point for the geometric
+minimization. For example, use the linear normalized DLT algorithm 4.2, or
+use RANSAC (section 4.7.1) to compute ˆH from four point correspondences.
+(ii) Geometric minimization of – either Sampson error:
+• Minimize the Sampson approximation to the geometric error (4.12–p99).
+• The cost is minimized using the Newton algorithm of section A6.1(p597) or
+Levenberg–Marquardt algorithm of section A6.2(p600) over a suitable parametrization
+of ˆH. For example the matrix may be parametrized by its 9 entries.
+or Gold Standard error:
+• Compute an initial estimate of the subsidiary variables {ˆxi} using the measured
+points {xi} or (better) the Sampson correction to these points given by (4.11–p99).
+• Minimize the cost X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx
+′
+i)2
+over ˆH and ˆxi, i = 1, . . . , n. The cost is minimized using the Levenberg–Marquardt
+algorithm over 2n+9 variables: 2n for the n 2D points ˆxi, and 9 for the homography
+matrix ˆH.
+• If the number of points is large then the sparse method of minimizing this cost function
+given in section A6.4(p607) is the recommended approach.
+Algorithm 4.3. The Gold Standard algorithm and variations for estimating H from image correspondences.
+The Gold Standard algorithm is preferred to the Sampson method for 2D homography computation.
+Iteration methods
+There are various iterative methods for minimizing the chosen cost function, of which
+the most popular are Newton iteration and the Levenberg–Marquardt method. These
+methods are described in appendix 6(p597). Other general methods for minimizing
+a cost function are available, such as Powell’s method and the simplex method both
+described in [Press-88].
+Summary. The ideas in this section are collected together in algorithm 4.3, which
+describes the Gold Standard and Sampson methods for estimating the homography
+mapping between point correspondences in two images.
+4.6 Experimental comparison of the algorithms 115
+a b c
+Fig. 4.5. Three images of a plane which are used to compare methods of computing projective transformations
+from corresponding points.
+Method Pair 1 Pair 2
+figure 4.5 a & b figure 4.5 a & c
+Linear normalized 0.4078 0.6602
+Gold Standard 0.4078 0.6602
+Linear unnormalized 0.4080 26.2056
+Homogeneous scaling 0.5708 0.7421
+Sampson 0.4077 0.6602
+Error in 1 view 0.4077 0.6602
+Affine 6.0095 2.8481
+Theoretical optimal 0.5477 0.6582
+Table 4.1. Residual errors in pixels for the various algorithms.
+4.6 Experimental comparison of the algorithms
+The algorithms are compared for the images shown in figure 4.5. Table 4.1 shows the
+results of testing several of the algorithms described in this chapter. Residual error is
+shown for two pairs of images. The methods used are fairly self-explanatory, with a
+few exceptions. The method “affine” was an attempt to fit the projective transformation
+with an optimal affine mapping. The “optimal” is the ML estimate assuming a noise
+level of one pixel.
+The first pair of images are (a) and (b) of figure 4.5, with 55 point correspondences.
+It appears that all methods work almost equally well (except the affine method). The
+optimal residual is greater than the achieved results, because the noise level (unknown)
+is less than one pixel.
+Image (c) of figure 4.5 was produced synthetically by resampling (a), and the second
+pair consists of (a) and (c) with 20 point correspondences. In this case, almost all
+methods perform almost optimally, as shown in the table 4.1. The exception is the
+affine method (expected to perform badly, since it is not an affine transformation) and
+the unnormalized linear method. The unnormalized method is expected to perform
+badly (though maybe not this badly). Just why it performs well in the first pair and
+very badly for the second pair is not understood. In any case, it is best to avoid this
+method and use a normalized linear or Gold Standard method.
+A further evaluation is presented in figure 4.6. The transformation to be estimated is
+the one that maps the chessboard image shown here to a square grid aligned with the
+116 4 Estimation – 2D Projective Transformations
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0 10 20 30 40 50 60 70
+Residual Error
+Number of Points
+a b
+0
+1
+2
+3
+4
+5
+6
+7
+0 2 4 6 8 10
+Residual Error
+Noise Level
+0
+0.5
+1
+1.5
+2
+0 0.5 1 1.5 2 2.5 3
+Residual error
+Noise level
+c d
+Fig. 4.6. Comparison of the DLT and Gold Standard algorithms to the theoretically optimal residual
+error. (a) The homography is computed between a chessboard and this image. In all three graphs,
+the result for the Gold Standard algorithm overlap and are indistinguishable from the theoretical minimum.
+(b) Residual error as a function of the number of points. (c) The effect of varying noise level for
+10 points, and (d) 50 points.
+axes. As may be seen, the image is substantially distorted, with respect to a square grid.
+For the experiments, randomly selected points in the image were chosen and matched
+with the corresponding point on the square grid. The (normalized) DLT algorithm
+and the Gold Standard algorithm are compared to the theoretical minimum or residual
+error (see chapter 5). Note that for noise up to 5 pixels, the DLT algorithm performs
+adequately. However, for a noise level of 10 pixels it fails. Note however that in a 200-
+pixel image, an error of 10 pixels is extremely high. For less severe homographies,
+closer to the identity map, the DLT performs almost as well as the Gold Standard
+algorithm.
+4.7 Robust estimation
+Up to this point it has been assumed that we have been presented with a set of correspondences,
+{xi ↔ x′
+i}, where the only source of error is in the measurement of the
+point’s position, which follows a Gaussian distribution. In many practical situations
+this assumption is not valid because points are mismatched. The mismatched points
+are outliers to the Gaussian error distribution. These outliers can severely disturb the
+4.7 Robust estimation 117
+b
+d
+a
+c
+a b
+Fig. 4.7. Robust line estimation. The solid points are inliers, the open points outliers. (a) A leastsquares
+(orthogonal regression) fit to the point data is severely affected by the outliers. (b) In the
+RANSAC algorithm the support for lines through randomly selected point pairs is measured by the number
+of points within a threshold distance of the lines. The dotted lines indicate the threshold distance.
+For the lines shown the support is 10 for line ha, bi (where both of the points a and b are inliers); and
+2 for line hc, di where the point c is an outlier.
+estimated homography, and consequently should be identified. The goal then is to determine
+a set of inliers from the presented “correspondences” so that the homography
+can then be estimated in an optimal manner from these inliers using the algorithms described
+in the previous sections. This is robust estimation since the estimation is robust
+(tolerant) to outliers (measurements following a different, and possibly unmodelled,
+error distribution).
+4.7.1 RANSAC
+We start with a simple example that can easily be visualized – estimating a straight
+line fit to a set of 2-dimensional points. This can be thought of as estimating a 1-
+dimensional affine transformation, x′ = ax+b, between corresponding points lying on
+two lines.
+The problem, which is illustrated in figure 4.7a, is the following: given a set of 2D
+data points, find the line which minimizes the sum of squared perpendicular distances
+(orthogonal regression), subject to the condition that none of the valid points deviates
+from this line by more than t units. This is actually two problems: a line fit to the data;
+and a classification of the data into inliers (valid points) and outliers. The threshold t is
+set according to the measurement noise (for example t = 3σ), and is discussed below.
+There are many types of robust algorithms and which one to use depends to some extent
+on the proportion of outliers. For example, if it is known that there is only one outlier,
+then each point can be deleted in turn and the line estimated from the remainder. Here
+we describe in detail a general and very successful robust estimator – the RANdom
+SAmple Consensus (RANSAC) algorithm of Fischler and Bolles [Fischler-81]. The
+RANSAC algorithm is able to cope with a large proportion of outliers.
+The idea is very simple: two of the points are selected randomly; these points define
+a line. The support for this line is measured by the number of points that lie within a
+distance threshold. This random selection is repeated a number of times and the line
+with most support is deemed the robust fit. The points within the threshold distance are
+the inliers (and constitute the eponymous consensus set). The intuition is that if one of
+the points is an outlier then the line will not gain much support, see figure 4.7b.
+118 4 Estimation – 2D Projective Transformations
+Furthermore, scoring a line by its support has the additional advantage of favouring
+better fits. For example, the line ha, bi in figure 4.7b has a support of 10, whereas the
+line ha, di, where the sample points are neighbours, has a support of only 4. Consequently,
+even though both samples contain no outliers, the line ha, bi will be selected.
+More generally, we wish to fit a model, in this case a line, to data, and the random
+sample consists of a minimal subset of the data, in this case two points, sufficient to
+determine the model. If the model is a planar homography, and the data a set of 2D
+point correspondences, then the minimal subset consists of four correspondences. The
+application of RANSAC to the estimation of a homography is described below.
+As stated by Fischler and Bolles [Fischler-81] “The RANSAC procedure is opposite
+to that of conventional smoothing techniques: Rather than using as much of the data as
+possible to obtain an initial solution and then attempting to eliminate the invalid data
+points, RANSAC uses as small an initial data set as feasible and enlarges this set with
+consistent data when possible”.
+The RANSAC algorithm is summarized in algorithm 4.4. Three questions immediately
+arise:
+Objective
+Robust fit of a model to a data set S which contains outliers.
+Algorithm
+(i) Randomly select a sample of s data points from S and instantiate the model from this
+subset.
+(ii) Determine the set of data points Si which are within a distance threshold t of the model.
+The set Si is the consensus set of the sample and defines the inliers of S.
+(iii) If the size of Si (the number of inliers) is greater than some threshold T,
+re-estimate the model using all the points in Si and terminate.
+(iv) If the size of Si is less than T, select a new subset and repeat the above.
+(v) After N trials the largest consensus set Si is selected, and the model is
+re-estimated using all the points in the subset Si.
+Algorithm 4.4. The RANSAC robust estimation algorithm, adapted from [Fischler-81]. A minimum of s
+data points are required to instantiate the free parameters of the model. The three algorithm thresholds
+t, T, and N are discussed in the text.
+1. What is the distance threshold? We would like to choose the distance threshold, t,
+such that with a probability α the point is an inlier. This calculation requires the probability
+distribution for the distance of an inlier from the model. In practice the distance
+threshold is usually chosen empirically. However, if it is assumed that the measurement
+error is Gaussian with zero mean and standard deviation σ, then a value for t may
+be computed. In this case the square of the point distance, d2
+⊥, is a sum of squared
+Gaussian variables and follows a χ2
+m distribution with m degrees of freedom, where
+m equals the codimension of the model. For a line the codimension is 1 – only the
+perpendicular distance to the line is measured. If the model is a point the codimension
+is 2, and the square of the distance is the sum of squared x and y measurement errors.
+4.7 Robust estimation 119
+The probability that the value of a χ2
+m random variable is less than k2 is given by the cumulative
+chi-squared distribution, Fm(k2) =
+R k2
+0 χ2
+m(ξ)dξ. Both of these distributions
+are described in section A2.2(p566). From the cumulative distribution
+(
+inlier d2
+⊥ < t2
+outlier d2
+⊥ ≥ t2 with t2 = F−1
+m (α)σ2. (4.17)
+Usually α is chosen as 0.95, so that there is a 95% probability that the point is an inlier.
+This means that an inlier will only be incorrectly rejected 5% of the time. Values of t
+for α = 0.95 and for the models of interest in this book are tabulated in table 4.2.
+Codimension m Model t2
+1 line, fundamental matrix 3.84 σ2
+2 homography, camera matrix 5.99 σ2
+3 trifocal tensor 7.81 σ2
+Table 4.2. The distance threshold t2 = F−1
+m (α)σ2 for a probability of α = 0.95 that the point (correspondence)
+is an inlier.
+2. How many samples? It is often computationally infeasible and unnecessary to try
+every possible sample. Instead the number of samples N is chosen sufficiently high
+to ensure with a probability, p, that at least one of the random samples of s points is
+free from outliers. Usually p is chosen at 0.99. Suppose w is the probability that any
+selected data point is an inlier, and thus ǫ = 1−w is the probability that it is an outlier.
+Then at least N selections (each of s points) are required, where (1 − ws)N = 1 − p,
+so that
+N = log(1 − p)/ log(1 − (1 − ǫ)s). (4.18)
+Table 4.3 gives examples of N for p = 0.99 for a given s and ǫ.
+Sample size Proportion of outliers ǫ
+s 5% 10% 20% 25% 30% 40% 50%
+2 2 3 5 6 7 11 17
+3 3 4 7 9 11 19 35
+4 3 5 9 13 17 34 72
+5 4 6 12 17 26 57 146
+6 4 7 16 24 37 97 293
+7 4 8 20 33 54 163 588
+8 5 9 26 44 78 272 1177
+Table 4.3. The number N of samples required to ensure, with a probability p = 0.99, that at least one
+sample has no outliers for a given size of sample, s, and proportion of outliers, ǫ.
+Example 4.4. For the line-fitting problem of figure 4.7 there are n = 12 data points, of
+120 4 Estimation – 2D Projective Transformations
+which two are outliers so that ǫ = 2/12 = 1/6. From table 4.3 for a minimal subset
+of size s = 2, at least N = 5 samples are required. This should be compared with
+the cost of exhaustively trying every point pair, in which case (12
+2 ) = 66 samples are
+required (the notation (n2
+) means the number of choices of 2 among n, specifically,
+(n2
+) = n(n − 1)/2). △
+Note
+(i) The number of samples is linked to the proportion rather than number of outliers.
+This means that the number of samples required may be smaller than the
+number of outliers. Consequently the computational cost of the sampling can
+be acceptable even when the number of outliers is large.
+(ii) The number of samples increases with the size of the minimal subset (for a
+given ǫ and p). It might be thought that it would be advantageous to use more
+than the minimal subset, three or more points in the case of a line, because then
+a better estimate of the line would be obtained, and the measured support would
+more accurately reflect the true support. However, this possible advantage in
+measuring support is generally outweighed by the severe increase in computational
+cost incurred by the increase in the number of samples.
+3. How large is an acceptable consensus set? A rule of thumb is to terminate if the
+size of the consensus set is similar to the number of inliers believed to be in the data
+set, given the assumed proportion of outliers, i.e. for n data points T = (1 − ǫ)n. For
+the line-fitting example of figure 4.7 a conservative estimate of ǫ is ǫ = 0.2, so that
+T = (1.0 − 0.2)12 = 10.
+Determining the number of samples adaptively. It is often the case that ǫ, the
+fraction of data consisting of outliers, is unknown. In such cases the algorithm is
+initialized using a worst case estimate of ǫ, and this estimate can then be updated as
+larger consistent sets are found. For example, if the worst case guess is ǫ = 0.5 and
+a consensus set with 80% of the data is found as inliers, then the updated estimate is
+ǫ = 0.2.
+This idea of “probing” the data via the consensus sets can be applied repeatedly in
+order to adaptively determine the number of samples, N. To continue the example
+above, the worst case estimate of ǫ = 0.5 determines an initial N according to (4.18).
+When a consensus set containing more than 50% of the data is found, we then know
+that there is at least that proportion of inliers. This updated estimate of ǫ determines a
+reduced N from (4.18). This update is repeated at each sample, and whenever a consensus
+set with ǫ lower than the current estimate is found, then N is again reduced. The
+algorithm terminates as soon as N samples have been performed. It may occur that a
+sample is found for which ǫ determines an N less than the number of samples that have
+already been performed. In such a case sufficient samples have been performed and the
+algorithm terminates. In pseudo-code the adaptive computation of N is summarized
+in algorithm 4.5.
+This adaptive approach works very well and in practice covers the questions of both
+4.7 Robust estimation 121
+• N = ∞, sample count= 0.
+• While N > sample count Repeat
+– Choose a sample and count the number of inliers.
+– Set ǫ = 1 − (number of inliers)/(total number of points)
+– Set N from ǫ and (4.18) with p = 0.99.
+– Increment the sample count by 1.
+• Terminate.
+Algorithm 4.5. Adaptive algorithm for determining the number of RANSAC samples.
+C
+D
+B
+A
+C
+D
+B
+A
+a b
+Fig. 4.8. Robust ML estimation. The grey points are classified as inliers to the line. (a) A line defined
+by points hA,Bi has a support of four (from points {A,B,C,D}). (b) The ML line fit (orthogonal
+least-squares) to the four points. This is a much improved fit over that defined by hA,Bi. 10 points are
+classified as inliers.
+the number of samples and terminating the algorithm. The initial ǫ can be chosen
+as 1.0, in which case the initial N will be infinite. It is wise to use a conservative
+probability p such as 0.99 in (4.18). Table 4.4 on page 127 gives example ǫ’s and N’s
+when computing a homography.
+4.7.2 Robust Maximum Likelihood estimation
+The RANSAC algorithm partitions the data set into inliers (the largest consensus set)
+and outliers (the rest of the data set), and also delivers an estimate of the model, M0,
+computed from the minimal set with greatest support. The final step of the RANSAC
+algorithm is to re-estimate the model using all the inliers. This re-estimation should be
+optimal and will involve minimizing a ML cost function, as described in section 4.3.
+In the case of a line, ML estimation is equivalent to orthogonal regression, and a closed
+form solution is available. In general, though, the ML estimation involves iterative
+minimization, and the minimal set estimate, M0, provides the starting point.
+The only drawback with this procedure, which is often the one adopted, is that the
+inlier–outlier classification is irrevocable. After the model has been optimally fitted to
+the consensus set, there may well be additional points which would now be classified
+as inliers if the distance threshold was applied to the new model. For example, suppose
+the line hA,Bi in figure 4.8 was selected by RANSAC. This line has a support of
+four points, all inliers. After the optimal fit to these four points, there are now 10 points
+which would correctly be classified as inliers. These two steps: optimal fit to inliers; reclassify
+inliers using (4.17); can then be iterated until the number of inliers converges.
+122 4 Estimation – 2D Projective Transformations
+A least-squares fit with inliers weighted by their distance to the model is often used at
+this stage.
+Robust cost function. An alternative to minimizing C =
+P
+i d2
+⊥i over the inliers is to
+minimize a robust version including all data. A suitable robust cost function is
+D =
+X
+i
+γ (d⊥i) with γ(e) =
+(
+e2 e2 < t2 inlier
+t2 e2 ≥ t2 outlier
+(4.19)
+Here d⊥i are point errors and γ(e) is a robust cost function [Huber-81] where outliers
+are given a fixed cost. The χ2 motivation for the threshold is the same as that of (4.17),
+where t2 is defined. The quadratic cost for inliers arises from the Gaussian error model,
+as described in section 4.3. The constant cost for outliers in the robust cost function
+arises from the assumption that outliers follow a diffuse or uniform distribution, the loglikelihood
+of which is a constant. It might be thought that outliers could be excluded
+from the cost function by simply thresholding on d⊥i. The problem with thresholding
+alone is that it would result in only outliers being included because they would incur
+no cost.
+The cost function D allows the minimization to be conducted on all points whether
+they are outliers or inliers. At the start of the iterative minimization D differs from C
+only by a constant (given by 4 times the number of outliers). However, as the minimization
+progresses outliers can be redesignated inliers, and this typically occurs in
+practice. A discussion and comparison of cost functions is given in appendix A6.8-
+(p616).
+4.7.3 Other robust algorithms
+In RANSAC a model instantiated from a minimal set is scored by the number of data
+points within a threshold distance. An alternative is to score the model by the median
+of the distances to all points in the data. The model with least median is then
+selected. This is Least Median of Squares (LMS) estimation, where, as in RANSAC,
+minimum size subset samples are selected randomly with the number of samples obtained
+from (4.18). The advantage of LMS is that it requires no setting of thresholds or
+a priori knowledge of the variance of the error. The disadvantage of LMS is that it fails
+if more than half the data is outlying, for then the median distance will be to an outlier.
+The solution is to use the proportion of outliers to determine the selection distance. For
+example if there are 50% outliers then a distance below the median value (the quartile
+say) should be used.
+Both the RANSAC and LMS algorithms are able to cope with a large proportion of
+outliers. If the number of outliers is small, then other robust methods may well be more
+efficient. These include case deletion, where each point in turn is deleted and the model
+fitted to the remaining data; and iterative weighted least-squares, where a data point’s
+influence on the fit is weighted inversely by its residual. Generally these methods
+are not recommended. Both Torr [Torr-95b] and Xu and Zhang [Xu-96] describe and
+compare various robust estimators for estimating the fundamental matrix.
+4.8 Automatic computation of a homography 123
+Objective
+Compute the 2D homography between two images.
+Algorithm
+(i) Interest points: Compute interest points in each image.
+(ii) Putative correspondences: Compute a set of interest point matches based on proximity
+and similarity of their intensity neighbourhood.
+(iii) RANSAC robust estimation: Repeat for N samples, where N is determined adaptively
+as in algorithm 4.5:
+(a) Select a random sample of 4 correspondences and compute the homography H.
+(b) Calculate the distance d⊥ for each putative correspondence.
+(c) Compute the number of inliers consistent with H by the number of correspondences
+for which d⊥ < t = √5.99 σ pixels.
+Choose the H with the largest number of inliers. In the case of ties choose the solution
+that has the lowest standard deviation of inliers.
+(iv) Optimal estimation: re-estimate H from all correspondences classified as inliers, by
+minimizing the ML cost function (4.8–p95) using the Levenberg–Marquardt algorithm
+of section A6.2(p600).
+(v) Guided matching: Further interest point correspondences are now determined using
+the estimated H to define a search region about the transferred point position.
+The last two steps can be iterated until the number of correspondences is stable.
+Algorithm 4.6. Automatic estimation of a homography between two images using RANSAC.
+4.8 Automatic computation of a homography
+This section describes an algorithm to automatically compute a homography between
+two images. The input to the algorithm is simply the images, with no other a priori
+information required; and the output is the estimated homography together with a set
+of interest points in correspondence. The algorithm might be applied, for example, to
+two images of a planar surface or two images acquired by rotating a camera about its
+centre.
+The first step of the algorithm is to compute interest points in each image. We are
+then faced with a “chicken and egg” problem: once the correspondence between the
+interest points is established the homography can be computed; conversely, given the
+homography the correspondence between the interest points can easily be established.
+This problem is resolved by using robust estimation, here RANSAC, as a “search engine”.
+The idea is first to obtain by some means a set of putative point correspondences.
+It is expected that a proportion of these correspondences will in fact be mismatches.
+RANSAC is designed to deal with exactly this situation – estimate the homography
+and also a set of inliers consistent with this estimate (the true correspondences), and
+outliers (the mismatches).
+The algorithm is summarized in algorithm 4.6, with an example of its use shown
+in figure 4.9, and the steps described in more detail below. Algorithms with essentially
+the same methodology enable the automatic computation of the fundamental matrix
+and trifocal tensor directly from image pairs and triplets respectively. This computation
+is described in chapter 11 and chapter 16.
+124 4 Estimation – 2D Projective Transformations
+Determining putative correspondences. The aim, in the absence of any knowledge
+of the homography, is to provide an initial point correspondence set. A good proportion
+of these correspondences should be correct, but the aim is not perfect matching, since
+RANSAC will later be used to eliminate the mismatches. Think of these as “seed”
+correspondences. These putative correspondences are obtained by detecting interest
+points independently in each image, and then matching these interest points using a
+combination of proximity and similarity of intensity neighbourhoods as follows. For
+brevity, the interest points will be referred to as ‘corners’. However, these corners need
+not be images of physical corners in the scene. The corners are defined by a minimum
+of the image auto-correlation function.
+For each corner at (x, y) in image 1 the match with highest neighbourhood crosscorrelation
+in image 2 is selected within a square search region centred on (x, y). Symmetrically,
+for each corner in image 2 the match is sought in image 1. Occasionally
+there will be a conflict where a corner in one image is “claimed” by more than one
+corner in the other. In such cases a “winner takes all” scheme is applied and only the
+match with highest cross-correlation is retained.
+A variation on the similarity measure is to use Squared Sum of intensity Differences
+(SSD) instead of (normalized) Cross-Correlation (CC). CC is invariant to the affine
+mapping of the intensity values (i.e. I 7→ αI+β, scaling plus offset) which often occurs
+in practice between images. SSD is not invariant to this mapping. However, SSD is
+often preferred when there is small variation in intensity between images, because it is
+a more sensitive measure than CC and is computationally cheaper.
+RANSAC for a homography. The RANSAC algorithm is applied to the putative
+correspondence set to estimate the homography and the (inlier) correspondences which
+are consistent with this estimate. The sample size is four, since four correspondences
+determine a homography. The number of samples is set adaptively as the proportion of
+outliers is determined from each consensus set, as described in algorithm 4.5.
+There are two issues: what is the “distance” in this case? and how should the samples
+be selected?
+(i) Distance measure: The simplest method of assessing the error of a correspondence
+from a homography H is to use the symmetric transfer error, i.e.
+d2
+transfer = d(x, H−1x′)2 + d(x′, Hx)2, where x ↔ x′ is the point correspondence.
+A better, though more expensive, distance measure is the reprojection
+error, d2
+⊥ = d(x, ˆx)2 +d(x′, ˆx′)2, where ˆx′ = Hˆx is the perfect correspondence.
+This measure is more expensive because ˆx must also be computed. A further
+alternative is Sampson error.
+(ii) Sample selection: There are two issues here. First, degenerate samples should
+be disregarded. For example, if three of the four points are collinear then a
+homography cannot be computed; second, the sample should consist of points
+with a good spatial distribution over the image. This is because of the extrapolation
+problem – an estimated homography will accurately map the region
+straddled by the computation points, but the accuracy generally deteriorates
+4.8 Automatic computation of a homography 125
+with distance from this region (think of four points in the very top corner of the
+image). Distributed spatial sampling can be implemented by tiling the image
+and ensuring, by a suitable weighting of the random sampler, that samples with
+points lying in different tiles are the more likely.
+Robust ML estimation and guided matching. The aim of this final stage is twofold:
+first, to obtain an improved estimate of the homography by using all the inliers in
+the estimation (rather than only the four points of the sample); second, to obtain more
+inlying matches from the putative correspondence set because a more accurate homography
+is available. An improved estimate of the homography is then computed from
+the inliers by minimizing an ML cost function. This final stage can be implemented
+in two ways. One way is to carry out an ML estimation on the inliers, then recompute
+the inliers using the new estimated H, and repeat this cycle until the number of inliers
+converges. The ML cost function minimization is carried out using the Levenberg–
+Marquardt algorithm described in section A6.2(p600). The alternative is to estimate
+the homography and inliers simultaneously by minimizing a robust ML cost function
+of (4.19) as described in section 4.7.2. The disadvantage of the simultaneous approach
+is the computational effort incurred in the minimization of the cost function. For this
+reason the cycle approach is usually the more attractive.
+4.8.1 Application domain
+The algorithm requires that interest points can be recovered fairly uniformly across the
+image, and this in turn requires scenes and resolutions which support this requirement.
+Scenes should be lightly textured – images of blank walls are not ideal.
+The search window proximity constraint places an upper limit on the image motion
+of corners (the disparity) between views. However, the algorithm is not defeated if this
+constraint is not applied, and in practice the main role of the proximity constraint is to
+reduce computational complexity, as a smaller search window means that fewer corner
+matches must be evaluated.
+Ultimately the scope of the algorithm is limited by the success of the corner neighbourhood
+similarity measure (SSD or CC) in providing disambiguation between correspondences.
+Failure generally results from lack of spatial invariance: the measures
+are only invariant to image translation, and are severely degraded by transformations
+outside this class such as image rotation or significant differences in foreshortening
+between images. One solution is to use measures with a greater invariance to the homography
+mapping between images, for example measures which are rotationally invariant.
+An alternative solution is to use an initial estimate of the homography to map
+between intensity neighbourhoods. Details are beyond the scope of this discussion,
+but are provided in [Pritchett-98, Schmid-98]. The use of robust estimation confers
+moderate immunity to independent motion, changes in shadows, partial occlusions etc.
+126 4 Estimation – 2D Projective Transformations
+a b
+c d
+e f
+g h
+Fig. 4.9. Automatic computation of a homography between two images using RANSAC. The motion
+between views is a rotation about the camera centre so the images are exactly related by a homography.
+(a) (b) left and right images of Keble College, Oxford. The images are 640 × 480 pixels. (c) (d)
+detected corners superimposed on the images. There are approximately 500 corners on each image. The
+following results are superimposed on the left image: (e) 268 putative matches shown by the line linking
+corners, note the clear mismatches; (f) outliers – 117 of the putative matches; (g) inliers – 151 correspondences
+consistent with the estimated H; (h) final set of 262 correspondences after guided matching
+and MLE.
+4.9 Closure 127
+4.8.2 Implementation and run details
+Interest points are obtained using the Harris [Harris-88] corner detector. This detector
+localizes corners to sub-pixel accuracy, and it has been found empirically that the
+correspondence error is usually less than a pixel [Schmid-98].
+When obtaining seed correspondences, in the putative correspondence stage of the
+algorithm, the threshold on the neighbourhood similarity measure for match acceptance
+is deliberately conservative to minimize incorrect matches (the SSD threshold is 20).
+For the guided matching stage this threshold is relaxed (it is doubled) so that additional
+putative correspondences are available.
+Number of 1 − ǫ Adaptive
+inliers N
+6 2% 20,028,244
+10 3% 2,595,658
+44 16% 6,922
+58 21% 2,291
+73 26% 911
+151 56% 43
+Table 4.4. The results of the adaptive algorithm 4.5 used during RANSAC to compute the homography
+for figure 4.9. N is the total number of samples required as the algorithm runs for p = 0.99 probability
+of no outliers in the sample. The algorithm terminated after 43 samples.
+For the example of figure 4.9 the images are 640×480 pixels, and the search window
+±320 pixels, i.e. the entire image. Of course a much smaller search window could have
+been used given the actual point disparities in this case. Often in video sequences a
+search window of ±40 pixels suffices (i.e. a square of side 80 centred on the current
+position). The inlier threshold was t = 1.25 pixels.
+A total of 43 samples were required, with the sampling run as shown in table 4.4.
+The guided matching required two iterations of the MLE–inlier classification cycle.
+The RMS values for d⊥ pixel error were 0.23 before the MLE and 0.19 after. The
+Levenberg–Marquardt algorithm required 10 iterations.
+4.9 Closure
+This chapter has illustrated the issues and techniques that apply to estimating the tensors
+representing multiple view relations. These ideas will reoccur in each of the computation
+chapters throughout the book. In each case there are a minimal number of
+correspondences required; degenerate configurations that should be avoided; algebraic
+and geometric errors that can be minimized when more than the minimal number of
+correspondences are available; parametrizations that enforce internal constraints on the
+tensor etc.
+4.9.1 The literature
+The DLT algorithm dates back at least to Sutherland [Sutherland-63]. Sampson’s classic
+paper on conic fitting (an improvement on the equally classic Bookstein algorithm)
+128 4 Estimation – 2D Projective Transformations
+appeared in [Sampson-82]. Normalization was made public in the Computer Vision
+literature by Hartley [Hartley-97c].
+Related reading on numerical methods may be found in the excellent Numerical
+Recipes in C [Press-88], and also Gill and Murray [Gill-78] for iterative minimization.
+Fischler and Bolles’ [Fischler-81] RANSAC was one of the earliest robust algorithms,
+and in fact was developed to solve a Computer Vision problem (pose from
+3 points). The original paper is very clearly argued and well worth reading. Other
+background material on robustness may be found in Rousseeuw [Rousseeuw-87]. The
+primary application of robust estimation in computer vision was to estimating the fundamental
+matrix (chapter 11), by Torr and Murray [Torr-93] using RANSAC, and,
+Zhang et al. [Zhang-95] using LMS. The automatic ML estimation of a homography
+was described by Torr and Zisserman [Torr-98].
+4.9.2 Notes and exercises
+(i) Computing homographies of IPn. The derivation of (4.1–p89) and (4.3–p89)
+assumed that the dimension of x′
+i is three, so that the cross-product is defined.
+However, (4.3) may be derived in a way that generalizes to all dimensions.
+Assuming that w′
+i = 1, we may solve for the unknown scale factor explicitly by
+writing Hxi = k(xi, yi, 1)T. From the third coordinate we obtain k = h3Txi,
+and substituting this into the original equation gives
+ 
+h1Txi
+h2Txi
+!
+=
+ 
+x′
+ih3Txi
+y′
+ih3Txi
+!
+which leads directly to (4.3).
+(ii) Computing homographies for ideal points. If one of the points x′
+i is an
+ideal point, so that w′
+i = 0, then the pair of equations (4.3) collapses to a single
+equation although (4.1) does contain two independent equations. To avoid such
+degeneracy, while including only the minimum number of equations, a good
+way to proceed is as follows. We may rewrite the equation x′
+i = Hxi as
+[x′
+i]⊥
+Hxi = 0
+where [x′
+i]⊥ is a matrix with rows orthogonal to x′
+i so that [x′
+i]⊥x′
+i = 0. Each
+row of [x′
+i]⊥ leads to a separate linear equation in the entries of H. The matrix
+[x′
+i]⊥ may be obtained by deleting the first row of an orthogonal matrix M satisfying
+Mx′
+i = (1, 0, . . . , 0)T. A Householder matrix (see section A4.1.2(p580))
+is an easily constructed matrix with the desired property.
+(iii) Scaling unbounded point sets. In the case of points at or near infinity in a
+plane, it is neither reasonable nor feasible to normalize coordinates using the
+isotropic (or non-isotropic) scaling schemes presented in this chapter, since the
+centroid and scale are infinite or near infinite. A method that seems to give
+good results is to normalize the set of points xi = (xi, yi,wi)T such that
+X
+i
+xi =
+X
+i
+yi = 0 ;
+X
+i
+x2i
++ y2
+i = 2
+X
+i
+w2
+i ; x2i
++ y2
+i + w2
+i = 1∀i
+4.9 Closure 129
+Note that the coordinates xi and yi appearing here are the homogeneous coordinates,
+and the conditions no longer imply that the centroid is at the origin.
+Investigate methods of achieving this normalization, and evaluate its properties.
+(iv) Transformation invariance of DLT. We consider computation of a 2D homography
+by minimizing algebraic error kAhk (see (4.5–p94)) subject to various
+constraints. Prove the following cases:
+(a) If kAhk is minimized subject to the constraint h9 = H33 = 1, then the
+result is invariant under change of scale but not translation of coordinates.
+(b) If instead the constraint is H2 31 + H2 32 = 1 then the result is similarity
+invariant.
+(c) Affine case: The same is true for the constraint H31 = H32 = 0; H33 = 1.
+(v) Expressions for image coordinate derivatives. For the map x′ =
+(x′, y′,w′)T = Hx, derive the following expressions (where ˜x′ = (˜x′, ˜y′)T =
+(x′/w′, y′/w′)T are the inhomogeneous coordinates of the image point):
+(a) Derivative wrt x
+∂˜x′/∂x =
+1
+w′
+"
+h1T − ˜x′h3T
+h2T − ˜y′h3T
+#
+(4.20)
+where hjT is the j−th row of H.
+(b) Derivative wrt H
+∂˜x′/∂h =
+1
+w′
+"
+xT 0 −˜x′xT
+0 xT −˜y′xT
+#
+(4.21)
+with h as defined in (4.2–p89).
+(vi) Sampson error with non-isotropic error distributions. The derivation of
+Sampson error in section 4.2.6(p98) assumed that points were measured with
+circular error distributions. In the case where the point X = (x, y, x′, y′) is
+measured with covariance matrix X it is appropriate instead to minimize the
+Mahalanobis norm kδXk2
+X = δT
+X
+−1
+X
+δX. Show that in this case the formulae
+corresponding to (4.11–p99) and (4.12–p99) are
+δX = −XJ
+T(JXJ
+T)−1ǫ (4.22)
+and
+kδXk2
+X = ǫT(JXJT)−1ǫ. (4.23)
+Note that if the measurements in the two images are independent, then the covariance
+matrix X will be block-diagonal with two 2 × 2 diagonal blocks corresponding
+to the two images.
+(vii) Sampson error programming hint. In the case of 2D homography estimation,
+and in fact every other similar problem considered in this book, the cost
+function CH(X) = A(X)h of section 4.2.6(p98) is multilinear in the coordinates
+130 4 Estimation – 2D Projective Transformations
+Objective
+Given n ≥ 4 image point correspondences {xi ↔ x′
+i}, determine the affine homography HA
+which minimizes reprojection error in both images (4.8–p95).
+Algorithm
+(a) Express points as inhomogeneous 2-vectors. Translate the points xi by a translation t
+so that their centroid is at the origin. Do the same to the points x′
+i by a translation t′.
+Henceforth work with the translated coordinates.
+(b) Form the n × 4 matrix A whose rows are the vectors
+XT
+i = (xT
+i , x′
+i
+T) = (xi, yi, x′
+i, y′
+i).
+(c) Let V1 and V2 be the right singular-vectors of A corresponding to the two largest (sic)
+singular values.
+(d) Let H2×2 = CB−1, where B and C are the 2 × 2 blocks such that
+[V1V2] =
+
+B
+C
+
+.
+(e) The required homography is
+HA =
+
+H2×2 H2×2t − t′
+0T 1
+
+,
+and the corresponding estimate of the image points is given by
+bX
+i = (V1VT
+1 + V2VT
+2 )Xi
+Algorithm 4.7. The Gold Standard Algorithm for estimating an affine homography HA from image correspondences.
+of X. This means that the partial derivative ∂CH(X)/∂X may be very simply
+computed. For instance, the derivative
+∂CH(x, y, x′, y′)/∂x = CH(x + 1, y, x′, y′) − CH(x, y, x′, y′)
+is exact, not a finite difference approximation. This means that for programming
+purposes, one does not need to code a special routine for taking
+derivatives – the routine for computing CH(X) will suffice. Denoting by Ei
+the vector containing 1 in the i-th position, and otherwise 0, one sees that
+∂CH(X)/∂Xi = CH(X + Ei) − CH(X), and further
+JJ
+T =
+X
+i
+(CH(X + Ei) − CH(X)) (CH(X + Ei) − CH(X))T .
+Also note that computationally it is more efficient to solve JJTλ = −ǫ directly
+for λ, rather than take the inverse as λ = −(JJT)−1ǫ.
+(viii) Minimizing geometric error for affine transformations. Given a set of
+correspondences (xi, yi) ↔ (x′
+i, y′
+i), find an affine transformation HA that minimizes
+geometric error (4.8–p95). We will step through the derivation of a linear
+algorithm based on Sampson’s approximation which is exact in this case. The
+complete method is summarized in algorithm 4.7.
+4.9 Closure 131
+(a) Show that the optimum affine transformation takes the centroid of the xi
+to the centroid of x′
+i, so by translating the points to have their centroid
+at the origin, the translation part of the transformation is determined. It
+is only necessary then to determine the upper-left 2 × 2 submatrix H2×2
+of HA, which represents the linear part of the transformation.
+(b) The point Xi = (xT
+i , x′
+i
+T)T lies on VH if and only if [H2×2|−I2×2]X = 0.
+So VH is a codimension-2 subspace of IR4.
+(c) Any codimension-2 subspace may be expressed as [H2×2| − I]X = 0
+for suitable H2×2. Thus given measurements Xi, the estimation task is
+equivalent to finding the best-fitting codimension-2 subspace.
+(d) Given a matrix M with rows X
+T
+i , the best-fitting subspace to the Xi is
+spanned by the singular vectors V1 and V2 corresponding to the two
+largest singular values of M.
+(e) The H2×2 corresponding to the subspace spanned by V1 and V2 is found
+by solving the equations [H2×2| − I][V1V2] = 0.
+(ix) Computing homographies of IP3 from line correspondences. Consider
+computing a 4 × 4 homography H from lines correspondences alone, assuming
+the lines are in general position in IP3. There are two questions: how many
+correspondences are required?, and how to formulate the algebraic constraints
+to obtain a solution for H? It might be thought that four line correspondences
+would be sufficient because each line in IP3 has four degrees of freedom, and
+thus four lines should provide 4 × 4 = 16 constraints on the 15 degrees of
+freedom of H. However, a configuration of four lines is degenerate (see section
+4.1.3(p91)) for computing the transformation, as there is a 2D isotropy subgroup.
+This is discussed further in [Hartley-94c]. Equations linear in H can be
+obtained in the following way:
+πT
+i
+HXj = 0 , i = 1, 2, j = 1, 2 ,
+where H transfers a line defined by the two points (X1,X2) to a line defined
+by the intersection of the two planes (π1,π2). This method was derived in
+[Oskarsson-02], where more details are to be found.
+</p><p>
+    </body>
+</html>

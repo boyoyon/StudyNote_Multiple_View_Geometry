@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>13章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>13章 シーン平面とホモグラフィ</center></h1>
+<p>
+
+この章では、2 台のカメラとワールド平面の射影幾何学について説明します。
+
+<!-- This chapter describes the projective geometry of two cameras and a world plane.-->
+
+</p><p>
+
+平面上の点の像は、図13.1に示すように、（平面）ホモグラフィによって、別のビューの対応する像点と関連付けられます。これは、平面と直線の交点のみに依存するため、射影関係です。平面はビュー間のホモグラフィを誘導すると言われています。ホモグラフィ写像は、点をあるビューから別のビューへ、あたかも平面上の点の像であるかのように転送します。
+
+<!-- Images of points on a plane are related to corresponding image points in a second
+view by a (planar) homography as shown in figure 13.1. This is a projective relation
+since it depends only on the intersections of planes with lines. It is said that the plane
+induces a homography between the views. The homography map transfers points from
+one view to the other as if they were images of points on the plane. -->
+</p><p>
+
+図13.1. 平面によって誘導されるホモグラフィ。点\(x\)に対応する光線は、平面 \(\pi\) と点 \(x_\pi\) で交わるように延長され、この点は別の画像の点 \(x^\prime\) に投影されます。\(x\) から \(x^\prime\) への写像は、平面 \(\pi\) によって誘導されるホモグラフィです。ワールド平面 \(\pi\) と最初の画像平面の間には透視図法 \(x = H_{1\pi}x_\pi\) があり、ワールド平面と2番目の画像平面の間にも透視図法 \(x^\prime = H_{2\pi}x_\pi\) があります。2つの透視図法の合成は、画像平面間のホモグラフィ \(x^\prime = H_{2\pi}H_{1\pi}^{-1}x = Hx\) です。
+
+<!-- Fig. 13.1. The homography induced by a plane. The ray corresponding to a point \(x\) is extended to meet the plane \(\pi\) in a point \(x_\pi\); this point is projected to a point \(x^\prime\) in the other image. The map from \(x\) to \(x^\prime\) is the homography induced by the plane \(\pi\). There is a perspectivity, \(x = H_{1\pi}x_\pi, between the
+world plane \(\pi\) and the first image plane; and a perspectivity, \(x^\prime = H_{2\pi}x_\pi\), between the world plane and
+second image plane. The composition of the two perspectivities is a homography, \(x^\prime = H_{2\pi}H_{1\pi}-{-1}x = Hx,
+between the image planes. -->
+</p><p>
+
+二つの視点の間には二つの関係があります。一つは、エピポーラ幾何学により、一方の視点の点は、その点を通る光線の像である他方の視点の直線を決定し、もう一つは、ホモグラフィにより、一方の視点の点は、その光線と平面の交点の像である他方の視点の点を決定し、この章では、この二つの二視点幾何学の関係を結び付けます。
+
+<!-- There are then two relations between the two views: first, through the epipolar geometry
+a point in one view determines a line in the other which is the image of the ray
+through that point; and second, through the homography a point in one view determines
+a point in the other which is the image of the intersection of the ray with a plane. This
+chapter ties together these two relations of 2-view geometry. -->
+
+</p><p>
+
+ここでは、他の2つの重要な概念、すなわち平面に関する視差と無限ホモグラフィについて説明します。
+
+<!-- Two other important notions are described here: the parallax with respect to a plane,
+and the infinite homography. -->
+
+
+</p>
+<h2><center>13.1 平面を与えられたホモグラフィとその逆</center></h2>
+<p>
+まず、平面が一般位置にある場合、ホモグラフィは平面によって一意に決定され、その逆もまた同様であることを示します。この場合の一般位置とは、平面がどちらのカメラ中心も含まないことを意味します。平面がカメラ中心のどちらかを含む場合、誘導されるホモグラフィは縮退します。
+
+<!-- We start by showing that for planes in general position the homography is determined
+uniquely by the plane and vice versa. General position in this case means that the plane
+does not contain either of the camera centres. If the plane does contain one of the
+camera centres then the induced homography is degenerate. -->
+
+</p><p>
+
+3次元空間の平面 \(\pi\) が世界座標系における座標によって指定されると仮定する。まず、誘導ホモグラフィの明示的な表現を導出する。
+
+<!-- Suppose a plane \(\pi\) in 3-space is specified by its coordinates in the world frame. We
+first derive an explicit expression for the induced homography. -->
+
+<!--
+Result 13.1. Given the projection matrices for the two views
+\[
+P = [I | 0]　P^\prime = [A | a]
+\]
+and a plane defined by \(\pi^TX = 0\) with \(\pi = (v^T, 1)^T\), then the homography induced by
+the plane is x′ = Hx with
+H = A − avT. (13.1)
+We may assume that 4 = 1 since the plane does not pass through the centre of the first
+camera at (0, 0, 0, 1)T.
+Note, there is a three-parameter family of planes in 3-space, and correspondingly a
+three-parameter family of homographies between two views induced by planes in 3-
+space. These three parameters are specified by the elements of the vector v, which is
+not a homogeneous 3-vector.
+Proof. To compute H we back-project a point x in the first view and determine the
+intersection point X of this ray with the plane . The 3D point X is then projected into
+the second view.
+For the first view x = PX = [I | 0]X and so any point on the ray X = (xT, )T projects
+to x, where  parametrizes the point on the ray. Since the 3D point X is on  it satisfies
+
+T
+X = 0. This determines , and X = (xT,−vTx)T. The 3D point X projects into the
+second view as
+x′ = P′
+X = [A | a]X
+= Ax − avTx =
+
+A−avT
+
+x
+as required.
+Example 13.2. A calibrated stereo rig.
+Suppose the camera matrices are those of a calibrated stereo rig with the world origin
+at the first camera
+PE = K[I | 0] P′
+E = K′[R | t],
+and the world plane E has coordinates E = (nT, d)T so that for points on the plane
+nTeX + d = 0. We wish to compute an expression for the homography induced by the
+plane.
+13.1 Homographies given the plane and vice versa 327
+From result 13.1, with v = n/d, the homography for the cameras
+P = [I | 0], P′ = [R | t] is
+H = R − tnT/d.
+Applying the transformations K and K′ to the images we obtain the cameras PE =
+K[I | 0], P′
+E = K′[R | t] and the resulting induced homography is
+H = K′
+
+R − tnT/d
+
+K−1. (13.2)
+This is a three-parameter family of homographies, parametrized by n/d. It is defined
+by the plane, and the camera internal and relative external parameters. △
+13.1.1 Homographies compatible with epipolar geometry
+Suppose four points Xi are chosen on a scene plane. Then the correspondence xi ↔ x′
+i
+of their images between two views defines a homography H, which is the homography
+induced by the plane. These image correspondences also obey the epipolar constraint,
+i.e. x′
+i
+TFxi = 0, since they arise from images of scene points. Indeed, the correspondence
+x ↔ x′ = Hx obeys the epipolar constraint for any x, since again x and x′ are
+images of a scene point, in this case the point given by intersecting the scene plane
+with the ray back-projected from x. The homography H is said to be consistent or
+compatible with F.
+Now suppose four arbitrary image points are chosen in the first view and four arbitrary
+image points chosen in the second. Then a homography ˜H may be computed
+which maps one set of points into the other (provided no three are collinear in either
+view). However, correspondences x ↔ x′ = ˜Hx may not obey the epipolar constraint.
+If the correspondence x ↔ x′ = ˜Hx does not obey the epipolar constraint then there
+does not exist a scene plane which induces ˜H.
+The epipolar geometry determines the projective geometry between two views, and
+can be used to define conditions on homographies which are induced by actual scene
+planes. Figure 13.2 illustrates several relations between epipolar geometry and scene
+planes which can be used to define such conditions. For example, since correspondences
+x ↔ Hx obey the epipolar constraint if H is induced by a plane, then from
+x′TFx = 0
+(Hx)T
+Fx = xT
+H
+T
+Fx = 0.
+This is true for all x, so:
+• A homography H is compatible with a fundamental matrix F if and only if the matrix
+HTF is skew-symmetric:
+H
+T
+F + F
+T
+H = 0 (13.3)
+The argument above showed that the condition was necessary. The fact that this is a
+sufficient condition was shown by Luong and Vi´eville [Luong-96]. Counting degrees
+of freedom, (13.3) places six homogeneous (five inhomogeneous) constraints on the 8
+degrees of freedom of H. There are therefore 8 − 5 = 3 degrees of freedom remaining
+328 13 Scene planes and homographies
+􀁓
+e e /
+baseline
+l
+e /
+􀁓
+e
+l
+/e
+e
+a b
+l
+x
+e
+x
+e
+/
+e/
+Hx
+l
+/e
+􀁓
+c
+Fig. 13.2. Compatibility constraints. The homography induced by a plane is coupled to the epipolar
+geometry and satisfies constraints. (a) The epipole is mapped by the homography, as e′ = He, since
+the epipoles are images of the point on the plane where the baseline intersects . (b) Epipolar lines
+are mapped by the homography as HTl′
+e = le. (c) Any point x mapped by the homography lies on its
+corresponding epipolar line l′
+e, so l′
+e = Fx = x′ × (Hx).
+for H; these 3 degrees of freedom correspond to the three-parameter family of planes in
+3-space.
+The compatibility constraint (13.3) is an implicit equation in H and F. We now develop
+an explicit expression for a homography H induced by a plane given F which is
+more suitable for a computational algorithm.
+Result 13.3. Given the fundamental matrix F between two views, the three-parameter
+family of homographies induced by a world plane is
+H = A − e′vT (13.4)
+where [e′]×A = F is any decomposition of the fundamental matrix.
+Proof. Result 13.1 has shown that given the camera matrices for the view pair P =
+[I | 0], P′ = [A | a] a plane  induces a homography H = A−avT where  = (vT, 1)T.
+However, according to result 9.9(p254), for the fundamental matrix F = [e′]×A one can
+choose the two cameras to be [I | 0] and [A | e′].
+Remark. The above derivation, which is based on the projection of points on a
+plane, ensures that the homographies are compatible with the epipolar geometry. Algebraically,
+the homography (13.4) is compatible with the fundamental matrix since it
+obeys the necessary and sufficient condition (13.3) that FTH is skew-symmetric. This
+13.2 Plane induced homographies given F and image correspondences 329
+follows from
+F
+T
+H = A
+T[e′]×
+
+A − e′vT
+
+= A
+T[e′]×A
+using [e′]×e′ = 0, since AT[e′]×A is skew-symmetric.
+Comparing (13.4) with the general decomposition of the fundamental matrix, as
+given in lemma 9.11(p255) or (9.10–p256) it is evident that they involve an identical
+formula (except for signs). In fact there is a one-to-one correspondence between
+decompositions of the fundamental matrix (up to the scale factor ambiguity k
+in lemma 9.11) and homographies induced by world planes, as stated here.
+Corollary 13.4. A transformation H is the homography between two images induced by
+some world plane if and only if the fundamental matrix F for the two images has a
+decomposition F = [e′]×H.
+This choice in the decomposition simply corresponds to the choice of projective world
+frame. In fact, H is the transformation with respect to the plane with coordinates
+(0, 0, 0, 1)T in the reconstruction with P = [I | 0] and P′ = [H | e′].
+Finding the plane that induces a given homography is a simple matter given a pair of
+camera matrices, as follows.
+Result 13.5. Given the cameras in the canonical form P = [I | 0], P′ = [A | a], then
+the plane  that induces a given homography H between the views has coordinates
+ = (vT, 1)T where v may be obtained linearly by solving the equations H = A−avT,
+which are linear in the entries of v and .
+Note, these equations have an exact solution only if H satisfies the compatibility constraint
+(13.3) with F. For a homography computed numerically from noisy data this
+will not normally be true, and the linear system is over-determined.
+13.2 Plane induced homographies given F and image correspondences
+A plane in 3-space can be specified by three points, or by a line and a point, and so forth.
+In turn these 3D elements can be specified by image correspondences. In section 13.1
+the homography was computed from the coordinates of the plane. In the following the
+homography will be computed directly from the corresponding image elements that
+specify the plane. This is a quite natural mechanism to use in applications.
+We will consider two cases: (i) three points; (ii) a line and a point. In each case the
+corresponding elements are sufficient to determine a plane in 3-space uniquely. It will
+be seen that in each case:
+(i) The corresponding image entities have to satisfy consistency constraints with
+the epipolar geometry.
+(ii) There are degenerate configurations of the 3D elements and cameras for which
+the homography is not defined. Such degeneracies arise from collinearities and
+coplanarities of the 3D elements and the epipolar geometry. There may also be
+degeneracies of the solution method, but these can be avoided.
+The three-point case is covered in more detail.
+330 13 Scene planes and homographies
+e e
+l
+l
+􀁓
+e /
+e
+/
+X
+X
+X
+1
+2
+3
+Fig. 13.3. Degenerate geometry for an implicit computation of the homography. The line defined
+by the points X1 and X2 lies in an epipolar plane, and thus intersects the baseline. The images of X1
+and X2 are collinear with the epipole, and H cannot be computed uniquely from the correspondences
+xi ↔ x′
+i, i ∈ {1, . . . , 3}, e ↔ e′. This configuration is not degenerate for the explicit method.
+13.2.1 Three points
+We suppose that we have the images in two views of three (non-collinear) points Xi,
+and the fundamental matrix F. The homography H induced by the plane of the points
+may be computed in principle in two ways:
+First, the position of the points Xi is recovered in a projective reconstruction
+(chapter 12). Then the plane  through the points is determined (3.3–p66), and the
+homography computed from the plane as in result 13.1. Second, the homography may
+be computed from four corresponding points, the four points in this case being the
+images of the three points Xi on the plane together with the epipole in each view.
+The epipole may be used as the fourth point since it is mapped between the views
+by the homography as shown in figure 13.2. Thus we have four correspondences,
+x′
+i = Hxi, i ∈ {1, . . . , 3}, e′ = He, from which H may be computed.
+We thus have two alternative methods to compute H from three point correspondences,
+the first involving an explicit reconstruction, the second an implicit one where
+the epipole provides a point correspondence. It is natural to ask if one has an advantage
+over the other, and the answer is that the implicit method should not be used for computation
+as it has significant degeneracies which are not present in the explicit method.
+Consider the case when two of the image points are collinear with the epipole (we
+assume for the moment that the measurements are noise-free). A homography H cannot
+be computed from four correspondences if three of the points are collinear (see section
+4.1.3(p91)), so the implicit method fails in this case. Similarly if the image points are
+close to collinear with the epipole then the implicit method will give a poorly conditioned
+estimate for H. The explicit method has no problems when two points are
+collinear or close to collinear with the epipole – the corresponding image points define
+points in 3-space (the world points are on the same epipolar plane, but this is not a
+degenerate situation) and the plane  and hence homography can be computed. The
+configuration is illustrated in figure 13.3.
+We now develop the algebra of the explicit method in more detail. It is not neces13.2
+Plane induced homographies given F and image correspondences 331
+sary to actually determine the coordinates of the points Xi, all that is important is the
+constraint they place on the three-parameter family of homographies compatible with
+F (13.4), H = A − e′vT, parametrized by v. The problem is reduced to that of solving
+for v from the three point correspondences. The solution may be obtained as:
+Result 13.6. Given F and the three image point correspondences xi ↔ x′
+i, the homography
+induced by the plane of the 3D points is
+H = A − e′(M−1b)T,
+where A = [e′]×F and b is a 3-vector with components
+bi = (x′
+i × (Axi))T(x′
+i × e′)/kx′
+i × e′k2,
+and M is a 3 × 3 matrix with rows xT
+i .
+Proof. According to result 9.14(p256), F may be decomposed as F = [e′]×A. Then
+(13.4) gives H = A − e′vT, and each correspondence xi ↔ x′
+i generates a linear
+constraint on v as
+x′
+i = Hxi = Axi − e′(vTxi), i = 1, . . . , 3. (13.5)
+From (13.5) the vectors x′
+i and Axi − e′(vTxi) are parallel, so their vector product is
+zero:
+x′
+i × (Axi − e′(vTxi)) = (x′
+i × Axi) − (x′
+i × e′)(vTxi) = 0.
+Forming the scalar product with the vector x′
+i × e′ gives
+xT
+i
+v =
+(x′
+i × (Axi))T(x′
+i × e′)
+(x′
+i × e′)T(x′
+i × e′)
+= bi (13.6)
+which is linear in v. Note, the equation is independent of the scale of x′, since x′ occurs
+the same number of times in the numerator and denominator. Each correspondence
+generates an equation xT
+i
+v = bi, and collecting these together we have Mv = b.
+Note, a solution cannot be obtained if MT = [x1, x2, x3] is not of full rank. Algebraically,
+det M = 0 if the three image points xi are collinear. Geometrically, three
+collinear image points arise from collinear world points, or coplanar world points
+where the plane contains the first camera centre. In either case a full rank homography
+is not defined.
+Consistency conditions. Equation (13.5) is equivalent to six constraints since each
+point correspondence places two constraints on a homography. Determining v requires
+only three constraints, so there are three constraints remaining which must be satisfied
+for a valid solution. These constraints are obtained by taking the cross product of (13.5)
+with e′, which gives
+e′ × x′
+i = e′ × Axi = Fxi.
+332 13 Scene planes and homographies
+Objective
+Given F and three point correspondences xi ↔ x′
+i which are the images of 3D points Xi,
+determine the homography x′ = Hx induced by the plane of Xi.
+Algorithm
+(i) For each correspondence xi ↔ x′
+i compute the corrected correspondence ˆxi ↔ ˆx′
+i
+using algorithm 12.1(p318).
+(ii) Choose A = [e′]×F and solve linearly for v from Mv = b as in result 13.6.
+(iii) Then H = A − e′vT.
+Algorithm 13.1. The optimal estimate of the homography induced by a plane defined by three points.
+The equation e′ × x′
+i = Fxi is a consistency constraint between xi and x′
+i, since it
+is independent of v. It is simply a (disguised) epipolar constraint on the correspondence
+xi ↔ x′
+i: the LHS is the epipolar line through x′
+i, and the RHS is Fxi which is
+the epipolar line for xi in the second image, i.e. the equation enforces that x′
+i lie on
+the epipolar line of xi, and hence the correspondence is consistent with the epipolar
+geometry.
+Estimation from noisy points. The three point correspondences which determine the
+plane and homography must satisfy the consistency constraint arising from the epipolar
+geometry. Generally measured correspondences xi ↔ x′
+i will not exactly satisfy
+this constraint. We therefore require a procedure for optimally correcting the measured
+points so that the estimated points ˆxi ↔ ˆx′
+i satisfy the epipolar constraint. Fortunately,
+such a procedure has already been given in the triangulation algorithm 12.1(p318),
+which can be adopted here directly. We then have a Maximum Likelihood estimate of
+H and the 3D points under Gaussian image noise assumptions. The method is summarized
+in algorithm 13.1.
+13.2.2 A point and line
+In this section an expression is derived for a plane specified by a point and line correspondence.
+We start by considering only the line correspondence and show that this
+reduces the three-parameter family of homographies compatible with F (13.4) to a 1-
+parameter family. It is then shown that the point correspondence uniquely determines
+the plane and corresponding homography.
+The correspondence of two image lines determines a line in 3-space, and a line in
+3-space lies on a one parameter family (a pencil) of planes, see figure 13.4. This pencil
+of planes induces a pencil of homographies between the two images, and any member
+of this family will map the corresponding lines to each other.
+Result 13.7. The homography for the pencil of planes defined by a line correspondence
+l ↔ l′ is given by
+H(μ) = [l′]×F + μe′lT (13.7)
+provided l′Te′ 6= 0, where μ is a projective parameter.
+13.2 Plane induced homographies given F and image correspondences 333
+e e /
+l
+/
+L
+/
+l
+C C
+􀁓 􀁓/
+e e /
+l
+/
+/
+l
+L
+􀀋􀀃􀁐􀀃􀀌
+C C
+􀁓
+a b
+Fig. 13.4. (a) Image lines l and l′ determine planes  and 
+′ respectively. The intersection of these
+planes defines the line L in 3-space. (b) The line L in 3-space is contained in a one parameter family
+of planes (μ). This family of planes induces a one parameter family of homographies between the
+images.
+Proof. From result 8.2(p197) the line l back-projects to a plane PTl through the first
+camera centre, and l′ back-projects to a plane P′Tl′ through the second, see figure 13.4a.
+These two planes are the basis for a pencil of planes parametrized by μ. As in the proof
+of result 13.3 we may choose P = [I | 0], P′ = [A | e′], then the pencil of planes is
+(μ) = μP
+Tl + P′Tl′
+= μ
+ 
+l
+0
+!
++
+ 
+ATl′
+e′Tl′
+!
+From result 13.1 the induced homography is H(μ) = A − e′v(μ)T, with
+v(μ) = (μl + A
+Tl′)/(e′Tl′) (13.8)
+Using the decomposition A = [e′]×F we obtain
+H =
+
+(e′Tl′I − e′l′T)[e′]×F − μe′lT
+
+/(e′Tl′) = −
+
+[l′]×[e′]×[e′]×F + μe′lT
+
+/(e′Tl′)
+= −
+
+[l′]×F + μe′lT
+
+/(e′Tl′)
+where the last equality follows from result A4.4(p582) that [e′]×[e′]×F = F. This is
+equivalent to (13.7) up to scale.
+The homography for a corresponding point and line. From the line correspondence
+we have that H(μ) = [l′]×F+μe′lT, and now solve for μ using the point correspondence
+x ↔ x′.
+Result 13.8. Given F and a corresponding point x ↔ x′ and line l ↔ l′, the homography
+induced by the plane of the 3-space point and line is
+H = [l′]×F +
+(x′ × e′)T (x′ × ((Fx) × l′))
+kx′ × e′k2(lTx)
+e′lT.
+The derivation is analogous to that of result 13.6. As in the three-point case, the image
+point correspondence must be consistent with the epipolar geometry. This means
+334 13 Scene planes and homographies
+e e
+l
+l
+l
+l
+/
+/
+/
+e
+e
+x
+x/
+image 1 image 2
+Fig. 13.5. The epipolar geometry induces a homography between corresponding lines l ↔ l′ which are
+the images of a line L in 3-space. The points on l are mapped to points on l′ as x′ = [l′]×Fx, where x
+and x′ are the images of the intersection of L with the epipolar plane corresponding to le and l′
+e.
+that the measured (noisy) points must be corrected using algorithm 12.1(p318) before
+result 13.8 is applied. There is no consistency constraint on the line, and no correction
+is available.
+Geometric interpretation of the point map H(μ). It is worth exploring the map H(μ)
+further. Since H(μ) is compatible with the epipolar geometry, a point x in the first
+view is mapped to a point x′ = H(μ)x in the second view on the epipolar line Fx
+corresponding to x. In general the position of the point x′ = H(μ)x on the epipolar line
+varies with μ. However, if the point x lies on l (so that lTx = 0) then
+x′ = H(μ)x = ([l′]×F + μe′lT)x = [l′]×Fx
+which is independent of the value of μ, depending only on F. Thus as shown in
+figure 13.5 the epipolar geometry defines a point-to-point map for points on the line.
+Degenerate homographies. As has already been stated, if the world plane contains
+one of the camera centres, then the induced homography is degenerate. The matrix
+representing the homography does not have full rank, and points on one plane are
+mapped to a line (if rank H = 2) or a point (if rank H = 1). However, an explicit
+expression can be obtained for a degenerate homography from (13.7). The degenerate
+(singular) homographies in this pencil are at μ = ∞ and μ = 0. These correspond to
+planes through the first and second camera centres respectively. Figure 13.6 shows the
+case where the plane contains the second camera centre, and intersects the image plane
+in the line l′. A point x in the first view is imaged on l′ at the point x′ where
+x′ = l′ × Fx = [l′]×Fx.
+The homography is thus H = [l′]×F. This is a rank 2 matrix.
+13.3 Computing F given the homography induced by a plane
+Up to now it has been assumed that F is given, and the objective is to compute H when
+various additional information is provided. We now reverse this, and show that if H is
+given then F may be computed when additional information is provided. We start by
+introducing an important geometric idea, that of parallax relative to a plane, which will
+make the algebraic development straightforward.
+13.3 Computing F given the homography induced by a plane 335
+l
+􀁓
+C
+X
+C
+x
+/
+/
+/
+/
+x x
+C e C
+Fx
+l
+e /
+/
+/
+/
+x
+a b
+Fig. 13.6. A degenerate homography. (a) The map induced by a plane through the second camera
+centre is a degenerate homography H = [l′]×F. The plane 
+′ intersects the second image plane in the
+line l′. All points in the first view are mapped to points on l′ in the second. (b) A point x in the first view
+is imaged at x′, the intersection of l′ with the epipolar line Fx of x, so that x′ = l′ × Fx.
+/
+/ e e
+X
+l
+x / x
+/
+C
+H
+X􀁓
+/ x
+􀁓
+C
+x
+Fig. 13.7. Plane induced parallax. The ray through X intersects the plane  at the point X. The
+images of X and X are coincident points at x in the first view. In the second view the images are
+the points x′ and ˜x′ = Hx respectively. These points are not coincident (unless X is on ), but both
+are on the epipolar line l′
+x of x. The vector between the points x′ and ˜x′ is the parallax relative to the
+homography induced by the plane . Note that if X is on the other side of the plane, then ˜x′ will be on
+the other side of x′.
+Plane induced parallax. The homography induced by a plane generates a virtual parallax
+(see section 8.4.5(p207)) as illustrated schematically in figure 13.7 and by example
+in figure 13.8. The important point here is that in the second view x′, the image of
+the 3D point X, and ˜x′ = Hx, the point mapped by the homography, are on the epipolar
+line of x; since both are images of points on the ray through x. Consequently, the line
+x′×(Hx) is an epipolar line in the second view and provides a constraint on the position
+of the epipole. Once the epipole is determined (two such constraints suffice), then as
+shown in result 9.1(p243) F = [e′]×H where H is the homography induced by any plane.
+Similarly it can be shown that F = H−T[e]×.
+As an application of virtual parallax it is shown in algorithm 13.2 that F can be
+computed uniquely from the images of six points, four of which are coplanar and two
+are off the plane. The images of the four coplanar points define the homography, and
+the two points off the plane provide constraints sufficient to determine the epipole. The
+336 13 Scene planes and homographies
+a b c
+Fig. 13.8. Plane induced parallax. (a) (b) Left and right images. (c) The left image is superimposed
+on the right using the homography induced by the plane of the Chinese text. The transferred and imaged
+planes exactly coincide. However, points off the plane (such as the mug) do not coincide. Lines joining
+corresponding points off the plane in the “superimposed” image intersect at the epipole.
+six-point result is quite surprising since for seven points in general position there are 3
+solutions for F (see section 11.1.2(p281)).
+Objective
+Given six point correspondences xi ↔ x′
+i which are the images of 3-space Xi, with the first
+four 3-space points i ∈ {1, . . . , 4} coplanar, determine the fundamental matrix F.
+Algorithm
+(i) Compute the homography H, such that x′
+i = Hxi, i ∈ {1, . . . , 4}.
+(ii) Determine the epipole e′ as the intersection of the lines (Hx5) × x′
+5 and (Hx6) × x′
+6.
+(iii) Then F = [e′]×H.
+See figure 13.9.
+Algorithm 13.2. Computing F given the correspondences of six points of which four are coplanar.
+e/
+/ x
+x/
+x/
+/ x
+5
+6
+6
+5
+x
+x
+X1
+2
+x
+3
+3
+4
+X2
+4
+x1
+x
+x
+x1
+/
+/
+/
+/
+/ e e
+x
+C C
+a b
+x/
+x/
+X
+X
+X
+􀁓 3
+4
+x2
+/
+Fig. 13.9. The fundamental matrix is defined uniquely by the image of six 3D points, of which four
+are coplanar. (a) The parallax for one point X. (b) The epipole determined by the intersection of two
+parallax lines: the line joining ˜x′
+5 = Hx5 to x′
+5, and the join of ˜x′
+6 = Hx6 to x′
+6.
+13.3 Computing F given the homography induced by a plane 337
+a b c
+d e f
+Fig. 13.10. Binary space partition. (a) (b) Left and right images. (c) Points whose correspondence is
+known. (d) A triplet of points selected from (c). This triplet defines a plane. The points in (c) can then
+be classified according to their side of the plane. (e) Points on one side. (f) Points on the other side.
+Projective depth. A world point X = (xT, )T is imaged at x in the first view and at
+x′ = Hx + e′ (13.9)
+in the second. Note that x′, e′ and Hx are collinear. The scalar  is the parallax relative
+to the homography H, and may be interpreted as a “depth” relative to the plane . If
+ = 0 then the 3D point X is on the plane, otherwise the “sign” of  indicates which
+‘side’ of the plane  the point X is (see figure 13.7 and figure 13.8). These statements
+should be taken with care because in the absence of oriented projective geometry the
+sign of a homogeneous object, and the side of a plane have no meaning.
+Example 13.9. Binary space partition. The sign of the virtual parallax (sign()) may
+be used to compute a partition of 3-space by the plane . Suppose we are given F and
+three space points are specified by their corresponding image points. Then the plane
+defined by the three points can be used to partition all other correspondences into sets
+on either side of (or on) the plane. Figure 13.10 shows an example. Note, the three
+points need not actually correspond to images of physical points so the method can
+be applied to virtual planes. By combining several planes a region of 3-space can be
+identified. △
+Two planes. Suppose there are two planes, 1,2, in the scene which induce homographies
+H1, H2 respectively. With the idea of parallax in mind it is clear that because
+each plane provides off-plane information about the other, the two homographies
+338 13 Scene planes and homographies
+􀁓
+X
+1
+1
+X
+2
+2 􀁓
+x
+H
+H
+1
+2
+Hx
+x
+C
+C
+/
+/
+Fig. 13.11. The action of the map H = H−1
+2
+H1 on a point x in the first image is first to transfer it to x′ as
+though it were the image of the 3D point X1, and then map it back to the first image as though it were
+the image of the 3D point X2. Points in the first view which lie on the imaged line of intersection of the
+two planes will be mapped to themselves, so are fixed points under this action. The epipole e is also a
+fixed point under this map.
+should be sufficient to determine F. Indeed F is over-determined by this configuration
+which means that the two homographies must satisfy consistency constraints.
+Consider figure 13.11. The homography H = H−1
+2 H1 is a mapping from the first image
+onto itself. Under this mapping the epipole e is a fixed point, i.e. He = e, so may be
+determined from the (non-degenerate) eigenvector of H. The fundamental matrix may
+then be computed from result 9.1(p243) as F = [e′]×Hi, where e′ = Hie for i = 1 or 2.
+The map H has further properties which may be seen from figure 13.11. The map has
+a line of fixed points and a fixed point not on the line (see section 2.9(p61) for fixed
+points and lines). This means that two of the eigenvalues of H are equal. In fact H is
+a planar homology (see section A7.2(p629)). In turn, these properties of H = H−1
+2 H1
+define consistency constraints on H1 and H2 in order that their composition has these
+properties.
+Up to this point the results of this chapter have been entirely projective. Now an
+affine element is introduced.
+13.4 The infinite homography H∞
+The plane at infinity is a particularly important plane, and the homography induced by
+this plane is distinguished by a special name:
+Definition 13.10. The infinite homography, H∞, is the homography induced by the
+plane at infinity, ∞.
+The form of the homography may be derived by a limiting process starting from (13.2–
+p327), H = K′
+
+R − tnT/d
+
+K−1, where d is the orthogonal distance of the plane from
+13.4 The infinite homography H∞ 339
+H
+H image 1 image 2
+v /
+1 v1
+v2
+2
+/ v
+Fig. 13.12. The infinite homography H∞ maps vanishing points between the images.
+the first camera:
+H∞ = lim
+d→∞
+H = K′RK−1.
+This means that H∞ does not depend on the translation between views, only on the
+rotation and camera internal parameters. Alternatively, from (9.7–p250) corresponding
+image points are related as
+x′ = K′RK−1x + K′t/Z = H∞x + K′t/Z (13.10)
+where Z is the depth measured from the first camera. Again it can be seen that points
+at infinity (Z = ∞) are mapped by H∞. Note also that H∞ is obtained if the translation
+t is zero in (13.10), which corresponds to a rotation about the camera centre. Thus H∞
+is the homography that relates image points of any depth if the camera rotates about its
+centre (see section 8.4(p202)).
+Since e′ = K′t, (13.10) can be written as x′ = H∞x + e′/Z, and comparison
+with (13.9) shows that (1/Z) plays the role of . Thus Euclidean inverse depth can
+be interpreted as parallax relative to ∞.
+Vanishing points and lines. Images of points on ∞ are mapped by H∞. These images
+are vanishing points, and so H∞ maps vanishing points between images, i.e. v′ = H∞v,
+where v′ and v are corresponding vanishing points. See figure 13.12. Consequently,
+H∞ can be computed from the correspondence of three (non-collinear) vanishing points
+together with F using result 13.6. Alternatively, H∞ can be computed from the correspondence
+of a vanishing line and the correspondence of a vanishing point (not on the
+line), together with F, as described in section 13.2.2.
+Affine and metric reconstruction. As we have seen in chapter 10, specifying ∞
+enables a projective reconstruction to be upgraded to an affine reconstruction. Not
+surprisingly, because of its association with ∞, H∞ arises naturally in the rectification.
+Indeed, if the camera matrices are chosen as P = [I | 0] and P′ = [H∞ | e′] then the
+reconstruction is affine.
+Conversely, suppose the world coordinate system is affine (i.e. ∞ has its canonical
+position at ∞ = (0, 0, 0, 1)T); then H∞ may be determined directly from the camera
+projection matrices. Suppose M, M′ are the first 3×3 submatrix of P and P′ respectively.
+340 13 Scene planes and homographies
+􀁓
+/
+/ e
+X
+x
+on this segment
+correspondence
+H x/
+C e C
+Fig. 13.13. Reducing the search region using H∞. Points in 3-space are no ‘further’ away than ∞.
+H∞ captures this constraint and limits the search on the epipolar line in one direction. The baseline
+between the cameras partitions each epipolar plane into two. A point on one “side” of the epipolar
+line in the left image will be imaged on the corresponding “side” of the epipolar line in the right image
+(indicated by the solid line in the figure). The epipole thus bounds the search region in the other direction.
+Then a point X = (xT
+∞, 0)T on ∞ is imaged at x = PX = Mx∞ and x′ = P′X = M′x∞
+in the two views. Consequently x′ = M′M−1x and so
+H∞ = M′M−1. (13.11)
+The homography H∞ may be used to propagate camera calibration from one view to
+another. The absolute conic 
+∞ resides on ∞, and its image, !, is mapped between
+images by H∞ according to result 2.13(p37): !
+′ = H−T
+∞
+!H−1
+∞ . Thus if ! = (KKT)−1
+is specified in one view, then !
+′, the image of 
+∞ in a second view, can be computed
+via H∞, and the calibration for that view determined from !
+′ = (K′K′T)−1. Section
+19.5.2(p475) describes applications of H∞ to camera auto-calibration.
+Stereo correspondence. H∞ limits the search region when searching for correspondences.
+The region is reduced from the entire epipolar line to a bounded line.
+See figure 13.13. However, a correct application of this constraint requires oriented
+projective geometry.
+13.5 Closure
+This chapter has illustrated a raft of projective techniques for a plane that may be applied
+to many other surfaces. A plane is a simple parametrized surface with 3 degrees
+of freedom. A very similar development can be given for other surfaces where the
+degrees of freedom are determined from images of points on the surface. For example
+in the case of a quadric the surface can be determined both from images of points
+on its surface, and/or (an extension not possible for planes) from its outline in each
+view [Cross-98, Shashua-97]. The ideas of surface induced transfer, families of surfaces
+when the surface is not fully determined from its images, surface induced parallax,
+consistency constraints, implicit computations, degenerate geometries etc. all carry
+over to other surfaces.
+13.5 Closure 341
+13.5.1 The literature
+The compatibility of epipolar geometry and induced homographies is investigated thoroughly
+by Luong & Vi´eville [Luong-96]. The six-point solution for F appeared in
+Beardsley et al. [Beardsley-92] and [Mohr-92]. The solution for F given two planes
+appeared in Sinclair [Sinclair-92]. [Zeller-96] gives many examples of configurations
+whose properties may be determined using only epipolar geometry and their image
+projections. He also catalogues their degenerate cases.
+13.5.2 Notes and exercises
+(i) Homography induced by a plane (13.1–p326).
+(a) The inverse of the homography H is given by
+H−1 = A−1
+ 
+I +
+avTA−1
+1 − vTA−1a
+!
+provided A−1 exists. This is sometimes called the Sherman-Morrison
+formula.
+(b) Show that the homography H is degenerate if the plane contains the
+second camera centre. Hint, in this case vTA−1a = 1, and note that
+H = A(I − A−1avT).
+(ii) Show that if the camera undergoes planar motion, i.e. the translation is parallel
+to the plane and the rotation is parallel to the plane normal, then the homography
+induced by the plane is conjugate to a planar Euclidean transformation.
+Show that the fixed points of the homography are the images of the plane’s
+circular points.
+(iii) Using (13.2–p327) show that if a camera undergoes a pure translation then the
+homography induced by the plane is a planar homology (as defined in section
+A7.2(p629)), with a line of fixed points corresponding to the vanishing line of
+the plane. Show further that if the translation is parallel to the plane then the
+homography is an elation (as defined in section A7.3(p631)).
+(iv) Show that a necessary, but not sufficient, condition for two space lines to be
+coplanar is (l′
+1 × l′
+2)TF(l1 × l2) = 0. Why is it not a sufficient condition?
+(v) Intersections of lines and planes. Verify each of the following results by
+sketching the configuration assuming general position. In each case determine
+the degenerate configurations for which the result is not valid.
+(a) Suppose the line L in 3-space is imaged as l and l′, and the plane 
+induces the homography x′ = Hx. Then the point of intersection of
+L with  is imaged at x = l × (HTl′) in the first image, and at x′ =
+l′ × (H−Tl) in the second.
+(b) The infinite homography may be used to find the vanishing point of
+a line seen in two images. If l and l′ are corresponding lines in two
+images, and v, v′ their vanishing points in each image, then v = l ×
+(HT
+∞
+l′), v′ = l′ × (H−T
+∞
+l).
+342 13 Scene planes and homographies
+(c) Suppose the planes 1 and 2 induce homographies x′ = H1x and x′ =
+H2x respectively. Then the image of the line of intersection of 1 with
+2 in the first image obeys HT
+1
+H−T
+2 l = l and may be determined from the
+real eigenvector of the planar homology HT
+1
+H−T
+2 (see figure 13.11).
+(vi) Coplanarity of four points. Suppose F is known, and four corresponding
+image points xi ↔ x′
+i are supplied. How can it be determined whether their
+pre-images are coplanar? One possibility is to use three of the points to determine
+a homography via result 13.6(p331), and then measure the transfer error
+of the fourth point. A second possibility is to compute lines joining the image
+points, and determine if the line intersection obeys the epipolar constraint
+(see [Faugeras-92b]). A third possibility is to compute the cross-ratio of the four
+lines from the epipole to the image points – if the four scene points are coplanar
+then this cross-ratio will be the same in both images. Thus this equality is a
+necessary condition for co-planarity, but is it a sufficient condition also? What
+statistical tests should be applied when there is measurement error (noise)?
+(vii) Show that the epipolar geometry can be computed uniquely from the images of
+four coplanar lines and two points off the plane of the lines. If two of the lines
+are replaced by points can the epipolar geometry still be computed?
+(viii) Starting from the camera matrices P = [M | m], P′ = [M′ | m′] show that the
+homography x′ = Hx induced by a plane  = (˜
+T, 4)T is given by
+H = M′(I−tvT)M−1 with t = (M′−1m′−M−1m), and v = ˜/(4−˜
+T
+M−1m).
+(ix) Show that the homography computed as in result 13.6(p331) is independent of
+the scale of F. Start by choosing an arbitrary fixed scale for F, so that F is no
+longer a homogeneous quantity, but a matrix ˜F with fixed scale. Show that if
+H = [e′]×˜F − e′(M−1˜b)T with ˜bi = c′
+i
+T(˜Fxi), then replacing ˜F by ˜F simply
+scales H by .
+(x) Given two perspective images of a (plane) conic and the fundamental matrix between
+the views, then the plane of the conic (and consequently the homography
+induced by this plane) is defined up to a two-fold ambiguity. Suppose the image
+conics are C and C′, then the induced homography is H(μ) = [C′e′]×F−μe′(Ce)T,
+with the two values of μ obtained from
+μ2
+h
+(eT
+Ce)C − (Ce)(Ce)T
+i
+(e′TC′e′) = −F
+T[C′e′]×C′[C′e′]×F.
+Details are given in [Schmid-98].
+(a) By considering the geometry, show that to be compatible with the
+epipolar geometry the conics must satisfy the consistency constraint
+that epipolar tangents are corresponding epipolar lines (see figure 11.6-
+(p295)). Now derive this result algebraically starting from H(μ) above.
+(b) The algebraic expressions are not valid if the epipole lies on the conic
+(since then eTCe = e′TC′e′ = 0). Is this a degeneracy of the geometry
+or of the expression alone?
+13.5 Closure 343
+(xi) Fixed points of a homography induced by a plane. A planar homography H
+has up to three distinct fixed points corresponding to the three eigenvectors of
+the 3 × 3 matrix (see section 2.9(p61)). The fixed points are images of points
+on the plane for which x′ = Hx = x. The horopter is the locus of all points in
+3-space for which x = x′. It is a twisted cubic curve passing through the two
+camera centres. A twisted cubic intersects a plane in three points, and these are
+the three fixed points of the homography induced by that plane.
+(xii) Estimation. Suppose n > 3 points Xi lie on a plane in 3-space and we wish
+to optimally estimate the homography induced by the plane given F and their
+image correspondences xi ↔ x′
+i. Then the ML estimate of the homography
+(assuming independent Gaussian measurement noise as usual) is obtained by
+estimating the plane ˆ (3 dof) and the n points bX i (2 dof each, since they lie on
+a plane) which minimizes reprojection error for the n points. -->
+</p><p>
+</p><p>
+    </body>
+</html>

@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録5</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録5</center><center>最小二乗法による最小化</center></h1>
+<p>
+この付録では、様々な制約条件の下での線形方程式を解く数値アルゴリズムについて論じます。ご覧のとおり、このような問題は特異値分解（SVD）を用いて容易に解くことができます。
+
+<!-- In this appendix we discuss numerical algorithms for solving linear systems of equations
+under various constraints. As will be seen such problems are conveniently solved
+using the SVD. -->
+</p>
+<h2><center>A5.1 線形方程式の解</center></h2>
+<p>
+\(A\mathbf x = \mathbf b\) という形式の連立方程式を考えます。\(A\) を \(m × n\) 行列とします。次の3つの可能性があります。
+<div class="styleBullet">
+<ul>
+<li>(i) \(m < n\) の場合、方程式の数よりも未知数のほうが多くなります。この場合、解は一意ではなく、解のベクトル空間が存在します。
+</li><br><li>(ii) \(m = n\) の場合、\(A\) が逆行列である限り、解は一意です。
+</li><br><li>(iii) \(m > n\) の場合、方程式の数の方が未知数のほうが多くなります。一般に、\(b\) が \(A\) の列の範囲内に偶然含まれない限り、この連立方程式には解は存在しません。</li>
+</ul>
+</div>
+
+<!--
+Consider a system of equations of the form \(A\mathbf x = \mathbf b\). Let \(A\) be an \(m × n\) matrix. There
+are three possibilities:
+(i) If \(m < n\) there are more unknowns than equations. In this case, there will not
+be a unique solution, but rather a vector space of solutions.
+(ii) If \(m = n\) there will be a unique solution as long as A is invertible.
+(iii) If \(m > n\) then there are more equations than unknowns. In general the system
+will not have a solution unless by chance b lies in the span of the columns of A. -->
+
+</p><p>
+<strong>最小二乗解：フルランクの場合</strong><br>
+\(m ≥ n\) の場合を考え、\(A\) のランクが \(n\) であると仮定します。解が存在しない場合でも、多くの場合、システム \(A\mathbf x = \mathbf b\) の解に最も近いベクトル \(\mathbf x\) を求めることは理にかなっています。言い換えれば、\(||A\mathbf x − \mathbf b||\) が最小となるような \(\mathbf x\) を求めます。ここで、\(||\cdot||\) はベクトルノルムを表します。このような \(\mathbf x\) は、過剰決定システムの最小二乗解として知られています。最小二乗解は、次のように SVD を用いて簡単に求められます。
+
+<!--
+<strpng>Least-squares solutions: full-rank case.</strpng><br>
+ We consider the case \(m ≥ n\) and assume
+for the present that \(A\) is known to be of rank \(n\). If a solution does not exist, then in many
+cases it still makes sense to seek a vector \(\mathbf x\) that is closest to providing a solution to the
+system \(A\mathbf x = \mathbf b\). In other words, we seek \(\mathbf x\) such that \(||A\mathbf x − \mathbf b||\)  is minimized, where \(||\cdot||\) represents the vector norm. Such an \(\mathbf x\) is known as the least-squares solution to
+the over-determined system. The least-squares solution is conveniently found using the
+SVD as follows.
+
+</p><p>
+We seek \(\mathbf x\) that minimizes \(||A\mathbf x− \mathbf b|| = ||UDV^T\mathbf x−\mathbf b||\). Because of the norm-preserving
+property of orthogonal transforms, kUDVTx − bk = kDVTx − UTbk, and this is the
+quantity that we want to minimize. Writing y = VTx and b′ = UTb, the problem
+becomes one of minimizing kDy − b′k where D is an m × n matrix with vanishing
+off-diagonal entries. This set of equations is of the form
+\[
+\]
+
+Clearly, the nearest Dy can approach to b′ is the vector (b′
+1, b′
+2, . . . , b′
+n, 0, . . . , 0)T, and
+this is achieved by setting yi = b′
+i/di for i = 1, . . . , n. Note that the assumption
+rankA = n ensures that di 6= 0. Finally, one retrieves x from x = Vy. The complete
+algorithm is
+
+\(\underline{Objective}\)<br>
+Find the least-squares solution to the m × n set of equations Ax = b, where m > n and
+rank A = n.
+Algorithm
+(i) Find the SVD A = UDVT.
+(ii) Set b′ = UTb.
+(iii) Find the vector y defined by yi = b′
+i/di, where di is the i-th diagonal entry of D.
+(iv) The solution is x = Vy.
+Algorithm A5.1. Linear least-squares solution to an over-determined full-rank set of linear equations.
+Deficient-rank systems. Sometimes one is called upon to solve a system of equations
+that is expected not to be of full column rank. Thus, let r = rankA < n, where n is the
+number of columns of A. It is possible that because of noise corruption, the matrix A
+actually has rank greater than r, but we wish to enforce the rank r constraint because
+of theoretical considerations, derived from the particular problem being considered. In
+this case, there will be an (n−r)-parameter family of solutions to the set of equations,
+where r = rankA < n. This family of solutions is appropriately solved using the SVD,
+as follows:
+This algorithm gives an (n−r)-parameter family (parametrized by the indeterminate
+values i) of least-squares solutions to the deficient-rank system. The justification of
+this algorithm is similar to that of algorithm A5.1 for the least-squares solution of fullrank
+systems.
+Systems of unknown rank. In most cases encountered in this book, the rank of a
+system of linear equations will be known theoretically in advance of solution. If the
+rank of the system of equations is not known, then one must guess at its rank. In this
+case, it is appropriate to set singular values that are small compared with the largest
+590 Appendix 5 Least-squares Minimization
+Objective
+Find the general solution to a set of equations Ax = b where A is an m × n matrix of rank
+r < n.
+Algorithm
+(i) Find the SVD A = UDVT, where the diagonal entries di of D are in descending numerical
+order.
+(ii) Set b′ = UTb.
+(iii) Find the vector y defined by yi = b′
+i/di for i = 1, . . . , r, and yi = 0 otherwise.
+(iv) The solution x of minimum norm kxk is Vy.
+(v) The general solution is x = Vy + r+1vr+1 + . . . + nvn, where vr+1, . . . , vn are
+the last n − r columns of V.
+Algorithm A5.2. General solution to deficient-rank system
+singular value to zero. Thus, if di/d0 <  where  is a small constant of the order of
+the machine precision1 then one sets yi = 0. A least-squares solution is then given by
+x = Vy as before.
+A5.2 The pseudo-inverse
+Given a square diagonal matrix D, we define its pseudo-inverse to be the diagonal matrix
+D+ such that
+D+
+ii =
+(
+0 if Dii = 0
+D−1
+ii otherwise.
+Now, consider an m × n matrix A with m ≥ n. Let the SVD of A be A = UDVT. We
+define the pseudo-inverse of A to be the matrix
+A+ = VD+U
+T. (A5.1)
+One very simply verifies that the vector y in algorithm A5.1 or algorithm A5.2 is
+nothing more than D+b′ where b′ = UTb. Thus,
+Result A5.1. The least-squares solution to an m × n system of equations Ax = b of
+rank n is given by x = A+b. In the case of a deficient-rank system, x = A+b is the
+solution that minimizes kxk.
+As remarked when discussing the SVD, if A has fewer rows than columns, then this
+result may be applied after extending A to a square matrix by adding rows of zeros.
+Symmetric matrices. For symmetric matrices, one may generalize the pseudoinverse
+as follows. This generalization was used in chapter 5, section 5.2.3(p142) for
+discussing singular covariance matrices. If A is a non-invertible symmetric matrix, and
+XTAX is invertible, then we write A+X def = X(XTAX)−1XT. One can see that this depends
+only on the span of the columns of X. In other words, if X is replaced by XB for any
+invertible matrix B, then A+X = A+XB. Otherwise stated, A+X depends only on the (left)
+1 Machine precision is the largest floating point value ǫ such that 1.0 + ǫ = 1.0.
+A5.2 The pseudo-inverse 591
+null-space of X, namely the space of vectors perpendicular to the columns of X. Define
+the null-space NLX = {xT | xTX = 0}. One finds that under a simple condition, A+X is
+the pseudo-inverse of A:
+Result A5.2. Let A be a symmetric matrix, then A+X def = X(XTAX)−1XT = A+ if and only
+if NL(X) = NL(A).
+Only a sketch proof is given. The necessity is obvious, since NL(X) and NL(A) are
+the null-spaces of the left and right sides of the equation. To prove the converse, one
+may assume that the columns of X are orthonormal, since as shown above, only the
+null-space of X is of importance. Thus, X may be extended by adding further columns
+X′ to form an orthogonal matrix U = [X|X′]. Now, the rows of X′T span the null-space
+of X, and hence, by assumption, of A. Now, the proof is completed in a few lines by
+comparing the definition A+X def = X(XTAX)−1XT with the definition (A5.1) of the pseudoinverse.
+A5.2.1 Linear least-squares using normal equations
+The linear least-squares problem may also be solved by a method involving the socalled
+normal equations. Once more, we consider the set of linear equations Ax = b
+where A is an m × n matrix with m > n. In general, no solution x will exist for
+this set of equations. Consequently, the task is to find the vector x that minimizes the
+norm kAx − bk. As the vector x varies over all values, the product Ax varies over the
+complete column space of A, that is, the subspace of IRm spanned by the columns of
+A. The task therefore is to find the closest vector to b that lies in the column space of
+A, where closeness is defined in terms of vector norm. Let x be the solution to this
+problem; thus Ax is the closest point to b. In this case, the difference Ax − b must be
+a vector orthogonal to the column space of A. This means, explicitly, that Ax − b is
+perpendicular to each of the columns of A, and hence AT(Ax−b) = 0. Multiplying out
+and separating terms gives an equation
+(A
+T
+A)x = A
+Tb. (A5.2)
+This is a square n × n set of linear equations, called the normal equations. This set
+of equations may be solved to find the least-squares solution to the problem Ax = b.
+Even if A is not of full rank (rank n), this set of equations should have a solution, since
+ATb lies in the column space of ATA. In the case where A has rank n, the matrix ATA is
+Objective
+Find x that minimizes kAx − bk.
+Algorithm
+(i) Solve the normal equations ATAx = ATb.
+(ii) If ATA is invertible, then the solution is x = (ATA)−1ATb.
+Algorithm A5.3. Linear least-squares using the normal equations.
+592 Appendix 5 Least-squares Minimization
+invertible, and so x may be found by x = (ATA)−1ATb. Since x = A+b, this implies
+the following result, which is also easily verified directly:
+Result A5.3. If A is an m × n matrix of rank n, then A+ = (ATA)−1AT.
+This result is useful in theoretical analysis, as well as being a computationally simpler
+method than using the SVD to compute a pseudo-inverse if n is small compared with
+m (so that computing the inverse of (ATA) is inexpensive compared to computing the
+SVD of A).
+Vector space norms. One sometimes wishes to minimize Ax − b with respect to a
+different norm on the vector space IRn. The usual norm in a vector space IRn is given in
+terms of the usual inner product. Thus, for two vectors a and b in IRn one may define
+the inner product a · b to be aTb. The norm of a vector a is then kak = (a · a)1/2 =
+(aTa)1/2. One notes the properties:
+(i) The inner product is a symmetric bilinear form on IRn.
+(ii) kak > 0 for all non-zero vectors a ∈ IRn.
+We say that the inner product is a positive-definite symmetric bilinear form. It is possible
+to define other inner products on a vector space IRn. Let C be a real symmetric
+positive-definite matrix, and define a new inner product C(a, b) = aTCb. The symmetry
+of the inner product follows from the symmetry of C. A norm may be defined by
+kakC = (aTCa)1/2, and this is defined and positive-definite, because C is assumed to be
+a positive-definite matrix.
+Weighted linear least-squares problems. Sometimes one desires to solve a weighted
+least-squares problem of the form Ax−b = 0 by minimizing the C-norm kAx−bkC of
+the error. Here C is a positive-definite symmetric matrix defining an inner product and
+a norm k · kC on IRn. As before, one can argue that the minimum error vector Ax − b
+must be orthogonal in the inner product defined by C to the column space of A. This
+leads to a requirement ATC(Ax − b) = 0. Rearranging this one obtains the weighted
+normal equations:
+(A
+T
+CA)x = A
+T
+Cb. (A5.3)
+The most common weighting will be where C is a diagonal matrix, corresponding to
+independent weights in each of the axial directions in IRn. However, general weighting
+matrices C may be used also.
+A5.3 Least-squares solution of homogeneous equations
+Similar to the previous problem is that of solving a set of equations of the form Ax = 0.
+This problem comes up frequently in reconstruction problems. We consider the case
+where there are more equations than unknowns – an over-determined set of equations.
+The obvious solution x = 0 is not of interest – we seek a non-zero solution to the set
+of equations. Observe that if x is a solution to this set of equations, then so is kx for
+any scalar k. A reasonable constraint would be to seek a solution for which kxk = 1.
+A5.4 Least-squares solution to constrained systems 593
+In general, such a set of equations will not have an exact solution. Suppose A has
+dimension m×n then there is an exact solution if and only if rank(A) < n – the matrix
+A does not have full column rank. In the absence of an exact solution we will normally
+seek a least-squares solution. The problem may be stated as
+• Find the x that minimizes kAxk subject to kxk = 1 .
+This problem is solvable as follows. Let A = UDVT. The problem then requires us to
+minimize kUDVTxk. However, kUDVTxk = kDVTxk and kxk = kVTxk. Thus, we need
+to minimize kDVTxk subject to the condition kVTxk = 1. We write y = VTx, and
+the problem is: minimize kDyk subject to kyk = 1. Now, D is a diagonal matrix with
+its diagonal entries in descending order. It follows that the solution to this problem is
+y = (0, 0, . . . , 0, 1)T having one non-zero entry, 1 in the last position. Finally x = Vy
+is simply the last column of V. The method is summarized in algorithm A5.4.
+Objective
+Given a matrix A with at least as many rows as columns, find x that minimizes kAxk subject to
+kxk = 1.
+Solution
+x is the last column of V, where A = UDVT is the SVD of A.
+Algorithm A5.4. Least-squares solution of a homogeneous system of linear equations.
+As mentioned in section A4.4 the last column of V may alternatively be described as
+the eigenvector of ATA corresponding to the smallest eigenvalue.
+A5.4 Least-squares solution to constrained systems
+In the previous section, we considered a method of least-squares solution of equations
+of the form Ax = 0. Such problems may arise from situations where measurements
+are made on a set of image features. With exact measurements and an exact imaging
+model the mathematical model predicts an exact solution to this system. In the case of
+inexact image measurements, or noise, there will not be an exact solution. In this case,
+it makes sense to find a least-squares solution.
+On other occasions, however, some of the equations represented by rows of the matrix
+A are derived from precise mathematical constraints, and should be satisfied exactly.
+This set of constraints may be described by a matrix equation Cx = 0, which
+should be satisfied exactly. Others of the equations are derived from image measurements
+and are subject to noise. This leads to a problem of the following sort:
+• Find the x that minimizes kAxk subject to kxk = 1 and Cx = 0 .
+This problem can be solved in the following manner. The condition that x satisfies
+Cx = 0 means that x lies perpendicular to each of the rows of C. The set of all such x
+is a vector space called the orthogonal complement of the row space of C. We wish to
+find this orthogonal complement.
+594 Appendix 5 Least-squares Minimization
+First, if C has fewer rows than columns, then extend it to a square matrix by adding
+rows of zero elements. This has no effect on the set of constraints Cx = 0. Now, let
+C = UDVT be the Singular Value Decomposition of C, where D is a diagonal matrix
+with r non-zero diagonal entries. In this case, C has rank r and the row-space of C
+is generated by the first r rows of VT. The orthogonal complement of the row-space
+of C consists of the remaining rows of VT. Define C⊥ to be the matrix V with the first
+r columns deleted. Then CC⊥ = 0, and so the set of vectors x satisfying Cx = 0 is
+spanned by the columns of C⊥ and we may write any such x as x = C⊥x′ for suitable
+x′. Since C⊥ has orthogonal columns, one observes that kxk = kC⊥x′k = kx′k. The
+minimization problem now becomes
+• Find the x′ that minimizes kAC⊥x′k subject to kx′k = 1 .
+This is simply an instance of the problem discussed in section A5.3, solved by
+algorithm A5.4. The complete algorithm for solution of the constrained minimization
+problem is given as algorithm A5.5.
+Objective
+Given an m × n matrix A with m ≥ n, find the vector x that minimizes kAxk subject to
+kxk = 1 and Cx = 0.
+Algorithm
+(i) If C has fewer rows than columns, then add zero-filled rows to C to make it square.
+Compute the SVD C = UDVT where diagonal entries of D are sorted with non-zero ones
+first. Let C⊥ be the matrix obtained from V by deleting the first r columns of V, where
+r is the number of non-zero entries in D (the rank of C).
+(ii) Find the solution to the minimization problem AC⊥x′ = 0 using algorithm A5.4. The
+solution is given by x = C⊥x′.
+Algorithm A5.5. Algorithm for constrained minimization.
+A5.4.1 More constrained minimization
+A further constrained minimization problem arises in the algebraic estimation method
+used frequently throughout this book – for instance, for computation of the fundamental
+matrix (section 11.3(p282)) or the trifocal tensor (section 16.3(p395)).
+The problem is:
+• Minimize kAxk subject to kxk = 1 and x = Gˆx for a given matrix G and some
+unknown vector ˆx.
+Note that this is very similar to the previous minimization problem of section A5.4,
+which was reduced to the form of the present problem in which the matrix G had orthonormal
+columns. The condition that x = Gˆx for some ˆx means nothing more than
+that x lies in the span of the columns of G. Thus, to solve the present problem using
+algorithm A5.5, we need only to replace G by a matrix with the same column space (i.e.
+the space spanned by the columns), but with orthonormal columns. If G = UDVT where
+D has r non-zero entries (that is G has rank r), then let U′ be the matrix consisting of the
+A5.4 Least-squares solution to constrained systems 595
+first r columns of U. Then G and U′ have the same column space. As in section A5.4 the
+solution is found by setting x′ to be the unit vector that minimizes kAU′x′k, then setting
+x = U′x′.
+If ˆx is also required, then it may be obtained by solving Gˆx = x = U′x′. The solution
+is expressed in terms of the pseudo-inverse (section A5.2) as ˆx = G+x = G+U′x′ ; it
+may not be unique if G does not have full column rank. Since G+ = VD+UT, we may
+write ˆx = VD+UTU′x′, which simplifies to ˆx = V′D′−1x′ where V′ consists of the first r
+columns of V′ and D′ is the upper r × r block of D.
+The complete method is summarized in algorithm A5.6.
+Objective
+Find the vector x that minimizes kAxk subject to the conditions kxk = 1 and x = Gˆx, where
+G has rank r.
+Algorithm
+(i) Compute the SVD G = UDVT, where the non-zero values of D appear first down the
+diagonal.
+(ii) Let U′ be the matrix comprising the first r columns of U.
+(iii) Find the unit vector x′ that minimizes kAU′x′k, using algorithm A5.4.
+(iv) The required solution is x = U′x′.
+(v) If desired, one may compute ˆx as V′D′−1x′, where V′ consists of the first r columns of
+V and D′ is the upper r × r block of D.
+Algorithm A5.6. Algorithm for constrained minimization, subject to a span-space constraint.
+A5.4.2 Yet another minimization problem
+A very similar problem is
+• Minimize kAxk subject to a condition kCxk = 1.
+This problem comes up for instance in the solution to the DLT camera calibration
+problem (section 7.3(p184)). In general it will be the case that rankC < n where n is
+the dimension of the vector x. Geometrically the problem may be thought of as finding
+the “lowest” point on a quadratic surface (specified by xTATAx), with the constraint
+that the point must lie on the (inhomogeneous) “conic” xTCTCx = 1.
+We start by taking the SVD of the matrix C, obtaining C = UDVT. The condition
+kUDVTxk = 1 is equivalent to kDVTxk = 1, and it is not necessary to compute U
+explicitly. Then writing x′ = VTx, the problem becomes: minimize kAVx′k subject to
+the condition kDx′k = 1 Writing A′ = AV, this becomes: minimize kA′x′k subject to
+kDx′k = 1. Thus we have reduced to the case where the constraint matrix is a diagonal
+matrix, D.
+We suppose that D has r non-zero diagonal entries, and s zero entries, where r +s =
+n, the non-zero entries appearing first on the diagonal of D. Then the entries x′
+i of x′
+for i > r do not affect the value of kDx′
+ik, since the corresponding diagonal entries of
+D are zero. Then, for a specific choice of the x′
+i for i = 1, . . . , r, the other entries x′
+i,
+596 Appendix 5 Least-squares Minimization
+i = r + 1, . . . , n should be chosen so as to minimize the value of kA′x′
+ik. We write
+A′ = [A′
+1 | A′
+2] where A′
+1 consists of the first r columns of A′ and A′
+2 consists of the
+remaining s columns. Similarly, let x′
+1 be an r-vector consisting of the first r elements
+of x′, and let x′
+2 consist of the remaining s elements of x′. Further, let D1 be the r × r
+diagonal matrix consisting of the first r diagonal entries of D. Then A′x′ = A′
+1x′
+1+A′
+2x′
+2,
+and the minimization problem is to minimize
+kA
+′
+1x′
+1 + A
+′
+2x′
+2k (A5.4)
+subject to the condition kD1x′
+1k = 1. Now, temporarily fixing x′
+1, (A5.4) takes the
+form of a least-squares minimization problem of the type discussed in section A5.1.
+According to result A5.1, the value of x′
+2 that minimizes (A5.4) is x′
+2 = −A′
+2
++
+A′
+1x′
+1.
+Substituting this in (A5.4) gives k(A′
+2
+A′
+2
++−I)A′
+1x′
+1k, which we are required to minimize,
+subject to the condition kD1x′
+1k = 1. Finally, writing x′′ = D1x′
+1, the problem reduces
+at last to a problem of the form of the familiar minimization problem of algorithm A5.4.
+• Minimize k(A′
+2
+A′
+2
++ − I)A′
+1
+D
+−1
+1 x′′
+1k, subject to kx′′k = 1.
+We now summarize the algorithm.
+Objective
+Minimize kAxk subject to kCxk = 1.
+Algorithm
+(i) Compute the SVD C = UDVT, and write A′ = AV.
+(ii) Suppose rankD = r and let A′ = [A′
+1 | A′
+2] where A′
+1 consists of the first r columns of
+A′, and A′
+2 is formed from the remaining columns.
+(iii) Let D1 be the upper r × r minor of D.
+(iv) Compute A′′ = (A′
+2
+A′
+2
++ − I)A′
+1
+D
+−1
+1 . This is an n × r matrix.
+(v) Minimize kA′′x′k subject to kx′′k = 1 using algorithm A5.4.
+(vi) Set x′
+1 = D
+−1
+1 x′′, and x′
+2 = −A′
+2
++
+A′
+1x′
+1. Let x′ =
+
+x′
+1
+x′
+2
+
+.
+(vii) The solution is given by x = Vx′.
+Algorithm A5.7. Least-squares solution of homogeneous equations subject to the constraint kCxk = 1.-->
+</p><p>
+</p><p>
+    </body>
+</html>

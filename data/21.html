@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>21章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>21章　キラリティ(Cheirality)</center></h1>
+<p>
+点の対応関係からシーンの射影再構成を行う際、重要な情報が典型的には無視されます。つまり、点が画像内に写っている場合、それらはカメラの前にあったに違いないということです。一般に、シーンの射影再構成は、座標系がユークリッド座標系であるかのように解釈した場合、実際のシーンとは近似しません。シーンは、図21.1に2次元的に示されているように、しばしば無限遠平面で分割されます。この単純な制約を考慮することで、シーンの少なくともアフィン再構成にかなり近づくことが可能です。結果として得られる再構成は、射影再構成とアフィン再構成の中間に位置するため、「準アフィン」と呼ばれます。シーン上のオブジェクトは、もはや無限遠平面で分割されませんが、依然として射影歪みを受ける可能性があります。
+
+<!-- When a projective reconstruction of a scene is carried out from a set of point correspondences,
+an important piece of information is typically ignored – if the points are
+visible in the images, then they must have been in front of the camera. In general, a
+projective reconstruction of a scene will not bear a close resemblance to the real scene
+when interpreted as if the coordinate frame were Euclidean. The scene is often split
+across the plane at infinity, as is illustrated in two dimensions by figure 21.1. It is possible
+to come much closer to at least an affine reconstruction of the scene by taking this
+simple constraint into account. The resulting reconstruction is called “quasi-affine”
+in that it lies part way between a projective and affine reconstruction. Scene objects
+are no longer split across the plane at infinity, though they may still suffer projective
+distortion. -->
+
+</p><p>
+射影再構成を準アフィン変換するのは、カメラを無視し、シーンが正しい準アフィン形式であることだけを条件とすれば、極めて簡単です。実際、約2行のプログラミングで実現できます（系21.9を参照）。カメラも扱うには、線形計画問題を解く必要があります。
+
+<!-- Converting a projective reconstruction to quasi-affine is extremely simple if one neglects
+the cameras and requires only that the scene be of the correct quasi-affine form –
+in fact it can be accomplished in about two lines of programming (see corollary 21.9).
+To handle the cameras as well requires the solution of a linear programming problem.-->
+</p>
+<h2><center>21.1 準アフィン変換</center></h2>
+<p>
+\(\mathbb R^n\) の部分集合 \(B\) は、\(B\) 内の任意の2点を結ぶ線分が \(B\) 内に完全に収まる場合、凸集合と呼ばれます。\(B\) の凸包は \(\overline{B}\) と表記され、\(B\) を含む最小の凸集合です。ここでは主に3次元の点集合を扱うため、\(n = 3\) とします。\(\mathbb R^3\) は、すべての非無限点からなる \(\mathbb P^3\) の部分集合であると見なします。無限点は無限遠平面を構成し、\(\pi_\infty\) と表記されます。したがって、\(\mathbb P^3 = \mathbb R^3\cup \pi_\infty\) となります。 \(\mathbb P^3\) の部分集合が凸集合と呼ばれるのは、\(\mathbb R^3\) に含まれ、かつ \(\mathbb R^3\) において凸集合である場合に限ります。
+したがって、この定義によれば、凸集合には無限点は含まれません。
+
+<!-- A subset \(B\) of \(\mathbb R^n\) is called convex if the line segment joining any two points in \(B\) also lies entirely within \(B\). The convex hull of \(B\), denoted \(\pverline{B}\), is the smallest convex set containing \(B\). Our main concern will be with 3-dimensional point sets, so \(n = 3\). We view \(\mathbb R^3\) as being a subset of \(\mathbb P^3\), consisting of all non-infinite points. The infinite
+points constitute the plane at infinity, denoted \(\pi_\infty\). Thus, \(\mathbb P^3 = \mathbb R^3\cup \pi_\infty\). A subset of \(\mathbb P^3\) will be called convex if and only if it is contained in \(\mathbb R^3\) and is convex in \(\mathbb R^3\).
+Hence, according to this definition, a convex set does not contain any infinite points.
+
+Definition 21.1. Consider a point set {Xi} ⊂ IR3 ⊂ IP3. A projective mapping h :
+IP3 → IP3 is said to preserve the convex hull of the points {Xi} if
+(i) h(Xi) is a finite point for all i, and
+(ii) h maps the convex hull of points {Xi} bijectively onto the convex hull of the
+points {h(Xi)}.
+515
+516 21 Cheirality
+a b
+Fig. 21.1. (a) an image of a comb, and (b) the result of applying a projective transformation to the
+image. The projective transformation does not however preserve the convex hull of the set of points
+constituting the comb. In the original image, the convex hull of the comb is a finite set contained within
+the extent of the visible image. However, some of the points in this convex hull are mapped to infinity by
+the transformation.
+An example, shown in figure 21.1, may help in understanding this definition. The
+example deals with 2D point sets, but the principle is the same. The figure shows an
+image of a comb and the image resampled according to a projective mapping. The
+projective mapping does not however preserve the convex hull of the comb. Most
+people will agree that the resampled image is unlike any view of a comb seen by camera
+or human eye.
+The property of preserving the convex hull of a set of points may be characterized in
+various different ways, as is shown by the theorem to be given shortly. In order to state
+this theorem, we introduce a new notation.
+Notation. The symbol bX denotes a homogeneous representation of a point X in which
+the last coordinate is equal to 1.
+Commonly in this chapter we will be interested in the exact equalities (not equalities
+up to scale) between vectors representing homogeneous quantities, such as points in
+3D. Thus for instance if H is a projective transformation, we may write HbX = T′bX
+′
+to
+mean that the transformation takes point bX to point bX
+′
+, but that the scale factor T′ is
+required to make this equality exact.
+Now for the theorem.
+Theorem 21.2. Consider a projective transformation h : IP3 → IP3 and a set of points
+{Xi}. Let ∞ be the plane mapped to infinity by h. The following statements are
+equivalent.
+(i) h preserves the convex hull of the points {Xi}.
+(ii) ˜X ∩ ∞ = ∅ for any point ˜X in the convex hull of the points {Xi}.
+(iii) Let H be a matrix representing the transformation h, and suppose that
+HbX i = T′
+i
+bX
+′
+i. Then the constants T′
+i all have the same sign.
+21.1 Quasi-affine transformations 517
+Proof. This will be proved by showing that (i) ⇒ (ii) ⇒ (iii) ⇒ (i).
+(i) ⇒ (ii). If h preserves the convex hull of the points, then h(˜X) is a finite point for
+any point ˜X in the convex hull of the Xi. So ˜X ∩ ∞ = ∅.
+(ii) ⇒ (iii). Consider the chord joining two points Xi and Xj and suppose that T′
+i and
+T′
+j (as in part (iii) of the theorem) have opposite signs. Since T′
+i is a continuous function
+of the coordinates of Xi, there must be a point ˜X lying on the chord from Xi to Xj for
+which T′ is equal to zero. This means that H˜X = (˜X ′,˜Y ′, ˜Z
+′, 0)T. Since ˜X is in the
+convex hull of the points {Xi}, this contradicts (ii).
+(iii) ⇒ (i).We assume that there exist constants T′
+i all of the same sign such that HbX i =
+T′
+i
+bX
+′
+i. Let S be the subset of IRn consisting of all points X satisfying the condition
+HbX = T′bX
+′
+such that T′ has the same sign as the T′
+i. The set S contains {Xi}. It
+will be shown that S is convex. If Xi and Xj are points in S with corresponding
+constants T′
+i and T′
+j , then any intermediate point X between Xi and Xj must have T′
+value intermediate between T′
+i and T′
+j . To see this, consider a point bX = αbX i+(1−α)bX j
+where 0 ≤ α ≤ 1. This point lies between Xi and Xj . Denote by hT
+4 the last row of H.
+Then,
+T
+′ = hT
+4
+bX
+= hT
+4 (αbX i + (1 − α)bX j)
+= αhT
+4
+bX
+i + (1 − α)hT
+4
+bX
+j
+= αT
+′
+i + (1 − α)T
+′
+j
+which lies between T′
+i and T′
+j as claimed. Consequently, the value of T′ must have the
+same sign as T′
+i and T′
+j , and so X lies in S also. This shows that S is convex.
+Now, let ˜ S be a convex subset of S. It will be shown that h( ˜ S) is also convex. This is
+easily seen to be true, since h maps a line segment in ˜ S to a line segment that does not
+cross the plane at infinity. Thus, h maps any convex set ˜ S such that S ⊃ ˜ S ⊃ {Xi} to
+a convex set ˜ S′ such that S′ ⊃ ˜ S′ ⊃ {X′
+i}. However, if H satisfies condition (iii), then
+it is easily seen that H−1 does also. From this it follows that the above correspondence
+between convex sets ˜ S and ˜ S′ is bijective. Since the convex hull of {Xi} (or {X′
+i}
+respectively) is the intersection of all such convex sets, it follows that h preserves the
+convex hull of the points.
+The projective transformations that preserve the convex hull of a given set of points
+form an important class, and will be called quasi-affine transformations.
+Definition 21.3. Let B be a subset of IRn and let h be a projectivity of IPn. The projectivity
+h is said to be “quasi-affine” with respect to the set B if h preserves the convex
+hull of the set B.
+It may be verified that if h is quasi-affine with respect to B, then h−1 is quasi-affine
+with respect to h(B). Furthermore, if h is quasi-affine with respect to B and g is
+quasi-affine with respect to h(B), then g ◦ h is quasi-affine with respect to B. Thus,
+quasi-affine projectivities may be composed in this fashion. Strictly speaking, however,
+quasi-affine projectivities with respect to a given fixed set of points do not form a group.
+518 21 Cheirality
+We will be considering sets of points {Xi} and {X′
+i} that correspond via a projectivity.
+When we speak of the projectivity being quasi-affine, we will mean with respect to
+the set {Xi}.
+Two-dimensional quasi-affine mappings
+Two-dimensional quasi-affine mappings arise as transformations between planar point
+sets in 3D and their image under a projective camera mapping, as stated formally below.
+Theorem 21.4. If B is a point set in a plane (the “object plane”) in IR3 and B lies
+entirely in front of a projective camera, then the mapping from the object plane to the
+image plane defined by the camera is quasi-affine with respect to B.
+Proof. That there is a projectivity h mapping the object plane to the image plane is
+well known. What is to be proved is that the projectivity is quasi-affine with respect
+to B. Let L be the line in which the principal plane of the camera meets the object
+plane. Since B lies entirely in front of the camera, L does not meet the convex hull
+of B. However, by definition of the principal plane h(L) = L∞, where L∞ is the line
+at infinity in the image plane. Thus, one deduces that h(B) ∩ L∞ = ∅, and hence by
+theorem 21.2 the transformation is quasi-affine with respect to B.
+Note that if points xi are visible in an image, then the corresponding object points
+must lie in front of the camera. Applying theorem 21.4 to a sequence of imaging
+operations (for instance, a picture of a picture of a picture, etc.), it follows that the
+original and final images in the sequence are connected by a planar projectivity which
+is quasi-affine with respect to any point set in the object plane visible in the final image.
+Similarly, if two images are taken of a set of points {Xi} in a plane, {xi} and {x′
+i}
+being corresponding points in the two images, then there is a quasi-affine mapping
+(with respect to the xi) mapping each xi to x′
+i, and so theorem 21.2 applies, yielding
+the following:
+Result 21.5. If {xi} and {x′
+i} are corresponding points in two views of a set of object
+points {Xi} lying in a plane, then there is a matrix H representing a planar projectivity
+such that Hˆxi = wiˆx′
+i and all wi have the same sign.
+21.2 Front and back of a camera
+The depth of a point X = (X, Y, Z, T)T with respect to a camera was shown in (6.15–
+p162) to be given by
+depth(X; P) =
+sign(det M)w
+Tkm3k
+(21.1)
+where M is the left hand 3 × 3 block of P, m3 is the third row of M, and PX = wˆx. This
+expression is not dependent on the particular homogeneous representation of X or M,
+that is it is unchanged by multiplication by non-zero scale factors. This definition of
+depth is used to determine whether a point is in front of a camera or not.
+Result 21.6. The point X lies in front of the camera P if and only if depth(X; P) > 0.
+21.3 Three-dimensional point sets 519
+In fact, depth is positive for points in front of the camera, negative for points behind
+the camera, infinite on the plane at infinity and zero on the principal plane of the
+camera. If the camera centre or the point X is at infinity, then depth is not defined.
+Usually, in this section we will only be concerned with the sign of depth and not its
+magnitude. We may then write
+depth(X; P)
+.=
+wT det M (21.2)
+where the symbol
+.=
+indicates equality of sign. The quantity sign(depth(X; P)) will be
+referred to as the cheirality of the point X with respect to the camera P. The cheirality
+of a point is said to be reversed by a transformation if it is swapped from 1 to −1 or
+vice versa.
+21.3 Three-dimensional point sets
+In this section the connection between cheirality of points with respect to a camera and
+convex hulls of point sets will be explained. The main result is stated now.
+Theorem 21.7. Let PE and P′E be two cameras, XE
+i a set of points lying in front of both
+cameras, and xi and x′
+i the corresponding image points. (The superscript E stands for
+Euclidean.)
+(i) Let (P, P′, {Xi}) be any projective reconstruction from the image correspondences
+xi ↔ x′
+i, and let PXi = wiˆxi and P′Xi = w′
+iˆx′
+i. Then wiw′
+i has the same
+sign for all i.
+(ii) If each Xi is a finite point, and PbX i = wiˆxi with wi having the same sign for all
+i, then there exists a quasi-affine transformation H taking each Xi to XE
+i .
+Of course, the existence of a projective transformation taking each Xi to XE
+i is guaranteed
+by theorem 10.1(p266). The current theorem gives the extra information that the
+transformation is quasi-affine, and hence one has a quasi-affine reconstruction.
+Note that the condition that each wiw′
+i have the same sign is unaffected by multiplying
+P, P′ or any of the points Xi by a scale factor, and hence is invariant of the choice of
+homogeneous representative for any of these quantities. In particular, if P is multiplied
+by a negative constant, then so is wi for all i. Thus the sign of wiw′
+i is inverted for each
+i, but they still all have the same sign. Similarly, if one point Xi is multiplied by a negative
+constant, then both wi and w′
+i change signs, and so the sign of wiw′
+i is unchanged.
+In the same way, the condition that each wi (in part (ii) of the theorem) have the same
+sign for all i is unaffected if the camera matrix is multiplied by a negative (or of course
+positive) constant.
+Proof. The points XE
+i lie in front of the cameras PE and P′E, and hence have positive
+depth with respect to these cameras. According to (21.2)
+depth(X
+E
+i ; PE)
+.=
+det(ME)wiT
+E
+i .
+Hence, det(ME)wiTE
+i > 0 for all i. Similarly for the second camera, det(M′E)w′
+iTE
+i > 0.
+Multiplying these expressions together, and cancelling TE
+i because it appears twice,
+520 21 Cheirality
+gives wiw′
+i det ME det M′E > 0. Since det ME det M′E is constant, this shows that wiw′
+i has
+constant sign.
+This was shown in terms of the true configuration. Note however that for any H, one has
+wiˆxi = PEXE
+i = (PEH−1)(HXE
+i ), and hence wiw′
+i has the same sign for the projective
+reconstruction (PEH−1, P′EH−1, {HXE
+i }). Since any projective reconstruction is of this
+form (except for homogeneous scale factors), and the condition that wiw′
+i has the same
+sign is independent of choice of homogeneous representatives of XE
+i , PE and P′E, it
+follows that in any projective reconstruction, wiw′
+i has the same sign for all i. This
+proves the first part of the theorem.
+To show the second part, suppose in the projective reconstruction wiˆxi = PbX all the wi
+have the same sign. Since this is a projective reconstruction, there exists a transformation
+represented by H such that HbX i = ηi
+bX
+E
+i and PH−1 = ǫPE for some constants ηi and
+ǫ. Then,
+wiˆxi = PbX i = (PH−1)(HbX i) = (ǫPE)(ηi
+bX
+E
+i ) .
+and so
+PEbX
+E
+i = (wi/ǫηi)ˆxi
+for all i. However, since depth(XE
+i , PE) > 0, one has det(ME)wi/ǫηi > 0 for all i. Since
+det(ME)/ǫ is constant, and by hypothesis wi has the same sign for all i, it follows that ηi
+has the same sign for all i. Thus the mapping H such that HbX i = ηi
+bX
+E
+i is a quasi-affine
+map with respect to the points bX i, according to theorem 21.2.
+Note that the condition that wi have the same sign for all i needs to be checked for
+one of the cameras only. However, defining P′bX i = w′
+iˆx′
+i, according to part (i) of the
+theorem, wiw′
+i has the same sign for all i. Thus, if all wi have the same sign, then so do
+all w′
+i.
+21.4 Obtaining a quasi-affine reconstruction
+According to theorem 21.7, any projective reconstruction in which PbX i = wiˆxi and
+wi has the same sign for all i is a quasi-affine reconstruction. The advantage of a
+quasi-affine reconstruction is that it gives a closer approximation to the true shape
+of the object than does an arbitrary projective transformation. It may be used as a
+stepping stone on the way to a metric reconstruction of the scene, as in [Hartley-94b].
+In addition, one may retrieve the convex hull of the object or determine such questions
+as whether two points lie on the same side of a plane.
+It turns out that quasi-affine reconstruction is extremely simple, given a projective
+reconstruction, as shown in the following theorem.
+Theorem 21.8. Any projective reconstruction in which one of the cameras is an affine
+camera is a quasi-affine reconstruction.
+Proof. Recall that an affine camera is one for which the last row is of the form
+(0, 0, 0, 1). In this case, writing wiˆxi = PbX i, one immediately verifies that wi = 1
+for all i, and in particular they all have the same sign. According to theorem 21.2 this
+21.5 Effect of transformations on cheirality 521
+means that the reconstruction differs by a quasi-affine transformation from the truth.
+The following result follows immediately.
+Corollary 21.9. Let (P, P′, {Xi}) be a projective reconstruction of a scene in which
+P = [I | 0]. Then by swapping the last two columns of P and of P′, as well as the last
+two coordinates of each Xi, one obtains a quasi-affine reconstruction of the scene.
+This is similar to result 10.4(p271), in which it was shown that if the camera P is
+known in reality to be an affine camera, then the above procedure provides an affine
+reconstruction.
+21.5 Effect of transformations on cheirality
+At this point, it is desirable to derive a slightly different form of the formula for depth
+defined in (21.2). Let P be a camera matrix. The centre of P is the unique point C such
+that PC = 0. One can write an explicit formula for C as follows.
+Definition 21.10. Given a camera matrix P, we define C
+T
+P to be the vector (c1, c2, c3, c4),
+where
+ci = (−1)i det ˆP
+(i)
+and ˆP
+(i)
+is the matrix obtained by removing the i-th column of P.
+We denote by [P/V
+T] the 4 × 4 matrix made up of a 3 × 4 camera matrix P augmented
+with an final row V
+T. Definition 21.10 leads to a simple formula for det[P/V
+T]. Cofactor
+expansion of the determinant along the last row gives det[P/V
+T] = V
+T
+CP for any
+row vector V
+T. As a special case, if pT
+i is the i-th row of P, then
+pT
+i
+CP = det[P/pT
+i ] = 0
+where the last equality is true because the matrix has a repeated row. Since this is true
+for all i, it follows that PCP = 0, and so CP is the camera centre, as claimed.
+Note that submatrix ˆP
+(4)
+is the same as matrix M in the decomposition P = [M | v],
+and so det M = c4. This allows us to reformulate (21.2), as follows.
+depth(X; P)
+.=
+w(E
+T
+4
+X)(E
+T
+4
+CP) (21.3)
+where E
+T
+4 is the vector (0, 0, 0, 1). It is significant to note here that E4 is the vector
+representing the plane at infinity – a point X lies on the plane at infinity if and only if
+E
+T
+4
+X = 0.
+We now consider a projective transformation represented by matrix H. If P′ = PH−1
+and X′ = HX then the image correspondences are preserved by this transformation.
+When speaking of a projective transformation being applied to a set of points and to
+a camera, it is meant that a point X is transformed to HX and the camera matrix is
+transformed to PH−1.
+In this section we will consider such projective transformations and their effect on
+the cheirality of points with respect to a camera. First, we wish to determine what
+522 21 Cheirality
+happens to CP when P is transformed to PH−1. To answer that question, consider an
+arbitrary 4-vector V. We see that
+V
+T
+H−1CPH−1 = det(PH−1/V
+T
+H−1) = det(P/V
+T) det H−1 = V
+T
+CP det H−1.
+Since this is true for all vectors V, it follows that H−1CPH−1 = CP det H−1, or
+CPH−1 = HCP det H−1. (21.4)
+At one level, this formula is saying that the transformation H takes the camera centre
+C = CP to the new location CPH−1 ≈ HC. However, we are interested in the exact
+coordinates of CPH−1 , especially the sign of the last coordinate c4 which appears in
+(21.3). Thus, the factor det H−1 is significant.
+Now, applying (21.4) to (21.3) gives
+depth(HX; PH−1)
+.=
+w(E
+T
+4
+HX)(E
+T
+4
+CPH−1)
+.=
+w(E
+T
+4
+HX)(E
+T
+4
+HCP) det H−1 .
+One may interpret the expression E
+T
+4
+H as being the plane ∞ mapped to infinity by
+H. This is because a point X lies on ∞ if and only if the last coordinate of HX is zero
+– that is E4HX = 0. On the other hand, X lies on ∞ if and only if 
+T
+∞
+X = 0. Finally,
+denoting the fourth row of the transformation matrix H by hT
+4 , and sign(det H) by δ, we
+obtain
+Result 21.11. If ∞ is the plane mapped to infinity by a projective transformation H
+and δ = sign(det H), then
+depth(HX; PH−1)
+.=
+w(
+T
+∞
+X)(
+T
+∞
+CP)δ .
+This equation will be used extensively. It may be considered to be a generalization of
+(21.3). It will be seen in the next section that δ = sign(det H) is an indicator of whether
+H is an orientation-reversing or orientation-preserving transformation. Thus, the effect
+on cheirality of applying a transformation H is determined only by the position of the
+plane mapped to infinity ∞, and whether H preserves or reverses orientation.
+We now consider the effect of different transformations on the cheirality of points
+with respect to a camera. The effect of an affine transformation is considered first.
+Result 21.12. An affine transformation with positive determinant preserves the cheirality
+of any point with respect to a camera. An affine transformation with negative determinant
+reverses cheirality.
+Proof. An affine transformation preserves the plane at infinity, hence ∞ = E4. The
+result then follows by comparing (21.3) and result 21.11.
+We now determine how an arbitrary projective transformation affects cheirality.
+Result 21.13. Let H represent a projective transformation with positive determinant,
+and let ∞ be the plane in space mapped to infinity by H. The cheirality of a point X
+is preserved by H if and only if X lies on the same side of the plane ∞ as the camera
+centre.
+21.6 Orientation 523
+Proof. Since det H > 0, we see from (21.3) and result 21.11 that depth(X; P)
+.=
+depth(HX; PH−1) if and only if (
+T
+∞
+X)(
+T
+∞
+C)
+.=
+(E
+T
+4 x)(E
+T
+4
+C). Suppose the point
+X and the camera P are located at finite points so that the cheirality is well defined,
+and let them be scaled so that both X and C have final coordinate equal to 1. In
+this case, (E
+T
+4
+X)(ET
+4
+C) = 1 and we see that cheirality is preserved if and only if
+(
+T
+∞
+X)(
+T
+∞
+C)
+.=
+1, or otherwise expressed 
+T
+∞
+X .
+= 
+T
+∞
+C. This condition may be
+interpreted as meaning that the points C and X both lie on the same side of the plane
+∞. Hence, the cheirality of a point X is preserved by a transformation H, if and only
+if it lies on the same side of the plane ∞ as the camera centre.
+21.6 Orientation
+We now consider the question of image orientation. A mapping h from IRn to itself is
+called orientation-preserving at points X where the Jacobian of h (the determinant of
+the matrix of partial derivatives) is positive, and orientation-reversing at points where
+the Jacobian is negative. Reflection of points of IRn with respect to a hyperplane (that
+is mirror imaging) is an example of an orientation-reversing mapping. A projectivity
+h from Pn to itself restricts to a mapping from IRn − ∞ to IRn, where ∞ is the
+hyperplane (line, plane) mapped to infinity by H. Consider the case n = 3 and let H be
+a 4×4 matrix representing the projectivity h. We wish to determine at which points X
+in IRn − ∞ the map h is orientation-preserving. It may be verified (quite easily using
+Mathematica [Mathematica-92]) that if HbX = wbX
+′
+and J is the Jacobian matrix of h
+evaluated at X, then det(J) = det(H)/w4. This gives the following result.
+Result 21.14. A projectivity h of IP3 represented by a matrix H is orientation-preserving
+at any point in IR3 − ∞ if and only if det(H) > 0.
+Of course, the concept of orientability may be extended to the whole of IP3, and it may
+be shown that h is orientation-preserving on the whole of IP3 if and only if det(H) > 0.
+The essential feature here is that as a topological manifold, IP3 is orientable.
+Two sets of points {Xi} and {Xi} that correspond via a quasi-affine transformation
+are said to be oppositely oriented if the transformation is orientation-reversing. As an
+example, consider the transformation given by a diagonal matrix H = diag(1, 1,−1, 1).
+This transformation has negative determinant, and hence is orientation-reversing. On
+the other hand, it is affine, and hence quasi-affine. Therefore, it is possible always to
+construct oppositely oriented quasi-affine reconstructions of a scene. It may appear
+therefore that the orientation of a scene may not be determined from a pair of images.
+Although this is sometimes true, it is sometimes possible to rule out one of the oppositely
+oriented quasi-affine reconstructions of a scene, and hence determine the true
+orientation of the scene.
+Common experience provides some clues here. In particular a stereo pair may be
+viewed by presenting one image to one eye and the other image to the other eye. If this
+is done correctly, then the brain perceives a 3D reconstruction of the scene If, however,
+the two images are swapped and presented to the opposite eyes, then the perspective
+will be reversed – hills become valleys and vice versa. In effect, the brain is able to
+compute two oppositely oriented reconstructions of the image pair. It seems, therefore,
+524 21 Cheirality
+Fig. 21.2. Stereo pairs of images that may be viewed by cross-fusing (the eyes are crossed so that the
+left eye sees the right image and vice versa). The two bottom images are the same as the top pair, except
+that they are swapped. In the top pair of images one sees an L-shaped region raised above a planar
+background. In the bottom pair of images the L-shaped region appears as an indentation. The two
+“reconstructions” differ by reflection in the background plane. This demonstrates that the same pair of
+images may give rise to two differently oriented projective reconstructions.
+that in certain circumstances, two oppositely oriented realizations of an image pair
+exist. This is illustrated in figure 21.2.
+It may be surprising to discover that this is not always the case, as is shown in the
+following theorem. As used in this theorem and elsewhere in this chapter, a projective
+realization of a set of point correspondences is known as a strong realization if the
+reconstructed 3D points Xi are in front of all the cameras.
+Theorem 21.15. Let (P, P′, {Xi}) be a strong realization of a uniquely realizable set of
+point correspondences. There exists a different oppositely oriented strong realization
+(P, P
+′, {Xi}) if and only if there exists a plane in IR3 such that the perspective centres
+of both cameras P and P′ lie on one side of the plane, and the points Xi lie on the other
+side.
+Proof. Consider one strong realization of the configuration. By definition, all the
+points lie in front of both cameras. Suppose that there exists a plane separating the
+points from the two camera centres. Let G be a projective transformation mapping
+the given plane to infinity and let A be an affine transformation. Suppose further that
+21.7 The cheiral inequalities 525
+det G > 0 and det A < 0. Let H be the composition H = AG. According to result 21.13
+the transformation G is cheirality-reversing for the points, since the points are on the
+opposite side of the plane from the camera centres. According to result 21.12 A is also
+cheirality-reversing, since det A < 0. The composition H must therefore be cheiralitypreserving,
+and it transforms the strong configuration to a different strong configuration.
+Since H has negative determinant, however, it is orientation-reversing, so the two
+strong realizations have opposite orientations.
+Conversely, suppose that two strong oppositely oriented realizations exist and let H be
+the transformation taking one to the other. Since H is orientation-reversing, det H < 0.
+The mapping H is by definition cheirality-preserving on all points, with respect to both
+cameras. If ∞ is the plane mapped to infinity by H, then according to result 21.13 the
+points X must lie on the opposite side of the plane ∞ from both camera centres.
+21.7 The cheiral inequalities
+In section 21.4 a very simple method was given for obtaining a quasi-affine reconstruction
+of a scene directly from a projective reconstruction. However, the reconstruction
+obtained there did not respect the condition that the points must lie in front of all cameras.
+In fact, the first camera in this construction is an affine camera, for which front and
+back are not well defined. By taking full advantage of the fact that visible points must
+lie in front of the camera, it is possible to constrain the reconstruction more tightly,
+leading to a closer approximation to a true affine reconstruction of the scene.
+The method will be given for the case of a reconstruction derived from several images.
+One is given a set of image points {xj
+i }, where xj
+i is the projection of the i-th
+point in the j-th image. Not all points are visible in each image, so for some (i, j) the
+point xj
+i is not given, in which case it is not known whether the i-th point lies in front
+of the j-th camera or not. On the other hand, the existence of an image point xj
+i implies
+that the point lies in front of the camera.
+We start from an assumed projective reconstruction of the scene, consisting of a set
+of 3D points Xi and cameras Pj such that xj
+i ≈ PjXi. Writing the implied scalar
+constant explicitly in this equation gives wj
+i ˆxj
+i = PjXi. In this equation, Pj and Xi
+are arbitrarily chosen homogeneous representatives of the respective matrix or vector.
+Related to theorem 21.7 one may state for several views:
+Result 21.16. Consider a set of points XE
+i and cameras PjE, and let xj
+i = PjEXE
+i be
+defined for some indices (i, j) such that point XE
+i lies in front of camera PjE. Let (Pj ;Xi)
+be a projective reconstruction from xj
+i . Then there are camera matrices ˜P
+j = ±Pj and
+˜Xi = ±Xi such that for each (i, j) for which xj
+i is defined, one has
+˜P
+j ˜Xi = wj
+i ˆxj
+i with wj
+i > 0.
+Briefly stated, one can always adjust a projective reconstruction, multiplying camera
+matrices and points by −1 if necessary, so that wj
+i is positive whenever image point xj
+i
+exists. The simple proof is omitted. To find the matrices ˜P
+j
+and points ˜Xi, one may
+assume that one of the cameras ˜P1 = P1, for otherwise all points and cameras may be
+multiplied by −1. The condition P1 ˜Xi = w1
+i x1
+i with w1
+i > 0 determines whether to
+526 21 Cheirality
+choose ˜Xi = Xi or −Xi for all i such that x1
+i is defined. Each known X˜i determines P˜
+j
+for all j such that xj
+i is defined. Continuing in this way, one easily finds the factor ±1
+to apply to each Pj and Xj to find ˜P
+j
+and ˜Xi. We assume that this has been done, and
+replace each Pj by ˜P
+j
+and Xi by ˜Xi. In future we drop the tildes and continue to work
+with the corrected Pj and Xi. We now know that wj
+i > 0 whenever image point xj
+i is
+given.
+Now, we seek a transformation H that will transform the projective reconstruction to
+a quasi-affine reconstruction for which all points lie in front of the cameras as appropriate.
+Denoting by 4-vector v the plane ∞ mapped to infinity by H, this condition
+may be written as (see result 21.11):
+depth(Xi; Pj)
+.=
+(vT
+Xi)(vT
+C)δ > 0
+where δ = sign(det H). This condition holds for all pairs (i, j) where xj
+i is given.
+Since we are free to multiply v by −1 if necessary, we may assume that (vT
+C1)δ > 0
+for the centre of the camera P1. The following inequalities now follow easily:
+X
+T
+i v > 0 for all i
+δCjT
+v > 0 for all j. (21.5)
+These equations (21.5) may be called the cheiral inequalities. Since the values of
+each Xi, C and C′ are known, they form a set of inequalities in the entries of v. The
+value of δ is not known a priori, and so it is necessary to seek a solution for each of the
+two cases δ = 1 and δ = −1.
+To find the required transformation H, first of all we solve the cheiral inequalities to
+find a value of v, either for δ = 1 or δ = −1. The required matrix H is any matrix
+having vT as its last row and satisfying the condition det H .
+= δ. If the last component
+of v is non-zero, then H can be chosen to have the simple form in which the first three
+rows are of the form ±[I | 0].
+If a Euclidean reconstruction (or more specifically a quasi-affine reconstruction) is
+possible, then there must be a solution either for δ = 1 or δ = −1. In some cases
+there will exist solutions of the cheiral inequalities for both δ = 1 and δ = −1. This
+will mean that two oppositely oriented strong realizations exist. The conditions under
+which this may occur were discussed in section 21.6.
+Solving the cheiral inequalities
+Naturally, the cheiral inequalities may be solved using techniques of linear programming.
+As they stand however, if v is a solution then so is αv for any positive factor α.
+In order to restrict the solution domain to be bounded, one may add additional inequalities.
+For instance, if v = (v1, v2, v3, v4)T, then the inequalities −1 < vi < 1 serve to
+restrict the solution domain to be a bounded polyhedron.
+To achieve a unique solution we need to specify some goal function to be linearized.
+An appropriate strategy is to seek to maximize the extent to which each of the inequalities
+is satisfied. To do this, we introduce one further variable, d. Each of the inequalities
+aTv of the form (21.5) for appropriate a is replaced by an inequality aTv > d. We seek
+21.7 The cheiral inequalities 527
+to maximize d while satisfying all the inequalities. This is a standard linear programming
+problem, for which many methods of solution exist, such as the simplex method
+([Press-88]).1 If a solution is found for which d > 0 then this will be a desired solution.
+Summary of the algorithm
+Now, we give the complete algorithm for computing a quasi-affine reconstruction of a
+scene using the cheiral inequalities. The algorithm as outlined above was discussed for
+the case of two views. In the present case it will be presented for an arbitrary number
+of views. The extension to more views is straightforward.
+Objective
+Given a set of 3D points Xi and camera matrices Pj constituting a projective reconstruction
+from a set of image points, compute a projective transformation H transforming the projective
+to a quasi-affine reconstruction.
+Algorithm
+(i) For each pair (i, j) such that point xj
+i is given let PjXi = wj
+i ˆxj
+i .
+(ii) Replace some cameras Pj by −Pj and some points Xi by −Xi as required to ensure
+that each wj
+i > 0.
+(iii) Form the cheiral inequalities (21.5) where Cj = CPj is defined by definition 21.10.
+(iv) For each of the values  = ±1, choose a solution (if it exists) to the set of cheiral
+inequalities. Let the solution be v. A solution must exist for at least one value of ,
+sometimes for both values of .
+(v) Define a matrix H having last row equal to v and such that det(H)
+.=
+. The matrix
+H is the required transformation matrix. If both H+ and H− exist, then they lead to two
+oppositely oriented quasi-affine reconstructions.
+Algorithm 21.1. Computing a quasi-affine reconstruction.
+Bounding the plane at infinity
+A quasi-affine reconstruction is of course not unique, being defined only up to a quasiaffine
+transformation with respect to the points and camera centres. However, once one
+has been found, it is possible to set bounds on the coordinates of the plane at infinity.
+Thus, let Pj and Xi constitute a quasi-affine reconstruction of a scene. One may choose
+the sign of Pj and Xi such that the last coordinates of Xi and the determinants of each
+Mj are positive. One may apply a translation to the points and cameras so that the
+coordinate origin lies inside the convex hull of the points and camera centres. For
+simplicity, the centroid of these points may be placed at the origin.
+It is possible to apply a further quasi-affine transformation H to obtain an alternative
+reconstruction. Let ∞ be the plane mapped to infinity by H. We confine our interest
+to orientation-preserving transforms, and wish to find constraints on the coordinates
+of ∞ such that H is quasi-affine. A plane ∞ has this property if and only if it lies
+entirely outside the convex hull of the points and camera centres. Since the plane ∞
+1 The Simplex algorithm given in [Press-88] is not suitable for use as stands, since it makes the unnecessary assumption that all
+variables are non-negative. It needs to be modified to be used for this problem.
+528 21 Cheirality
+cannot cross the convex hull, it cannot pass through the origin. Representing ∞ by
+the vector v, this says that the last coordinate of v is non-zero. One may then write
+v = (v1, v2, v3, 1)T. Since the origin lies on the same side of the plane as all the points,
+the cheiral inequalities become
+X
+T
+i v > 0 for all i
+CjTv > 0 for all j (21.6)
+for v = (v1, v2, v3, 1)T. One may find upper and lower bounds for each vi by solving
+the linear programming problem to maximize vi or −vi subject to these constraints.
+None of the vi can be unbounded, since otherwise the plane ∞ represented by the
+vector v could lie arbitrarily close to the origin.
+Before solving for this system, good practice is to apply an affine transformation to
+normalize the set of points and camera centres so that their centroid is at the origin and
+their principal moments are all equal to 1.
+The complete algorithm for computing the bounds on the position of the plane at
+infinity is given in algorithm 21.2.
+Objective
+Given a quasi-affine reconstruction of a scene, establish bounds on the coordinates of the plane
+at infinity.
+Algorithm
+(i) Normalize the points Xi = (Xi, Yi, Zi, Ti)T so that Ti = 1, and cameras Pj = [Mj | tj ]
+so that det Mj = 1.
+(ii) Further normalize by replacing Xi by H−1Xi and Pj by PjH, where H is an affine transformation
+moving the centroid to the origin and scaling in the principal axis directions
+so that is has equal principal axes.
+(iii) Letting v = (v1, v2, v3, 1)T, form cheiral inequalities (21.6). Any orientationpreserving
+transformation H mapping the reconstruction to an affine reconstruction of
+the image must have the form
+H =
+
+I 0
+v1 v2 v3 1
+
+for a vector v satisfying these inequalities.
+(iv) Upper and lower bounds for each vi may be found by running a linear programming
+problem six times. The coordinates of a desired transformation H must lie inside the
+box defined by these bounds.
+Algorithm 21.2. Establishing bounds on the plane at infinity.
+21.8 Which points are visible in a third view
+Consider a scene reconstructed from two views. We consider now the question of
+determining which points are visible in a third view. Such a question arises when one
+is given two uncalibrated views of a scene and one seeks to synthesize a third view.
+This can be done by carrying out a projective reconstruction of the scene from the
+21.8 Which points are visible in a third view 529
+X
+􀁓􀁦
+P1 P2
+P3
+Fig. 21.3. The point set X is in front of all three cameras as shown. However, if an orientationpreserving
+projective transformation H is applied taking the plane 1 to infinity, then the point set
+will subsequently lie in front of the cameras P1 and P2 but behind the camera P3. Thus, suppose the
+point set X is reconstructed from images captured by cameras P1 and P2, and let P3 be any other camera
+matrix. If a plane exists separating the centre of camera P3 from the other camera centres, and not
+meeting the convex hull of the point set X, then it cannot be determined whether the points lie in front
+of P3.
+first two views and then projecting into the third view. In this case, it is important to
+determine if a point lies in front of the third camera and is hence visible, or not.
+If the third view is given simply by specifying the camera matrix with respect to
+the frame of reference of some given reconstruction, then it may be impossible to
+determine whether points are in front of the third camera or behind it in the true scene.
+The basic ambiguity is illustrated in figure 21.3. Knowledge of a single point known
+to be visible in the third view serves to break the ambiguity, however, as the following
+result shows. By applying theorem 21.7(p519) to the first and third views, one obtains
+the following criterion.
+Result 21.17. Let points (P1, P2, {Xi}) be a realization of a set of correspondences
+x1
+i ↔ x2
+i . Let P3 be the camera matrix of a third view and suppose that wi
+j ˆxi = PiXj
+for i = 1, . . . , 3. Then w1
+jw3
+j has the same sign for all points Xj visible in the third
+view.
+In practice, it will usually be the case that one knows at least one point X0 visible in
+the third view. This serves to define the sign w1
+0w3
+0, and any other point Xj will be in
+front of the camera P3 if and only if w1
+jw3
+j
+.=
+w1
+0w3
+0.
+As an example, once a projective reconstruction has been carried out using two
+views, the camera matrix of the third camera may be determined from the images of
+six or more points known to be in front of it by solving directly for the matrix P3 given
+the correspondences x3
+i = P3Xi where points Xi are the reconstructed points. Then one
+can determine unambiguously which other points are in front of P3.
+530 21 Cheirality
+􀁓􀁦
+x1
+x2
+Fig. 21.4. As shown, the point x1 is closer to the camera than x2. However, if an orientation-reversing
+projectivity is applied, taking 1 to infinity, then both x1 and x2 remain in front of the camera, but x2
+is closer to the camera than x1.
+21.9 Which points are in front of which
+When we are attempting to synthesize a new view of a scene that has been reconstructed
+from two or more uncalibrated views it is sometimes necessary to consider
+the possibility of points being obscured by other points. This leads to the question:
+given two points that project to the same point in the new view, which one is closer
+to the camera, and hence obscures the other? In the case where the possibility exists
+of oppositely oriented quasi-affine reconstructions it may once again be impossible to
+determine which of a pair of points is closer to the new camera. This is illustrated in
+figure 21.4. If a plane exists, separating the camera centres from the point set, then two
+oppositely oriented reconstructions exist, and one cannot determine which points are
+in front of which. The sort of ambiguity shown in figure 21.4 can only occur in the
+case where there exists a plane ∞ that separates the camera centres from the set of all
+visible points. If this is not the case, then one can compute a quasi-affine reconstruction
+and the problem is easily solved. To avoid the effort of computing a quasi-affine
+reconstruction, however, we would like to solve this problem using only a projective
+reconstruction of the scene. How this may be done is explained next.
+One may invert (21.1–p518) to get an expression for depth−1(X; P) = 1/depth(X; P).
+This inverse depth function is infinite on the principal plane of the camera, zero on the
+plane at infinity, positive for points in front of the camera and negative for points behind
+the camera. For notational simplicity, we write χ(X; P) instead of depth−1(X; P).
+For points X lying on a ray through the camera centre, the value of χ(X; P) decreases
+monotonically along this ray, from zero at the camera centre, decreasing through positive
+values to zero at the plane at infinity, thence continuing to decrease through negative
+values to −∞at the camera centre. A point X1 lies closer to the front of the camera
+than X2 if and only if χ(X1) > χ(X2). This is illustrated in figure 21.5.
+Now, if the configuration undergoes an orientation-preserving transformation H taking
+the plane ∞ to infinity, then the parameter χ will be replaced by a new parameter
+χ′ defined by χ′(X) = χ(HX; PH−1). The value of χ′ must also vary monotonically
+along the ray. Since H is orientation-preserving, points just in front of the camera centre
+will remain in front of the camera after the transformation, because of result 21.13.
+21.10 Closure 531
+􀁓􀁦
+􀁆'􀀡􀀓
+􀁆'􀀠􀀓
+􀀃􀁆 􀀡􀀓
+􀁆􀀟􀀓 􀁆'􀀟􀀓
+􀁆􀀟􀀓
+x1
+x2
+Fig. 21.5. The parameter .
+Thus both χ and χ′ decrease monotonically in the same direction along the ray. If X1
+and X2 are two points on the line, then χ′(X1) > χ′(X2) if and only if χ(X1) > χ(X2).
+In the case where the projective transformation has negative determinant, then the
+front and back of the camera are reversed locally. In this case the direction of increase
+of the parameter χ′ will be reversed. Consequently, χ′(X1) > χ′(X2) if and only if
+χ(X1) < χ(X2).
+In the case where the projective transformation transforms the scene to the “true”
+scene, of two points that project to the same point in the image, the one with the higher
+value of χ′ is closer to the camera. This leads to the following result that allows us to
+determine from an arbitrary projective reconstruction which of two points is closer to
+the front of the camera.
+Result 21.18. Suppose that X1 and X2 are two points that map to the same point in
+an image. Consider a projective reconstruction of the scene and let the parameter χ
+be defined (by formula (21.3–p521)) in the frame of the projective reconstruction. If
+the projective reconstruction has the same orientation as the true scene, then the point
+that lies closer to the front of the camera in the true scene is the one that has the
+greater value of χ. On the other hand, if the projective transformation has the opposite
+orientation, then the point with smaller value of χ will lie closer to the front of the
+camera in the true scene.
+As remarked previously, unless there exists a plane separating the point set from
+the cameras used for the reconstruction, the orientation of the scene is uniquely determined,
+and one can determine whether the projective transformation of result 21.18
+has positive or negative determinant. However, to do this may require one to compute a
+strong realization of the configuration by the linear programming method as described
+in section 21.7. If differently oriented strong realizations exist, then as illustrated by
+figure 21.4, there is an essential ambiguity. However, this ambiguity may be resolved
+by knowledge of the relative distance from the camera of a single pair of points.
+21.10 Closure
+21.10.1 The literature
+The topic of this chapter belongs to Oriented projective geometry, which is treated
+in a standard and readable text [Stolfi-91]. Laveau and Faugeras apply the ideas of
+532 21 Cheirality
+oriented projective geometry in [Laveau-96b]. The concepts of front and back of the
+camera were also used in [Robert-93] to compute convex hulls in projective reconstructions.
+This chapter derives from the paper [Hartley-98a] which also treats such
+topics of invariants for quasi-affine mappings and conditions under which arbitrary
+correspondences allow quasi-affine reconstructions.
+Cheirality, and specifically the cheirality inequalities have been useful in determining
+quasi-affine reconstructions as an intermediate step towards affine and metric reconstruction
+in [Hartley-94b, Hartley-99]. More recentlyWerner and Pajdla in [Werner-01]
+have used oriented projective geometry to eliminate spurious line correspondences, and
+to constrain correspondences of five points [Werner-03], over two views.　-->
+</p><p>
+</p><p>
+    </body>
+</html>

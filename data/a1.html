@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録1</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録1</center><center>テンソル記法</center></h1>
+<p>
+テンソル記法はコンピュータビジョンでは一般的に用いられていないため、その使用法について簡単に紹介するのが適切と思われます。詳細については、[Triggs-95]を参照してください。簡潔にするため、ここではこれらの概念を、その完全な一般性ではなく、低次元射影空間の文脈で説明します。ただし、これらの考え方は任意次元のベクトル空間にも適用できます。
+
+<!-- Since tensor notation is not commonly used in computer vision, it seems appropriate
+to give a brief introduction to its use. For more details, the reader is referred to
+[Triggs-95]. For simplicity, these concepts will be explained here in the context of
+low-dimensional projective spaces, rather than in their full generality. However, the
+ideas apply in arbitrary dimensional vector spaces. -->
+
+</p><p>
+
+2次元射影空間 \(\mathbb P^2\) の基底ベクトルの集合 \(\mathbf e_i,\; i = 1, . . . , 3\) を考えます。理由を明確にするために、添え字を下付き文字として表記します。この基底に関して、\(\mathbb P^2\) 内の点は座標の集合 \(x^i\) で表され、これは点 \(\sum_{i=1}^3 x^i\mathbf e_i\) を表します。図示のように、座標は上付き添え字で表記します。\(x\) は座標の3つ組 \(x = (x^1, x^2, x^3)^T\) を表します。
+
+<!-- Consider a set of basis vectors \(e_i,\; i = 1, . . . , 3\) for a 2-dimensional projective space \(\mathbb P^2\). For reasons to become clear, we will write the indices as subscripts. With respect
+to this basis, a point in \(\mathbb P^2\) is represented by a set of coordinates \(x^i\), which represents
+the point \(\sum_{i=1}^3 x^ie_i\). We write the coordinates with an upper index, as shown. Let \(x\) represent the triple of coordinates, \(x = (x^1, x^2, x^3)^T\). -->
+
+</p><p>
+
+ここで、基底ベクトル \(\mathbf e_i\) を新しい基底セット \(\hat{\mathbf e}_j\) に置き換える座標軸の変更を考えます。ここで、 \(\hat{\mathbf e}_j = \sum_i H_j^i\mathbf e_i\) であり、 \(H\) は要素 \(H_j^i\) を持つ基底変換行列です。 \(\hat{\mathbf x} = (\hat{x}^1,\hat{x}^2, \hat{x}^3)^T\) が新しい基底に対するベクトルの座標である場合、 \(\hat{\mathbf x} = H^{-1}\mathbf x\) であることが確認できます。したがって、基底ベクトルが\(H\)に従って変換される場合、点の座標は逆変換\(H^{-1}\)に従って変換されます。
+
+<!-- Now, consider a change of coordinate axes in which the basis vectors \(\mathbf e_i\) are replaced
+by a new basis set \(\hat{\mathbf e}_j\) , where \(\hat{\mathbf e}_j = \sum_i H_j-i\mathbf e_i\), and \(H\) is the basis transformation matrix
+with entries \(H_j^i\) . If \(\hat{\mathbf x} = (\hat{x}^1,\hat{x}^2, \hat{x}^3)^T\) are the coordinates of the vector with respect to
+the new basis, then we may verify that \(\hat{\mathbf x} = H-{-1}\mathbf x\). Thus, if the basis vectors transform
+according to \(H\) the coordinates of points transform according to the inverse transformation \(H^{-1}\). -->
+
+</p><p>
+
+<!-- Next, consider a line in IP2 represented by coordinates l with respect to the original
+basis. With respect to the new basis, it may be verified that the line is represented by
+a new set of coordinatesˆl = HTl. Thus coordinates of the line transform according to
+HT.
+
+</p><p>
+As a further example, let P be a matrix representing a mapping between projective
+(or vector) spaces. If G and H represent basis transformations in the domain and range
+spaces, then with respect to the new bases, the mapping is represented by a new matrx
+ˆP = H−1PG. Note in these examples that sometimes the matrix H or HT is used in the
+transformation, and sometimes H−1.
+
+</p><p>
+These three examples of coordinate transformations may be written explicitly as follows.
+ˆxi = (H−1)i
+j xj ˆli = Hj
+i lj ˆ Pi
+j = (H−1)i
+k Gl
+j Pk
+l
+where we use the tensor summation convention that an index repeated in upper and
+lower positions in a product represents summation over the range of the index. Note
+that those indices that are written as superscripts transform according to H−1, whereas
+those that are written as subscripts transform as H (or G). Note that there is no distinction
+in tensor notation between indices that are transformed by H, and those that are
+transformed by HT. In general, tensor indices will transform by either H or H−1 – in fact
+this is the characteristic of a tensor. Those indices that transform according to H are
+known as covariant indices and are written as subscripts. Those indices that transform
+according to H−1 are known as contravariant indices, and are written as superscripts.
+The number of indices is the valency of the tensor. The sum over an index, e.g. Hj
+i lj ,
+is referred to as a contraction, in this case the tensor Hj
+i is contracted with the line lj .
+</p>
+<h2><center>A1.1 The tensor \(\rpsilon_{rst}\)</center></h2>
+<p>
+The tensor ǫrst is defined for r, s, t = 1, . . . , 3 as follows:
+ǫrst =
+
+0 unless r, s and t are distinct
++1 if rst is an even permutation of 123
+−1 if rst is an odd permutation of 123
+The tensor ǫijk (or its contravariant counterpart, ǫijk) is connected with the cross product
+of two vectors. If a and b are two vectors, and c = a × b is their cross product,
+then the following formula may easily be verified.
+ci = (a × b)i = ǫijkajbk.
+Related to this is the expression (A4.5–p581) for the skew-symmetric matrix [a]×.
+Using tensor notation one writes this as
+([a]×)ik = ǫijkaj .
+Thus, one sees that if a is a contravariant vector, then [a]× is a matrix with two covariant
+indices. A similar formula holds for [v]× where v is covariant, namely ([v]×)ik =
+ǫijkvj .
+Finally, the tensor ǫijk is related to determinants: for three contravariant tensors ai,
+bj and ck, one verifies that aibjckǫijk is the determinant of the 3 × 3 matrix with rows
+ai, bj and ck.
+A1.2 The trifocal tensor
+The trifocal tensor T jk
+i has one covariant and two contravariant indices. For vectors
+and matrices, such as xi, li and Pi
+j , it is possible to write the transformation rules using
+standard linear algebra notation, e.g. x′ = Hx. However, for tensors with three or more
+indices, this cannot conveniently be done. There is really no choice but to use tensor
+notation when dealing with the trifocal tensor.
+Transformation rule. The arrangement of indices for the trifocal tensor implies a
+transformation rule
+ˆ T jk
+i = Fr
+i (G−1)j
+s (H−1)k
+t
+T st
+r (A1.1)
+with respect to changes of basis in the three images. It is worthwhile pointing out
+one possible source of confusion here. The transformation rule (A1.1) shows how the
+564 Appendix 1 Tensor Notation
+/ / / /
+/ /
+/ /
+T
+l
+l
+l
+1
+2
+3
+/
+/
+/
+l 1
+/ / l l
+/ /
+2 3
+l
+T
+l
+l
+l
+1
+2
+3
+/
+/
+/
+l 1
+/ / l l
+/ /
+2 3
+l
+T1
+l
+l
+l
+1
+2
+3
+/
+/
+/
+l 1 l l
+/ /
+2 3
+l1
+2
+3
+2
+3
+Fig. A1.1. A 3-dimensional representation of the trifocal tensor – figure after Faugeras and Papadopoulo
+[Faugeras-97]. The picture represents li = l′
+j
+l′′
+k
+T jk
+i , which is the contraction of the tensor
+with the lines l′ and l′′ to produce a line l. In pseudo-matrix notation this can be written as li = l′TTil′′T,
+where (Ti)jk = T jk
+i .
+tensor is transformed in terms of basis transformations in the three images. Often,
+we are concerned instead with point coordinate transformations. Thus, if F′, G′ and H′
+represent coordinate transformations in the images, in the sense that ˆxj = F′j
+i xi, and
+G′ and H′ are similarly defined for the other images, then the transformation rule may
+be written as
+ˆ T jk
+i = (F′−1)r
+i G′j
+s H′k
+t
+T st
+r .
+Picture of tensors. A vector x may be thought of as a set of numbers arranged in a
+column or row, and a matrix H as a 2D array of numbers. Similarly, a tensor with three
+indices may be thought of as a 3D array of numbers. In particular the trifocal tensor is
+a 3 × 3 × 3 cube of cells as illustrated in figure A1.1.　-->
+</p><p>
+</p><p>
+</p><p>
+    </body>
+</html>

@@ -1,0 +1,1517 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>22章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>22章 縮退した配置</center></h1>
+<p>
+これまでの章では、複数の画像に関連する様々な量（投影行列、基礎行列、三焦点テンソル）を推定するためのアルゴリズムを示してきました。これらのいずれの場合も、線形アルゴリズムと反復アルゴリズムが示されましたが、これらのアルゴリズムが失敗する可能性についてはほとんど考慮されていませんでした。ここでは、どのような条件下で失敗する可能性があるかを検討します。
+
+<!-- In past chapters we have given algorithms for the estimation of various quantities associated
+with multiple images – the projection matrix, the fundamental matrix and the
+trifocal tensor. In each of these cases, linear and iterative algorithms were given, but
+little consideration was given to the possibility that these algorithms could fail. We
+now consider under what conditions this might happen.-->
+
+</p><p>
+通常、十分な数の点の対応が何らかの「一般的な位置」で与えられれば、問題となる量は一意に決定され、ここで示したアルゴリズムは成功します。しかし、点の対応が少なすぎる場合、あるいはすべての点が特定の臨界配置にある場合、一意の解は存在しません。時には有限個の異なる解が存在する場合もあれば、完全な解の族が存在する場合もあります。
+
+<!-- Typically, if sufficiently many point correspondences are given in some sort of “general
+position” then the quantities in question will be uniquely determined, and the algorithms
+we have given will succeed. However, if there are too few point correspondences
+given, or else all the points lie in certain critical configurations, then there will not be
+a unique solution. Sometimes there will be a finite number of different solutions, and
+sometimes a complete family of solutions.-->
+</p><p>
+この章では、本書で扱ってきた主要な推定問題のうち、カメラ再断面法、2視点からの再構成、そして3視点からの再構成という3つに焦点を当てます。ここで示す結果の中には、特にカメラ再断面法と2視点の臨界面問題は古典的なものです。その他は比較的最近のものです。以下では、それぞれの推定問題について順に考察していきます。
+
+<!-- This chapter will concentrate on three of the main estimation problems that we have
+encountered in this book, camera resectioning, reconstruction from two views and reconstruction
+from three views. Some of the results given here are classical, particularly
+the camera resectioning and two-view critical surface problems. Others are more recent
+results. We consider the different estimation problems in turn. -->
+</p>
+<h2><center>22.1 カメラ再断面法</center></h2>
+<p>
+<!-- We begin by considering the problem of computing the camera projection matrix, given
+a set of points in space and the corresponding set of points in the image. Thus, one is
+given a set of points Xi in space that are mapped to points xi in the image by a camera
+with projection matrix P. The coordinates of the points in space and the image are
+known, and the matrix P is to be computed. This problem was considered in chapter 7.
+Before considering the critical configurations for this problem, we will digress to look
+at an abstraction of the camera projection.
+Cameras as points
+Suppose the existence of a set of correspondences Xi ↔ xi. Let us suppose that there
+is a unique camera matrix P such that xi = PXi. Now, let H be a matrix representing
+a projective transformation of the image, and let x′
+i = Hxi be the set of transformed
+image coordinates. Then it is clear that there is a unique camera matrix P′ such that
+533
+534 22 Degenerate Configurations
+x′
+i = P′Xi, namely the camera matrix P′ = HP. Conversely, if there exists more than
+one camera matrix P mapping Xi to xi, then there exists more than one camera matrix
+P′ mapping Xi to x′
+i. Thus, the existence or not of a unique solution to the problem of
+determining the projection matrix P is dependent on the image points xi only up to a
+projective transformation H of the image.
+Next, observe that applying a projective transformation H to a camera matrix P does
+not change the camera centre. Specifically, the point C is the camera centre if and
+only if PC = 0. However PC = 0 if and only if HPC = 0. Thus, the camera centre
+is preserved by a projective transformation of the image. Next, we show that this is
+essentially the only property of the camera that is preserved.
+Result 22.1. Let P and P′ be two camera matrices with the same centre. Then there
+exists a projective image transformation represented by a non-singular matrix H such
+that P′ = HP.
+Proof. If the centre C is not at infinity, then the camera matrices are of the form P =
+[M | −Mc] and P′ = [M′ | −M′c], where c is the inhomogeneous 3-vector representing the
+camera centre. Then clearly, P′ = M′M−1P. If C is a point at infinity, then one chooses
+a 3D projective transformation G such that GC is a finite point, say bC. In this case, the
+two camera matrices PG−1 and P′G−1 both have the same centre, namely bC . It follows
+that P′G = HPG for some H. Cancelling G gives P′ = HP.
+This result may be interpreted as saying that an image is determined up to projectivity
+by the camera centre alone. Thus, we see that in considering the problem of uniqueness
+of the camera matrix, one may ignore all the parameters of the camera, except the
+camera centre, since this alone determines the projectivity type of the image, and hence
+the uniqueness or not of a solution.
+Images as equivalence classes of rays
+To gain insight into the critical configurations of camera resectioning, we turn first to
+consider 2-dimensional cameras, mapping IP2 to IP1. Consider a camera centre c and a
+set of points xi in space. The rays cxi intersect an image line l at a set of points ¯xi; thus
+points ¯xi are the images of the points xi. The projection of the points xi to points ¯xi
+in the 1D image may be described by a 2 × 3 projection matrix as described in section
+6.4.2(p175).
+As shown in chapter 2, the projective equivalence type of the set of rays cxi is the
+same as that of the image points ¯xi. This is illustrated in figure 22.1. Thus, instead of
+considering an image as being the set of points on the image line, the image may be
+thought of as the projective equivalence class of the set of rays from the camera centre
+through each of the image points. In the case of just 4 image points, the cross ratio
+of the points ¯xi (or equivalently, the rays) characterizes their projective equivalence
+class. To give a specific notation, we denote by hc; x1, . . . , xi, . . . xni the projective
+equivalence class of the set of rays cxi.
+The same remarks are valid for projections of 3D points into a 2-dimensional image.
+One may also extend the above notation by writing hC;X1, . . . ,Xni to represent the
+22.1 Camera resectioning 535
+1
+2
+3
+l
+x
+x
+x
+x
+c
+x 1
+x2
+x3
+x 4
+4
+Fig. 22.1. Projection of points in the plane using a 2D camera. A 1D image is formed by the intersection
+of the rays li = cxi with the image line l. The set of image points {¯xi} is projectively equivalent to the
+set of rays {li}. For four points, the projective equivalence class of the image is determined by the cross
+ratio of the points.
+projective equivalence class of all the rays CXi. As in the 2-dimensional case, this is
+an abstraction of the projection of the points Xi relative to a camera with centre at C.
+We will be considering configurations of camera centres and 3D points, which will be
+denoted by {C1, . . . ,Cm;X1, . . . ,Xn} or variations thereof. Implicit is that the symbols
+appearing before the semicolon are camera centres, and those that come after are 3D
+points. In order to make the statements of derived results simple, the concept of image
+equivalence is defined.
+Definition 22.2. Two configurations
+{C1, . . . ,Cm;X1, . . . ,Xn} and {C
+′
+1, . . . ,C
+′
+m;X
+′
+1, . . . ,X
+′
+n}
+are called image-equivalent if hCi;X1, . . . ,Xni = hC′
+i;X′
+1, . . . ,X′
+ni for all i =
+1, . . . ,m.
+The concept of image equivalence is distinct from projective equivalence of the sets
+of points and camera centres involved. Indeed, the relevance of this to reconstruction
+ambiguity is that if a configuration {C1, . . . ,Cm;X1, . . . ,Xn} allows another imageequivalent
+set which is not projective equivalent, then this amounts to an ambiguity of
+the projective reconstruction problem, since the projective structure of the points and
+cameras is not uniquely defined by the set of images. In this case, we say that the
+configuration {C1, . . . ,Cm;X1, . . . ,Xn} allows an alternative reconstruction.
+22.1.1 Ambiguity in 2D – Chasles’ theorem
+Before considering the usual 3D cameras, we discuss the simpler case of 2D cameras.
+The analysis of the uniqueness of 2D camera projections involves planar conics. Ambiguity
+in determining the camera centre from the projection of a set of known points xi
+means that the projection of the points is the same from two different camera centres
+c and c′. The question is for what configurations of the points this may occur. The
+answer to this question is given by Chasles’ Theorem.
+536 22 Degenerate Configurations
+x1
+x2
+x3 xn
+c
+c'
+Fig. 22.2. The points x1, . . . , xn project in equivalent ways to the two camera centres c and c′.
+Theorem 22.3 Chasles’ Theorem. Let xi be a set of n points and c and c′ two camera
+centres, all lying in a plane. Then
+hc; x1, . . . , xni = hc′; x1, . . . , xni
+if and only if one of the following conditions holds
+(i) The points c, c′ and all xi all lie on a non-degenerate conic, or
+(ii) All points lie on the union of two lines (a degenerate conic), both camera centres
+lying on the same line.
+These two configurations are shown in figure 22.2.
+Note that as a simple corollary of this theorem, if c′′ is any other camera centre lying
+on the same component of a conic (degenerate or non-degenerate) as c, c′ and the xi,
+then the projection of the points to the centre c′′ is equivalent to their projection to the
+original camera centres. Furthermore, any number of extra points xj may be added
+without breaking the ambiguity, as long as they lie on the same conic.
+22.1.2 Ambiguity for 3D cameras
+We now address the problem of ambiguity of camera resection in the case of full 3D
+cameras. Twisted cubics (described in section 3.3(p75)) play an analogous role in the
+3D case to that played by conics in the case of 2D cameras. The degenerate form
+of a twisted cubic consisting of a conic plus a line intersecting the conic arises in this
+context; so does the degenerate cubic consisting of three lines. As in the 2D case, when
+ambiguity arises from points lying on a degenerate cubic, the camera centres must both
+lie on the same component.
+A complete classification of the point and camera configurations leading to ambiguous
+camera resectioning is given in figure 22.3 and also in the following definition. For
+the present we describe the geometric configurations. The exact relevance to ambiguous
+camera configurations will be given afterwards.
+Definition 22.4.
+A critical set for camera resectioning consists of two parts:
+22.1 Camera resectioning 537
+(i) An algebraic curve C containing the camera centres, plus any number of the 3D
+points. This curve may be
+(a) a non-degenerate twisted cubic (degree 3),
+(b) a planar conic (degree 2),
+(c) a straight line (degree 1), or
+(d) a single point (degree 0).
+(ii) A union of linear subspaces L (lines or planes) containing any number of 3D
+points.
+The curve C and the linear subspaces satisfy three conditions:
+(i) Each of the linear subspaces must meet the curve C.
+(ii) The sum of the degree of the curve C and the dimensions of the linear subspaces
+is at most 3.
+(iii) Except in the case where C is a single point, the cameras do not lie at the intersection
+point of C and the linear subspaces.
+The various possibilities are shown in figure 22.3, and it is easily verified that these
+completely enumerate all configurations in accordance with definition 22.4.
+Result 22.5. The different possible critical sets for camera resectioning are:
+(i) A non-degenerate twisted cubic C (degree 3).
+(ii) A plane conic C (degree 2), plus a line (dimension 1) that meets the conic.
+(iii) A line C (degree 1) plus up to two other lines (total dimension 2) that meet the
+first line.
+(iv) A line C (degree 1), plus a plane (dimension 2).
+(v) A point C (degree 0) and up to three lines passing through the point (total dimension
+3).
+(vi) A point C (degree 0) and a line and a plane both passing through this point.
+The exact relationship of these critical sets to ambiguous camera resectioning is
+given by the following result.
+Result 22.6. Let P and P′ be two different camera matrices with camera centres C0 and
+C1. Then the two camera centres and the points Xi that satisfy PXi = P′Xi all lie on a
+critical set as given by definition 22.4.
+Furthermore, if P = P + P′ has rank 31, then the camera centre of the camera
+defined by P lies on the component C of the critical set containing the two original
+camera centres C0 and C1, and PX = PX = P′X for any point X in the critical set.
+Conversely, let P be a camera matrix with centre C0. Let C0 and a set of 3D points
+Xi lie in a critical set for camera resectioning. Let C1 be any other point lying on
+the component C of the critical set, with C1 6= C0 unless C consists of a single point.
+Then there exists a camera matrix P′ (different from P) with camera centre C1 such that
+PXi = P′Xi for all points Xi.
+1 We include the case P∞ = P′.
+538 22 Degenerate Configurations
+Fig. 22.3. The different critical configurations for camera resectioning from a single view. The open
+circles represent centres of projection and the filled circles represent points. Each case consists of an
+algebraic curve (or single point) C containing the camera centres, plus a set of linear subspaces (lines
+or planes).
+Proof. An outline of the proof will be given, with details left for the reader to fill in.
+We temporarily need to distinguish between equality of homogeneous quantities up to
+a scale factor (which will be denoted by ≈) and absolute equality (which is denoted
+by =). Suppose that X maps to the same image point with respect to cameras P and
+P′. One can write PX ≈ P′X. Taking account of the scale factor, this can be written
+as PX = −P′X for some constant . From this it follows that (P + P′)X = 0.
+Conversely, suppose that (P + P′)X = 0. for some . It follows that PX = −P′X,
+and so PX ≈ P′X. Thus, the critical set is the set of points X in the right null-space of
+P + P′ for some .
+Define P = P + P′. The rest of the proof involves finding the set of all points X
+satisfying PX = 0 as  runs over all values. If P is a camera matrix (has rank 3) then
+such an X is the centre of the camera P. If however P is rank-deficient for some value
+of i, then the set of points X such that PiX = 0 is a linear space. The total critical set
+therefore consists of two parts:
+22.2 Degeneracies in two views 539
+(i) The locus of the camera centre of P over all values  for which P has full rank
+(that is rank 3). This is a curve C containing the two camera centres C0 and C1.
+(ii) A linear space (line or plane) corresponding to each value of  for which P has
+rank 2 or less. If P has rank 2, the points such that PX = 0 form a line, and if
+it has rank 1, then they form a plane.
+Let the 4-vector C be defined by C = (c1, c2, c3, c4)T, where ci = (−1)i det P
+(i)
+
+and P
+(i)
+ is the matrix P with the i-th column removed. Since each P
+(i)
+ is a 3 × 3
+matrix, and the entries of P are linear in , we see that each ci = (−1)i det P
+(i)
+ is a
+cubic polynomial in . According to the discussion following definition 21.10(p521),
+PC = 0, hence if C 6= 0 then it is the camera centre of P, and as  varies the point
+C traces out the curve C. Since the coordinates of C are cubic polynomials, this is
+in general a twisted cubic. If however the four components of C have a simultaneous
+root i, then the degree of the curve C is diminished. In this case Pi is rank-deficient,
+and there exists a linear space of points X such that PiX = 0. Thus the linear subspace
+components of the critical set correspond to values of  where C vanishes. Clearly
+there can be at most three such values. Further details are left to the reader.
+The last part of the theorem provides a converse result – namely that if the points and
+one camera centre lie in a critical configuration, then there exist alternative resection
+solutions with the camera placed at any location in C. The exact form of the camera
+matrix P is not important here, only its camera centre, as has been observed above.
+For most of the configurations in figure 22.3 it is clear enough geometrically that the
+image of the critical set is unchanged (up to projectivity) by moving the camera along
+the locus C. In the case where C is a planar conic, this follows fairly easily from the 1D
+camera case (theorem 22.3). The exception is the twisted cubic case. It is illustrated
+graphically in figure 22.4. We leave this proof for now, and come back to it later (result
+22.25(p551)).
+22.2 Degeneracies in two views
+Notation. For the rest of this chapter, the camera matrices are represented by P and Q,
+3D points by P and Q. Thus cameras and 3D points are distinguished only by their typeface.
+This may appear to be a little confusing, but the alternative of using subscripts or
+primes proved to be much more confusing. In the context of ambiguous reconstructions
+from image coordinates we distinguish the two reconstructions by using P and P for
+one, and Q and Q for the other.
+Now we turn to the case of two views of an object. Given sufficiently many points
+placed in “general position” one may determine the placement of the two cameras, and
+reconstruct the point set up to a projective transformation. This may be done using one
+of the projective reconstruction algorithms discussed in chapter 10. We now wish to
+determine under what conditions this technique may fail.
+Thus, we consider a set of image correspondences xi ↔ x′
+i. A realization of this
+set of correspondences consists of a pair of camera matrices P and P′ and a set of 3D
+points Pi such that xi = PPi and x′
+i = P′Pi for all i. Two realizations {P, P′, Pi}
+540 22 Degenerate Configurations
+Fig. 22.4. Separate views of a set of points on the twisted cubic (t3, t2, t, 1)T as viewed from a centre
+of projection. The visible points are viewed from the points with t = 3, 4, 5, 10, 50, 1000 with the image
+suitably magnified to prevent the point set from becoming too small. As is plausible from the image, the
+sets of points differ by a projective transformation. From a viewpoint on a twisted cubic, the twisted
+cubic has the appearance of a conic, in this particular case a parabola.
+and {Q, Q′,Qi} are projectively equivalent if there is a 3D projective transformation,
+represented by a matrix H such that Q = PH−1, Q′ = P′H−1, and Qi = HPi for all i.
+Because of a technicality, this definition of equivalence is not quite appropriate to the
+present discussion. Recall from the projective reconstruction theorem, theorem 10.1-
+(p266), that one cannot determine the position of a point lying on the line joining the
+two camera centres. Hence, non-projectively-equivalent reconstructions will always
+exist if some points lie on the line of camera centres, the two reconstructions differing
+only by the position of the points Pi and Qi on this line. This type of reconstruction
+ambiguity is not of great interest, and so we will modify the notion of equivalence
+by defining two reconstructions to be equivalent if H exists such that Q = PH−1 and
+Q′ = P′H−1. As in the proof of the projective reconstruction theorem, such an H will
+also map Qi to Pi, except possibly for reconstructed points Qi lying on the line of the
+camera centres. According to theorem 9.10(p254), this condition is also equivalent to
+the condition that FP′P = FQ′Q, where FP′P and FQ′Q are the fundamental matrices corresponding
+to the camera pairs (P, P′) and (Q, Q′). Accordingly, we make the following
+definition.
+Definition 22.7. Two configurations of cameras and points {P, P′, Pi} and {Q, Q′,Qi}
+are said to be conjugate configurations provided
+(i) PPi = QQi and P′Pi = Q′Qi for all i.
+(ii) The fundamental matrices FQ′Q and FQ′Q corresponding to the two camera matrix
+pairs (P, P′) and (Q, Q′) are different.
+A configuration {P, P′, Pi} that allows a conjugate configuration is called critical.
+22.2 Degeneracies in two views 541
+An important remark is that being a critical configuration depends only on the camera
+centres and the points, and not on the particular cameras.
+Result 22.8. If {P, P′, Pi} is a critical configuration and ˆP and ˆP
+′
+are two cameras with
+the same centres as P and P′ respectively, then {ˆP,ˆP
+′
+, Pi} is a critical configuration as
+well.
+Proof. This is easily seen as follows. Since {P, P′, Pi} is a critical configuration there
+exists an alternative configuration {Q, Q′,Qi} such that PPi = QQi and P′Pi = Q′Qi
+for all i. However, since P and ˆP have the same camera centre, ˆP = HP according to
+result 22.1 and similarly ˆP
+′
+= H′P′. Therefore
+ˆP
+Pi = HPPi = HQQi and
+ˆP
+′
+Pi = H′P′
+Pi = H′Q′
+Qi.
+It follows that {HQ, H′Q′,Qi} is an alternative configuration to {ˆP,ˆP
+′
+, Pi}, which is therefore
+critical.
+The goal of this section is to determine under what conditions non-equivalent realizations
+of a set of point correspondences may occur. This question is completely
+resolved by the following theorem, which will be proved incrementally.
+Theorem 22.9. (i) Conjugate configurations of cameras and points generically
+come in triples. Thus a critical configuration {P, P′, Pi} has two conjugates
+{Q, Q′,Qi} and {R, R′,Ri}.
+(ii) If {P, P′, Pi} is a critical configuration, then all the points Pi and the two camera
+centres CP and CP′ lie on a ruled quadric surface SP.
+(iii) Conversely, suppose that the camera centres of P, P′ and a set of 3D points Pi
+lie on a ruled quadric (excluding the quadrics (v) and (viii) in result 22.11),
+then {P, P′, Pi} is a critical configuration.
+By the words “ruled quadric” in this context is meant any quadric surface that contains
+a straight line. This includes various degenerate quadrics, as will be seen. A general
+discussion and classification of quadric surfaces has been given in section 3.2.4-
+(p74). A quadric is usually defined to be the set of points X such that X
+TSX = 0,
+where S is a symmetric 4 × 4 matrix. However, if S is any 4 × 4 matrix, not necessarily
+symmetric, then one sees that for any point X, one has X
+TSX = (X
+TSsymX),
+where Ssym = (S + ST)/2 is the symmetric part of S. Thus, X
+TSX = 0 if and only
+if X
+TSsymX = 0, and so S defines the same quadric surface as Ssym. In investigating
+reconstruction ambiguity, it will often be convenient to use non-symmetric matrices S
+to represent quadrics.
+Proof. We begin by proving the first part of the theorem. Let F and F′ be two distinct
+fundamental matrices satisfying the relation x′
+i
+TFxi = x′
+iF′xi = 0 for all correspondences
+x′
+i ↔ xi. Define F = F + F′. One easily verifies that x′
+i
+TFxi = 0. However,
+F is a fundamental matrix only if det F = 0. Now, det F() is generally a polynomial
+of degree 3 in . This polynomial has roots  = 0 and  = 1 corresponding to F and
+542 22 Degenerate Configurations
+F′ respectively. The third root corresponds to a third fundamental matrix, and hence
+a third non-equivalent reconstruction. In special cases, det F() has degree 2 in  and
+there are only two conjugate configurations.
+The second part of the theorem is concluded by proving the following lemma.
+Lemma 22.10. Consider two pairs of cameras (P, P′) and (Q, Q′), with corresponding
+different fundamental matrices FP′P and FQ′Q. Define quadrics SP = P′TFQ′QP, and SQ =
+Q′TFP′PQ.
+(i) The quadric SP contains the camera centres of P and P′. Similarly, SQ contains
+the camera centres of Q and Q′.
+(ii) SP is a ruled quadric.
+(iii) If P and Q are 3D points such that PP = QQ and P′P = Q′Q, then P lies on the
+quadric SP, and Q lies on SQ.
+(iv) Conversely, if P is a point lying on the quadric SP, then there exists a point Q
+lying on SQ such that PP = QQ and P′P = Q′Q.
+Proof. Recall that according to result 9.12(p255) the matrix F is the fundamental
+matrix corresponding to a pair of cameras (P, P′) if and only if P′TFP is skewsymmetric.
+Since FP′P 6= FQ′Q, however, the matrices SP and SQ defined here are not
+skew-symmetric, and hence represent non-trivial quadrics.
+We adopt a convention that a camera represented by a matrix such as P or P′ has camera
+centre denoted by CP or CP′ .
+(i) The camera centre of P satisfies PCP = 0. Then
+C
+T
+P SPCP = C
+T
+P (P′TFQ′QP)CP = C
+T
+P (P′TFQ′Q)PCP = 0
+since PCP = 0. So, CP lies on the quadric SP. In a similar manner, CP′ lies on
+SP.
+(ii) Let eQ be the epipole defined by FQ′QeQ = 0, and consider the ray passing
+through CP consisting of all points such that eQ = PX. Then for any such point,
+one verifies that SPX = P′TFQ′QPX = P′TFQ′QeQ = 0. Thus the ray lies on SP and
+so SP is a ruled quadric.
+(iii) Under the given conditions one sees that
+P
+T
+SPP = P
+T
+P′TFQ′QPP = Q
+T(Q′TFQ′QQ)Q = 0
+since Q′TFQ′QQ is skew-symmetric. Thus, P lies on the quadric SP. By a similar
+argument, Q lies on SQ.
+(iv) Let P lie on SP and define x = PP and x′ = P′P. Then, from P
+TSPP = 0
+we deduce 0 = P
+TP′TFQ′QPP = x′TFQ′Qx, and so x ↔ x′ are a corresponding
+pair of points with respect to FQ′Q. Therefore, there exists a point Q such that
+QQ = x = PP, and Q′Q = x′ = P′P. From part (iii) of this lemma, Q must lie
+on SQ.
+22.2 Degeneracies in two views 543
+This lemma completely describes the sets of 3D points giving rise to ambiguous
+image correspondences. Note that any two arbitrarily chosen camera pairs can give
+rise to ambiguous image correspondences, provided that the world points lie on the
+given quadrics.
+22.2.1 Examples of ambiguity
+At this point it remains to prove the converse of theorem 22.9. This needs to be done
+for all types of ruled quadrics and any placement of the two camera centres on the
+quadric. The different types of ruled quadrics, including degenerate cases, are (see
+section 3.2.4(p74)): a hyperboloid of one sheet; a cone; two (intersecting) planes; a
+single plane; a single line. A complete enumeration of the types of placement of two
+camera centres on a ruled quadric is given in the following result.
+Result 22.11. The possible configurations of two distinct points (particularly camera
+centres) on a ruled quadric surface are as enumerated:
+(i) hyperboloid of one sheet, two points not on the same generator
+(ii) hyperboloid of one sheet, two points on the same generator
+(iii) cone, one point at the vertex and one not
+(iv) cone, two points on different generators, neither one at the vertex
+(v) cone, two points on the same generator, neither one at the vertex
+(vi) pair of planes, two points on the intersection of the two planes
+(vii) pair of planes, one point at the intersection and one not
+(viii) pair of planes, neither point at the intersection, but points on different planes
+(ix) pair of planes, neither point on the intersection, both points on the same plane
+(x) single plane with two points
+(xi) single line with two points
+Any two quadric/point-pairs in the same class are projectively equivalent.
+It is clear by enumeration of cases that this list is complete. The only case in which
+it is not immediately obvious that any two configurations in the same category are
+projectively equivalent is in the non-degenerate case of the hyperboloid of one sheet.
+The proof of this fact is left as exercise (i) at the end of the chapter (page 559).
+Now, consider an example of a critical configuration {P, P′, bPi} in which all Pi lie
+on a quadric SP also containing the two camera centres. The quadric and two camera
+centres belong to one of the categories given in result 22.11.
+Let the centres of two new cameras (ˆP,ˆP
+′
+) and a set of points bPi lie on a quadric
+ˆS
+P. Suppose that ˆSP and the two camera centres lie in the same category as the given
+example. Since two configurations in the same category are projectively equivalent, we
+may assume thatˆSP = SP and the centres of P andˆP are the same, as are the centres of P′
+andˆP
+′
+. Since the points bPi lie on SP, it follows that {P, P′, bPi} is a critical configuration,
+and hence by result 22.8 so is {ˆP,ˆP
+′
+, bPi}.
+This shows that to demonstrate the converse section of theorem 22.9 it is sufficient
+merely to demonstrate an example of a critical configuration belonging to each of the
+categories given in result 22.11 (except for cases (v) and (viii)). Examples will be given
+544 22 Degenerate Configurations
+for several of the categories, though not all. The fact that cases (v) and (viii) are not
+critical is not shown here. The remaining cases are left to the motivated reader.
+Examples of critical configurations
+Consider the case P = Q = [I | 0] and P′ = [I | t0]. In this case, one sees that
+SP =
+"
+I
+tT
+0
+#
+FQ′Q[I | 0] =
+"
+I
+tT
+0
+#
+[FQ′Q | 0] .
+Consequently,
+SPsym =
+1
+2
+"
+FQ′Q + FT
+Q′Q FT
+Q′Q
+t0
+tT
+0 FQ′Q 0
+#
+.
+Given the fundamental matrix FQ′Q of rank 2, and the camera matrix Q = [I | 0], one
+may easily find the other camera matrix Q′. This is done by using the formula of result
+9.13(p256). We now consider several examples of critical configurations belonging to
+different categories of result 22.11.
+Example 22.12. Hyperboloid of one sheet – two centres not on the same generator. We
+choose FQ′Q =
+
+
+1 0 1
+0 1 0
+−1 0 −1
+
+
+and t0 = (0, 2, 0)T. Then tT
+0 FQ′Q = (0, 2, 0) and we
+find that
+Ssym =
+
+
+1
+1 1
+−1
+1 0
+
+
+.
+This is the quadric with equation X2+Y2+2Y−Z2 = 0, or X2+(Y+1)2−Z2 = 1. This
+is a hyperboloid of one sheet. Note that in this case, the camera centres are CP = CQ =
+(0, 0, 0)T (in inhomogeneous coordinates). The camera centre CP′ = (0, 2, 0). We note
+that the line from CP to CP′ does not lie on the quadric surface. The camera centre
+CQ′ is not uniquely determined by the information already given, since the fundamental
+matrix does not uniquely determine the two cameras. However, the epipole e such that
+FQ′Qe = 0 is e = (1, 0,−1). Since e = QCQ′ , we see that CQ′ = (1, 0,−1, k−1). In
+inhomogeneous coordinates CQ′ = k(1, 0,−1) for any k. We verify that the complete
+line from CP to CQ′ lies on the quadric, but CQ′ may lie anywhere along this line. △
+Example 22.13. Hyperboloid of one sheet, both centres on the same generator. We
+choose the same FQ′Q as in the previous example, and and t0 = (3, 4, 5)T. Then tT
+0 FQ′Q =
+(−2, 4,−2) and we find that
+Ssym =
+
+
+1 −1
+1 2
+−1 −1
+−1 2 −1 0
+
+
+.
+This is the quadric with equation (X−1)2+(Y+2)2−(Z+1)2 = 4, which is once again
+22.2 Degeneracies in two views 545
+a hyperboloid of one sheet. It may be verified that the line (X, Y, Z) = (3t, 4t, 5t) lies
+entirely on the quadric and contains the two camera centres, (0, 0, 0)T and (3, 4, 5)T.
+△
+Example 22.14. Cone – one centre at the vertex of the cone. We choose FQ′Q to be the
+same as in the previous example, but t0 = (1, 0, 1)T. In this case we see that tT
+0 FQ′Q =
+0T, and so Ssym = diag(1, 1,−1, 0). This is an example of a cone. The camera centre
+of both P and Q is at the vertex of the cone, namely the point CP = (0, 0, 0, 1)T. △
+Example 22.15. Cone – neither centre at the vertex of the cone. We choose FQ′Q =
+diag(1, 1, 0) and t0 = (0, 2, 0)T. In this case, we see that
+Ssym =
+
+
+1
+1 1
+0
+1 0
+
+
+This is the quadric with equation x2 + y2 + 2y = 0, or x2 + (y + 1)2 = 1, which is a
+cylinder parallel with the Z-axis, thus projectively equivalent to the cone with vertex at
+the infinite point (0, 0, 1, 0)T. Neither of the camera centres lies at the vertex. △
+Example 22.16. Two planes. We choose FQ′Q = diag(1,−1, 0) and t0 = (0, 0, 1)T,
+so that tT
+0 FQ′Q = 0T. In this case, we see that SP = Ssym = diag(1,−1, 0, 0), which
+represents a pair of planes. In this case the camera centres are on the intersection of the
+two planes △
+Example 22.17. Single plane. We choose FQ′Q =
+
+
+1 1 0
+−1 0 0
+0 0 0
+
+
+and t0 = (0, 0, 1)T.
+Then Ssym = diag(1, 0, 0, 0), which represents a single plane, x = 0. △
+Example 22.18. Single line. We choose FQ′Q = diag(1, 1, 0) and t0 = (0, 0, 1)T. In this
+case, we see that Ssym = diag(1, 1, 0, 0), which represents a single line – the Z-axis.
+All the points and the two camera centres lie on this single line. △
+Apart for the impossible cases (v) and (viii) this gives examples of all possible degenerate
+configurations except for cases (vii) and (ix) in result 22.11. These remaining
+cases are left for the reader.
+Minimal case – seven points As seen in section 11.1.2(p281), seven is the minimum
+number of points in general position from which one can do projective reconstruction.
+The method comes down to solving a cubic equation, for which either one or three
+real solutions exist. Looked at from the point of view of critical surfaces, the seven
+points and two camera centres in one configuration must lie on a quadric surface (since
+9 points lie on a quadric). If this quadric is ruled, then there will be three conjugate
+solutions. On the other hand, if it is not a ruled quadric (for instance an ellipsoid) then
+there will be only one solution. This shows that the distinction between the cases where
+the cubic equation has one or three solutions arises from the difference between the
+546 22 Degenerate Configurations
+points and camera centres lying on a ruled or unruled quadric – a pleasing connection
+between the algebra and geometry.
+22.3 Carlsson–Weinshall duality
+The duality explored in chapter 20 between cameras and points may be exploited so
+as to dualize degeneracy results, as will be explained in this section. We give a more
+formal treatment of Carlsson–Weinshall duality here.
+The basis of Carlsson–Weinshall duality is the equation
+
+
+a −d
+b −d
+c −d
+
+
+
+
+X
+Y
+Z
+T
+
+
+=
+
+
+X −T
+Y −T
+Z −T
+
+
+
+
+a
+b
+c
+d
+
+
+.
+The camera matrix on the left corresponds to
+a camera with centre (a−1, b−1, c−1, d−1)T. We are interested in describing cameras
+in terms of their camera centres. As this shows, in swapping camera centres with 3D
+points, one must invert the coordinates of the camera centre and point. For instance,
+the point (X, Y, Z, T)T is dual to a camera with camera centre (X−1, Y−1, Z−1, T−1)T.
+We denote the reduced camera matrix
+P =
+
+
+a−1 −d−1
+b−1 −d−1
+c−1 −d−1
+
+
+(22.1)
+with centre C = (a, b, c, d)T by PC. Now, defining the points X =
+(X−1, Y−1, Z−1, T−1)T and C = (a−1, b−1, c−1, d−1)T, one immediately verifies that
+PCX = PXC (22.2)
+Thus, this transformation interchanges the results of 3D points and camera centres.
+Thus, a camera with centre C acting on X gives the same result as camera with centre
+X acting on C.
+This observation leads to the following definition
+Definition 22.19. The mapping of IP3 to itself given by
+(X, Y, Z, T)T 7→ (YZT, ZTX, TXY, XYZ)T
+will be called the Carlsson–Weinshall map, and will be denoted by  . We denote the
+image of a point X under   by X. The image of an object under   is sometimes referred
+to as the dual object.
+The Carlsson–Weinshall map is an example of a Cremona transformation. For more
+information on Cremona transformations, the reader is referred to Semple and Kneebone
+([Semple-79]).
+Note. If none of the coordinates of X is zero then we may divide X by XYZT. Then  
+is equivalent to (X, Y, Z, T)T 7→ (X−1, Y−1, Z−1, T−1)T. This is the form of the mapping
+22.3 Carlsson–Weinshall duality 547
+that we will usually use. In the case where one of the coordinates of X is zero, then
+the mapping will be interpreted as in the definition. Note that any point (0, Y, Z, T)T is
+mapped to the point (1, 0, 0, 0)T by  , provided none of the other coordinates is zero.
+Thus, the mapping is not one-to-one.
+If two of the coordinates of X are zero, then X = (0, 0, 0, 0)T, which is an undefined
+point. Thus,   is not defined at all points. In fact, there is no way to extend  
+continuously to such points.
+Define the reference tetrahedron to be the tetrahedron with vertices E1 =
+(1, 0, 0, 0)T, E2 = (0, 1, 0, 0)T, E3 = (0, 0, 1, 0)T and E4 = (0, 0, 0, 1)T. As we have
+just seen,   is one-to-one other than on the faces of the reference tetrahedron. It maps
+a face of the reference tetrahedron to the opposite vertex, and is undefined on the edges
+of the reference tetrahedron. Next, we investigate the way in which   acts on other
+geometric objects.
+Theorem 22.20. The Carlsson–Weinshall map,   acts in the following manner:
+(i) It maps a line passing through two general points X0 and X1 to the twisted
+cubic passing through X0,X1 and the four reference vertices E1, . . . , E4.
+(ii) It maps a line passing through any of the points Ei to a line passing through
+the same Ei. We exclude the lines lying on the face of the reference tetrahedron,
+since such lines will be mapped to a single point.
+(iii) It maps a quadric S passing through the four points Ei, i = 1, . . . , 4 to a
+quadric (denoted ¯S) passing through the same four points. If S is a ruled
+quadric, then so is ¯S. If S is degenerate then so is ¯S.
+Proof.
+(i) A line has parametric equation (X0 + a, Y0 + b, Z0 + c, T0 + d)T, and a point
+on this line is taken by the Carlsson–Weinshall map to the point
+((Y0 + b)(Z0 + c)(T0 + d), . . . , (X0 + a)(Y0 + b)(Z0 + c))T .
+Thus, the entries of the vector are cubic functions of , and the curve is a twisted cubic.
+Now, setting  = −X0/a, the term (X0 + a) vanishes, and the corresponding dual
+point is ((Y0 + b)(Z0 + c)(T0 + d), 0, 0, 0)T ≈ (1, 0, 0, 0)T. The first entry is the
+only one that does not contain (X0 + a), and hence the only one that does not vanish.
+This shows that the reference vertex E1 = (1, 0, 0, 0)T is on the twisted cubic. By
+similar arguments, the other points E2, . . . , E4 lie on the twisted cubic also. Note that a
+twisted cubic is defined by six points, and this twisted cubic is defined by the given six
+points Ei,X0,X1 that lie on it, where X0 and X1 are any two points defining the line.
+(ii) We prove this for lines passing through the point E0 = (1, 0, 0, 0)T. An analogous
+proof holds for the other points Ei. Choose another point X = (X, Y, Z, T)T on the
+line, such that X does not lie on any face of the reference tetrahedron. Thus X has no
+zero coordinate. Points on a line passing through (1, 0, 0, 0)T and X = (X, Y, Z, T)T
+are all of the form (
+, Y, Z, T)T for varying values of 
+. These points are mapped by
+the transformation to (
+−1, Y−1, Z−1, T−1)T. This represents a line passing through the
+two points (1, 0, 0, 0)T and X = (X−1, Y−1, Z−1, T−1)T.
+548 22 Degenerate Configurations
+(iii) Since the quadric S passes through all the points Ei, the diagonal entries of S must
+all be zero. This means that there are no terms involving a squared coordinate (such as
+X2) in the equation for the quadric. Hence the equation for the quadric contains only
+mixed terms (such as XY, YZ or XT). Therefore, the quadric S may be defined by an
+equation aXY +bXZ +cXT +dYZ +eYT +f ZT = 0. Dividing this equation by XYZT,
+we obtain aZ−1T−1 + bY−1T−1 + cY−1Z−1 + dX−1T−1 + eX−1Z−1 + fX−1Y−1 = 0.
+Since X = (X−1, Y−1, Z−1, T−1)T, this is a quadratic equation in the entries of X. Thus
+  maps quadric to quadric. Specifically, suppose S is represented by the matrix
+S =
+
+
+0 a b c
+a 0 d e
+b d 0 f
+c e f 0
+
+
+then ¯S =
+
+
+0 f e d
+f 0 c b
+e c 0 a
+d b a 0
+
+
+and X
+TSX = 0 implies X
+T¯SX = 0. If S is ruled, then it contains two generators
+passing through any point, and in particular through each Ei. By part (ii), these are
+mapped to straight lines, which must lie on ¯S. Thus ¯S is a ruled quadric. One may
+further verify that det S = det¯S, which implies that if S is a non-degenerate quadric
+(that is det S 6= 0), then so is ¯S. In this non-degenerate case, if S is a hyperboloid
+of one sheet, then det S > 0, from which it follows that det¯S > 0. Thus ¯Sis also a
+hyperboloid of one sheet.
+The action of   on other geometric entities is investigated in exercises (page 559);
+We wish to interpret duality equation (22.2) in a coordinate-free manner. The matrix
+PC has by definition the form given in (22.1), and maps Ei to ei for i = 1, . . . , 4. The
+image PCX is may be thought of as a representation of the projection of X relative
+to the projective basis ei in the image. Alternatively, PCX represents the projective
+equivalence class of the set of the five rays CE1, . . . ,CE4,CX. Thus PCX = PC′X′ if
+and only if the set of rays from C to X and the four vertices of the reference tetrahedron
+is projectively equivalent to the set of rays from C′ to X′ and the four reference vertices.
+In terms of the notation introduced earlier, we may write (22.2) in a different form as
+hC; E1, . . . , E4,Xi = hX; E1, . . . , E4,Ci. (22.3)
+The duality principle
+The basis of duality is (22.2) which states that PCX = PXC, with notation as in (22.2)
+The notation PCX represents the coordinates of the projection of point X with respect
+to the canonical image coordinate frame defined by the projections of the corners
+of the reference tetrahedron. Equivalently, PC may be considered as representing the
+projective equivalence class of the five projected points PCEi and PCX. In the notation
+of this chapter, this is hC; E1, . . . , E4,Xi. Thus the duality relation may be written as
+hC; E1, . . . , E4,Xi = hX; E1, . . . , E4,Ci (22.4)
+where the bar represents the Carlsson–Weinshall map.
+Although PC was defined in terms of the canonical projective basis, there is nothing
+special about the four points E1, . . . , E4 used as vertices of the reference tetrahedron,
+22.3 Carlsson–Weinshall duality 549
+other than the fact that they are non-coplanar. Given any four non-coplanar points, one
+may define a projective coordinate system in which these four points are the points
+Ei forming part of a projective basis. The Carlsson–Weinshall map may then be defined
+with respect to this coordinate frame. The resulting map is called the Carlsson–
+Weinshall map with respect to the given reference tetrahedron.
+To be more precise, it should be observed that five points (not four) define a projective
+coordinate frame in IP3. In fact, there is more than one projective frame (in fact a
+3-parameter family) for which four non-coplanar points have coordinates Ei. Thus the
+Carlsson–Weinshall map with respect to a given reference tetrahedron is not unique.
+However, the mapping given by definition 22.19 with respect to any such coordinate
+frame may be used.
+Given a statement or theorem concerning projections of sets of points with respect
+to one or more projection centres one may derive a dual statement. One requires that
+among the four points being projected, there are four non-coplanar points that may
+form a reference tetrahedron. Under a general duality mapping with respect to the
+reference tetrahedron
+(i) Points (other than those belonging to the reference tetrahedron) are mapped to
+centres of projection.
+(ii) Centres of projection are mapped to points.
+(iii) Straight lines are mapped to twisted cubics.
+(iv) Ruled quadrics containing the reference tetrahedron are mapped to ruled
+quadrics containing the reference tetrahedron. If the original quadric is nondegenerate,
+so is its image under the duality mapping.
+Points lying on an edge of the reference tetrahedron should be avoided, since the
+Carlsson–Weinshall mapping is undefined for such points. Using this as a sort of translation
+table, one may dualize existing theorems about point projection, giving new
+theorems for which a separate proof is not needed.
+Note. It is important to observe that only those points not belonging to the reference
+tetrahedron are mapped to camera centres by duality. The vertices of the reference
+tetrahedron remain points. In practice, in applying the duality principle, one may select
+any four points to form the reference tetrahedron, as long as they are non-coplanar. In
+general, in the results stated in the next section there will be an assumption (not always
+stated explicitly) that point sets considered contain four non-coplanar points, which
+may be taken as the reference tetrahedron.
+22.3.1 Single view ambiguity
+It will be shown in this section how various ambiguous reconstruction results may be
+derived simply from known or obvious geometric statements by applying duality.
+Camera resectioning from five points
+Five 3D–2D point correspondences are not sufficient for camera resectioning for projective
+cameras. It is interesting to know what one can determine from five point correspondences,
+however.
+550 22 Degenerate Configurations
+C
+X
+C
+X
+Fig. 22.5. Left: Any point on the line passing through C and X is projected to the same point from
+projection centre C. Right: The dual statement – from any centre of projection C lying on a twisted
+cubic passing through X and the vertices of the reference tetrahedron, the five points are projected in
+the same way (up to projective equivalence). Thus a camera is constrained to lie on a twisted cubic by
+its image of five known points.
+As a simple example of what can be deduced using Carlsson duality, consider the
+following simple question: when do two points project to the same point in an image?
+The answer is obviously when the two points lie on the same ray (straight line) through
+the camera centre. Dualizing this simple observation, figure 22.5 shows that the centre
+of the camera constrained by five point 3D–2D correspondences must lie on a twisted
+cubic passing through the five 3D points.
+The horopter
+In a similar manner one may compute the form of the horopter determined by two
+cameras. The horopter is the set of space points that map to the same point in two
+images. The argument is illustrated in figure 22.6 and begins with a simple observation
+concerning straight lines.
+Result 22.21. Given points X and X′, the locus of camera centres C such that
+hC; E1, . . . , E4,Xi = hC; E1, . . . , E4,X
+′i
+is the straight line passing through X and X′.
+This is illustrated in figure 22.6(left) The dual of this statement determines the horopter
+for a pair of cameras (see figure 22.6(right)).
+Result 22.22. Given projection centres C and C′, non-collinear with the four points
+Ei of a reference tetrahedron, the set of points X such that hC; E1, . . . , E4,Xi =
+hC′; E1, . . . , E4,Xi is a twisted cubic passing through E1, . . . , E4 and the two projection
+centres C and C′.
+Ambiguity of camera resection
+Finally, we consider ambiguity of resection. This is very closely related to the horopter.
+To visualize this, the reader may refer again to figure 22.6, though it is not exactly
+pertinent in this situation.
+Result 22.23. Consider a set of camera centres C1, . . . ,Cm and a point X0 all lying on
+22.3 Carlsson–Weinshall duality 551
+C
+X
+X'
+C'
+C
+X
+X'
+C'
+Fig. 22.6. Left: From any centre of projection C,C′, . . . lying on the line passing through X and X′,
+the points X and X′ are projected to the same ray. That is, hC;Ei,Xi = hC;Ei,X′i for all C on the
+line. Right: The dual statement – all points on the twisted cubic passing through C and C′ and the
+vertices of the reference tetrahedron are projected in the same way relative to the two projection centres.
+That is, hC;Ei,Xi = hC′;Ei,Xi for all X on the twisted cubic. This curve is called the horopter for
+the two centres of projection.
+a single straight line and let Ei, i = 1, . . . , 4 be the vertices of a reference tetrahedron.
+Let X be another point. Then the two configurations
+{C1, . . . ,Cm; E1, . . . , E4,X} and {C1, . . . ,Cm; E1, . . . , E4,X0}
+are image-equivalent configurations if and only if X lies on the same straight line as
+X0 and the cameras.
+In passing to the dual statement, according to theorem 22.20 the straight line becomes
+a twisted cubic through the four vertices of the reference tetrahedron. Thus the
+dual statement to result 22.23 is:
+Result 22.24. Consider a set of points Xi and a camera centre C0 all lying on a single
+twisted cubic also passing through four reference vertices Ei. Let C be any other
+camera centre. Then the configurations
+{C; E1, . . . , E4,X1, . . . ,Xm} and {C0; E1, . . . , E4,X1, . . . ,Xm}
+are image-equivalent if and only if C lies on the same twisted cubic.
+Since the points Ei may be any four non-coplanar points, and a twisted cubic cannot
+contain 4 coplanar points, one may state this last result in the following form:
+Result 22.25. Let X1, . . . ,Xm be a set of points and C0 a camera centre all lying on a
+twisted cubic. Then for any other camera centre C the configurations
+{C;X1, . . . ,Xm} and {C0;X1, . . . ,Xm}
+are image-equivalent if and only if C lies on the same twisted cubic.
+This is illustrated in figure 22.6 (right). It shows that camera pose cannot be uniquely
+determined whenever all points and a camera centre lie on a twisted cubic. This gives
+an independent proof of result 22.6(p537) covering the case that was left unfinished
+previously.
+Using similar methods one can show that this is one of only two possible ambiguous
+situations. The other case in which ambiguity occurs is when all points and the two
+552 22 Degenerate Configurations
+camera centres lie in the union of a plane and a line. This arises as the dual of the
+case when the straight line through the camera centres meets one of the vertices of the
+reference tetrahedron. In this case, the dual of this line is also a straight line through
+the same reference vertex (see theorem 22.20), and all points must lie on this line or
+the opposite face of the reference tetrahedron.
+Note in both these examples how the use of duality has taken intuitively obvious
+statements concerning projections of collinear points and derived a result somewhat
+less obvious about points lying on a twisted cubic.
+22.3.2 Two-view ambiguity
+The basic result theorem 22.9(p541) about critical surfaces from two views may be
+stated as follows.
+Theorem 22.26. A configuration {C1,C2;X1, . . . ,Xn} of two camera centres and n
+points allows an alternative reconstruction if and only if both camera centres C1,C2
+and all the points Xj lie on a ruled quadric surface. If the quadric is non-degenerate (a
+hyperboloid of one sheet), then there will always exist a third distinct reconstruction.
+One may write down the dual statement straight away as follows.
+Theorem 22.27. A configuration {C1, . . . ,Cn;X1, . . . ,X6} of any number of cameras
+and six points allows an alternative reconstruction if and only if all camera centres
+C1, . . . ,Cn and all the points X1, . . . ,X6 lie on a ruled quadric surface.1 If the quadric
+is non-degenerate (a hyperboloid of one sheet) then there will always exist a third
+distinct reconstruction.
+This result was originally proved in [Maybank-98]. Just to emphasize how a duality
+proof works, a proof for theorem 22.27 will be given.
+Proof. Consider the configuration {C1, . . . ,Cn;X1, . . . ,X6}. One renumbers the
+points so that the configuration is denoted by {C1, . . . ,Cn; E1, . . . , E4,X1,X2} where
+E1, . . . , E4 are four non-collinear points, taken to be the vertices of a reference tetrahedron.
+If this configuration has an alternative reconstruction, then there exists another
+configuration {C′
+1, . . . ,C′
+n; E1, . . . , E4,X′
+1,X′
+2} such that for all i = 1, . . . , n and
+j = 1, 2, one has hCi; E1, . . . , E4,Xji = hC′
+i; E1, . . . , E4,X′
+ji. Dualizing this using
+(22.3) yields
+hXj ; E1, . . . , E4,Cii = hX
+′
+j ; E1, . . . , E4,C
+′
+ii for all j = 1, 2 and i = 1, . . . , n.
+Now, theorem 22.26 applies, and one deduces that the two camera centres Xj , the
+reference vertices E1, . . . , E4 and the points Ci all lie on a ruled quadric surface ¯S.
+Applying the reverse dualization, using theorem 22.20(iii), one sees that the points
+X1,X2 and the camera centres Ci all lie on the quadric surface S. This proves the
+forward implication of the theorem. The reverse implication is handled in a similar
+manner.
+1 In this statement, it is assumed that the set of points X1, . . . ,X6 includes four non-coplanar points forming a reference
+tetrahedron and that none of the other twoXj nor any of the camera centresCi lies on a face of this tetrahedron. Whether or
+not this condition is essential is not resolved.
+22.4 Three-view critical configurations 553
+The existence of a third distinct solution follows from the fact that the dual of a nondegenerate
+quadric is non-degenerate.
+The minimum interesting case of theorem 22.27 is when n = 3, as studied in section
+20.2.4(p510). In this case there are nine points in total (three cameras and six points).
+One can construct a quadric surface passing through these nine points (a quadric is defined
+by nine points). If the quadric is a ruled quadric (a hyperboloid of one sheet in the
+non-degenerate case), then there are three possible distinct reconstructions. Otherwise
+the reconstruction is unique. As with reconstruction from seven points in two views,
+algorithm 20.1(p511) for six points in three views requires the solution of a cubic equation.
+As with seven points, the distinction between cases where the cubic has one or
+three real solutions is explained as the difference between whether the quadric is ruled
+or not.
+22.4 Three-view critical configurations
+We now turn to consider the ambiguous configurations that may arise in the three-view
+case.
+In this section, to distinguish the three cameras, we use superscripts instead of
+primes. Thus, let P0, P1, P2 be three cameras and {Pi} be a set of points. We ask
+under what circumstances there exists another configuration consisting of three other
+camera matrices Q0, Q1 and Q2 and points {Qi} such that PjPi = QjQi for all i and j.
+We require that the two configurations be projectively inequivalent.
+Various special ambiguous configurations exist.
+Points in a plane
+If all the points lie in a plane, and Pi = Qi for all i, then any of the cameras may be
+moved without changing the projective equivalence class of the projected points. It is
+possible to choose Pj and Qj with centres at any two preassigned locations in such a
+way that PjPi = QjQi.
+Points on a twisted cubic
+A similar ambiguous situation arises when all the points plus one of the cameras, say
+P2, lie on a twisted cubic. In this case, we may choose Q0 = P0 and Q1 = P1 and
+the points Qi = Pi for all i. Then according to the ambiguity of camera resectioning
+for points on a twisted cubic, (section 22.1.2), for any point C2
+Q on the twisted cubic a
+camera matrix Q2 may be chosen with centre at C2
+Q such that P2Pi = Q2Qi for all i.
+These examples of ambiguity are not very interesting, since they are no more than
+extensions of the one-view camera resectioning ambiguity. In the above examples, the
+points Pi and Qi are the same in each case, and the ambiguity lies only in the placement
+of the cameras with respect to the points. More interesting ambiguities may also occur,
+as we consider next.
+554 22 Degenerate Configurations
+General three-view ambiguity
+Suppose that the camera matrices (P0, P1, P2) and (Q0, Q1, Q2) are fixed, and we wish to
+find the set of all points such that PiP = QiQ for i = 0, 1, 2. Note that we are trying
+here to copy the two-view case in which both sets of camera matrices are chosen in
+advance. Later, we will turn to the less restricted case in which just one set of cameras
+is chosen in advance.
+A simple observation is that a critical configuration for three views is also a critical
+set for each of the pairs of views. Thus one is led naturally to assume that the set of
+points for which {P0, P1, P2, Pi} is a critical configuration is simply the intersection of
+the point sets for which each of {P0, P1, Pi}, {P1, P2, Pi} and {P0, P2, Pi} is a critical
+configuration. Since by lemma 22.10(p542) each of these point sets is a ruled quadric,
+one is led to assume that the critical point set in the three-view case is simply an intersection
+of three quadrics. Although this is not far from the truth, the reasoning is
+somewhat fuzzy. The crucial point missing in this argument is that the corresponding
+conjugate points may not be the same for each of the three pairs.
+More precisely, corresponding to the critical configuration {P0, P1, Pi}, there exists
+a conjugate configuration {Q0, Q1,Q01
+i } for which PjPi = QjQ01
+i for j = 0, 1. Similarly,
+for the critical configuration {P0, P2, Pi}, there exists a conjugate configuration
+{Q0, Q2,Q02
+i } for which PjPi = QjQ02
+i for j = 0, 2. However, the points Q02
+i are not
+necessarily the same as Q01
+i , so we cannot conclude that there exist points Qi such that
+PjPi = QjQi for all i and j = 0, 1, 2 – at least not immediately.
+We now consider this a little more closely. Considering just the first pairs of cameras
+(P0, P1) and (Q0, Q1), lemma 22.10(p542) tells us that if P and Q are points such that
+PjP = QjQ, then P must lie on a quadric surface S01
+P determined by these camera
+matrices. Similarly, point Q lies on a quadric S01
+Q . Likewise considering the camera
+pairs (P0, P2) and (Q0, Q2) one finds that the point P must lie on a second quadric S02
+P
+defined by these two camera pairs. Similarly, there exists a further quadric defined by
+the camera pairs (P1, P2) and (Q1, Q2) on which the point P must lie. Thus for points
+P and Q to exist such that PjP = QjQ for j = 0, 1, 2 it is necessary that P lie on the
+intersection of the three quadrics: P ∈ S01
+P ∩ S02
+P ∩ S12
+P . It will now be seen that this is
+almost a necessary and sufficient condition.
+Result 22.28. Let (P0, P1, P2) and (Q0, Q1, Q2) be two triplets of camera matrices and
+assume P0 = Q0. For each of the pairs (i, j) = (0, 1), (0, 2) and (1, 2), let S
+ij
+P and
+S
+ij
+Q be the ruled quadric critical surfaces defined for camera matrix pairs (Pi, Pj) and
+(Qi, Qj) as in lemma 22.10(p542).
+(i) The centre of camera P0 lies on S01
+P ∩ S02
+P , P1 lies on S01
+P ∩ S12
+P , and P2 lies on
+S12
+P ∩ S02
+P .
+(ii) If there exist points P and Q such that PiP = QiQ for all i = 0, 1, 2, then P must
+lie on the intersection S01
+P ∩ S02
+P ∩ S12
+P and Q must lie on S01
+Q ∩ S02
+Q ∩ S12
+Q .
+(iii) Conversely, if P is a point lying on the intersection of quadrics S01
+P ∩ S02
+P ∩ S12
+P ,
+but not on a plane containing the three camera centres C0
+Q, C1
+Q and C2
+Q, then there
+exists a point Q lying on S01
+Q ∩ S02
+Q ∩ S12
+Q such that PiP = QiQ for all i = 0, 1, 2.
+22.4 Three-view critical configurations 555
+Note that the condition that P0 = Q0 is not any restriction of generality, since the projective
+frames for the two configurations (P0, P1, P2) and (Q0, Q1, Q2) are independent.
+One may easily choose a projective frame for the second configuration in which this
+condition is true. This assumption is made simply so that one may consider the point
+P in relation to the projective frame of the second set of cameras.
+The extra condition that the point P does not lie on the plane of camera centres Ci
+Q
+is necessary, however the reader is referred to [Hartley-00b] for justification of this
+claim. Note that this case will usually not arise, however, since the intersection point
+of the three quadrics with the trifocal plane will be empty, or in special cases consist of
+a finite number of points. Where it does arise is through the possibility that the three
+camera centres C0
+Q, C1
+Q and C2
+Q are collinear, in which case any other point is coplanar
+with these three camera centres.
+Proof. The first statement follows directly from lemma 22.10(p542). For the second
+part, the fact that the points P and Q lie on the intersections of the three quadrics
+follows (as pointed out before the statement of the theorem) from lemma 22.10(p542)
+applied to each pair of cameras in turn.
+To prove the final assertion, suppose that P lies on the intersection of the three quadrics.
+Then from lemma 22.10(p542), applied to each of the three quadrics S
+ij
+P , there exist
+points Qij such that the following conditions hold:
+P0P = Q0Q01 P1P = Q1Q01
+P0P = Q0Q02 P2P = Q2Q02
+P1P = Q1Q12 P2P = Q2Q12.
+It is easy to be confused by the superscripts here, but the main point is that each line is
+precisely the result of lemma 22.10(p542) applied to one of the three pairs of camera
+matrices at a time. These equations may be rearranged as
+P0P = Q0Q01 = Q0Q02
+P1P = Q1Q01 = Q1Q12
+P2P = Q2Q02 = Q2Q12.
+Now, the condition that Q1Q01 = Q1Q12 means that the points Q01 and Q12 are collinear
+with the camera centre C1
+Q of Q1. Thus, assuming that the points Qij are distinct, they
+must lie in a configuration as shown in figure 22.7. One sees from the diagram that
+if two of the points are the same, then the third one is the same as the other two. If
+the three points are distinct, then the three points Qij and the three camera centres Ci
+Q
+are coplanar, since they all lie in the plane defined by Q01 and the line joining Q02 to
+Q12. Thus the three points all lie in the plane of the camera centres Ci
+Q. However, since
+P0P = Q0Q01 = Q0Q02 it follows that P must lie along the same line as Q01 and Q02, and
+hence must lie in the same plane as the camera centres Ci
+Q.
+Thus, this result shows that the points in a 3-view critical configuration lie on the
+intersection of three quadrics, whereas the camera centres lie on the intersections of
+556 22 Degenerate Configurations
+P0 = Q0
+Q1
+Q2
+Q12
+Q01
+Q02
+P
+Fig. 22.7. Configuration of the three camera centres and the three ambiguous points. If the three points
+Qij are distinct, then they all lie in the plane of the camera centres Ci
+Q.
+pairs of the quadrics. In general, the intersection of three quadrics will consist of
+eight points. In this case, the critical set with respect to the two triplets of camera
+matrices will consist of these eight points, less any such points that lie on the plane of
+the three cameras Qi. In fact, it has been shown (in a longer unpublished version of
+[Maybank-98]) that of the eight points of intersection of three quadrics, only seven are
+critical, since the eighth point lies on the plane of the three cameras.
+In some cases, however, the camera matrices may be chosen such that the three
+quadric surfaces meet in a curve. This will occur if the three quadrics S
+ij
+P are linearly
+dependent. For instance if S12
+P = 
+S01
+P + S02
+P , then any point P that satisfies
+P
+TS01
+P P = 0 and P
+TS02
+P P = 0 will also satisfy P
+TS12
+P P = 0. Thus the intersection of
+the three quadrics is the same as the intersection of two of them. In this case, the three
+cameras must also lie on the same intersection curve. We define a non-degenerate elliptic
+quartic to be the intersection curve of two non-degenerate ruled quadrics, consisting
+of a single curve. This is a fourth-degree space curve. Other ways that two quadrics
+can intersect include a twisted-cubic plus a line, or two conics. Examples of elliptic
+quartics are shown in figure 22.8.
+Example 22.29. Three-view critical configuration – the elliptic quartic.
+We consider the quadrics represented by matrices A and B = ˜B +˜B
+T
+, where
+A =
+
+
+0 1 0 0
+1 0 0 0
+0 0 0 −1
+0 0 −1 0
+
+
+and ˜B =
+
+
+p q s − t −s − u
+0 r s + t −s + u
+0 0 −p − q − r 0
+0 0 0 0
+
+
+. (22.5)
+Thus, B is a member of a 5-parameter family of quadrics generated by {p, q, r, s, t, u},
+(remembering that scale is irrelevant). The camera matrices
+P0 = [ I | 0 ], P1 = [ I | (−1,−1,−1)T ] and P2 = [ I | (1, 1,−1)T ]
+have centres lying on the intersection of these three quadrics.
+We show that a configuration consisting of these three cameras, and any number
+of points on the intersection of the two quadrics is critical. This is demonstrated by
+explicitly exhibiting two alternative configurations consisting of three cameras Qi and
+for each point P lying on the intersection of the two quadrics, a conjugate point Q such
+22.4 Three-view critical configurations 557
+􀅦4
+􀅦3
+􀅦2
+􀅦1
+0
+1
+􀅦1
+􀅦0.5
+0
+0.5
+1
+1.5
+2
+􀅦1
+0
+1
+2
+3
+4
+􀅦4 􀅦6 􀅦8 􀅦10 􀅦12 􀅦14 4 2 0 􀅦2
+􀅦15
+􀅦10
+􀅦5
+0
+5
+􀅦3
+􀅦2
+􀅦1
+0
+1
+2
+3
+4
+5
+6
+􀅦2
+0
+2
+􀅦0.5 􀅦1 􀅦1.5 􀅦2 1 0.5 0 2 1.5
+􀅦1.5
+􀅦1
+􀅦0.5
+0
+0.5
+1
+1.5
+􀅦2
+􀅦1
+0
+1
+2
+3
+􀅦8
+􀅦6
+􀅦4
+􀅦2
+0
+2
+4
+6
+􀅦5
+0
+5
+Fig. 22.8. Examples of elliptic quartic curves generated as the intersection of two ruled quadrics.
+that PiP = QiQ. In fact, two different conjugate configurations are given in table 22.1
+and table 22.2.
+It may be verified directly that PiP = QiQ for all points P = (x, y, xy, 1)T and
+corresponding points Q, provided that P lies on the quadric B. (It always lies on quadric
+A). The easiest way to see this is to verify that (PiP)×(QiQ) = 0 for all such points. In
+fact for i = 0, 1, the cross-product is always zero, whereas for i = 2 it may be verified
+by direct computation that
+(P2P) × (Q2Q) =
+
+P
+T
+BP
+
+(4,−4x, 4)T
+for the first solution, and
+(P2P) × (Q2Q) =
+
+P
+T
+BP
+
+(−4y, 4, 4)T
+for the second solution. Thus P2P = Q2Q if and only if P lies on B.
+Note that in this example, A is the matrix representing the quadric S01
+P . △
+This example is quite general, since if A′ and B′ are two non-degenerate ruled
+quadrics containing the centres of three cameras, then by a projective transformation,
+we may map A′ to A and the three camera centres to those of the given Pi, provided only
+that no two of the camera centres lie on the same generator of A′. In addition, B′ will
+map to A+B for some . Thus, the pencil generated by A′ and B′, and hence also their
+intersection curve, are projectively equivalent to those generated by A and B.
+The possibility that two of the camera centres lie on the same generator of A′ is not
+a difficulty, since if the line of the camera centres lies on all quadrics in the pencil,
+then the quadric intersection can not be an non-degenerate elliptic quartic. Otherwise,
+558 22 Degenerate Configurations
+The camera matrices are
+Q
+0 =
+"
+1 0 0 0
+0 1 0 0
+0 0 1 0
+#
+, Q
+1 =
+"
+−4 0 0 0
+0 0 2 1
+0 0 −2 1
+#
+and Q2 =
+"
+−4 (2p + q − t + u) 8r 4 (p + q + 2r + s + t) −2 (p + q − s − t)
+0 8 (r + s − u) −2 (q − t + u) −q + t − u
+8p −8r −2 (2p + q − 2s + 3t + 3u) 2p + q − 2s − t − u
+#
+The conjugate point to P = (x, y, xy, 1)T is
+Q = ((x − 1)x, (x − 1)y, (x − 1)xy,−2x (−2 + y + xy))T
+.
+Table 22.1. First conjugate solution to reconstruction problem for cameras Pi and points on the intersection
+of quadrics A and B given in (22.5).
+The camera matrices are
+Q
+0 =
+"
+1 0 0 0
+0 1 0 0
+0 0 1 0
+#
+, Q
+1 =
+"
+0 0 −2 1
+0 4 0 0
+0 0 2 1
+#
+and Q2 =
+"
+−8 (p + s + u) 0 2 (q + t − u) −q − t + u
+−8p 4 (q + 2r + t − u) −4 (2p + q + r + s − t) −2 (q + r − s + t)
+8p −8r 2 (q + 2r − 2s − 3t − 3u) q + 2r − 2s + t + u
+#
+The conjugate point to P = (x, y, xy, 1)T is
+Q = ((y − 1)x, (y − 1)y, (y − 1)xy, 2y (−2 + x + xy))T
+.
+Table 22.2. Second conjugate solution to reconstruction problem.
+we can choose A′ to be one of the quadrics not containing the line of the two camera
+centres. This demonstrates
+Result 22.30. Any configuration consisting of three cameras and any number of points
+lying on a non-degenerate elliptic quartic is critical.
+22.5 Closure
+22.5.1 The literature
+The twisted cubic as the critical curve for camera resectioning was brought to the attention
+of the computer-vision community by [Buchanan-88]. For more about critical sets
+of two views, the reader is referred to [Maybank-90] and the book [Maybank-93]. In
+both these cases, the critical point sets were known much earlier. In fact [Buchanan-88]
+refers the reader to the German photogrammetric literature [Krames-42, Rinner-72].
+For two views, the result that (v) and (viii) are not critical in theorem 22.9(p541) is due
+to Fredrik Kahl (unpublished).
+22.5 Closure 559
+The discussion of critical configurations for three views given in this chapter is only a
+part of what is known about this topic. More can be found in [Hartley-00b, Hartley-02a,
+Kahl-01a]. In particular, the elliptic-quartic configuration is extended to any number of
+cameras in [Kahl-01a]. A critical configuration for any number of cameras, consisting
+of points on a twisted cubic and cameras on a straight line is considered in [Hartley-03].
+Earlier work on this area includes an investigation of the critical camera positions for
+sets of six points in [Maybank-98], and an unpublished report [Shashua-96] deals with
+critical configurations in three views.
+Nothing has been said here about critical configurations of lines in three or more
+views, but this topic has been treated in [Buchanan-92]. In addition, critical configuration
+for linear reconstruction from lines (the linear line complex) have been identified
+in [Stein-99].
+22.5.2 Notes and exercises
+(i) Fill out the details of the following sketch to prove that any two configurations
+consisting of a hyperboloid of one sheet and two points on the hyperboloid are
+projectively equivalent (via a projectivity of IP3) provided that the points in both
+pairs either do or do not lie on the same generator.
+Since any hyperboloid of one sheet is projectively equivalent to X2 + Y2 −
+Z2 = 1, any two hyperboloids of one sheet are projectively equivalent to each
+other, and also to the hyperboloid given by Z = XY. Define a 1D projective
+transformation hX(X) = X′ = (aX + b)/(cX + d). One computes that
+
+
+a b
+d c
+b a
+c d
+
+
+
+
+X
+Y
+XY
+1
+
+
+=
+
+
+X′
+Y
+X′Y
+1
+
+
+.
+This is a 3D projective transformation taking the surface Z = XY to itself.
+Composing this with a similar transformation of Y one finds a projective transformation
+that takes (X, Y, XY, 1)T to (X′, Y′, X′Y′, 1)T while fixing the quadric
+Z = XY. Since hX and hY are arbitrary 1D projective transformations, this
+gives enough freedom to map any two points to two others.
+(ii) Show that   maps a line that meets one of the edges of the reference tetrahedron
+to a conic.
+(iii) Show that   maps a straight line meeting two opposite edges of the reference
+tetrahedron to a straight line meeting the same two edges.
+(iv) How are these configurations related to degenerate configurations for camera
+resectioning, as shown in figure 22.3(p538).
+(v) Two-view degeneracy occurs when all points and the two cameras lie on a ruled
+quadric. Given eight points on the corners of a Euclidean cube and two camera
+centres, show that these 10 points always lie on a quadric. If this is a ruled
+quadric, then the configuration is degenerate, and reconstruction is not possible
+from 8 points. Investigate under what conditions the quadric is ruled. Hint:
+560 22 Degenerate Configurations
+there is a two-parameter family of quadrics passing through the cube vertices.
+What does this two-parameter family look like?
+(vi) Extend result 22.30 by showing that a configuration of any number of cameras
+and points lying on a non-degenerate elliptic quartic is critical. This does not
+require complex computations. If stuck, refer to [Kahl-01a].
+Part V
+Appendices
+Portrait of the Countess D’Haussonville, 1845 (oil on canvas)
+by Jean-Auguste-Dominique Ingres (1780-1867)
+The Frick Collection, New York　-->
+</p><p>
+</p><p>
+    </body>
+</html>

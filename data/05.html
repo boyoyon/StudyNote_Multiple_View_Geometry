@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>5章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>5章 アルゴリズムの評価とエラー分析</center></h1>
+<p>
+この章では、推定アルゴリズムの結果を評価し、定量化する手法について説明します。多くの場合、変数または変換の推定値を得るだけでは不十分です。代わりに、何らかの信頼性または不確実性の尺度も必要です。
+
+<!-- This chapter describes methods for assessing and quantifying the results of estimation
+algorithms. Often it is not sufficient to simply have an estimate of a variable or
+transformation. Instead some measure of confidence or uncertainty is also required.-->
+
+</p><p>
+
+ここでは、この不確実性（共分散）を計算する2つの手法について概説します。1つ目は線形近似に基づき、様々なヤコビ行列式を連結する方法です。2つ目は、より実装が容易なモンテカルロ法です。
+
+<!-- Two methods for computing this uncertainty (covariance) are outlined here. The
+first is based on linear approximations and involves concatenating various Jacobian
+expressions. The second is the easier to implement Monte Carlo method. -->
+
+</p>
+<h2>5.1 性能の限界</h2>
+<p>
+特定の種類の変換を推定するためのアルゴリズムが開発されたら、その性能をテストする段階に入ります。これは、実データまたは合成データでテストすることで行うことができます。このセクションでは、合成データでのテストについて検討し、テストの方法論を概説します。
+
+<!-- Once an algorithm has been developed for the estimation of a certain type of transformation
+it is time to test its performance. This may be done by testing it on real or
+on synthetic data. In this section, testing on synthetic data will be considered, and a
+methodology for testing will be sketched.-->
+</p><p>
+表記規則を思い出しましょう。
+<div class="styleBullet">
+<ul>
+<li>● \(x\) のような量は、測定された画像点を表します。</li>
+<li>● 推定値は、\(\hat{x}\) や \(\hat{H}\) のようなハットで表されます。</li>
+<li>● 真の値は、\(\overline{x}\) や \(\overline{H}\) のようなバーで表されます。</li>
+</ul>
+</div>
+
+<!-- We recall the notational convention:
+<div class="styleBullet">
+<ul>
+<li>• A quantity such as x represents a measured image point.</li>
+<li>• Estimated quantities are represented by a hat, such as ˆx or ˆH.</li>
+<li>• True values are represented by a bar, such as ¯x or ¯H.</li>
+</ul>
+</div> -->
+
+</p><p>
+通常、テストは2枚の画像間の画像対応点 \(\overline{x}_i\leftrightarrow\overline{x}_i^\prime\) の合成生成から始まります。この対応点の数は変化します。対応点は、与えられた固定射影変換 \(\overline{H}\) を介して対応するように選択されます。この対応は、機械精度まで正確に \(\overline{x}_i^\prime=\overline{H}\overline{x}_i\) となるという意味で正確です。
+
+<!--Typically, testing will begin with the synthetic generation of a set of image correspondences \(\overline{x}_i\leftrightarrow\overline{x}_i^\prime\) between two images. The number of such correspondences will vary. Corresponding points will be chosen in such a way that they correspond via a given fixed projective transformation \(\ovelrline{H}\), and the correspondence is exact, in the sense that \(\overline{x}_i^\prime=\overline{H}\overline{x}_i\) precisely, up to machine accuracy.
+</p><p>
+Next, artificial Gaussian noise will be added to the image measurements by perturbing
+both the x- and y-coordinates of the point by a zero-mean Gaussian random variable
+with known variance. The resulting noisy points are denoted xi and x′
+i. A suitable
+Gaussian random number generator is given in [Press-88]. The estimation algorithm
+is then run to compute the estimated quantity. For the 2D projective transformation
+problem considered in chapter 4, this means the projective transformation itself, and
+also perhaps estimates of the correct original noise-free image points. The algorithm
+is then evaluated according to how closely the computed model matches the (noisy)
+input data, or alternatively, how closely the estimated model agrees with the original
+
+noise-free data. This procedure should be carried out many times with different noise
+(i.e. a different seed for the random number generator, though each time with the same
+noise variance) in order to obtain a statistically meaningful performance evaluation.
+</p>
+<h3>5.1.1 Error in one image</h3>
+<p>
+To illustrate this, we continue our investigation of the problem of 2D homography estimation.
+For simplicity we consider the case where noise is added to the coordinates
+of the second image only. Thus, xi = ¯xi for all i. Let xi ↔ x′
+i be a set of noisy
+matched points between two images, generated from a perfectly matched set of data by
+injection of Gaussian noise with variance σ2 in each of the two coordinates of the second
+(primed) image. Let there be n such matched points. From this data, a projective
+transformation ˆH is estimated using any one of the algorithms described in chapter 4.
+Obviously, the estimated transformation ˆH will not generally map xi to x′
+i, nor ¯xi to ¯x′
+i
+precisely, because of the injected noise in the coordinates of x′
+i. The RMS (root-meansquared)
+residual error
+ǫres =
+ 
+1
+2n
+Xn
+i=1
+d(x′
+i, ˆx′
+i)2
+!1/2
+(5.1)
+measures the average difference between the noisy input data (x′
+i) and the estimated
+points ˆx′
+i = ˆH¯xi. It is therefore appropriately called residual error. It measures how
+well the computed transformation matches the input data, and as such is a suitable
+quality measure for the estimation procedure.
+</p><p>
+The value of the residual error is not in itself an absolute measure of the quality of the
+solution obtained. For instance, consider the 2D projectivity problem in the case where
+the input data consists of just 4 matched points. Since a projective transformation is
+defined uniquely and exactly by 4 point correspondences, any reasonable algorithm
+will compute an ˆH that matches the points exactly, in the sense that x′
+i = ˆHxi. This
+means that the residual error is zero. One cannot expect any better performance from
+an algorithm than this.
+</p><p>
+Note that ˆH matches the projected points to the input data x′
+i, and not to the original
+noise-free data, ¯x′
+i. In fact, since the difference between the noise-free and the noisy
+coordinates has variance σ2, in the minimal four-point case the residual difference between
+projected points ˆHxi and the noise-free data ¯x′
+i also has variance σ2. Thus, in the
+case of 4 points, the model fits the noisy input data perfectly (i.e. the residual is zero),
+but does not give a very close approximation to the true noise-free values.
+</p><p>
+With more than 4 point matches, the value of the residual error will increase. In
+fact, intuitively, one expects that as the number of measurements (matched points)
+increases, the estimated model should agree more and more closely with the noise-free
+true values. Asymptotically, the variance should decrease in inverse proportion to the
+number of point matches. At the same time, the residual error will increase.
+
+</p><p>
+Fig. 5.1. As the values of the parameters P vary, the function image traces out a surface SM through the
+true value X.
+</p>
+<h3>5.1.2 Error in both images</h3>
+<p>
+In the case of error in both images, the residual error is
+ǫres =
+1
+√4n
+ 
+Xn
+i=1
+d(xi, ˆxi)2 +
+Xn
+i=1
+d(x′
+i, ˆx′
+i)2
+!1/2
+(5.2)
+where ˆxi and ˆx′
+i are estimated points such that ˆx′
+i = ˆHˆxi.
+</p>
+<h3>5.1.3 Optimal estimators (MLE)</h3>
+<p>
+Bounds for estimation performance will be considered in a general framework, and
+then specialized to the two cases of error in one or both images. The goal is to derive
+formulae for the expected residual error of the Maximum Likelihood Estimate (MLE).
+As described previously, minimization of geometric error is equivalent to MLE, and
+so the goal of any algorithm implementing minimization of geometric error should be
+to achieve the theoretical bound given for the MLE. Another algorithm minimizing a
+different cost function (such as algebraic error) can be judged according to how close
+it gets to the bound given by the MLE.
+
+</p><p>
+A general estimation problem is concerned with a function f from IRM to IRN as
+described in section 4.2.7(p101), where IRM is a parameter space, and IRN is a space
+of measurements. Consider now a point X ∈ IRN for which there exists a vector of
+parameters P ∈ IRM such that f(P) = X (i.e. a point X in the range of f with preimage
+P). In the context of 2D projectivities with measurements in the second image only,
+this corresponds to a noise-free set of points ¯x′
+i = H¯xi. The x- and y-components of the
+n points ¯x′
+i, i = 1, . . . , n constitute the N-vector X with N = 2n, and the parameters
+of the homography constitute the vector P which may be an 8- or 9-vector depending
+on the parametrization of H.
+
+</p><p>
+Let X be a measurement vector chosen according to an isotropic Gaussian distribution
+with mean the true measurement X and variance Nσ2 (this notation means that
+each of the N components has variance σ2). As the value of the parameter vector P
+varies in a neighbourhood of the point P, the value of the function f(P) traces out a
+surface SM in IRN through the point X. This is illustrated in figure 5.1. The surface SM
+is given by the range of f. The dimension of the surface as a submanifold of IRN is
+equal to d, where d is the number of essential parameters (that is the number of degrees
+of freedom, or minimum number of parameters). In the single-image error case, this
+equals 8, since the mapping determined by the matrix H is independent of scale.
+
+</p><p>
+Fig. 5.2. Geometry of the errors in measurement space using the tangent plane approximation to SM.
+The estimated point bX is the closest point on SM to the measured point X. The residual error is the
+distance between the measured point X and bX. The estimation error is the distance from bX to the true
+point X.
+</p><p>
+
+
+Now, given a measurement vector X, the maximum likelihood (ML) estimate bX is
+the point on SM closest to X. The ML estimator is the one that returns this closest point
+to X that lies on this surface. Denote this ML estimate by bX.
+</p><p>
+We now assume that in the neighbourhood of X, the surface is essentially planar and
+is well approximated by the tangent surface – at least for neighbourhoods around X of
+the order of magnitude of noise variance. In this linear approximation, the ML estimate
+bX
+is the foot of the perpendicular from X onto the tangent plane. The residual error is
+the distance from the point X to the estimated value bX. Furthermore, the distance from
+bX
+to (the unknown) X is the distance from the optimally estimated value to the true
+value as seen in figure 5.2. Our task is to compute the expected value of these errors.
+</p><p>
+Computing the expected ML residual error has now been abstracted to a geometric
+problem as follows. The total variance of an N-dimensional Gaussian distribution
+is the trace of the covariance matrix, that is the sum of variances in each of the axial
+directions. This is, of course, unchanged by a change of orthogonal coordinate
+frame. For an N-dimensional isotropic Gaussian distribution with independent variances
+σ2 in each variable, the total variance is Nσ2. Now, given an isotropic Gaussian
+random variable defined on IRN with total variance Nσ2 and mean the true point X,
+we wish to compute the expected distance of the random variable from a dimension
+d hyperplane passing through X. The projection of a Gaussian random variable in
+IRN onto the d-dimensional tangent plane gives the distribution of the estimation error
+(the difference between the estimated value and the true result). Projection onto the
+(N −d)-dimensional normal to the tangent surface gives the distribution of the residual
+error.
+</p><p>
+By a rotation of axes if necessary, one may assume, without loss of generality, that
+the tangent surface coincides with the first d coordinate axes. Integration over the
+remaining axial directions provides the following result.
+</p><p>
+Result 5.1. The projection of an isotropic Gaussian distribution defined on IRN with total
+variance Nσ2 onto a subspace of dimension s is an isotropic Gaussian distribution
+with total variance sσ2.
+The proof of this is straightforward, and is omitted. We apply this in the two cases
+where s = d and s = N − d to obtain the following results.
+</p><p>
+Result 5.2. Consider an estimation problem where N measurements are to be modelled
+by a function depending on a set of d essential parameters. Suppose the measurements
+are subject to independent Gaussian noise with standard deviation σ in each measurement
+variable.
+(i) The RMS residual error (distance of the measured from the estimated value)
+for the ML estimator is
+ǫres = E[kbX − Xk2/N]1/2 = σ(1 − d/N)1/2 (5.3)
+(ii) The RMS estimation error (distance of the estimated from the true value) for
+the ML estimator is
+ǫest = E[kbX − Xk2/N]1/2 = σ(d/N)1/2 (5.4)
+</p><p>
+where X, bX and X are respectively the measured, estimated and true values of the
+measurement vector.
+</p><p>
+Result 5.2 follows directly from result 5.1 by dividing by N to get the variance per
+measurement, then taking a square root to get standard deviation, instead of variance.
+</p><p>
+These values give lower bounds for residual error against which a particular estimation
+algorithm may be measured.
+</p><p>
+2D homography – error in one image. For the 2D projectivity estimation problem
+considered in this chapter, assuming error in the second image only, we have d = 8 and
+N = 2n, where n is the number of point matches. Thus, we have for this problem
+ǫres = σ (1 − 4/n)1/2
+ǫest = σ (4/n)1/2 . (5.5)
+Graphs of these errors as n varies are shown in figure 5.3.
+
+
+</p><p>
+Fig. 5.3. Optimal error when noise is present in (a) one image, and in (b) both images as the number of
+points varies. An error level of one pixel is assumed. The descending curve shows the estimation error
+ǫest and the ascending curve shows the residual error ǫres.
+</p><p>
+Error in both images. In this case, N = 4n and d = 2n + 8. As before, assuming
+linearity of the tangent surface in the neighbourhood of the true measurement vector
+bX, result 5.2 gives the following expected errors.
+ǫres = σ
+
+n − 4
+2n
+1/2
+ǫest = σ
+
+n + 4
+2n
+1/2
+. (5.6)
+Graphs of these errors as n varies are also shown in Figure 5.3.
+</p><p>
+An interesting observation to be made from this graph is that the asymptotic error
+with respect to the true values is σ/√2, and not 0 as in the case of error in one image.
+This result is expected, since in effect, one has two measurements of the position of
+each point, one in each image, related by the projective transformation. With two
+measurements of a point the variance in the estimate of the point position decreases
+by a factor of √2. By contrast, in the previous case where errors occur in one image
+only, one has one exact measurement for each point (i.e. in the first image). Thus, as the
+transformation H is estimated with greater and greater accuracy, the exact position of the
+point in the second image becomes known with uncertainty asymptotically approaching
+0.
+</p><p>
+Mahalanobis distance. The formulae quoted above were derived under the assumption
+that the error distribution in measurement space was an isotropic Gaussian distribution,
+meaning that errors in each coordinate were independent. This assumption is
+not essential. We may assume any Gaussian distribution of error, with covariance matrix
+. The formulae of result 5.2 remain true with ǫ being replaced with the expected
+Mahalanobis distance E[kbX − Xk2
+/N]1/2. The standard deviation σ also disappears,
+since it is taken care of by the Mahalanobis distance.
+</p><p>
+This follows from a simple change of coordinates in the measurement space IRN
+to make the covariance matrix equal to the identity. In this new coordinate frame,
+Mahalanobis distance becomes the same as Euclidean distance.
+</p><p>
+5.1.4 Determining the correct convergence of an algorithm
+The relations given in (5.3) and (5.4) give a simple way of determining correct convergence
+of an estimation algorithm, without the need to determine the number of degrees
+of freedom of the problem. As seen in figure 5.2, the measurement space corresponding
+to the model specified by the parameter vector P forms a surface SM. If near
+the noise-free data X the surface is nearly planar, then it may be approximated by its
+tangent plane, and the three points bX , X and X form a right-angled triangle. In most
+estimation problems this assumption of planarity will be very close to correct at the
+scale set by typical noise magnitude. In this case, the Pythagorean equality may be
+written as
+kX − Xk2 = kX − bXk2 + kX − bX k2 (5.7)
+In evaluating an algorithm with synthetic data, this equality allows a simple test to see
+whether the algorithm has converged to the optimal value. If the estimated value bX
+satisfies this equality, then it is a strong indication that the algorithm has found the
+true global minimum. Note that it is unnecessary in applying this test to determine the
+number of degrees of freedom of the problem. A few more properties are listed:
+• This test can be used to determine on a run-by-run basis whether the algorithm has
+succeeded. Thus, with repeated runs, it allows an estimate of the percentage success
+rate for the algorithm.
+• This test can only be used for synthetic data, or at least data for which the true
+measurements X are known.
+• The equality (5.7) depends on the assumption that the surface SM consisting of valid
+measurements is locally planar. If the equality is not satisfied for a particular run of
+the estimation algorithm, then this is because the surface is not planar, or (far more
+likely) because the algorithm is failing to find the best solution.
+• The test (5.7) is a test for the algorithm finding the global, not a local solution. If bX
+settles to a local cost minimum, then the right-hand-side of (5.7) is likely to be much
+larger than the left-hand-side. The condition is unlikely to be satisfied entirely by
+chance if the algorithm finds the incorrect point bX .
+</p>
+<h2>5.2 Covariance of the estimated transformation</h2>
+<p>
+In the previous section the ML estimate was considered, and how its expected average
+error may be computed. Comparing the achieved residual error or estimation error of
+an algorithm against the ML error is a good way of evaluating the performance of a
+particular estimation algorithm, since it compares the results of the algorithm against
+the best that may be achieved (the optimum estimate) in the absence of any other prior
+information.
+</p><p>
+Nevertheless, the chief concern is how accurately the transformation itself has been
+computed. The uncertainty of the estimated transformation depends on many factors,
+including the number of points used to compute it, the accuracy of the given point
+matches, as well as the configuration of the points in question. To illustrate the importance
+of the configuration suppose the points used to compute the transformation are
+close to a degenerate configuration; then the transformation may not be computed with
+great accuracy. For instance, if the transformation is computed from a set of points that
+lie close to a straight line, then the behaviour of the transformation in the dimension
+perpendicular to that line is not accurately determined. Thus, whereas the achievable
+residual error and estimation error were seen to be dependent only on the number of
+point correspondences and their accuracy, by contrast, the accuracy of the computed
+transformation is dependent on the particular points. The uncertainty of the computed
+transformation is conveniently captured in the covariance matrix of the transformation.
+Since H is a matrix with 9 entries, its covariance matrix will be a 9 × 9 matrix. In this
+section it will be seen how this covariance matrix may be computed.
+</p>
+<h3>5.2.1 Forward propagation of covariance</h3>
+<p>
+The covariance matrix behaves in a pleasantly simple manner under affine transformations,
+as described in the following theorem.
+</p><p>
+Result 5.3. Let v be a random vector in IRM with mean ¯v and covariance matrix , and
+suppose that f : IRM → IRN is an affine mapping defined by f(v) = f(¯v)+A(v− ¯v).
+Then f(v) is a random variable with mean f(¯v) and covariance matrix AAT.
+</p><p>
+Note that it is not assumed that A is a square matrix. Instead of giving a proof of this
+theorem, we give an example.
+</p><p>
+Example 5.4. Let x and y be independent random variables with mean 0 and standard
+deviations of 1 and 2 respectively. What are the mean and standard deviation of x′ =
+f(x, y) = 3x + 2y − 7?
+The mean is ¯x′ = f(0, 0) = −7. Next we compute the variance of x′. In this case, 
+is the matrix
+"
+1 0
+0 4
+#
+and A is the matrix [3 2]. Thus, the variance of x′ is AAT = 25.
+Thus 3x + 2y − 7 has standard deviation 5. △
+</p><p>
+Example 5.5. Let x′ = 3x+2y and y′ = 3x−2y. Find the covariance matrix of (x′, y′),
+given that x and y have the same distribution as before.
+In this case, the matrix A =
+"
+3 2
+3 −2
+#
+. One computes AAT =
+"
+25 −7
+−7 25
+#
+. Thus,
+one sees that both x′ and y′ have variance 25 (standard deviation 5), whereas x′ and y′
+are negatively correlated, with covariance E[x′y′] = −7. △
+</p><p>
+Non-linear propagation. If v is a random vector in IRM and f : IRM → IRN is a
+non-linear function acting on v, then we may compute an approximation to the mean
+and covariance of f(v) by assuming that f is approximately affine in the vicinity of the
+mean of the distribution. The affine approximation to f is f(v) ≈ f(¯v) + J(v − ¯v),
+where J is the partial derivative (Jacobian) matrix ∂f/∂v evaluated at ¯v. Note that J
+has dimension N ×M. Then we have the following result.
+</p><p>
+Result 5.6. Let v be a random vector in IRM with mean ¯v and covariance matrix ,
+and let f : IRM → IRN be differentiable in a neighbourhood of ¯v. Then up to a firstorder
+approximation, f(v) is a random variable with mean f(¯v) and covariance JJT,
+where J is the Jacobian matrix of f, evaluated at ¯v.
+</p><p>
+The extent to which this result gives a good approximation to the actual mean and
+variance of f(¯v) depends on how closely the function f is approximated by a linear
+function in a region about ¯v commensurate in size with the support of the probability
+distribution of v.
+</p><p>
+Example 5.7. Let x = (x, y)T be a Gaussian random vector with mean (0, 0)T and
+covariance matrix σ2diag(1, 4). Let x′ = f(x, y) = x2 + 3x − 2y + 5. Then one may
+compute the true values of the mean and standard deviation of f(x, y) according to the
+formulae
+¯x′ =
+Z Z ∞
+−∞
+P(x, y)f(x, y)dxdy
+σ2x′ =
+Z Z ∞
+−∞
+P(x, y)(f(x, y) − ¯x′)2dxdy
+where
+P(x, y) =
+1
+4πσ2 e−(x2+y2/4)/22
+is the Gaussian probability distribution (A2.1–p565). One obtains
+¯x′ = 5 + σ2
+σ2x′ = 25σ2 + 2σ4.
+Applying the approximation given by result 5.6, and noting that J = [3 − 2], we find
+that the estimated values are
+¯x′ = 5
+σ2x′ = σ2[3 − 2]
+"
+1
+4
+#
+[3 − 2]T = 25σ2.
+Thus, as long as σ is small, this is a close approximation to the correct values of the
+mean and variance of x′. The following table shows the true and approximated values
+for the mean and standard deviation of f(x, y) for two different values of σ.
+σ = 0.25 σ = 0.5
+¯x′ σx′ ¯x′ σx′
+estimate 5.0000 1.25000 5.00 2.5000
+true 5.0625 1.25312 5.25 2.5249
+</p><p>
+For reference, in the case σ = 0.25, one sees that as long as |x| < 2σ (about 95%
+of the total distribution) the value f(x, y) = x2 + 3x − 2y + 5 differs from its linear
+approximation 3x − 2y + 5 by no more than x2 < 0.25. △
+</p><p>
+Example 5.8. More generally, assuming that x and y are independent zero-mean Gaussian
+random variables, one may compute that for the function f(x, y) = ax2 + bxy +
+cy2 + dx + ey + f,
+mean = aσ2x + cσ2
+y + f
+variance = 2a2σ4x + b2σ2xσ2
+y + 2c2σ4
+y + d2σ2x + e2σ2
+y
+which are close to the estimated values mean = f, variance = d2σ2x +e2σ2
+y as long as
+σx and σy are small. △
+</p><p>
+5.2.2 Backward propagation of covariance
+The material in this and the following section 5.2.3 is more advanced. The examples in
+section 5.2.4 show the straightforward application of the results of these sections, and
+can be read first.
+</p><p>
+Consider a differentiable mapping f from a “parameter space”, IRM to a “measurement
+space” IRN, and let a Gaussian probability distribution be defined on IRN with
+covariance matrix . Let SM be the image of the mapping f. We assume that M < N
+and that SM has the same dimension M as the parameter space IRM. Thus we are
+not considering the over-parametrized case at present. A vector P in IRM represents
+a parametrization of the point f(P) on SM. Finding the point on SM closest in Mahalanobis
+distance to a given point X in IRN defines a map from IRN to the surface SM.
+We call this mapping η : IRN → SM. Now, f is by assumption invertible on the surface
+SM, and we define f−1 : SM → IRM to be the inverse function.
+</p><p>
+By composing the map η : IRN → SM and f−1 : SM → IRM we have a mapping
+f−1 ◦ η : IRN → IRM. This mapping assigns to a measurement vector X, the set of
+parameters P corresponding to the ML estimate bX . In principle we may propagate the
+covariance of the probability distribution in the measurement space IRN to compute a
+covariance matrix for the set of parameters P corresponding to ML estimation. Our
+goal is to apply result 5.3 or result 5.6.
+</p><p>
+We consider first the case where the mapping f is an affine mapping from IRM into
+IRN. We will show next that the mapping f−1 ◦ η is also an affine mapping, and
+a specific form will be given for f−1 ◦ η, thereby allowing us to apply result 5.3 to
+compute the covariance of the estimated parameters bP = f−1 ◦ η(X).
+</p><p>
+Since f is affine, we may write f(P) = f(P) + J(P − P), where f(P) = X is the
+mean of the probability distribution on IRN. Since we are assuming that the surface
+SM = f(IRM) has dimension M, the rank of J is equal to its column dimension. Given
+a measurement vector X, the ML estimate bX minimizes kX − bX k = kX − f(bP)k.
+Thus, we seek bP to minimize this latter quantity. However,
+kX − f(bP)k = k(X − X) − J(bP − P)k
+and this is minimized (see (A5.2–p591) in section A5.2.1(p591)) when
+(bP − P) = (J
+T
+−1J)−1J
+T
+−1(X − X) .
+
+Writing P = f−1X and bP = f−1bX, we see that
+f−1 ◦ η(X) = bP
+= (J
+T
+−1J)−1J
+T
+−1(X − X) + f−1(X)
+= (J
+T
+−1J)−1J
+T
+−1(X − X) + f−1 ◦ η(X) .
+This shows that f−1 ◦ η is affine and (JT−1J)−1JT−1 is its linear part. Applying
+result 5.3, we see that the covariance matrix for bP is
+h
+(J
+T
+−1J)−1J
+T
+−1
+i
+
+h
+(J
+T
+−1J)−1J
+T
+−1
+iT
+= (J
+T
+−1J)−1J
+T
+−1−1J(J
+T
+−1J)−1
+= (J
+T
+−1J)−1,
+recalling that  is symmetric. We have proved the following theorem.
+</p><p>
+Result 5.9 Backward transport of covariance – affine case. Let f : IRM → IRN be
+an affine mapping of the form f(P) = f(P) + J(P − P), where J has rank M. Let
+X be a random variable in IRN with mean X = f(P) and covariance matrix . Let
+f−1 ◦ η : IRN → IRM be the mapping that maps a measurement X to the set of
+parameters corresponding to the ML estimate bX . Then bP = f−1 ◦ η(X) is a random
+variable with mean P and covariance matrix
+P = (J
+T
+−1
+X
+J)−1. (5.8)
+</p><p>
+In the case where f is not affine, an approximation to the mean and covariance may
+be obtained by approximating f by an affine function in the usual way, as follows.
+</p><p>
+Result 5.10 Backward transport of covariance – non-linear case. Let f : IRM → IRN be a differentiable mapping and let J be its Jacobian matrix evaluated at a point
+P. Suppose that J has rank M. Then f is one-to-one in a neighbourhood of P. Let
+X be a random variable in IRN with mean X = f(P) and covariance matrix X. Let
+f−1 ◦ η : IRN → IRM be the mapping that maps a measurement X to the set of parameters
+corresponding to the ML estimate bX . Then to first-order, bP = f−1 ◦ η(X) is a
+random variable with mean P and covariance matrix (JT−1
+X
+J)−1.
+5.2.3 Over-parametrization
+One may generalize result 5.9 and result 5.10 to the case of redundant sets of parameters
+– the over-parametrized case. In this case, the mapping f from the parameter space
+IRM to measurement space IRN is not locally one-to-one. For instance, in the case of
+estimating a 2D homography as discussed in section 4.5(p110) there is a mapping f(P)
+where P is a 9-vector representing the entries of the homography matrix H. Since the
+homography has only 8 degrees of freedom, the mapping f is not one-to-one. In particular,
+for any constant k, the matrix kH represents the same map, and so the image
+coordinate vectors f(P) and f(kP) are equal.
+In the general case of a mapping f : IRM → IRN the Jacobian matrix J does not
+have full rank M, but rather a smaller rank d < M. This rank d is called the number
+of essential parameters. The matrix JT−1
+X
+J in this case has dimension M but rank
+5.2 Covariance of the estimated transformation 143
+-1
+-0.5
+0
+0.5
+1 -1
+-0.5
+0
+0.5
+1
+0
+0.2
+0.4
+0.6
+0.8
+1
+-2
+0
+2
+-2
+0
+2
+-2
+-1
+0
+1
+2
+f
+S
+X
+P
+X
+Fig. 5.4. Back propagation (over-parametrized). Mapping f maps constrained parameter surface to
+measurement space. A measurement X is mapped (by a mapping η) to the closest point on the surface
+f(SP) and then back via f−1 to the parameter space, providing the ML estimate of the parameters. The
+covariance of X is transferred via f−1 ◦ η to a covariance of the parameters.
+d < M. The formula (5.8), P = (JT−1
+X
+J)−1, clearly does not hold, since the matrix
+on the right side is not invertible.
+In fact, it is clear that without any further restriction, the elements of the estimated
+vector bP may vary without bound, namely through multiplication by an arbitrary constant
+k. Hence the elements have infinite variance. It is usual to restrict the estimated
+homography matrix H or more generally the parameter vector P by imposing some constraint.
+The usual constraint is that kPk = 1 though other constraints are possible, such
+as demanding that the last parameter should equal 1 (see section 4.4.2(p105)). Thus,
+the parameter vector P is constrained to lie on a surface in the parameter space IR9, or
+generally IRM. In the first case the surface kPk = 1 is the unit sphere in IRM. The
+constraint Pm = 1 represents a plane in IRM. In the general case we may assume that
+the estimated vector P lies on some submanifold of IRM as in the following theorem.
+Result 5.11. Backward transport of covariance – over-parametrized case. Let
+f : IRM → IRN be a differentiable mapping taking a parameter vector P to a measurement
+vector X. Let SP be a smooth manifold of dimension d embedded in IRM
+passing through point P, and such that the map f is one-to-one on the manifold SP in
+a neighbourhood of P, mapping SP locally to a manifold f(SP) in IRN. The function f
+has a local inverse, denoted f−1, restricted to the surface f(SP) in a neighbourhood of
+X. Let a Gaussian distribution on IRN be defined with mean X and covariance matrix
+X and let η : IRN → f(SP) be the mapping that takes a point in IRN to the closest
+point on f(SP) with respect to Mahalanobis norm k · kX. Via f−1 ◦ η the probability
+distribution on IRN with covariance matrix X induces a probability distribution on
+IRM with covariance matrix, to first-order equal to
+P = (J
+T
+−1
+X
+J)+A = A(A
+T
+J
+T
+−1
+X
+JA)−1A
+T (5.9)
+where A is any m × d matrix whose column vectors span the tangent space to SP at P.
+This is illustrated in figure 5.4. The notation (JT−1
+X
+J)+A, defined by (5.9), is discussed
+further in section A5.2(p590).
+144 5 Algorithm Evaluation and Error Analysis
+Proof. The proof of result 5.11 is straightforward. Let d be the number of essential
+parameters. One defines a map g : IRd → IRM mapping an open neighbourhood
+U in IRd to an open set of SP containing the point P. Then the combined mapping
+f ◦ g : IRd → IRN is one-to-one on the neighbourhood U. Let us denote the partial
+derivative matrices of f by J and of g by A. The matrix of partial derivatives of f ◦ g is
+then JA. Result 5.10 now applies, and one sees that the probability distribution function
+with covariance matrix  on IRN may be transported backwards to a covariance matrix
+(ATJT−1JA)−1 on IRd. Transporting this forwards again to IRM, applying result 5.6,
+we arrive at the covariance matrix A(ATJT−1JA)−1AT on SP. This matrix, which will
+be denoted here by (JT−1J)+A, is related to the pseudo-inverse of (JT−1J) as defined
+in section A5.2(p590). The expression (5.9) is not dependent on the particular choice of
+the matrix A as long as the column span of A is unchanged. In particular, if A is replaced
+by AB for any invertible d × d matrix B, then the value of (5.9) does not change. Thus,
+any matrix A whose columns span the tangent space of SP at P will do.
+Note that the proof gives a specific way of computing a matrix A spanning the tangent
+space – namely the Jacobian matrix of g. In many instances, as we will see, there are
+easier ways of finding A. Note that the covariance matrix (5.9) is singular. In particular,
+it has dimension M and rank d < M. This is because the variance of the estimated
+parameter set in directions orthogonal to the constraint surface SP is zero – there can
+be no variation in that direction. Note that whereas JT−1J is non-invertible, the d × d
+matrix ATJT−1JA has rank d and is invertible.
+An important case occurs when the constraint surface is locally orthogonal to the
+null-space of the Jacobian matrix. Denote by NL(X) the left null-space of matrix X,
+namely the space of all vectors x such that xTX = 0. Then (as shown in section A5.2-
+(p590)), the pseudo-inverse X+ is given by
+X+ = X+A = A(A
+T
+XA)−1A
+T
+if and only if NL(A) = NL(X). The following result then derives directly from
+result 5.11.
+Result 5.12. Let f : IRM → IRN be a differentiable mapping taking P to X, and let J
+be the Jacobian matrix of f. Let a Gaussian distribution on IRN be defined at X with
+covariance matrix X and let f−1 ◦ η : IRN → IRM as in result 5.11 be the mapping
+taking a measurement X to the MLE parameter vector P constrained to lie on a surface
+SP locally orthogonal to the null-space of J. Then f−1 ◦ η induces a distribution on
+IRM with covariance matrix, to first-order equal to
+P = (J
+T
+−1
+X
+J)+. (5.10)
+Note that the restriction that P be constrained to lie on a surface locally orthogonal
+to the null-space of J is in many cases the natural constraint. For instance, if P is
+a homogeneous parameter vector (such as the entries of a homogeneous matrix), the
+restriction is satisfied for the usual constraint kPk = 1. In such a case, the constraint
+surface is the unit sphere, and the tangent plane at any point is perpendicular to the
+parameter vector. On the other hand, since P is a homogeneous vector, the function
+5.2 Covariance of the estimated transformation 145
+f(P) is invariant to changes of scale, and so J has a null-vector in the radial direction,
+thus perpendicular to the constraint surface.
+In other cases, it is often not critical what restriction we place on the parameter set
+for the purpose of computing the covariance matrix of the parameters. In addition,
+since the pseudo-inversion operation is its own inverse, we can retrieve the original
+matrix from its pseudo-inverse, according to JT−1
+X
+J = +
+P. One can then compute the
+covariance matrix corresponding to any other subspace, according to
+(J
+T
+−1
+X
+J)+A = (+
+P)+A
+where the columns of A span the constrained subspace of parameter space.
+5.2.4 Application and examples
+Error in one image. Let us consider the application of this theory to the problem of
+finding the covariance of an estimated 2D homography H. First, we look at the case
+where the error is limited to the second image. The 3 × 3 matrix H is represented by
+a 9-dimensional parameter vector which will be denoted by h instead of P so as to
+remind us that it is made up of the entries of H. The covariance of the estimated ˆh
+is a 9 × 9 symmetric matrix. We are given a set of matched points ¯xi ↔ x′
+i. The
+points ¯xi are fixed true values, and the points x′
+i are considered as random variables
+subject to Gaussian noise with variance σ2 in each component, or if desired, with a
+more general covariance. The function f : IR9 → IR2n is defined as mapping a 9-
+vector h representing a matrix H to the 2n-vector made up of the coordinates of the
+points x′
+i = H¯xi. The coordinates of x′
+i make up a composite vector in IRN, which we
+denote by X′. As we have seen, as h varies, the point f(h) traces out an 8-dimensional
+surface SP in IR2n. Each point X′ on the surface represents a set of points x′
+i consistent
+with the first-image points ¯xi. Given a vector of measurements X′, one selects the
+closest point bX
+′
+on the surface SP with respect to Mahalanobis distance. The pre-image
+ˆh
+= f−1(bX′), subject to constraint khk = 1, represents the estimated homography
+matrix ˆH, estimated using the ML estimator. From the probability distribution of values
+of X′ one wishes to derive the distribution of the estimated ˆh. The covariance matrix h
+is given by result 5.12. This covariance matrix corresponds to the constraint khk = 1.
+Thus, a procedure for computing the covariance matrix of the estimated transformation
+is as follows.
+(i) Estimate the transformation ˆH from the given data.
+(ii) Compute the Jacobian matrix Jf = ∂X′/∂h, evaluated at ˆh.
+(iii) The covariance matrix of the estimated h is given by (5.10): h = (JT
+f
+−1
+X′ Jf )+.
+We investigate the two last steps of this method in slightly more detail.
+Computation of the derivative matrix. Consider first the Jacobian matrix
+J = ∂X′/∂h. This matrix has a natural decomposition into blocks so that J =
+(JT
+1 , JT
+2 , . . . , JT
+i , . . . , JT
+n)T where Ji = ∂x′
+i/∂h. A formula for ∂x′
+i/∂h is given in
+146 5 Algorithm Evaluation and Error Analysis
+(4.21–p129):
+Ji = ∂x′
+i/∂h =
+1
+w′
+i
+"
+˜xT
+i 0T −x′
+i˜xT
+i
+0T ˜xT
+i −y′
+i˜xT
+i
+#
+(5.11)
+where ˜xT
+i represents the vector (xi, yi, 1).
+Stacking these matrices on top of each other for all points xi gives the derivative
+matrix ∂X′/∂h. An important case is when the image measurements x′
+i are independent
+random vectors. In this case  = diag(1, . . . , n) where each i is the 2×2 covariance
+matrix of the i-th measured point x′
+i. Then one computes
+h = (J
+T
+−1
+X′ J)+ =
+ 
+X
+i
+J
+T
+i
+−1
+i
+Ji
+!+
+. (5.12)
+Example 5.13. We consider the simple numerical example of a point correspondence
+containing just 4 points as follows:
+x1 = (1, 0)T ↔ (1, 0)T = x′
+1
+x2 = (0, 1)T ↔ (0, 1)T = x′
+2
+x3 = (−1, 0)T ↔ (−1, 0)T = x′
+3
+x4 = (0,−1)T ↔ (0,−1)T = x′
+4
+namely, the identity map on the points of a projective basis. We assume that points xi
+are known exactly, and points x′
+i have one pixel standard deviation in each coordinate
+direction. This means that the covariance matrix x′
+i
+is the identity.
+Obviously, the computed homography will be the identity map. For simplicity we
+normalize (scale it) so that it is indeed the identity matrix, and hence kHk2 = 3 instead
+of the usual normalization kHk = 1. In this case, all the w′
+i in (5.11) are equal to 1. The
+matrix J is easily computed from (5.11) to equal
+J =
+
+
+1 0 1 0 0 0 −1 0 −1
+0 0 0 1 0 1 0 0 0
+0 1 1 0 0 0 0 0 0
+0 0 0 0 1 1 0 −1 −1
+−1 0 1 0 0 0 −1 0 1
+0 0 0 −1 0 1 0 0 0
+0 −1 1 0 0 0 0 0 0
+0 0 0 0 −1 1 0 −1 1
+
+
+.
+Then
+J
+T
+J =
+
+
+2 0 0 0 0 0 0 0 −2
+0 2 0 0 0 0 0 0 0
+0 0 4 0 0 0 −2 0 0
+0 0 0 2 0 0 0 0 0
+0 0 0 0 2 0 0 0 −2
+0 0 0 0 0 4 0 −2 0
+0 0 −2 0 0 0 2 0 0
+0 0 0 0 0 −2 0 2 0
+−2 0 0 0 −2 0 0 0 4
+
+
+. (5.13)
+5.2 Covariance of the estimated transformation 147
+To take the pseudo-inverse of this matrix, we may use (5.9) where A is a matrix with
+columns spanning the tangent plane to the constraint surface. Since H is computed
+subject to the condition kHk2 = 3, which represents a hypersphere, the constraint surface
+is perpendicular to the vector h corresponding to the computed homography H.
+A Householder matrix A (see section A4.1.2(p580)) corresponding to the vector h has
+the property that Ah = (0, . . . , 0, 1)T, so the first 8 columns of A (denoted A1)are perpendicular
+to h as required. This allows the pseudo-inverse to be computed exactly
+without using SVD. Applying (5.9) the pseudo-inverse is computed to be
+h = (J
+T
+J)+A1 = A1(A
+T
+1 (J
+T
+J)A1)−1A
+T
+1 =
+1
+18
+
+
+5 0 0 0 −4 0 0 0 −1
+0 9 0 0 0 0 0 0 0
+0 0 9 0 0 0 9 0 0
+0 0 0 9 0 0 0 0 0
+−4 0 0 0 5 0 0 0 −1
+0 0 0 0 0 9 0 9 0
+0 0 9 0 0 0 18 0 0
+0 0 0 0 0 9 0 18 0
+−1 0 0 0 −1 0 0 0 2
+
+
+.
+(5.14)
+The diagonals give the individual variances of the entries of H. △
+This computed covariance is used to assess the accuracy of point transfer in
+example 5.14.
+5.2.5 Error in both images
+In the case of error in both images, computation of the covariance of the transformation
+is a bit more complicated. As seen in section 4.2.7(p101), one may define a set of 2n+8
+parameters, where 8 parameters describe the transformation matrix and 2n parameters
+ˆxi represent estimates of the points in the first image. More conveniently, one may
+over-parametrize by using 9 parameters for the transformation H. The Jacobian matrix
+naturally splits up into two parts as J = [A | B] where A and B are the derivatives with
+respect to the camera parameters and the points xi respectively. Applying (5.10) one
+computes
+J
+T
+−1
+X
+J =
+"
+AT−1
+X
+A AT−1
+X
+B
+BT−1
+X
+A BT−1
+X
+B
+#
+.
+The pseudo-inverse of this matrix is the covariance of the parameter set and the top-left
+block of this pseudo-inverse is the covariance of the entries of H. A detailed discussion
+of this is given in section A6.4.1(p608), where it is shown how one can make use of
+the block structure of the Jacobian to simplify the computation.
+In example 5.13 on estimating the covariance of H from four points in the previous
+section, the covariance turns out to be h = 2(JT−1
+X′ J)+, namely twice the covariance
+computed for noise in one image only. This assumes that points are measured with the
+same covariance in both images. This simple relationship between the covariances in
+the one and two-image cases does not generally hold.
+148 5 Algorithm Evaluation and Error Analysis
+5.2.6 Using the covariance matrix in point transfer
+Once one has the covariance, one may compute the uncertainty associated with a given
+point transfer. Consider a new point x in the first image, not used in the computation
+of the transformation, H. The corresponding point in the second image is x′ = Hx.
+However, because of the uncertainty in the estimation of H, the correct location of the
+point x′ will also have associated uncertainty. One may compute this uncertainty from
+the covariance matrix of H.
+The covariance matrix for the point x′ is given by the formula
+x′ = JhhJ
+T
+h (5.15)
+where Jh = ∂x′/∂h. A formula for ∂x′/∂h is given in (4.21–p129).
+If in addition, the point x itself is measured with some uncertainty, then one has
+instead
+x′ = JhhJ
+T
+h + JxxJ
+T
+x (5.16)
+assuming that there is no cross-correlation between x and h, which is reasonable, since
+point x is assumed to be a new point not used in the computation of the transformation
+H. A formula for the Jacobian matrix Jx = ∂x′/∂x is given in (4.20–p129).
+The covariance matrix x′ given by (5.15) is expressed in terms of the covariance
+matrix h of the transformation H. We have seen that this covariance matrix h depends
+on the particular constraint used in estimating H, according to (5.9). It may therefore
+appear that x′ also depends on the particular method used to constrain H. It may
+however be verified that these formulae are independent of the particular constraint A
+used to compute the covariance matrix P = (JT−1
+X
+J)+A.
+Example 5.14. To continue example 5.13, let the computed 2D homography H be given
+by the identity matrix, with covariance matrix h as in (5.14). Consider an arbitrary
+point (x, y) mapped to the point x′ = Hx. In this case the covariance matrix x′ =
+JhhJT
+h may be computed symbolically to equal
+x′ =
+"
+σx′x′ σx′y′
+σx′y′ σy′y′
+#
+=
+1
+4
+"
+2 − x2 + x4 + y2 + x2y2 xy(x2 + y2 − 2)
+xy(x2 + y2 − 2) 2 − y2 + y4 + x2 + x2y2
+#
+.
+Note that σx′x′ and σy′y′ are even functions of x and y, whereas σx′y′ is an odd function.
+This is a consequence of the symmetry about the x and y axes of the point set
+used to compute H. Also note that σx′x′ and σy′y′ differ by swapping x and y, which is
+a further consequence of the symmetry of the defining point set.
+As may be seen, the variance σx′x′ varies as the fourth power of x, and hence the
+standard deviation varies as the square. This shows that extrapolating the values of
+transformed points x′ = Hx far beyond the set of points used to compute H is not
+reliable. More specifically, the RMS uncertainty of the position of x′ is equal to
+(σx′x′ + σy′y′)1/2 =
+q
+trace(x′) which one finds is equal to (1 + (x2 + y2)2)1/2 =
+(1+r4)1/2, where r is the radial distance from the origin. Note the interesting fact that
+the RMS error is only dependent on the radial distance. In fact, one may verify that
+the probability distribution for point x′ depends only on the radial distance of x′, its
+5.3 Monte Carlo estimation of covariance 149
+0.5 1 1.5 2 2.5 3
+2
+4
+6
+8
+Fig. 5.5. RMS error in the position of a projected point x′ as a function of radial distance of x′ from the
+origin. The homography H is computed from 4 evenly spaced points on a unit circle around the origin
+with errors in the second image only. The RMS error is proportional to the assumed error in the points
+used to compute H, and the vertical axis is calibrated in terms of this assumed error.
+two principal axes pointing radially and tangentially. Figure 5.5 shows the graph of the
+RMS error in x′ as a function of r. △
+This example has computed the covariance of a transferred point in the minimal case
+of four point correspondences. For more than four correspondences, the situation is
+not substantially different. Extrapolation beyond the set of points used to compute the
+homography is unreliable. In fact, one may show that if H is computed from n points
+evenly spaced around a unit circle (instead of 4 as in the computation above) then the
+RMS error is equal to σx′x′ + σy′y′ = 4(1 + r4)/n, so the error exhibits the same
+quadratic growth.
+5.3 Monte Carlo estimation of covariance
+The method of estimating covariance discussed in the previous sections has relied on
+an assumption of linearity. In other words, it has been assumed that the surface f(h)
+is locally flat in the vicinity of the estimated point, at least over a region corresponding
+to the approximate extent of the noise distribution. It has also been assumed that the
+method of estimation of the transformation H was the Maximum Likelihood Estimate.
+If the surface is not entirely flat then the estimate of covariance may be incorrect. In
+addition, a particular estimation method may be inferior to the ML estimate, thereby
+introducing additional uncertainty in the values of the estimated transformation H.
+A general (though expensive) method of getting an estimate of the covariance is
+by exhaustive simulation. Assuming that the noise is drawn from a given noise distribution,
+one starts with a set of point matches corresponding perfectly to a given
+transformation. One then adds noise to the points and computes the corresponding
+transformation using the chosen estimation procedure. The covariance of the transformation
+H or a further transferred point is then computed statistically from multiple
+trials with noise drawn from the assumed noise distribution. This is illustrated for the
+case of the identity mapping in figure 5.6.
+Both the analytical and the Monte Carlo methods of estimating covariance of the
+transformation H may be applied to the estimation of covariance from real data for
+which one does not know the true value of H. From the given data, an estimate of
+H and the corresponding true values of the points x′
+i and xi are computed. Then the
+150 5 Algorithm Evaluation and Error Analysis
+Fig. 5.6. Transfer of a point under the identity mapping for the normalized and unnormalized DLT
+algorithm. See also figure 4.4(p109) for further explanation.
+covariance is computed as if the estimated values were the true values of the matched
+data points and the transformation. The resulting covariance matrix is assumed to be
+the covariance of the true transformation. This identification is based on the assumption
+that the true values of the data points are sufficiently close to the estimated values that
+the covariance matrix is essentially unaffected.
+5.4 Closure
+An extended discussion of bias and variance of estimated parameters is given in
+appendix 3(p568).
+5.4.1 The literature
+The derivations throughout this chapter have been considerably simplified by only using
+first-order Taylor expansions, and assuming Gaussian error distributions. Similar
+ideas (ML, covariance . . . ) can be developed for other distributions by using the Fisher
+Information matrix. Related reading may be found in Kanatani [Kanatani-96], Press et
+al. [Press-88], and other statistical textbooks.
+Criminisi et al. [Criminisi-99b] give many examples of the computed covariances
+in point transfer as the correspondences used to determine the homography vary in
+number and position.
+5.4.2 Notes and exercises
+(i) Consider the problem of computing a best line fit to a set of 2D points in the
+plane using orthogonal regression. Suppose that N points are measured with
+independent standard deviations of σ in each coordinate. What is the expected
+RMS distance of each point from a fitted line? Answer : σ ((n − 2)/n)1/2.
+(ii) (Harder) : In section 18.5.2(p450) a method is given for computing a projective
+reconstruction from a set of n+4 point correspondences acrossm views, where
+4 of the point correspondences are presumed to be known to be from a plane.
+Suppose the 4 planar correspondences are known exactly, and the other n image
+points are measured with 1 pixel error (each coordinate in each image). What
+is the expected residual error of kxi
+j − ˆ PiXjk?
+Part I
+Camera Geometry and Single View
+Geometry
+The Cyclops, c. 1914 (oil on canvas) by Odilon Redon (1840-1916)
+Rijksmuseum Kroller-Muller, Otterlo, Netherlands /Bridgeman Art Library
+Outline
+This part of the book concentrates on the geometry of a single perspective camera. It
+contains three chapters.
+Chapter 6 describes the projection of 3D scene space onto a 2D image plane. The
+camera mapping is represented by a matrix, and in the case of mapping points it is a
+3×4 matrix P which maps from homogeneous coordinates of a world point in 3-space
+to homogeneous coordinates of the imaged point on the image plane. This matrix has in
+general 11 degrees of freedom, and the properties of the camera, such as its centre and
+focal length, may be extracted from it. In particular the internal camera parameters,
+such as the focal length and aspect ratio, are packaged in a 3 × 3 matrix K which
+is obtained from P by a simple decomposition. There are two particularly important
+classes of camera matrix: finite cameras, and cameras with their centre at infinity such
+as the affine camera which represents parallel projection.
+Chapter 7 describes the estimation of the camera matrix P, given the coordinates
+of a set of corresponding world and image points. The chapter also describes how
+constraints on the camera may be efficiently incorporated into the estimation, and a
+method of correcting for radial lens distortion.
+Chapter 8 has three main topics. First, it covers the action of a camera on geometric
+objects other than finite points. These include lines, conics, quadrics and points at
+infinity. The image of points/lines at infinity are vanishing points/lines. The second
+topic is camera calibration, in which the internal parameters K of the camera matrix
+are computed, without computing the entire matrix P. In particular the relation of the
+internal parameters to the image of the absolute conic is described, and the calibration
+of a camera from vanishing points and vanishing lines. The final topic is the calibrating
+conic. This is a simple geometric device for visualizing camera calibration.
+152
+</p><p>
+    </body>
+</html>

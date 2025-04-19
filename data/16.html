@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>16章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>16章 三焦点テンソルTの計算</center></h1>
+<p>
+この章では、3つの視点にわたる点と線の対応関係の集合が与えられた場合に、三焦点テンソルを推定する数値解析手法について述べる。その展開は基礎行列の場合と非常に似ており、第11章とほぼ同じ手法を用いる。特に、以下の5つの手法について論じる。
+<div class="styleBullet">
+<ul>
+<li>(i) 適切なデータ正規化を行った上で、一連の線形方程式を直接解く線形法（16.2節）。
+</li><li>(ii) テンソルに対する適切な制約条件をすべて満たしながら、代数誤差を最小化する反復法（16.3節）。
+</li><li>(iii) 幾何誤差を最小化する反復法（「ゴールドスタンダード」法）（16.4.1節）。
+</li><li>(iv) 幾何誤差に対するSampson近似を最小化する反復法（16.4.3節）。
+</li><li>(v) RANSACに基づくロバスト推定（16.6節）。</li>
+</ul>
+</div>
+<!-- This chapter describes numerical methods for estimating the trifocal tensor given a set
+of point and line correspondences across three views. The development will be very
+similar to that for the fundamental matrix, using much the same techniques as those of
+chapter 11. In particular, five methods will be discussed:
+(i) A linear method based on direct solution of a set of linear equations (after appropriate
+data normalization) (section 16.2).
+(ii) An iterative method, that minimizes the algebraic error, while satisfying all
+appropriate constraints on the tensor (section 16.3).
+(iii) An iterative method that minimizes geometric error (the “Gold Standard”
+method) (section 16.4.1).
+(iv) An iterative method that minimizes the Sampson approximation to geometric
+error (section 16.4.3).
+(v) Robust estimation based on RANSAC (section 16.6). -->
+</p>
+<h2><center>16.1 基本方程式</center></h2>
+<p>
+A complete set of the (tri-)linear equations involving the trifocal tensor is given in
+table 16.1. All of these equations are linear in the entries of the trifocal tensor T .
+Correspondence Relation Number of equations
+three points xix′jx′′kǫjqsǫkrtT qr
+i = 0st 4
+two points, one line xix′j l′′
+r ǫjqsT qr
+i = 0s 2
+one point, two lines xil′
+ql′′
+r T qr
+i = 0 1
+three lines lpl′
+ql′′
+r ǫpiwT qr
+i = 0w 2
+Table 16.1. Trilinear relations between point and line coordinates in three views. The final column
+denotes the number of linearly independent equations. The notation 0st means a 2-dimensional tensor
+with all zero entries. Thus, the first line in this table corresponds to a set of 9 equations, one for each
+choice of s and t. However, among this set of 9 equations, only 4 are linearly independent.
+391
+392 16 Computation of the Trifocal Tensor T
+Given several point or line correspondences between three images, the complete set
+of equations generated is of the form At = 0, where t is the 27-vector made up of the
+entries of the trifocal tensor. From these equations, one may solve for the entries of
+the tensor. Note that equations involving points may be combined with those involving
+lines – in general all available equations from table 16.1 may be used simultaneously.
+Since T has 27 entries, 26 equations are needed to solve for t up to scale. With more
+than 26 equations, a least-squares solution is computed. As with the fundamental matrix,
+one minimizes kAtk subject to the constraint ktk = 1 using algorithm A5.4(p593).
+This gives a bare outline of a linear algorithm for computing the trifocal tensor.
+However, in order to build a practical algorithm out of this several issues, such as
+normalization, need to be addressed. In particular the tensor that is estimated must
+obey various constraints, and we consider these next.
+16.1.1 The internal constraints
+The most notable difference between the fundamental matrix and the trifocal tensor is
+the greater number of constraints that apply to the trifocal tensor. The fundamental
+matrix has a single constraint, namely det(F) = 0, leaving 7 degrees of freedom, discounting
+the arbitrary scale factor. The trifocal tensor, on the other hand, has 27 entries,
+but 18 parameters only are required to specify the equivalent camera configuration, up
+to projectivity. The elements of the tensor therefore satisfy 8 independent algebraic
+constraints. This condition is conveniently stated as follows.
+Definition 16.1. A trifocal tensor T jk
+i is said to be “geometrically valid” or “satisfy all
+internal constraints” if there exist three camera matrices P = [I | 0], P′ and P′′ such that
+T jk
+i corresponds to the three camera matrices according to (15.9–p376).
+Just as with the fundamental matrix it is important to enforce these constraints in
+some way so as to arrive at a geometrically valid trifocal tensor. If the tensor does not
+satisfy the constraints, there are consequences similar to a fundamental matrix which
+is not of rank 2 – where epipolar lines, computed as Fx for varying x, do not intersect
+in a single point (see figure 11.1(p280)). For example, if the tensor does not satisfy the
+internal constraints and is used to transfer a point to a third view, given a correspondence
+over two views as described in section 15.3, then the position of the transferred
+point will vary depending on which set of equations from table 16.1 is used. In the
+following the objective is always to estimate a geometrically valid tensor.
+The constraints satisfied by the trifocal tensor elements are not so simply expressed
+(as det = 0), and some have thought this an impediment to accurate computation of
+the trifocal tensor. However, in reality, in order to work with or compute the trifocal
+tensor it is not necessary to express these constraints explicitly – rather they are implicitly
+enforced by an appropriate parametrization of the trifocal tensor, and rarely
+cause any trouble. We will return to the issue of parametrization in section 16.3 and
+section 16.4.2.
+16.2 The normalized linear algorithm 393
+16.1.2 The minimum case – 6 point correspondences
+A geometrically valid trifocal tensor may be computed from images of a 6 point configuration,
+provided the scene points are in general position. There are one or three real
+solutions. The tensor is computed from the three camera matrices which are obtained
+using algorithm 20.1(p511), as described in section 20.2.4(p510). This minimal six
+point solution is used in the robust algorithm of section 16.6.
+16.2 The normalized linear algorithm
+In forming the matrix equation At = 0 from the equations on T in table 16.1 it is
+not necessary to use the complete set of equations derived from each correspondence,
+since not all of these equations are linearly independent. For instance in the case of a
+point–point–point correspondence (first row of table 16.1) all choices of s and t lead to
+a set of 9 equations, but only 4 of these equations are linearly independent, and these
+may be obtained by choosing two values for each of s and t, for instance 1 and 2. This
+point is discussed in more detail in section 17.7(p431).
+The reader may verify that the three points equation obtained from table 16.1 for a
+given choice of s and t may be expanded as
+xk(x′ix′′mTjl
+k − x′jx′′mTil
+k − x′ix′′lTjm
+k + x′jx′′lTim
+k ) = 0ijlm . (16.1)
+when i, j 6= s and l,m 6= t. Equation (16.1) collapses for i = j or l = m, and swapping
+i and j (or l and m) simply changes the sign of the equation. One choice of the four
+independent equations is obtained by setting j = m = 3, and letting i and l range
+freely. The coordinates x3, x′3 and x′′3 may be set to 1 to obtain a relationship between
+the observed image coordinates. Equation (16.1) then becomes
+xk(x′ix′′lT33
+k − x′′lTi3
+k − x′iT3l
+k + Til
+k ) = 0. (16.2)
+The four different choices of i, l = 1, 2 give four different equations in terms of the
+observed image coordinates.
+How to represent lines
+The three lines correspondence equation of table 16.1 may be written in the form
+li = l′
+j l′′
+kT jk
+i ,
+where, as usual with homogeneous entities, the equality is up to scale. In the presence
+of noise, this relationship will only be approximately satisfied by the measured lines
+l, l′ and l′′, but will be satisfied exactly for three linesˆl ,ˆl
+′
+andˆl
+′′
+that are close to the
+measured lines.
+The question is whether two sets of homogeneous coordinates that differ by a small
+amount represent lines that are close to each other in some geometric sense. Consider
+the two vectors l1 = (0.01, 0, 1)T and l2 = (0, 0.01, 1)T. Clearly as vectors they are
+not very different, and in fact kl1 − l2k is small. On the other hand, l1 represents the
+line x = 100, and l2 represents the line y = 100. Thus in a geometric sense, these lines
+are totally different. Note that this problem is alleviated by scaling. If coordinates are
+394 16 Computation of the Trifocal Tensor T
+Objective
+Given n ≥ 7 image point correspondences across 3 images, or at least 13 line correspondences,
+or a mixture of point and line correspondences, compute the trifocal tensor.
+Algorithm
+(i) Find transformation matrices H, H′ and H′′ to apply to the three images.
+(ii) Transform points according to xi 7→ ˆxi = Hi
+jxj , and lines according to li 7→ ˆli =
+(H−1)j
+i lj . Points and lines in the second and third image transform in the same way.
+(iii) Compute the trifocal tensor ˆ T linearly in terms of the transformed points and lines
+using the equations in table 16.1 by solving a set of equation of the form At = 0, using
+algorithm A5.4(p593).
+(iv) Compute the trifocal tensor corresponding to the original data according to T jk
+i =
+Hri
+(H′−1)j
+s(H′′−1)kt
+ˆ T st
+r .
+Algorithm 16.1. The normalized linear algorithm for computation of T .
+scaled by a factor of 0.01, then the coordinates for the lines become l1 = (1, 0, 1)T and
+l2 = (0, 1, 1)T, which are quite different.
+Nevertheless, this observation indicates that care is needed when representing lines.
+Suppose one is given a correspondence between three lines l, l′ and l′′. Two points
+x1 and x2 lying on l are selected. Each of these points provides a correspondence
+xs ↔ l′ ↔ l′′, for s = 1, 2, between the three views, in the sense that there exists a
+3D line that maps to l′ and l′′ in the second and third images and to a line (namely l)
+passing through xs in the first image. Two equations of the form xi
+sl′
+j l′′
+kT jk
+i = 0s for
+s = 1, 2 result from these correspondences. In this way one avoids the use of lines in
+the first image, though not the other images. Often lines in images are defined naturally
+by a pair of points, possibly the two endpoints of the lines. Even lines that are defined
+as the best fit to a set of edge points in an image may be treated as if they were defined
+by just two points, as will be described in section 16.7.2.
+Normalization
+As in all algorithms of this type, it is necessary to carry out prenormalization of the
+input data before forming and solving the linear equation system. Subsequently, it is
+necessary to correct for this normalization to find the trifocal tensor for the original
+data. The recommended normalization is much the same as that given for the computation
+of the fundamental matrix. A translation is applied to each image such that the
+centroid of the points is at the origin, and then a scaling is applied so that the average
+(RMS) distance of the points from the origin is √2. In the case of lines, the transformation
+should be defined by considering each line’s two endpoints (or some representative
+line points visible in the image). The transformation rule for the trifocal tensor under
+these normalizing transformations is given in section A1.2(p563). The normalized
+linear algorithm for computing T is summarized in algorithm 16.1.
+This algorithm does not consider the constraints discussed in section 16.1.1 that
+should be applied to T . These constraints ought to be enforced before the denormal16.3
+The algebraic minimization algorithm 395
+ization step (final step) in the above algorithm. Methods of enforcing these constraints
+will be considered next.
+16.3 The algebraic minimization algorithm
+The linear algorithm 16.1 will give a tensor not necessarily corresponding to any geometric
+configuration, as discussed in section 16.1.1. The next task is to correct the
+tensor to satisfy all required constraints.
+Our task will be to compute a geometrically valid trifocal tensor T jk
+i from a set of
+image correspondences. The tensor computed will minimize the algebraic error associated
+with the input data. That is, we minimize kAˆtk subject to kˆtk = 1, where ˆt
+is the vector of entries of a geometrically valid trifocal tensor. The algorithm is quite
+similar to the algebraic algorithm (section 11.3(p282)) for computation of the fundamental
+matrix. Just as with the fundamental matrix, the first step is the computation of
+the epipoles.
+Retrieving the epipoles
+Let e′ and e′′ be the epipoles in the second and third images corresponding to (that
+is being images of) the first camera centre. Recall from result 15.4(p373) that the
+two epipoles e′ and e′′ are the common perpendicular to the left (respectively right)
+null-vectors of the three Ti. In principle then, the epipoles may be computed from the
+trifocal tensor using the algorithm outlined in algorithm 15.1(p375). However, in the
+presence of noise, this translates easily into an algorithm for computing the epipoles
+based on four applications of algorithm A5.4(p593).
+(i) For each i = 1, . . . , 3 find the unit vector vi that minimizes kTivik, where
+Ti = T ··
+i . Form the matrix V, the i-th row of which is vT
+i .
+(ii) Compute the epipole e′′ as the unit vector that minimizes kVe′′k.
+The epipole e′ is computed similarly, using TT
+i instead of Ti.
+Algebraic minimization
+Having computed the epipoles the next step is to determine the remaining elements of
+the camera matrices P′, P′′ from which the trifocal tensor can be calculated. This step
+is linear.
+From the form (15.9–p376) of the trifocal tensor, it may be seen that once the
+epipoles e′j = aj
+4 and e′′k = bk
+4 are known, the trifocal tensor may be expressed linearly
+in terms of the remaining entries of the matrices aj
+i and bki
+. This relationship may be
+written linearly as t = Ea where a is the vector of the remaining entries ai
+j and bi
+j , t is
+the vector of entries of the trifocal tensor, and E is the linear relationship expressed by
+(15.9–p376). We wish to minimize the algebraic error kAtk = kAEak over all choices
+of a constrained such that ktk = 1, that is kEak = 1. This minimization problem is
+solved by algorithm A5.6(p595). The solution t = Ea represents a trifocal tensor satisfying
+all constraints, and minimizing the algebraic error, subject to the given choice
+of epipoles.
+396 16 Computation of the Trifocal Tensor T
+Objective
+Given a set of point and line correspondences in three views, compute the trifocal tensor.
+Algorithm
+(i) From the set of point and line correspondences compute the set of equations of the form
+At = 0, from the relations given in table 16.1.
+(ii) Solve these equations using algorithm A5.4(p593) to find an initial estimate of the
+trifocal tensor T jk
+i .
+(iii) Find the two epipoles e′ and e′′ from T jk
+i as the common perpendicular to the left
+(respectively right) null-vectors of the three Ti.
+(iv) Construct the 27 × 18 matrix E such that t = Ea where t is the vector of entries of
+T jk
+i , a is the vector representing entries of aj
+i and bki
+, and where E expresses the linear
+relationship T jk
+i = aj
+i e′′k − e′jbki
+.
+(v) Solve the minimization problem: minimize kAEak subject to kEak = 1, using
+algorithm A5.6(p595). Compute the error vector ǫ = AEa.
+(vi) Iteration: The mapping (e′, e′′) 7→ ǫ is a mapping from IR6 to IR27. Iterate on the
+last two steps with varying e′ and e′′ using the Levenberg–Marquardt algorithm to find
+the optimal e′, e′′. Hence find the optimal t = Ea containing the entries of T jk
+i .
+Algorithm 16.2. Computing the trifocal tensor minimizing algebraic error. The computation should
+be carried out on data normalized in the manner of algorithm 16.1. Normalization and denormalization
+steps are omitted here for simplicity. This algorithm finds the geometrically valid trifocal tensor that
+minimizes algebraic error. At the cost of a slightly inferior solution, the last iteration step may be
+omitted, providing a fast non-iterative algorithm.
+Iterative method
+The two epipoles used to compute a geometrically valid tensor T jk
+i are determined
+using the estimate of T jk
+i obtained from the linear algorithm. Analogous to the case
+of the fundamental matrix, the mapping (e′, e′′) 7→ AEa is a mapping IR6 → IR27.
+An application of the Levenberg–Marquardt algorithm to optimize the choice of the
+epipoles will result in an optimal (in terms of algebraic error) estimate of the trifocal
+tensor. Note that the iteration problem is of modest size, since only 6 parameters, the
+homogeneous coordinates of the epipoles, are involved in the iteration problem.
+This contrasts with an iterative estimation of the optimal trifocal tensor in terms of
+geometric error, considered later. This latter problem requires estimating the parameters
+of the three cameras, plus the coordinates of all the points, a large estimation
+problem.
+The complete algebraic method for estimating the trifocal tensor is summarized in
+algorithm 16.2.
+16.4 Geometric distance
+16.4.1 The Gold Standard method for the trifocal tensor
+As with the computation of the fundamental matrix, best results may be expected from
+the maximum likelihood (or “Gold Standard”) solution. Since this has been adequately
+described for the case of the fundamental matrix computation, little needs to be added
+for the three-view case.
+16.4 Geometric distance 397
+Objective
+Given n ≥ 7 image point correspondences {xi ↔ x′
+i ↔ x′′
+i }, determine the Maximum
+Likelihood Estimate of the trifocal tensor.
+The MLE involves also solving for a set of subsidiary point correspondences {ˆxi ↔ ˆx
+′
+i ↔ ˆx
+′′
+i },
+which exactly satisfy the trilinear relations of the estimated tensor and which minimize
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx
+′
+i)2 + d(x′′
+i , ˆx
+′′
+i )2
+Algorithm
+(i) Compute an initial geometrically valid estimate of T using a linear algorithm such as
+algorithm 16.2.
+(ii) Compute an initial estimate of the subsidiary variables {ˆxi, ˆx
+′
+i, ˆx
+′′
+i } as follows:
+(a) Retrieve the camera matrices P′ and P′′ from T .
+(b) From the correspondence xi ↔ x′
+i ↔ x′′
+i and P = [I | 0], P′, P′′ determine an
+estimate of bX i using the triangulation method of chapter 12.
+(c) The correspondence consistent with T is obtained as
+ˆxi = PbX i, ˆx
+′
+i = P′bX i, ˆx
+′′
+i = P′′bX i.
+(iii) Minimize the cost
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx
+′
+i)2 + d(x′′
+i , ˆx
+′′
+i )2
+over T and bX i, i = 1, . . . , n. The cost is minimized using the Levenberg–Marquardt
+algorithm over 3n + 24 variables: 3n for the n 3D points bX i, and 24 for the elements
+of the camera matrices P′, P′′.
+Algorithm 16.3. The Gold Standard algorithm for estimating T from image correspondences.
+Given a set of point correspondences {xi ↔ x′
+i ↔ x′′
+i } in three views, the cost
+function to be minimized is
+X
+i
+d(xi, ˆxi)2 + d(x′
+i, ˆx′
+i)2 + d(x′′
+i , ˆx′′
+i )2 (16.3)
+where the points ˆxi, ˆx′
+i, ˆx′′
+i satisfy a trifocal constraint (as in table 16.1) exactly for
+the estimated trifocal tensor. As in the case of the fundamental matrix one needs to
+introduce further variables corresponding to 3D points Xi and parametrize the trifocal
+tensor by the entries of the matrices P′ and P′′ (see below). The cost function is then
+minimized over the position of the 3D points Xi and the two camera matrices P′ and
+P′′ with ˆxi = [I | 0]Xi, ˆx′
+i = P′
+Xi, and ˆx′′
+i = P′′
+Xi. Essentially one is carrying out
+bundle adjustment over three views. The sparse matrix techniques of section A6.3-
+(p602) should be used.
+A good way to find an initial estimate is the algebraic algorithm 16.2, though the
+final iterative step can be omitted. This algorithm gives a direct estimate of the entries
+of P′ and P′′. The initial estimate of the 3D points Xi may be obtained using the linear
+triangulation method of section 12.2(p312). The steps of the algorithm are summarized
+in algorithm 16.3.
+398 16 Computation of the Trifocal Tensor T
+The technique can be extended to include line correspondences. To do this, one
+needs to find a representation of a 3D line convenient for computation. Given a 3-view
+line correspondence l ↔ l′ ↔ l′′, the lines being perhaps defined by their endpoints in
+each image, a very convenient way to represent the 3D line during the LM parameter
+minimization is by its projections ˆl
+′
+and ˆl
+′′
+in the second and third views. Given a
+candidate trifocal tensor, one can easily compute the projection of the 3D line into
+the first view using the line transfer equation ˆli = ˆl ′
+j
+ˆl
+′′
+kT jk
+i . Then one minimizes the
+sum-of-squares line distance
+X
+i
+d(li,ˆl i)2 + d(l′
+i,ˆl
+′
+i)2 + d(l′′
+i ,ˆl
+′′
+i )2
+for some appropriate interpretation of the distance d(l′
+i,ˆl
+′
+i)2 between the measured and
+estimated line. If the measured line is specified by its endpoints, then the obvious
+distance metric to use is the distance of the estimated line from the measured endpoints.
+In general a Mahalanobis distance may be used.
+16.4.2 Parametrization of the trifocal tensor
+If the tensor is parametrized simply by its 27 entries, then the estimated tensor will not
+satisfy the internal constraints. A parametrization which ensures that the tensor does
+satisfy its constraints, and so is geometrically valid, is termed consistent.
+Since, from definition 16.1, a tensor is geometrically valid if it is generated from
+three camera matrices P = [I | 0], P′, P′′ by (15.9–p376), it follows that the three camera
+matrices give a consistent parametrization. Note that this is an overparametrization
+since it requires 24 parameters to be specified, namely the 12 entries each of the matrices
+P′ = [A|a4] and P′′ = [B|b4]. There is no need to attempt to define a minimal
+set of (18) parameters, which is a difficult task. Any choice of cameras is a consistent
+parametrization, the particular projective reconstruction has no effect on the tensor.
+Another consistent parametrization is obtained by computing the tensor from six
+point correspondences across three views as in section 20.2(p508). Then the position
+of the points in each image is the parametrization – a total of 6 (points) ×2 (for x, y) × 3 (images) = 36 parameters. However, only a subset of the points need be varied during
+the minimization, or the movement of the points can be restricted to be perpendicular
+to the variety of trifocal tensors.
+16.4.3 First-order geometric error (Sampson distance)
+The trifocal tensor may be computed using a geometric cost function based on the
+Sampson approximation in a manner entirely analogous to the Sampson method used
+to compute the fundamental matrix (section 11.4.3(p287)). Again the advantage is that
+it is not necessary to introduce a set of subsidiary variables, as this first-order geometric
+error requires a minimization only over the parametrization of the tensor (e.g. only
+24 parameters if P′, P′′ is used as above). The minimization can be carried out with
+a simple iterative Levenberg–Marquardt algorithm, and the method initialized by the
+iterative algebraic algorithm 16.2.
+16.5 Experimental evaluation of the algorithms 399
+The Sampson cost function is a little more complex computationally than the corresponding
+cost function for the fundamental matrix (11.9–p287), because each point
+correspondence gives four equations, instead of just one for the fundamental matrix.
+The more general case was discussed in section 4.2.6(p98). The error function (4.13–
+p100) in the present case is
+X
+i
+ǫT
+i (JiJ
+T
+i )−1ǫi (16.4)
+where ǫi is the algebraic error vector Ait corresponding to a single 3-view correspondence
+(a 4-vector in the case of 4 equations per point), and J is the 4 × 6 matrix of
+partial derivatives of ǫ with respect to the coordinates of each of the corresponding
+points xi ↔ x′
+i ↔ x′′
+i . As in the programming hint given in exercise (vii) on page 129,
+the computation of the partial derivative matrix J may be simplified by observing that
+the cost function is multilinear in the coordinates of the points xi, x′
+i, x′′
+i .
+The Sampson error method has various advantages:
+• It gives a good approximation to actual geometric error (the optimum), using a relatively
+simple iterative algorithm.
+• As in the case of actual geometric error, non-isotropic and unequal error distributions
+may be specified for each of the points without significantly complicating the
+algorithm. See exercises in chapter 4.
+16.5 Experimental evaluation of the algorithms
+A brief comparison is now given of the results of the (iterative) algebraic algorithm 16.2
+along with the Gold Standard algorithm 16.3 for computing the trifocal tensor. The
+algorithms are run on synthetic data with controlled levels of noise. This allows a
+comparison with the theoretically optimal ML results, and a determination of how well
+these algorithms are able to approximate the theoretical lower bound on residual error,
+achieved by an optimal ML algorithm.
+Computer-generated data sets of 10, 15 and 20 points were used to test the algorithm,
+and the cameras were placed at random angles around the cloud of points. The camera
+parameters were chosen to approximate a standard 35mm camera, and the scale was
+chosen so that the size of the image was 600 × 600 pixels.
+For a given level of added Gaussian noise in the image measurement, one may compute
+the expected residual achieved by an ML algorithm, according to result 5.2(p136).
+In this case, if n is the number of points, then the number of measurements is N = 6n,
+and the number of degrees of freedom in the fitting is d = 18+3n, where 18 represents
+the number of degrees of freedom of the three cameras (3 × 11 less 15 to account for
+projective ambiguity) and 3n represents the number of degrees of freedom of n points
+in space. Hence the ML residual is
+ǫres = σ(1 − d/N)1/2 = σ
+
+n − 6
+2n
+1/2
+.
+400 16 Computation of the Trifocal Tensor T
+0
+1
+2
+3
+4
+5
+6
+0
+Error
+2 4 6 8 10 12
+10 points
+Noise
+0
+1
+2
+3
+4
+5
+6
+7
+0
+Error
+2 4 6 8 10 12
+15 points
+Noise
+0
+1
+2
+3
+4
+5
+6
+7
+0
+Error
+2 4 6 8 10 12
+20 points
+Noise
+Fig. 16.1. Comparison of trifocal tensor estimation algorithms. The residual error RMS-averaged
+over 100 runs is plotted against the noise level, for computation of the trifocal tensor using 10, 15
+and 20 points. Each graph contains three curves. The top curve is the result of the algebraic error
+minimization, whereas the lower two curves, actually indistinguishable in the graphs, represent the
+theoretical minimum error, and the error obtained by the Gold Standard algorithm using the algebraic
+minimization as a starting point. Note that the residual errors are almost exactly proportional to added
+noise, as they should be.
+16.5.1 Results and recommendations
+The results are shown in figure 16.1. We learn two things from these results. Minimization
+of the algebraic error achieves residual errors within about 15% of the optimal and
+using this estimate as a starting point for minimizing geometric error achieves a virtually
+optimal estimate.
+All the algorithms developed above, except the linear method of section 16.1, enforce
+the internal constraints on the tensor. The linear method is not recommended for use
+on its own, but is necessary for initialization in most of the other methods. As in the
+case of estimating the fundamental matrix our recommendations are to use the iterative
+algebraic algorithm 16.2 or the Sampson geometric approximation of section 16.4.3.
+Both give excellent results. Again to be certain of getting the best results, if Gaussian
+noise is a viable assumption, implement the Gold Standard algorithm 16.3.
+16.6 Automatic computation of T
+This section describes an algorithm to compute the trifocal geometry between three
+images automatically. The input to the algorithm is simply the triplet of images, with
+no other a priori information required; and the output is the estimated trifocal tensor
+together with a set of interest points in correspondence across the three images.
+The fact that the trifocal tensor may be used to determine the exact image position
+of a point in a third view, given its image position in the other two views, means that
+there are fewer mismatches over three views than there are over two. In the two view
+case there is only the weaker geometric constraint of an epipolar line against which to
+verify a possible match.
+The three-view algorithm uses RANSAC as a search engine in a similar manner
+to its use in the automatic computation of a homography described in section 4.8-
+(p123). The ideas and details of the algorithm are given there, and are not repeated
+here. The method is summarized in algorithm 16.4, with an example of its use shown
+16.6 Automatic computation of T 401
+Objective Compute the trifocal tensor between three images.
+Algorithm
+(i) Interest points: Compute interest points in each image.
+(ii) Two-view correspondences: Compute interest point correspondences (and F) between
+views 1 & 2, and 2 & 3 using algorithm 11.4(p291).
+(iii) Putative three-view correspondences: Compute a set of interest point correspondences
+over three views by joining the two-view match sets.
+(iv) RANSAC robust estimation: Repeat for N samples, where N is determined adaptively
+as in algorithm 4.5(p121):
+(a) Select a random sample of 6 correspondences and compute the trifocal tensor
+using algorithm 20.1(p511). There will be one or three real solutions.
+(b) Calculate the distance d⊥ in IR6 from each putative correspondence to the variety
+described by T , as in section 16.6.
+(c) Compute the number of inliers consistent with T by the number of correspondences
+for which d⊥ < t.
+(d) If there are three real solutions for T the number of inliers is computed for each
+solution, and the solution with most inliers retained.
+Choose the T with the largest number of inliers. In the case of ties choose the solution
+that has the lowest standard deviation of inliers.
+(v) Optimal estimation: Re-estimate T from all correspondences classified as inliers using
+the Gold Standard algorithm 16.3 or the Sampson approximation to this.
+(vi) Guided matching: Further interest point correspondences are now determined using
+the estimated T as described in the text.
+The last two steps can be iterated until the number of correspondences is stable.
+Algorithm 16.4. Algorithm to automatically estimate the trifocal tensor over three images using
+RANSAC.
+in figure 16.2, and additional explanation of the steps given below. Figure 16.3 shows
+a second example which includes automatically computed line matches.
+The distance measure – reprojection error. Given the match x ↔ x′ ↔ x′′ and the
+current estimate of T we need to determine the minimum of the reprojection error –
+d2
+⊥ = d2(x, ˆx)+d2(x′, ˆx′)+d2(x′′, ˆx′′), where the image points ˆx, ˆx′, ˆx′′ are consistent
+with T . As usual the consistent images points may be obtained from the projection of
+a 3-space point bX
+ˆx = [I | 0]bX , ˆx′ = P
+′bX , ˆx′′ = P
+′′bX
+where the camera matrices P′, P′′ are extracted from T . The distance d2
+⊥ is then obtained
+by determining the point bX which minimizes the image distance between the measured
+points x, x′, x′′ and the projected points.
+Another way of obtaining this distance is to use the Sampson error (16.4), which is
+a first-order approximation to the geometric error. However, in practice it is quicker
+to estimate the error directly by non-linear least-squares iteration (a small Levenberg–
+Marquardt problem). Starting from an initial estimate of bX , one iterates varying the
+coordinates of bX to minimize the reprojection error.
+402 16 Computation of the Trifocal Tensor T
+a b c
+d e f
+g h
+i j
+Fig. 16.2. Automatic computation of the trifocal tensor between three images using RANSAC. (a
+- c) raw images of Keble College, Oxford. The motion between views consists of a translation and
+rotation. The images are 640 × 480 pixels. (d - f) detected corners superimposed on the images. There
+are approximately 500 corners on each image. The following results are superimposed on the (a) image:
+(g) 106 putative matches shown by the line linking corners, note the clear mismatches; (h) outliers – 18
+of the putative matches. (i) inliers – 88 correspondences consistent with the estimated T ; (j) final set of
+95 correspondences after guided matching and MLE. There are no mismatches.
+Guided matching. We have an initial estimate of T and wish to use this to generate
+and assess additional point correspondences across the three-views. The first step is
+to extract the fundamental matrix F12 between views 1 & 2 from T . Then two-view
+16.6 Automatic computation of T 403
+a
+b
+Fig. 16.3. Image triplet matching. The trifocal tensor is computed automatically from interest points
+using algorithm 16.4, and subsequently used to match line features across views. (a) Three images of
+a corridor sequence. (b) Automatically matched line segments. The matching algorithm is described in
+[Schmid-97].
+guided matches are computed using loose thresholds on matching. Each two-view
+match is corrected using F12 to give points ˆx, ˆx′ which are consistent with F12. These
+corrected two-view matches (together with T ) define a small search window in the third
+view in which the corresponding point is sought. Any three-view point correspondence
+is assessed by computing d⊥, as described above. The match accepted if d⊥ is less
+than the threshold t. Note, the same threshold is used for inlier detection within the
+RANSAC stage and guided matching.
+In practice it is found that the stage of guided matching is more significant here, in
+that it generates additional correspondences, than in the case of homography estimation.
+Implementation and run details. For the example of figure 16.2, the search window
+was ±300 pixels. The inlier threshold was t = 1.25 pixels. A total of 26 samples were
+required. The RMS pixel error after RANSAC was 0.43 (for 88 correspondences),
+after MLE it was 0.23 (for 88 correspondences), and after MLE and guided matching it
+was 0.19 (for 95 correspondences). The MLE required 10 iterations of the Levenberg–
+Marquardt algorithm.
+Note, RANSAC has to do far less work than in algorithm 11.4(p291) to estimate
+F and correspondences, because the two-view algorithm has already removed many
+outliers before the putative correspondences over three views are generated.
+404 16 Computation of the Trifocal Tensor T
+16.7 Special cases of T -computation
+16.7.1 Computing T jk
+i from a plane plus parallax
+We describe here the computation of T jk
+i from the image of a special configuration
+consisting of a world plane (from which a homography between views can be computed)
+and two points off the plane. Of course, it is not necessary for the plane to
+actually be present. It may be virtual, or the homography may simply be specified by
+the images of four coplanar points or four coplanar lines. The method is the analogue
+of algorithm 13.2(p336) for the fundamental matrix.
+The solution is obtained by constructing the three camera matrices (up to a common
+projective transformation of 3-space) and then computing the trifocal tensor from these
+matrices according to (15.9–p376). The homography induced by the world (reference)
+plane between the first and second view is H12, and between the first and third views is
+H13. As shown in section 13.3(p334) the epipole e′ may be computed directly from the
+two point correspondences off the plane for the first and second views, and the camera
+matrices chosen as P = [I | 0], P′ = [H12 | μe′], where μ is a scalar. Note the scale of
+both H12 and e′ is considered fixed here, so they are no longer homogeneous quantities.
+Similarly, e′′ may be determined from the two point correspondences for views one
+and three and the camera matrices chosen as P = [I | 0], P′′ = [H13 | λe′′], where λ is
+a scalar.
+It is then easily verified that a consistent set of cameras for the three views (see the
+discussion on consistent camera triplets on page 375) is given by
+P = [I | 0], P
+′ = [H12 | e′], P
+′′ = [H13 | λe′′] (16.5)
+where μ has been set to unity. The value of λ is determined from one of the point
+correspondences over three views, and this is left as an exercise. For more on planeplus-
+parallax reconstruction, see section 18.5.2(p450).
+Note that the estimation of the trifocal tensor for this configuration is overdetermined.
+In the case of the fundamental matrix over two views the homographies
+determine all but 2 degrees of freedom (the epipole), and each of the point correspondence
+provides one constraint, so that the number of constraints equals the number of
+degrees of freedom of the matrix. In the case of the trifocal tensor the homography
+determines all but 5 degrees of freedom (the two epipoles and their relative scaling).
+However, each point correspondence provides three constraints (there are six coordinate
+measurements less three for the point’s position in 3-space), so that there are six
+constraints on 5 degrees of freedom. Since there are more measurements than degrees
+of freedom in this case, the tensor should be estimated by minimizing a cost function
+based on geometric error.
+16.7.2 Lines specified by several points
+In describing the reconstruction algorithm from lines, we have considered the case
+where lines are specified by their two endpoints. Another common way that lines may
+16.7 Special cases of T -computation 405
+be specified in an image is as the best line fit to several points. It will be shown now
+how that case may easily be reduced to the case of a line defined by two endpoints.
+Consider a set of points xi in an image, normalized to have third component equal to 1.
+Let l = (l1, l2, l3)T be a line, which we suppose is normalized such that l2
+1 + l2
+2 = 1. In
+this case, the distance from a point xi to the line l is equal to xT
+i
+l. The squared distance
+may be written as d2 = lTxixT
+i
+l, and the sum-of-squares of all distances is
+X
+i
+lTxixT
+i
+l = lT(
+X
+i
+xixT
+i )l .
+The matrix E = (
+P
+i
+xixT
+i ) is positive-definite and symmetric.
+Lemma 16.2. Matrix (E − ǫ0J) is positive-semidefinite, where J is the matrix
+diag(1, 1, 0) and ǫ0 is the smallest solution to the equation det(E − ǫJ) = 0.
+Proof. We start by computing the vector x = (x1, x2, x3)T that minimizes xTEx
+subject to the condition x2
+1 + x2
+2 = 1. Using the method of Lagrange multipliers, this
+comes down to finding the extrema of xTEx−ξ(x2
+1+x2
+2), where ξ denotes the Lagrange
+coefficient. Taking the derivative with respect to x and setting it to zero, we find that
+2Ex−ξ(2x1, 2x2, 0)T = 0. This may be written as (E−ξJ)x = 0. It follows that ξ is a
+root of the equation det(E−ξJ) = 0 and x is the generator of the null-space of E−ξJ.
+Since xTEx = ξxTJx = ξ(x2
+1 + x2
+2) = ξ, it follows that to minimize xTEx one must
+choose ξ to be the minimum root ξ0 of the equation det(E−ξJ) = 0. In this case one has
+xT
+0
+Ex0 − ξ0 = 0 for the minimizing vector x0. For any other vector x, not necessarily
+the minimizing vector, one has xTEx−ξ0 ≥ 0. Then, xT(E−ξ0J)x = xTEx−ξ0 ≥ 0,
+and so E − ξ0J is positive-semidefinite.
+Since the matrix E − ξ0J is symmetric it may be written in the form E − ξ0J =
+Vdiag(r, s, 0)VT where V is an orthogonal matrix and r and s are positive. It follows
+that
+E − ξ0J = Vdiag(r, 0, 0)V
+T + Vdiag(0, s, 0)V
+T
+= rv1vT
+1 + sv2vT
+2
+where vi is the i-th column of V. Therefore E = ξ0J + rv1vT
+1 + sv2vT
+2 . Then for any
+line l satisfying l2
+1 + l2
+2 = 1 we have
+X
+i
+(xT
+i
+l)2 = lT
+El
+= ξ0 + r(vT
+1
+l)2 + s(vT
+2
+l)2.
+Thus, we have replaced the sum-of-squares of several points by a constant value ξ0,
+which is not capable of being minimized, plus the weighted sum-of-squares of the
+distances to two points v1 and v2. To summarize: when forming the trifocal tensor
+equations involving a line defined by points xi, formulate two point equations expressed
+in terms of the points v1 and v2 with weights √r and √s respectively.
+406 16 Computation of the Trifocal Tensor T
+Orthogonal regression. In the proof of lemma 16.2 above, it was shown that the line
+l that minimizes the sum of squared distances to the set of all points xi = (xi, yi, 1)T is
+obtained as follows.
+(i) Define matrices E =
+P
+i
+xixT
+i and J = diag(1, 1, 0).
+(ii) Let ξ0 be the minimum root of the equation det(E − ξJ) = 0.
+(iii) The required line l is the right null-vector of the matrix E − ξ0J.
+This gives a least-squares best fit of a line to a set of points. This process is known
+as orthogonal regression and it extends in an obvious way to higher-dimensional fitting
+of a hyperplane to a set of points in a way that minimizes the sum of squared distances
+to the points.
+16.8 Closure
+16.8.1 The literature
+A linear method for computing the trifocal tensor was first given in [Hartley-97a],
+where further experimental results of estimation using both point and line correspondences
+on real data are reported. An iterative algebraic method for estimating a consistent
+tensor was given in [Hartley-98d].
+Torr and Zisserman [Torr-97] developed an automatic algorithm for estimating a
+consistent tensor T from three images. This paper also compared several parametrizations
+of the iterative minimization. Several methods of representing and imposing the
+constraints on the tensor are given by Faugeras and Papadopoulo [Faugeras-97].
+[Oskarsson-02] gives minimal solutions for reconstruction for the two cases of “four
+points and three lines in three views”, and “two points and six lines in three views”.
+16.8.2 Notes and exercises
+(i) Consider the problem of estimating the 3-space point X which minimizes reprojection
+error from measured image points x, x′, x′′, given the trifocal tensor.
+This is the analogue of the triangulation problem of chapter 12. Show that for
+general motion the one parameter family parametrization of epipolar lines developed
+in chapter 12 does not extend from two views to three. However, in the
+case that the three camera centres are collinear the two-view parametrization
+can be extended to three and a minimum determined by solving a polynomial
+in one variable. What is the degree of this polynomial?
+(ii) An affine trifocal tensor may be computed from a minimal configuration of 4
+points in general position. The computation is similar to that of algorithm 14.2-
+(p352), and the resulting tensor satisfies the internal constraints for an affine
+trifocal tensor. How many constraints are there in the affine case?
+If more than 4 point correspondences are used in the estimation then a geometrically
+valid tensor is estimated using the factorization algorithm of section
+18.2(p436).
+(iii) The transformation rule for tensors is T jk
+i = Ari
+(B−1)j
+s(C−1)kt
+ˆ T st
+r . This may be
+computed easily as
+16.8 Closure 407
+Binv = B.inverse();
+Cinv = C.inverse();
+for (i=1; i<=3; i++) for (j=1; j<=3; j++) for (k=1; k<=3; k++)
+{ T[i][j][k] = 0.0;
+for (r=1; r<=3; r++) for (s=1; s<=3; s++) for (t=1; t<=3; t++)
+T[i][j][k] +=
+A[r][i] * Binv[j][s] * Cinv[k][t] * T_hat[r][s][t];
+}
+How many multiplications and loop iterations does this involve? Find a better
+way of computing this transformation.
+(iv) In the computation of the trifocal tensor using plane plus parallax
+(section 16.7.1), show that if ρ is the projective depth of one of the points off
+the plane (i.e. x′ = H12x+ρe′ see (13.9–p337)), then the scalar λ in (16.5) may
+be computed from the equation x′′ = H13x + ρλe′′.
+
+Part IV
+N-View Geometry
+Untitled 1947, (Oil on sackcloth) by Asger Jorn (1914-1973)
+
+c 2003 Artists Rights Society (ARS), New York / COPY-DAN, Copenhagen
+Outline
+This part is partly a recapitulation and partly new material.
+Chapter 17 is the recapitulation. We return to two- and three-view geometry but now within a more
+general framework which naturally extends to four- and n-views. The fundamental projective relations
+over multiple views arise from the intersection of lines (back-projected from points) and planes (backprojected
+from lines). These intersection properties are represented by the vanishing of determinants
+formed from the camera matrices of the views. The fundamental matrix, the trifocal tensor, and a new
+tensor for four views – the quadrifocal tensor – arise naturally from these determinants as the multiple
+view tensors for two, three, and four views respectively. The tensors are what remains when the 3D
+structure and non-essential part of the camera matrices are eliminated. The tensors stop at four views.
+These tensors are unique for each set of views, and generate relationships which are multi-linear in
+the coordinates of the image measurements. The tensors can be computed from sets of image correspondences,
+and subsequently a camera matrix for each view can be computed from the tensor. Finally, the
+3D structure can be computed from the retrieved cameras and image correspondences.
+Chapter 18 covers the computation of a reconstruction from multiple views. In particular the important
+factorization algorithm is given for reconstruction from affine views. It is important because the
+algorithm is optimal, but is also non-iterative.
+Chapter 19 describes the auto-calibration of a camera. These are a set of methods for computing the
+internal parameters of a camera based on constraints over multiple images. In contrast to the traditional
+approach to calibration described in chapter 7, no explicit scene calibration object is used, but simply
+constraints such as that the internal parameters are common across the images, or that the camera rotates
+about its centre and does not change aspect ratio.
+Chapter 20 emphasises the duality between points and cameras, and how this links various configurations
+and algorithms that have been given throughout this book. This chapter contains an algorithm for
+computing a reconstruction of six points imaged in 3-views.
+Chapter 21 investigates the issue of whether points are in front of or behind one or more cameras.
+This is an issue that goes beyond the homogeneous representation used throughout the book which does
+not distinguish the direction of a ray.
+Chapter 22 covers the important topic of those configurations for which the estimation algorithms
+described in this book will fail. An example is for resectioning, where the camera matrix cannot be
+computed if all the 3D points and the camera centre lie on a twisted cubic.
+410 -->
+</p><p>
+</p><p>
+    </body>
+</html>

@@ -1,0 +1,2230 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>8章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>単視点幾何学についてもう少し</center></h1>
+<p>
+第6章では、点に対するカメラの作用のモデルとして射影行列を導入しました。本章では、透視投影下における他の3次元エンティティとその画像との関連について説明します。これらのエンティティには、平面、直線、円錐曲線、二次曲線が含まれ、それらの順方向投影と逆方向投影の特性を発展させます。
+
+<!-- Chapter 6 introduced the projection matrix as the model for the action of a camera
+on points. This chapter describes the link between other 3D entities and their images
+under perspective projection. These entities include planes, lines, conics and quadrics;
+and we develop their forward and back-projection properties.-->
+
+</p><p>
+
+カメラはさらに細分化され、その中心点と像平面へと縮小されます。
+2つの特性が確立されます。1つは、同じ中心を持つカメラで取得された画像は平面射影変換によって関連付けられること、もう1つは、無限遠平面上の物体の画像\(\pi_\infty\)はカメラの位置には依存せず、カメラの回転と内部パラメータ\(K\)のみに依存することです。
+
+<!-- The camera is dissected further, and reduced to its centre point and image plane.
+Two properties are established: images acquired by cameras with the same centre are
+related by a plane projective transformation; and images of entities on the plane at
+infinity, \(\pi_\infty\), do not depend on camera position, only on camera rotation and internal parameters, \(K\). -->
+
+</p><p>
+
+\(\pi_\infty\) 上の実体（点、直線、円錐曲線）の像は特に重要です。\(\pi_\infty\) 上の点の像は消失点であり、\(\pi_\infty\) 上の直線の像は消失線であることがわかります。これらの像は \(K\) とカメラの回転の両方に依存します。
+しかし、絶対円錐曲線の像 \(\omega\) は \(K\) のみに依存し、カメラの回転の影響を受けません。円錐曲線 \(\omega\) はカメラのキャリブレーション \(K\) と密接に関連しており、\(\omega = (KK^T)^{-1}\) という関係が成り立ちます。したがって、\(\omega\) は像点から逆投影された光線間の角度を定義します。
+
+<!-- The images of entities (points, lines, conics) on \(\pi_\infty\) are of particular importance. It
+will be seen that the image of a point on \(\pi_\infty\) is a vanishing point, and the image of
+a line on \(\pi_\infty\) a vanishing line; their images depend on both \(K\) and camera rotation.
+However, the image of the absolute conic, \(\omega\), depends only on \(K\); it is unaffected by the
+camera’s rotation. The conic \(\omega\) is intimately connected with camera calibration, \(K\), and
+the relation \(\omega = (KK^T)^{-1}\) is established. It follows that \(\omega\) defines the angle between
+rays back-projected from image points.-->
+
+</p><p>
+
+これらの特性により、カメラの位置とは独立して、消失点からカメラの相対的な回転を計算することができます。さらに、\(K\) は画像点から光線間の角度を計算することができるため、\(K\) は既知の光線間の角度から計算できます。特に、\(K\) はシーンの直交方向に対応する消失点から決定できます。つまり、既知の世界座標を必要とせずに、シーンの特徴からカメラをキャリブレーションできるということです。
+
+<!-- These properties enable camera relative rotation to be computed from vanishing
+points independently of camera position. Further, since \(K\) enables the angle between
+rays to be computed from image points, in turn \(K\) may be computed from the known
+angle between rays. In particular \(K\) may be determined from vanishing points corresponding
+to orthogonal scene directions. This means that a camera can be calibrated
+from scene features, without requiring known world coordinates.-->
+
+</p><p>
+
+この章で紹介する最後の幾何学的実体は較正円錐であり、これにより\(K\)の幾何学的視覚化が可能になります。
+
+<!-- A final geometric entity introduced in this chapter is the calibrating conic, which
+enables a geometric visualization of \(K\). -->
+
+</p>
+<h2><center>8.1 平面、直線、円錐曲線上の射影カメラの作用</center></h2>
+<p>
+
+この節（そして本書の大部分）では、カメラ投影行列 \(P\) の \(3×4\) 形式と階数のみが、その作用を決定する上で重要です。その要素の特定の特性や関係は、多くの場合重要ではありません。
+
+<!-- In this section (and indeed in most of this book) it is only the \(3×4\) form and rank of the
+camera projection matrix \(P\) that is important in determining its action. The particular
+properties and relations of its elements are often not relevant.-->
+
+</p><p>
+<!-- Fig. 8.1. Perspective image of points on a plane. The XY-plane of the world coordinate frame is
+aligned with the plane . Points on the image and scene planes are related by a plane projective
+transformation.
+</p>
+
+<h3>8.1.1 On planes</h3>
+<p>
+The point imaging equation x = PX is a map from a point in a world coordinate frame,
+to a point in image coordinates. We have the freedom to choose the world coordinate
+frame. Suppose it is chosen such that the XY-plane corresponds to a plane  in the
+scene, so that points on the scene plane have zero Z-coordinate as shown in figure 8.1
+(it is assumed that the camera centre does not lie on the scene plane). Then, if the
+columns of P are denoted as pi, the image of a point on  is given by
+x = PX =
+h
+p1 p2 p3 p4
+i
+
+
+X
+Y
+0
+1
+
+
+=
+h
+p1 p2 p4
+i
+
+
+X
+Y
+1
+
+
+.
+So that the map between points x = (X, Y, 1)T on  and their image x is a general
+planar homography (a plane to plane projective transformation): x = Hx, with H a
+3 × 3 matrix of rank 3. This shows that:
+• The most general transformation that can occur between a scene plane and an image
+plane under perspective imaging is a plane projective transformation.
+If the camera is affine, then a similar derivation shows that the scene and image planes
+are related by an affine transformation.
+Example 8.1. For a calibrated camera (6.8–p156) P = K[R | t], the homography between
+a world plane at Z = 0 and the image is
+H = K [r1, r2, t] (8.1)
+where ri are the columns of R. △
+8.1.2 On lines
+Forward projection. A line in 3-space projects to a line in the image. This is easily
+seen geometrically – the line and camera centre define a plane, and the image is the
+intersection of this plane with the image plane (figure 8.2) – and is proved algebraically
+8.1 Action of a projective camera on planes, lines, and conics 197
+􀁓
+l
+C
+L
+Fig. 8.2. Line projection. A line L in 3-space is imaged as a line l by a perspective camera. The image
+line l is the intersection of the plane , defined by L and the camera centre C, with the image plane.
+Conversely an image line l back-projects to a plane  in 3-space. The plane is the “pull-back” of the
+line.
+by noting that if A,B are points in 3-space, and a, b their images under P, then a point
+X(μ) = A + μB on a line which is the join of A,B in 3-space projects to a point
+x(μ) = P(A + μB) = PA + μPB
+= a + μb
+which is on the line joining a and b.
+Back-projection of lines. The set of points in space which map to a line in the image
+is a plane in space defined by the camera centre and image line, as shown in figure 8.2.
+Algebraically,
+Result 8.2. The set of points in space mapping to a line l via the camera matrix P is the
+plane PTl.
+Proof. A point x lies on l if and only if xTl = 0. A space point X maps to a point
+PX, which lies on the line if and only if X
+TPTl = 0. Thus, if PTl is taken to represent a
+plane, then X lies on this plane if and only if X maps to a point on the line l. In other
+words, PTl is the back-projection of the line l.
+Geometrically there is a star (two-parameter family) of planes through the camera centre,
+and the three rows of the projection matrix PiT (6.12–p159) are a basis for this star.
+The plane PTl is a linear combination of this basis corresponding to the element of the
+star containing the camera centre and the line l. For example, if l = (0, 1, 0)T then the
+plane is P
+2, and is the back projection of the image x-axis.
+Pl¨ucker line representation. Understanding this material on Pl ¨ucker line mapping is
+not required for following the rest of the book.
+We now turn to forward projection of lines. If a line in 3-space is represented by
+Pl¨ucker coordinates then its image can be expressed as a linear map on these coordinates.
+We will develop this map for both the 4×4 matrix and 6-vector line representations.
+198 8 More Single View Geometry
+Result 8.3. Under the camera mapping P, a line in 3-space represented as a Pl¨ucker
+matrix L, as defined in (3.8–p70), is imaged as the line l where
+[l]× = PLP
+T. (8.2)
+where the notation [l]× is defined in (A4.5–p581).
+Proof. Suppose as above that a = PA, b = PB. The Pl¨ucker matrix L for the line
+through A,B in 3-space is L = AB
+T − BA
+T. Then the matrix M = PLPT = abT − baT
+is 3 × 3 and antisymmetric, with null-space a × b. Consequently, M = [a × b]×, and
+since the line through the image points is given by l = a×b, this completes the proof.
+It is clear from the form of (8.2) that there is a linear relation between the image line
+coordinates li and the world line coordinates Ljk, but that this relation is quadratic
+in the elements of the point projection matrix P. Thus, (8.2) may be rearranged such
+that the map between the Pl¨ucker line coordinates, L (a 6-vector), and the image line
+coordinates l (a 3-vector) is represented by a single 3 × 6 matrix. It can be shown that
+Definition 8.4. The line projection matrix P is the 3 × 6 matrix of rank 3 given by
+P =
+
+
+P2 ∧ P
+3
+P3 ∧ P1
+P
+1 ∧ P
+2
+
+
+(8.3)
+where PiT are the rows of the point camera matrix P, and Pi ∧ Pj are the Pl¨ucker line
+coordinates of the intersection of the planes Pi and Pj .
+Then the forward line projection is given by
+Result 8.5. Under the line projection matrix P, a line in IP3 represented by Pl¨ucker
+line coordinates L, as defined in (3.11–p72), is mapped to the image line
+l = PL =
+
+(P2
+∧
+P
+3
+|
+L
+)
+(P
+3 ∧ P
+1|L)
+(P
+1 ∧ P
+2|L)
+
+
+(8.4)
+where the product (L| ˆ L) is defined in (3.13–p72).
+Proof. Suppose the line in 3-space is the join of the points A and B, and these project
+to a = PA, b = PB respectively. Then the image line l = a × b = (PA) × (PB).
+Consider the first element
+l1 = (P
+2T
+A)(P
+3T
+B) − (P
+2T
+B)(P
+3T
+A)
+= (P
+2 ∧ P
+3|L)
+where the second equality follows from (3.14–p73). The other components follow in a
+similar manner.
+8.1 Action of a projective camera on planes, lines, and conics 199
+The line projection matrix P plays the same role for lines as P does for points. The rows
+of P may be interpreted geometrically as lines, in a similar manner to the interpretation
+of the rows of the point camera matrix P as planes given in section 6.2.1(p158). The
+rows PiT of P are the principal plane and axis planes of the camera. The rows of P
+are the lines of intersection of pairs of these camera planes. For example, the first
+row of P is P
+2 ∧ P
+3, and this is the 6-vector Pl¨ucker line representation of the line of
+intersection of the y = 0 axis plane, P
+2, and the principal plane, P
+3. The three lines
+corresponding to the three rows of P intersect at the camera centre. Consider lines L
+in 3-space for which PL = 0. These lines are in the null-space of P. Since each row
+of P is a line, and from result 3.5(p72) the product (L1|L2) = 0 if two lines intersect,
+if follows that L intersects each of the lines represented by the rows of P. These lines
+are the intersection of the camera planes, and the only point on all 3 camera planes is
+the camera centre. Thus we have
+• The lines L in IP3 for which PL = 0 pass through the camera centre.
+The 3 × 6 matrix P has a 3-dimensional null-space. Allowing for the homogeneous
+scale factor, this null-space is a two-parameter family of lines containing the camera
+centre. This is to be expected since there is a star (two parameter family) of lines in IP3
+concurrent with a point.
+8.1.3 On conics
+Back-projection of conics. A conic C back-projects to a cone. A cone is a degenerate
+quadric, i.e. the 4×4 matrix representing the quadric does not have full rank. The cone
+vertex, in this case the camera centre, is the null-vector of the quadric matrix.
+Result 8.6. Under the camera P the conic C back-projects to the cone
+Qco = P
+T
+CP.
+Proof. A point x lies on C if and only if xTCx = 0. A space point X maps to a point
+PX, which lies on the conic if and only if X
+TPTCPX = 0. Thus, if Qco = PTCP is taken
+to represent a quadric, then X lies on this quadric if and only if X maps to a point on
+the conic C. In other words, Qco is the back-projection of the conic C.
+Note the camera centre C is the vertex of the degenerate quadric since
+QcoC = PTC(PC) = 0.
+Example 8.7. Suppose that P = K[I | 0]; then the conic C back-projects to the cone
+Qco =
+"
+KT
+0T
+#
+C [K | 0] =
+"
+KTCK 0
+0T 0
+#
+.
+The matrix Qco has rank 3. Its null-vector is the camera centre C = (0, 0, 0, 1)T. △
+200 8 More Single View Geometry
+Contour
+generator
+Apparent
+contour
+n
+n
+􀀪 􀁊
+X
+x
+k
+C
+a b
+Fig. 8.3. Contour generator and apparent contour. (a) for parallel projection; (b) for central projection.
+The ray from the camera centre through x is tangent to the surface at X. The set of such tangent
+points X defines the contour generator, and their image defines the apparent contour. In general the
+contour generator is a space curve. Figure courtesy of Roberto Cipolla and Peter Giblin.
+8.2 Images of smooth surfaces
+The image outline of a smooth surface S results from surface points at which the imaging
+rays are tangent to the surface, as shown in figure 8.3. Similarly, lines tangent to
+the outline back-project to planes which are tangent planes to the surface.
+Definition 8.8. The contour generator   is the set of points X on S at which rays are
+tangent to the surface. The corresponding image apparent contour 
+ is the set of points
+x which are the image of X, i.e. 
+ is the image of  .
+The apparent contour is also called the “outline” and “profile”. If the surface is viewed
+in the direction of X from the camera centre, then the surface appears to fold, or to have
+a boundary or occluding contour.
+It is evident that the contour generator   depends only on the relative position of the
+camera centre and surface, not on the image plane. However, the apparent contour 
+is defined by the intersection of the image plane with the rays to the contour generator,
+and so does depend on the position of the image plane.
+In the case of parallel projection with direction k, consider all the rays parallel to k
+which are tangent to S, see figure 8.3a. These rays form a “cylinder” of tangent rays,
+and the curve along which this cylinder is tangent to S is the contour generator  . The
+curve in which the cylinder meets the image plane is the apparent contour 
+. Note that
+both   and 
+ depend in an essential way on k. The set   slips over the surface as the
+direction of k changes. For example, with S a sphere,   is the great circle orthogonal
+to k. In this case, the contour generator   is a plane curve, but in general   is a space
+curve.
+We next describe the projection properties of quadrics. For this class of surface
+algebraic expressions can be developed for the contour generator and apparent contour.
+8.3 Action of a projective camera on quadrics 201
+􀀪 c
+Fig. 8.4. The cone of rays for a quadric. The vertex of the cone is the camera centre. (a) The contour
+generator   of a quadric is a plane curve (a conic) which is the intersection of the quadric with the
+polar plane of the camera centre, C.
+8.3 Action of a projective camera on quadrics
+A quadric is a smooth surface and so its outline curve is given by points where the
+back-projected rays are tangent to the quadric surface as shown in figure 8.4.
+Suppose the quadric is a sphere, then the cone of rays between the camera centre
+and quadric is right-circular, i.e. the contour generator is a circle, with the plane of
+the circle orthogonal to the line joining the camera and sphere centres. This can be
+seen from the rotational symmetry of the geometry about this line. The image of the
+sphere is obtained by intersecting the cone with the image plane. It is clear that this is a
+classical conic section, so that the apparent contour of a sphere is a conic. In particular
+if the sphere centre lies on the principal (Z) camera axis, then the conic is a circle.
+Now consider a 3-space projective transformation of this geometry. Under this map
+the sphere is transformed to a quadric and the apparent contour to a conic. However,
+since intersection and tangency are preserved, the contour generator is a (plane) conic.
+Consequently, the apparent contour of a general quadric is a conic, and the contour generator
+is also a conic. We will now give algebraic representations for these geometric
+results.
+Forward projection of quadrics. Since the outline arises from tangency, it is not
+surprising that the dual of the quadric, Q∗, is important here since it defines the tangent
+planes to the quadric Q.
+Result 8.9. Under the camera matrix P the outline of the quadric Q is the conic C given
+by
+C∗ = PQ∗P
+T. (8.5)
+Proof. This expression is simply derived from the observation that lines l tangent to
+the conic outline satisfy lTC∗l = 0. These lines back-project to planes  = PTl that are
+tangent to the quadric and thus satisfy 
+TQ∗
+ = 0. Then it follows that for each line
+
+T
+Q∗
+ = lT
+PQ∗P
+Tl
+= lT
+C∗l = 0
+202 8 More Single View Geometry
+and since this is true for all lines tangent to C the result follows.
+Note the similarity of (8.5) with the projection of a line represented by a Pl¨ucker matrix
+(8.2). An expression for the projection of the point quadric Q can be derived
+from (8.5) but it is quite complicated. However, the plane of the contour generator
+is easily expressed in terms of Q:
+• The plane of   for a quadric Q and camera with centre C is given by   = QC.
+This result follows directly from the pole–polar relation for a point and quadric of
+section 3.2.3(p73). Its proof is left as an exercise. Note, the intersection of a quadric
+and plane is a conic. So   is a conic and its image 
+, which is the apparent contour, is
+also a conic as has been seen above.
+We may also derive an expression for the cone of rays formed by the camera centre
+and quadric. This cone is a degenerate quadric of rank 3.
+Result 8.10. The cone with vertex V and tangent to the quadric Q is the degenerate
+quadric
+Qco = (V
+T
+QV)Q − (QV)(QV)T.
+Note that QcoV = 0, so that V is the vertex of the cone as required. The proof is
+omitted.
+Example 8.11. We write the quadric in block form:
+Q =
+"
+Q3×3 q
+qT q44
+#
+.
+Then if V = (0, 0, 0, 1)T, which corresponds to the cone vertex being at the centre of
+the world coordinate frame,
+Qco =
+"
+q44Q3×3 − qqT 0
+0T 0
+#
+which is clearly a degenerate quadric. △
+8.4 The importance of the camera centre
+An object in 3-space and camera centre define a set of rays, and an image is obtained
+by intersecting these rays with a plane. Often this set is referred to as a cone of rays,
+even though it is not a classical cone. Suppose the cone of rays is intersected by two
+planes, as shown in figure 8.5, then the two images, I and I′, are clearly related by a
+perspective map. This means that images obtained with the same camera centre may
+be mapped to one another by a plane projective transformation, in other words they are
+projectively equivalent and so have the same projective properties. A camera can thus
+be thought of as a projective imaging device – measuring projective properties of the
+cone of rays with vertex the camera centre.
+The result that the two images I and I′ are related by a homography will now be
+derived algebraically to obtain a formula for this homography. Consider two cameras
+P = KR[I | −eC
+], P′ = K′R′[I | −eC
+]
+8.4 The importance of the camera centre 203
+C
+X
+x
+x/
+Fig. 8.5. The cone of rays with vertex the camera centre. An image is obtained by intersecting this
+cone with a plane. A ray between a 3-space point X and the camera centre C pierces the planes in the
+image points x and x′. All such image points are related by a planar homography, x′ = Hx.
+with the same centre. Note that since the cameras have a common centre there is a
+simple relation between them, namely P′ = (K′R′)(KR)−1P. It then follows that the
+images of a 3-space point X by the two cameras are related as
+x′ = P′
+X = (K′R′)(KR)−1
+PX = (K′R′)(KR)−1x.
+That is, the corresponding image points are related by a planar homography (a 3 × 3
+matrix) as x′ = Hx, where H = (K′R′)(KR)−1.
+We will now investigate several cases of moving the image plane whilst fixing the
+camera centre. For simplicity the world coordinate frame will be chosen to coincide
+with the camera’s, so that P = K[I | 0] (and it will be assumed that the image plane
+never contains the centre, as the image would then be degenerate).
+8.4.1 Moving the image plane
+Consider first an increase in focal length. To a first approximation this corresponds
+to a displacement of the image plane along the principal axis. The image effect is a
+simple magnification. This is only a first approximation because with a compound
+lens zooming will perturb both the principal point and the effective camera centre.
+Algebraically, if x, x′ are the images of a point X before and after zooming, then
+x = K[I | 0]X
+x′ = K′[I | 0]X = K′K−1 (K[I | 0]X) = K′K−1x
+so that x′ = Hx with H = K′K−1. If only the focal lengths differ between K and K′ then
+a short calculation shows that
+K′K−1 =
+"
+kI (1 − k)˜x0
+0T 1
+#
+.
+where ˜x0 is the inhomogeneous principal point, and k = f′/f is the magnification
+factor. This result follows directly from similar triangles: the effect of zooming by a
+204 8 More Single View Geometry
+a b c
+Fig. 8.6. Between images (a) and (b) the camera rotates about the camera centre. Corresponding points
+(that is images of the same 3D point) are related by a plane projective transformation. Note that 3D
+points at different depths which are coincident in image (a), such as the mug lip and cat body, are also
+coincident in (b), so there is no motion parallax in this case. However, between images (a) and (c) the
+camera rotates about the camera centre and translates. Under this general motion coincident points of
+differing depth in (a) are imaged at different points in (c), so there is motion parallax in this case due to
+the camera translation.
+factor k is to move the image point ˜x on a line radiating from the principal point ˜x0 to
+the point ˜x′ = k˜x+(1−k)˜x0. Algebraically, using the most general form (6.10–p157)
+of the calibration matrix K, we may write
+K′ =
+"
+kI (1 − k)˜x0
+0T 1
+#
+K =
+"
+kI (1 − k)˜x0
+0T 1
+# "
+A ˜x0
+0T 1
+#
+=
+"
+kA ˜x0
+0T 1
+#
+= K
+"
+kI
+1
+#
+.
+This shows that
+• The effect of zooming by a factor k is to multiply the calibration matrix K on the right
+by diag(k, k, 1).
+8.4.2 Camera rotation
+A second common example is where the camera is rotated about its centre with
+no change in the internal parameters. Examples of this “pure” rotation are given
+in figure 8.6 and figure 8.9. Algebraically, if x, x′ are the images of a point X before
+and after the pure rotation
+x = K[I | 0]X
+x′ = K [R | 0]X = KRK−1
+K[I | 0]X = KRK−1x
+so that x′ = Hx with H = KRK−1. This homography is a conjugate rotation and is
+discussed further in section A7.1(p628). For now, we mention a few of its properties
+by way of an example.
+Example 8.12. Properties of a conjugate rotation
+The homography H = KRK−1 has the same eigenvalues (up to scale) as the rotation
+matrix, namely {μ, μei, μe−i}, where μ is an unknown scale factor (if H is scaled such
+that det H = 1, then μ = 1). Consequently the angle of rotation between views may be
+computed directly from the phase of the complex eigenvalues of H. Similarly, it can be
+8.4 The importance of the camera centre 205
+a b c
+Fig. 8.7. Synthetic views. (a) Source image. (b) Fronto-parallel view of the corridor floor generated
+from (a) using the four corners of a floor tile to compute the homography. (c) Fronto-parallel view of the
+corridor wall generated from (a) using the four corners of the door frame to compute the homography.
+shown (see exercises) that the eigenvector of H corresponding to the real eigenvalue is
+the vanishing point of the rotation axis.
+For example, between images (a) and (b) of figure 8.6 there is a pure rotation
+of the camera. The homography H is computed by algorithm 4.6(p123), and from
+this the angle of rotation is estimated as 4.66◦, and the axis vanishing point as
+(−0.0088, 1, 0.0001)T, i.e. virtually at infinity in the y direction, so the rotation axis
+is almost parallel to the y-axis. △
+The transformation H = KRK−1 is an example of the infinite homography mapping
+H∞, that will appear many times through this book. It is defined in section 13.4(p338).
+The conjugation property is used for auto-calibration in chapter 19.
+8.4.3 Applications and examples
+The homographic relation between images with the same camera centre can be exploited
+in several ways. One is the creation of synthetic images by projective warping.
+Another is mosaicing, where panoramic images can be created by using planar homographies
+to “sew” together views obtained by a rotating camera.
+Example 8.13. Synthetic views
+New images corresponding to different camera orientations (with the same camera
+centre) can be generated from an existing image by warping with planar homographies.
+In a fronto-parallel view a rectangle is imaged as a rectangle, and the world and
+image rectangle have the same aspect ratio. Conversely, a fronto-parallel view can be
+synthesized by warping an image with the homography that maps a rectangle imaged
+as a quadrilateral to a rectangle with the correct aspect ratio. The algorithm is:
+(i) Compute the homography H which maps the image quadrilateral to a rectangle
+with the correct aspect ratio.
+(ii) Projectively warp the source image with this homography.
+Examples are shown in figure 8.7. △
+206 8 More Single View Geometry
+ !
+  
+  
+!!
+!!
+ !
+ ! !
+ 
+ 
+!
+!
+ !
+ 
+ 
+!
+!
+ !
+  
+  
+!!
+!!
+ !
+ ! !
+Fig. 8.8. Three images acquired by a rotating camera may be registered to the frame of the middle one,
+as shown, by projectively warping the outer images to align with the middle one.
+Example 8.14. Planar panoramic mosaicing
+Images acquired by a camera rotating about its centre are related to each other by a
+planar homography. A set of such images may be registered with the plane of one of
+the images by projectively warping the other images, as illustrated in figure 8.8.
+Fig. 8.9. Planar panoramic mosaicing. Eight images (out of thirty) acquired by rotating a camcorder
+about its centre. The thirty images are registered (automatically) using planar homographies and composed
+into the single panoramic mosaic shown. Note the characteristic “bow tie” shape resulting from
+registering to an image at the middle of the sequence.
+In outline the algorithm is:
+(i) Choose one image of the set as a reference.
+(ii) Compute the homography H which maps one of the other images of the set to
+this reference image.
+8.4 The importance of the camera centre 207
+(iii) Projectively warp the image with this homography, and augment the reference
+image with the non-overlapping part of the warped image.
+(iv) Repeat the last two steps for the remaining images of the set.
+The homographies may be computed by identifying (at least) four corresponding
+points, or by using the automatic method of algorithm 4.6(p123). An example mosaic
+is shown in figure 8.9. △
+8.4.4 Projective (reduced) notation
+It will be seen in chapter 20 that if canonical projective coordinates are chosen for
+world and image points, i.e.
+X1 = (1, 0, 0, 0)T, X2 = (0, 1, 0, 0)T, X3 = (0, 0, 1, 0)T, X4 = (0, 0, 0, 1)T,
+and
+x1 = (1, 0, 0)T, x2 = (0, 1, 0)T, x3 = (0, 0, 1)T, x4 = (1, 1, 1)T,
+then the camera matrix
+P =
+
+
+a 0 0 −d
+0 b 0 −d
+0 0 c −d
+
+
+(8.6)
+satisfies xi = PXi, i = 1, . . . , 4, and also that P(a−1, b−1, c−1, d−1)T = 0, which means
+that the camera centre is C = (a−1, b−1, c−1, d−1)T. This is known as the reduced
+camera matrix, and it is clearly completely specified by the 3 degrees of freedom of
+the camera centre C. This is a further illustration of the fact that all images acquired
+by cameras with the same camera centre are projectively equivalent – the camera has
+been reduced to its essence: a projective device whose action is to map IP3 to IP2 with
+only the position of the camera centre affecting the result. This camera representation
+is used in establishing duality relations in chapter 20.
+8.4.5 Moving the camera centre
+The cases of zooming and camera rotation illustrate that moving the image plane, whilst
+fixing the camera centre, induces a transformation between images that depends only
+on the image plane motion, but not on the 3-space structure. Conversely, no information
+on 3-space structure can be obtained by this action. However, if the camera centre is
+moved then the map between corresponding image points does depend on the 3-space
+structure, and indeed may often be used to (partially) determine the structure. This is
+the subject of much of the remainder of this book.
+How can one determine from the images alone whether the camera centre has
+moved? Consider two 3-space points which have coincident images in the first view,
+i.e. the points are on the same ray. If the camera centre is moved (not along that ray)
+the image coincidence is lost. This relative displacement of previously coincident image
+points is termed parallax, and is illustrated in figure 8.6 and shown schematically
+in figure 8.10. If the scene is static and motion parallax is evident between two views
+then the camera centre has moved. Indeed, a convenient method for obtaining a camera
+208 8 More Single View Geometry
+x
+X 2
+X 1
+x/
+x/
+1
+2
+C C /
+L
+Fig. 8.10. Motion parallax. The images of the space points X1 and X2 are coincident when viewed by
+the camera with centre C. However, when viewed by a camera with centre C′, which does not lie on the
+line L through X1 and X2, the images of the space points are not coincident. In fact the line through
+the image points x′
+1 and x′
+2 is the image of the ray L, and will be seen in chapter 9 to be an epipolar
+line. The vector between the points x′
+1 and x′
+2 is the parallax.
+motion that is only a rotation about its centre (for example for a camera mounted on a
+robot head) is to adjust the motion until there is no parallax.
+An important special case of 3-space structure is when all scene points are coplanar.
+In this case the images of corresponding points are related by a planar homography
+even if the camera centre is moved. The map between images in this case is discussed
+in detail in chapter 13 on planes. In particular vanishing points, which are images of
+points on the plane ∞, are related by a planar homography for any camera motion.
+We return to this in section 8.6.
+8.5 Camera calibration and the image of the absolute conic
+Up to this point we have discussed projective properties of the forward and backprojection
+of various entities (point, lines, conics . . . ). These properties depend only
+on the 3×4 form of the projective camera matrix P. Now we describe what is gained if
+the camera internal calibration, K, is known. It will be seen that Euclidean properties,
+such as the angle between two rays, can then be measured.
+What does calibration give? An image point x back-projects to a ray defined by x and
+the camera centre. Calibration relates the image point to the ray’s direction. Suppose
+points on the ray are written as eX
+= d in the camera Euclidean coordinate frame, then
+these points map to the point x = K[I | 0](dT, 1)T = Kd up to scale. Conversely the
+direction d is obtained from the image point x as d = K−1x. Thus we have established:
+Result 8.15. The camera calibration matrix K is the (affine) transformation between
+x and the ray’s direction d = K−1x measured in the camera’s Euclidean coordinate
+frame.
+Note, d = K−1x is in general not a unit vector.
+8.5 Camera calibration and the image of the absolute conic 209
+􀁔
+C
+d
+d􀀔
+􀀕
+x􀀔
+x􀀕
+Fig. 8.11. The angle  between two rays.
+The angle between two rays, with directions d1, d2 corresponding to image points
+x1, x2 respectively, may be obtained from the familiar cosine formula for the angle
+between two vectors:
+cos  =
+dT
+1 d2 q
+dT
+1 d1
+q
+dT
+2 d2
+=
+(K−1x1)T(K−1x2)
+q
+(K−1x1)T(K−1x1)
+q
+(K−1x2)T(K−1x2)
+=
+xT
+1 (K−TK−1)x2 q
+xT
+1 (K−TK−1)x1
+q
+xT
+2 (K−TK−1)x2
+. (8.7)
+The formula (8.7) shows that if K, and consequently the matrix K−TK−1, is known,
+then the angle between rays can be measured from their corresponding image points.
+A camera for which K is known is termed calibrated. A calibrated camera is a direction
+sensor, able to measure the direction of rays – like a 2D protractor.
+The calibration matrix K also provides a relation between an image line and a scene
+plane:
+Result 8.16. An image line l defines a plane through the camera centre with normal
+direction n = KTl measured in the camera’s Euclidean coordinate frame.
+Note, the normal n will not in general be a unit vector.
+Proof. Points x on the line l back-project to directions d = K−1x which are orthogonal
+to the plane normal n, and thus satisfy dTn = xTK−Tn = 0. Since points on l satisfy
+xTl = 0, it follows that l = K−Tn, and hence n = KTl.
+8.5.1 The image of the absolute conic
+We now derive a very important result which relates the calibration matrix K to the
+image of the absolute conic, !. First we must determine the map between the plane
+at infinity, ∞, and the camera image plane. Points on ∞ may be written as X∞ =
+(dT, 0)T, and are imaged by a general camera P = KR[I | −eC
+] as
+x = PX∞ = KR[I | −eC
+]
+ 
+d
+0
+!
+= KRd.
+This shows that
+210 8 More Single View Geometry
+• the mapping between ∞ and an image is given by the planar homography x = Hd
+with
+H = KR. (8.8)
+Note that this map is independent of the position of the camera, C, and depends only
+on the camera internal calibration and orientation with respect to the world coordinate
+frame.
+Now, since the absolute conic 
+∞ (section 3.6(p81)) is on ∞ we can compute its
+image under H, and find
+Result 8.17. The image of the absolute conic (the IAC) is the conic
+! = (KKT)−1 = K−TK−1.
+Proof. From result 2.13(p37) under a point homography x 7→ Hx a conic C maps as
+C 7→ H−TCH−1. It follows that 
+∞, which is the conic C = 
+∞ = I on ∞, maps to
+! = (KR)−TI(KR)−1 = K−TRR−1K−1 = (KKT)−1. So the IAC ! = (KKT)−1.
+Like 
+∞ the conic ! is an imaginary point conic with no real points. For the moment it
+may be thought of as a convenient algebraic device, but it will be used in computations
+later in this chapter, and also in chapter 19 on camera auto-calibration.
+A few remarks here:
+(i) The image of the absolute conic, !, depends only on the internal parameters K
+of the matrix P; it does not depend on the camera orientation or position.
+(ii) It follows from (8.7) that the angle between two rays is given by the simple
+expression
+cos  =
+xT
+1!x2 q
+xT
+1!x1
+q
+xT
+2!x2
+. (8.9)
+This expression is independent of the projective coordinate frame in the image,
+that is, it is unchanged under projective transformation of the image. To see this
+consider any 2D projective transformation, H. The points xi are transformed
+to Hxi, and ! transforms (as any image conic) to H−T
+!H−1. Thus, (8.9) is
+unchanged, and hence holds in any projective coordinate frame in the image.
+(iii) A particularly important specialization of (8.9) is that if two image points x1
+and x2 correspond to orthogonal directions then
+xT
+1!x2 = 0. (8.10)
+This equation will be used at several points later in the book as it provides a
+linear constraint on !.
+(iv) We may also define the dual image of the absolute conic (the DIAC) as
+!
+∗ = !
+−1 = KK
+T. (8.11)
+This is a dual (line) conic, whereas ! is a point conic (though it contains no real
+points). The conic !
+∗ is the image of Q∗
+∞ and is given by (8.5) !
+∗ = PQ∗
+∞PT.
+8.5 Camera calibration and the image of the absolute conic 211
+(v) Result 8.17 shows that once ! (or equivalently !
+∗) is identified in an image
+then K is also determined. This follows because a symmetric matrix ! may be
+uniquely decomposed into a product !
+∗ = KKT of an upper-triangular matrix
+with positive diagonal entries and its transpose by the Cholesky factorization
+(see result A4.5(p582)).
+(vi) It was seen in chapter 3 that a plane  intersects ∞ in a line, and this line
+intersects 
+∞ in two points which are the circular points of . The imaged
+circular points lie on ! at the points at which the vanishing line of the plane 
+intersects !.
+These final two properties of ! are the basis for a calibration algorithm, as shown in
+the following example.
+Example 8.18. A simple calibration device
+The image of three squares (on planes which are not parallel, but which need not be
+orthogonal) provides sufficiently many constraints to compute K. Consider one of the
+squares. The correspondences between its four corner points and their images define
+the homography H between the plane  of the square and the image. Applying this
+homography to circular points on  determines their images as H(1,±i, 0)T. Thus we
+have two points on the (as yet unknown) !. A similar procedure applied to the other
+squares generates a total of six points on !, from which it may be computed (since five
+points are required to determine a conic). In outline the algorithm has the following
+steps:
+(i) For each square compute the homography H that maps its corner points,
+(0, 0)T, (1, 0)T, (0, 1)T, (1, 1)T, to their imaged points. (The alignment of the
+plane coordinate system with the square is a similarity transformation and does
+not affect the position of the circular points on the plane).
+(ii) Compute the imaged circular points for the plane of that square as H(1,±i, 0)T.
+Writing H = [h1, h2, h3], the imaged circular points are h1 ± ih2.
+(iii) Fit a conic ! to the six imaged circular points. The constraint that the imaged
+circular points lie on ! may be rewritten as two real constraints. If h1 ± ih2
+lies on ! then (h1 ± ih2)T
+! (h1 ± ih2) = 0, and the imaginary and real parts
+give respectively:
+hT
+1!h2 = 0 and hT
+1!h1 = hT
+2!h2 (8.12)
+which are equations linear in !. The conic ! is determined up to scale from
+five or more such equations.
+(iv) Compute the calibration K from ! = (KKT)−1 using the Cholesky factorization.
+Figure 8.12 shows a calibration object consisting of three planes imprinted with
+squares, and the computed matrix K. For the purpose of internal calibration, the squares
+have the advantage over a standard calibration object (e.g. figure 7.1(p182)) that no
+measured 3D co-ordinates are required. △
+212 8 More Single View Geometry
+K =
+"
+1108.3 −9.8 525.8
+0 1097.8 395.9
+0 0 1
+#
+a b
+Fig. 8.12. Calibration from metric planes. (a) Three squares provide a simple calibration object. The
+planes need not be orthogonal. (b) The computed calibration matrix using the algorithm of example 8.18.
+The image size is 1024 × 768 pixels.
+􀁚
+image
+1
+2
+x
+x
+􀁚
+image
+l
+x
+a b
+Fig. 8.13. Orthogonality represented by conjugacy and pole–polar relationships. (a) Image points
+x1, x2 back-project to orthogonal rays if the points are conjugate with respect to !, i.e. xT
+1!x2 = 0. (b)
+The point x and line l back-project to a ray and plane that are orthogonal if x and l are pole–polar with
+respect to !, i.e. l = !x. For example (see section 8.6.3), the vanishing point of the normal direction to
+a plane and the vanishing line of the plane are pole–polar with respect to !.
+We will return to camera calibration in section 8.8, where vanishing points and lines
+provide constraints on K. The geometric constraints that are used in example 8.18 are
+discussed further in section 8.8.1.
+8.5.2 Orthogonality and !
+The conic ! is a device for representing orthogonality in an image. It has already been
+seen (8.10) that if two image points x1 and x2 back-project to orthogonal rays, then the
+points satisfy xT
+1!x2 = 0. Similarly, it may be shown that
+Result 8.19. A point x and line l back-projecting to a ray and plane respectively that
+are orthogonal are related by l = !x.
+Geometrically these relations express that image points back-projecting to orthogonal
+rays are conjugate with respect to ! (xT
+1!x2 = 0), and that a point and line backprojecting
+to an orthogonal ray and plane are in a pole–polar relationship (l = !x).
+See section 2.8.1(p58). A schematic representation of these two relations is given
+in figure 8.13.
+8.6 Vanishing points and vanishing lines 213
+These geometric representations of orthogonality, and indeed the projective representation
+(8.9) of the angle between two rays measured from image points, are simply
+specializations and a recapitulation of relations derived earlier in the book. For example,
+we have already developed a projective representation (3.23–p82) of the angle
+between two lines in 3-space, namely
+cos  =
+dT
+1 
+∞d2 q
+dT
+1 
+∞d1
+q
+dT
+2 
+∞d2
+where d1 and d2 are the directions of the lines (which are the points at which the lines
+intersect ∞). Rays are lines in 3-space which are coincident at the camera centre, and
+so (3.23–p82) may be applied directly to rays. This is precisely what (8.9) does – it is
+simply (3.23–p82) computed in the image.
+Under the map (8.8) H = KR, which is the homography between the plane ∞ in
+the world coordinate frame and the image plane, 
+∞ 7→ HT
+!H = (KR)T
+!(KR) and
+di = H−1xi = (KR)−1xi. Substituting these relations into (3.23–p82) gives (8.9).
+Similarly the conjugacy and pole–polar relations for orthogonality in the image are
+a direct image of those on ∞, as can be seen by comparing figure 3.8(p83) with
+figure 8.13.
+In practice these orthogonality results find greatest application in the case of vanishing
+points and vanishing lines.
+8.6 Vanishing points and vanishing lines
+One of the distinguishing features of perspective projection is that the image of an
+object that stretches off to infinity can have finite extent. For example, an infinite scene
+line is imaged as a line terminating in a vanishing point. Similarly, parallel world lines,
+such as railway lines, are imaged as converging lines, and their image intersection is
+the vanishing point for the direction of the railway.
+8.6.1 Vanishing points
+The perspective geometry that gives rise to vanishing points is illustrated in figure 8.14.
+It is evident that geometrically the vanishing point of a line is obtained by intersecting
+the image plane with a ray parallel to the world line and passing through the camera
+centre. Thus a vanishing point depends only on the direction of a line, not on its
+position. Consequently a set of parallel world lines have a common vanishing point, as
+illustrated in figure 8.16.
+Algebraically the vanishing point may be obtained as a limiting point as follows:
+Points on a line in 3-space through the point A and with direction D = (dT, 0)T are
+written as X() = A+D, see figure 8.14b. As the parameter  varies from 0 to∞the
+point X() varies from the finite point A to the point D at infinity. Under a projective
+camera P = K[I | 0], a point X() is imaged at
+x() = PX() = PA + PD = a + Kd
+where a is the image of A. Then the vanishing point v of the line is obtained as the
+214 8 More Single View Geometry
+x
+v
+X
+v
+x
+/
+/
+D
+X1 X2 X3 X4
+C
+a
+X( 􀁏 )
+v
+A
+d
+d
+X(􀁏 )
+C
+b
+Fig. 8.14. Vanishing point formation. (a) Plane to line camera. The points Xi, i = 1, . . . , 4 are
+equally spaced on the world line, but their spacing on the image line monotonically decreases. In the
+limit X → ∞ the world point is imaged at x = v on the vertical image line, and at x′ = v′ on the
+inclined image line. Thus the vanishing point of the world line is obtained by intersecting the image
+plane with a ray parallel to the world line through the camera centre C. (b) 3-space to plane camera.
+The vanishing point, v, of a line with direction d is the intersection of the image plane with a ray parallel
+to d through C. The world line may be parametrized as X() = A + D, where A is a point on the
+line, and D = (dT, 0)T.
+limit
+v = lim
+→∞
+x() = lim
+→∞
+(a + Kd) = Kd.
+From result 8.15, v = Kd means that the vanishing point v back-projects to a ray with
+direction d. Note that v depends only on the direction d of the line, not on its position
+specified by A.
+In the language of projective geometry this result is obtained directly: In projective
+3-space the plane at infinity ∞ is the plane of directions, and all lines with the same
+direction intersect ∞ in the same point (see chapter 3). The vanishing point is simply
+the image of this intersection. Thus if a line has direction d, then it intersects ∞ in
+the point X∞ = (dT, 0)T. Then v is the image of X∞
+v = PX∞ = K[I | 0]
+ 
+d
+0
+!
+= Kd.
+To summarize:
+Result 8.20. The vanishing point of lines with direction d in 3-space is the intersection
+8.6 Vanishing points and vanishing lines 215
+v of the image plane with a ray through the camera centre with direction d, namely
+v = Kd.
+Note, lines parallel to the image plane are imaged as parallel lines, since v is at infinity
+in the image. However, the converse – that parallel image lines are the image of parallel
+scene lines – does not hold since lines which intersect on the principal plane are imaged
+as parallel lines.
+Example 8.21. Camera rotation from vanishing points
+Vanishing points are images of points at infinity, and provide orientation (attitude) information
+in a similar manner to that provided by the fixed stars. Consider two images
+of a scene obtained by calibrated cameras, where the two cameras differ in orientation
+and position. The points at infinity are part of the scene and so are independent of the
+camera. Their images, the vanishing points, are not affected by the change in camera
+position, but are affected by the camera rotation. Suppose both cameras have the same
+calibration matrix K, and the camera rotates by R between views.
+Let a scene line have vanishing point vi in the first view, and v′
+i in the second. The
+vanishing point vi has direction di measured in the first camera’s Euclidean coordinate
+frame, and the corresponding vanishing point v′
+i has direction d′
+i measured in the
+second camera’s Euclidean coordinate frame. These directions can be computed from
+the vanishing points, for example di = K−1vi/kK−1vik, where the normalizing factor
+kK−1vik is included to ensure that di is a unit vector. The directions di and d′
+i
+are related by the camera rotation as d′
+i = Rdi, which represents two independent constraints
+on R. Thus the rotation matrix R can be computed from two such corresponding
+directions. △
+The angle between two scene lines. We have seen that the vanishing point of a scene
+line back-projects to a ray parallel to the scene line. Consequently (8.9), which determines
+the angle between rays back-projected from image points, enables the angle
+between the directions of two scene lines to be measured from their vanishing points:
+Result 8.22. Let v1 and v2 be the vanishing points of two lines in an image, and let !
+be the image of the absolute conic in the image. If  is the angle between the two line
+directions, then
+cos  =
+vT
+1!v2 q
+vT
+1!v1
+q
+vT
+2!v2
+. (8.13)
+A note on computing vanishing points
+Often vanishing points are computed from the image of a set of parallel line segments,
+though they may be determined in other ways for example by using equal length intervals
+on a line as described in example 2.18(p50) and example 2.20(p51). In the
+case of imaged parallel line segments the objective is to estimate their common image
+intersection – which is the image of the direction of the parallel scene lines. Due to
+measurement noise the imaged line segments will generally not intersect in a unique
+216 8 More Single View Geometry
+v
+a b c
+Fig. 8.15. ML estimate of a vanishing point from imaged parallel scene lines. (a) Estimating the
+vanishing point v involves fitting a line (shown thin here) through v to each measured line (shown thick
+here). The ML estimate of v is the point which minimizes the sum of squared orthogonal distances
+between the fitted lines and the measured lines’ end points. (b) Measured line segments are shown in
+white, and fitted lines in black. (c) A close-up of the dashed square in (b). Note the very slight angle
+between the measured and fitted lines.
+point. Commonly the vanishing point is then computed by intersecting the lines pairwise
+and using the centroid of these intersections, or finding the closest point to all the
+measured lines. However, these are not optimal procedures.
+Under the assumption of Gaussian measurement noise, the maximum likelihood estimate
+(MLE) of the vanishing point and line segments is computed by determining a
+set of lines that do intersect in a single point, and which minimize the sum of squared
+orthogonal distances from the endpoints of the measured line segments as shown in
+figure 8.15(a). This minimization may be computed numerically using the Levenberg–
+Marquardt algorithm (section A6.2(p600)). Note that if the lines are defined by fitting
+to many points, rather than just their end points, one can use the method described in
+section 16.7.2(p404) to reduce each line to an equivalent pair of weighted end points
+which can then be used in this algorithm. Figure 8.15(b)(c) shows an example of a
+vanishing point computed in this manner. It is evident that the residuals between the
+measured and fitted lines are very small.
+8.6.2 Vanishing lines
+Parallel planes in 3-space intersect ∞ in a common line, and the image of this line
+is the vanishing line of the plane. Geometrically the vanishing line is constructed,
+as shown in figure 8.16, by intersecting the image with a plane parallel to the scene
+plane through the camera centre. It is clear that a vanishing line depends only on the
+orientation of the scene plane; it does not depend on its position. Since lines parallel
+to a plane intersect the plane at ∞, it is easily seen that the vanishing point of a
+line parallel to a plane lies on the vanishing line of the plane. An example is shown
+in figure 8.17.
+If the camera calibration K is known then a scene plane’s vanishing line may be used
+to determine information about the plane, and we mention three examples here:
+(i) The plane’s orientation relative to the camera may be determined from its vanishing
+line. From result 8.16 a plane through the camera centre with normal
+8.6 Vanishing points and vanishing lines 217
+l
+v1 v2
+a
+l
+C
+􀁓
+n
+n
+b
+Fig. 8.16. Vanishing line formation. (a) The two sets of parallel lines on the scene plane converge to
+the vanishing points v1 and v2 in the image. The line l through v1 and v2 is the vanishing line of the
+plane. (b) The vanishing line l of a plane  is obtained by intersecting the image plane with a plane
+through the camera centre C and parallel to .
+a
+b c
+Fig. 8.17. Vanishing points and lines. The vanishing line of the ground plane (the horizon) of the
+corridor may be obtained from two sets of parallel lines on the plane. (a) The vanishing points of lines
+which are nearly parallel to the image plane are distant from the finite (actual) image. (b) Note the
+monotonic decrease in the spacing of the imaged equally spaced parallel lines corresponding to the
+sides of the floor tiles. (c) The vanishing point of lines parallel to a plane (here the ground plane) lies
+on the vanishing line of the plane.
+218 8 More Single View Geometry
+direction n intersects the image plane in the line l = K−Tn. Consequently, l
+is the vanishing line of planes perpendicular to n. Thus a plane with vanishing
+line l has orientation n = KTl in the camera’s Euclidean coordinate frame.
+(ii) The plane may be metrically rectified given only its vanishing line. This can be
+seen by considering a synthetic rotation of the camera in the manner of example
+8.13(p205). Since the plane normal is known from the vanishing line, the camera
+can be synthetically rotated by a homography so that the plane is frontoparallel
+(i.e. parallel to the image plane). The computation of this homography
+is discussed in exercise (ix).
+(iii) The angle between two scene planes can be determined from their vanishing
+lines. Suppose the vanishing lines are l1 and l2, then the angle  between the
+planes is given by
+cos  =
+lT
+1!
+∗l2 q
+lT
+1!
+∗l1
+q
+lT
+2!
+∗l2
+. (8.14)
+The proof is left as an exercise.
+Computing vanishing lines
+A common way to determine a vanishing line of a scene plane is first to determine
+vanishing points for two sets of lines parallel to the plane, and then to construct the
+line through the two vanishing points. This construction is illustrated in figure 8.17.
+Alternative methods of determining vanishing points are shown in example 2.19(p51)
+and example 2.20(p51).
+However, the vanishing line may be determined directly, without using vanishing
+points as an intermediate step. For example, the vanishing line may be computed given
+an imaged set of equally spaced coplanar parallel lines. This is a useful method in
+practice because such sets commonly occur in man-made structures, such as: stairs,
+windows on the wall of a building, fences, radiators and zebra crossings. The following
+example illustrates the projective geometry involved.
+Example 8.23. The vanishing line given the image of three coplanar equally spaced
+parallel lines
+A set of equally spaced lines on the scene plane may be represented as ax′ + by′ +
+ = 0, where  takes integer values. This set (a pencil) of lines may be written as
+l′
+n = (a, b, n)T = (a, b, 0)T + n(0, 0, 1)T, where (0, 0, 1)T is the line at infinity on the
+scene plane. Under perspective imaging the point transformation is x = Hx′, and the
+corresponding line map is ln = H−Tl′
+n = l0 +nl, where l, the image of (0, 0, 1)T, is the
+vanishing line of the plane. The imaged geometry is shown in figure 8.18(c). Note all
+lines ln intersect in a common vanishing point (which is given by li×lj , for i 6= j) and
+the spacing decreases monotonically with n. The vanishing line l may be determined
+from three lines of the set provided their index (n) is identified. For example, from
+the image of three equally spaced lines, l0, l1 and l2, the closed form solution for the
+vanishing line is:
+l =
+
+(l0 × l2)T(l1 × l2)
+
+l1 + 2
+
+(l0 × l1)T(l2 × l1)
+
+l2. (8.15)
+8.6 Vanishing points and vanishing lines 219
+l
+a b
+1
+3
+2
+0
+n
+l
+l
+l
+l
+l
+v
+l
+   ! !
+c
+Fig. 8.18. Determining a planes vanishing line from imaged equally spaced parallel lines. (a) Image
+of a vertical fence with equally spaced bars. (b) The computed vanishing line l from three equally spaced
+bars (12 apart). Note the vanishing point of the horizontal lines lies on this vanishing line. (c) The
+spacing between the imaged lines ln monotonically decreases with n.
+The proof is left as an exercise. Figure 8.18(b) shows a vanishing line computed in this
+way. △
+8.6.3 Orthogonality relationships amongst vanishing points and lines
+It is often the case in practice that the lines and planes giving rise to vanishing points
+are orthogonal. In this case there are particularly simple relationships amongst their
+vanishing points and lines involving !, and furthermore these relations can be used to
+(partially) determine !, and consequently the camera calibration K as will be seen in
+section 8.8.
+It follows from (8.13) that the vanishing points, v1, v2, of two perpendicular world
+lines satisfy vT
+1!v2 = 0. This means that the vanishing points are conjugate with
+respect to !, as illustrated in figure 8.13. Similarly it follows from result 8.19 that the
+vanishing point v of a direction perpendicular to a plane with vanishing line l satisfies
+l = !v. This means that the vanishing point and line are in a pole–polar relation with
+respect to !, as is also illustrated in figure 8.13. Summarizing these image relations:
+(i) The vanishing points of lines with perpendicular directions satisfy
+vT
+1!v2 = 0. (8.16)
+(ii) If a line is perpendicular to a plane then their respective vanishing point v and
+vanishing line l are related by
+l = !v (8.17)
+and inversely v = !
+∗l.
+(iii) The vanishing lines of two perpendicular planes satisfy lT
+1!
+∗l2 = 0.
+220 8 More Single View Geometry
+   ! !
+ !v
+􀁓
+l C
+image
+plane
+ !
+   ! !
+   ! !
+  
+  
+!!
+!!
+ 
+ 
+!
+!
+ !
+ ! !
+ !
+  
+  
+!!
+!!
+􀁓
+l
+a b
+Fig. 8.19. Geometry of a vertical vanishing point and ground plane vanishing line. (a) The vertical
+vanishing point v is the image of the vertical “footprint” of the camera centre on the ground plane . (b)
+The vanishing line l partitions all points in scene space. Any scene point projecting onto the vanishing
+line is at the same distance from the plane  as the camera centre; if it lies “above” the line it is farther
+from the plane, and if “below” then it is closer to the plane than the camera centre.
+For example, suppose the vanishing line l of the ground plane (the horizon) is identified
+in an image, and the internal calibration matrix K is known, then the vertical vanishing
+point v (which is the vanishing point of the normal direction to the plane) may be
+obtained from v = !
+∗l.
+8.7 Affine 3D measurements and reconstruction
+It has been seen in section 2.7.2(p49) that identifying a scene plane’s vanishing line
+allows affine properties of the scene plane to be measured. If in addition a vanishing
+point for a direction not parallel to the plane is identified, then affine properties can
+be computed for the 3-space of the perspectively imaged scene. We will illustrate this
+idea for the case where the vanishing point corresponds to a direction orthogonal to
+the plane, although orthogonality is not necessary for the construction. The method
+described in this section does not require that the internal calibration of the camera K
+be known.
+It will be convenient to think of the scene plane as the horizontal ground plane, in
+which case the vanishing line is the horizon. Similarly, it will be convenient to think of
+the direction orthogonal to the scene plane as vertical, so that v is the vertical vanishing
+point. This situation is illustrated in figure 8.19.
+Suppose we wish to measure the relative lengths of two line segments in the vertical
+direction as shown in figure 8.20(a). We will show the following result:
+Result 8.24. Given the vanishing line of the ground plane l and the vertical vanishing
+point v, then the relative length of vertical line segments can be measured provided
+their end point lies on the ground plane.
+Clearly the relative lengths cannot be measured directly from their imaged lengths
+because as a vertical line recedes deeper into the scene (i.e. further from the camera)
+then its imaged length decreases. The construction to determine the relative lengths
+proceeds in two steps:
+8.7 Affine 3D measurements and reconstruction 221
+   ! !
+   ! !
+   ! !
+   ! !
+T2
+T1
+B1
+B2
+L2
+L1
+! ! 
+  
+  
+!!
+!!
+ ! !
+  
+  
+!!
+!!
+ 
+ 
+!
+!
+T1
+T2
+B1
+B2
+1
+2
+T1
+d
+d
+a b
+  
+  
+!!
+!!
+ 
+ 
+!
+!
+ 
+ 
+!
+!
+ ! !
+ 
+ 
+!
+!
+  
+  
+!!
+!!
+ !
+ ! !
+t1
+t2
+t1
+l
+b1
+b2
+l1 l2 u
+v
+image
+  
+  
+!!
+!!
+ ! !
+ !
+ ! !
+  
+  
+!!
+!!
+  
+  
+!!
+!!
+   ! !
+ !
+t 2
+t 1
+1 t
+t1
+t2
+b1
+b2
+v
+image
+l l3 1 l2
+c d
+Fig. 8.20. Computing length ratios of parallel scene lines. (a) 3D geometry: The vertical line segments
+L1 = hB1,T1i and L2 = hB2,T2i have length d1 and d2 respectively. The base points B1,B2
+are on the ground plane. We wish to compute the scene length ratio d1 : d2 from the imaged configuration.
+(b) In the scene the length of the line segment L1 may be transferred to L2 by constructing a
+line parallel to the ground plane to generate the point eT
+1. (c) Image geometry: l is the ground plane
+vanishing line, and v the vertical vanishing point. A corresponding parallel line construction in the
+image requires first determining the vanishing point u from the images bi of Bi, and then determining
+˜t
+1
+(
+the image of eT1) by the intersection of l
+2
+and the line ht1, ui.
+(
+d) The line l
+3
+is parallel to l
+1
+in
+the image. The points ˆt1 and ˆt2 are constructed by intersecting l3 with the lines ht1,˜t1i and ht1, t2i
+respectively. The distance ratio d(b2,ˆt1) : d(b2,ˆt2) is the computed estimate of d1 : d2.
+Step 1: Map the length of one line segment onto the other. In 3D the length of
+L1 may be compared to L2 by constructing a line parallel to the ground plane in the
+direction hB1,B2i that transfers T1 onto L2. This transferred point will be denoted eT
+1
+(see figure 8.20(b)). In the image a corresponding construction is carried out by first
+determining the vanishing point u which is the intersection of hb1, b2i with l. Now
+any scene line parallel to hB1,B2i is imaged as a line through u, so in particular the
+image of the line through T1 parallel to hB1,B2i is the line through t1 and u. The
+intersection of the line ht1, ui with l2 defines the image ˜t1 of the transferred point eT
+1
+(see figure 8.20(c)).
+Step 2: Determine the ratio of lengths on the scene line. We now have four
+collinear points on an imaged scene line and wish to determine the actual length ratio
+in the scene. The four collinear image points are b2,˜t1, t2 and v. These may be
+treated as images of scene points at distances 0, d1, d2 and ∞, respectively, along the
+scene line. The affine ratio d1 : d2 may be obtained by applying a projective transfor222
+8 More Single View Geometry
+Objective
+Given the vanishing line of the ground plane l and the vertical vanishing point v and the top
+(t1, t2) and base (b1, b2) points of two line segments as in figure 8.20, compute the ratio of
+lengths of the line segments in the scene.
+Algorithm
+(i) Compute the vanishing point u = (b1 × b2) × l.
+(ii) Compute the transferred point˜t1 = (t1 × u) × l2 (where l2 = v × b2).
+(iii) Represent the four points b2,˜t1, t2 and v on the image line l1 by their distance from
+b2, as 0, ˜t1, t2 and v respectively.
+(iv) Compute a 1D projective transformation H2×2 mapping homogeneous coordinates
+(0, 1) 7→ (0, 1) and (v, 1) 7→ (1, 0) (which maps the vanishing point v to infinity).
+A suitable matrix is given by
+H2×2 =
+
+1 0
+1 −v
+
+.
+(v) The (scaled) distance of the scene points eT1 and T2 from B2 on L2 may then be obtained
+from the position of the points H2×2(˜t1, 1)T and H2×2(t2, 1)T. Their distance
+ratio is then given by
+d1
+d2
+=
+˜t1(v − t2)
+t2(v − ˜t1)
+Algorithm 8.1. Computing scene length ratios from a single image.
+mation to the image line which maps v to infinity. A geometric construction of this
+projectivity is shown in figure 8.20(d) (see example 2.20(p51)).
+Details of the algorithm to carry out these two steps are given in algorithm 8.1.
+Note, no knowledge of the camera calibration K or pose is necessary to apply the
+algorithm. In fact, the position of the camera centre relative to the ground plane can
+also be computed. The algorithm is well conditioned even when the vanishing point
+and/or line are at infinity in the image. For example, under affine image conditionings,
+or if the image plane is parallel to the vertical scene direction (so that v is at infinity).
+In these cases the distance ratio simplifies to d1
+d2
+= ˜t1
+t2
+.
+Example 8.25. Measuring a person’s height in a single image
+Suppose we have an image which contains sufficient information to compute the
+ground plane vanishing line and the vertical vanishing point, and also one object of
+known height for which the top and base are imaged. Then the height of a person
+standing on the ground plane can be measured anywhere in the scene provided that
+their head and feet are both visible. Figure 8.21(a) shows an example. The scene contains
+plenty of horizontal lines from which to compute a horizontal vanishing point.
+Two such vanishing points determine the vanishing line of the floor (which is the horizon
+for this image). The scene also contains plenty of vertical lines from which to
+compute a vertical vanishing point (figure 8.21(c)). Assuming that the two people
+are standing vertically, then their relative height may be computed directly from their
+length ratio using algorithm 8.1. Their absolute height may be determined by comput8.8
+Determining camera calibration K from a single view 223
+a b
+c d
+Fig. 8.21. Height measurements using affine properties. (a) The original image. We wish to measure
+the height of the two people. (b) The image after radial distortion correction (see section 7.4(p189)).
+(c) The vanishing line (shown) is computed from two vanishing points corresponding to horizontal directions.
+The lines used to compute the vertical vanishing points are also shown. The vertical vanishing
+point is not shown since it lies well below the image. (d) Using the known height of the filing cabinet on
+the left of the image, the absolute height of the two people are measured as described in algorithm 8.1.
+The measured heights are within 2cm of ground truth. The computation of the uncertainty is described
+in [Criminisi-00].
+ing their height relative to an object on the ground plane with known height. Here the
+known height is provided by the filing cabinet. The result is shown in figure 8.21(d).
+△
+8.8 Determining camera calibration K from a single view
+We have seen that once ! is known the angle between rays can be measured. Conversely
+if the angle between rays is known then a constraint is placed on !. Each
+known angle between two rays gives a constraint of the form (8.13) on !. Unfortunately,
+for arbitrary angles, and known v1 and v2, this gives a quadratic constraint
+on the entries of !. If the lines are perpendicular, however, (8.13) reduces to (8.16)
+vT
+1!v2 = 0, and the constraint on ! is linear.
+A linear constraint on ! also results from a vanishing point and vanishing line arising
+from a line and its orthogonal plane. A common example is a vertical direction and
+horizontal plane as in figure 8.19. From (8.17) l = !v. Writing this as l × (!v) = 0
+224 8 More Single View Geometry
+Condition constraint type # constraints
+vanishing points v1, v2
+corresponding to orthogonal lines
+vT
+1!v2 = 0 linear 1
+vanishing point v and vanishing
+line l corresponding to
+orthogonal line and plane
+[l]×!v = 0 linear 2
+metric plane imaged with known
+homography H = [h1, h2, h3]
+hT
+1!h2 = 0
+hT
+1!h1 = hT
+2!h2
+linear 2
+zero skew !12 = !21 = 0 linear 1
+square pixels
+!12 = !21 = 0
+!11 = !22
+linear 2
+Table 8.1. Scene and internal constraints on !.
+removes the homogeneous scaling factor and results in three homogeneous equations
+linear in the entries of !. These are equivalent to two independent constraints on !.
+All these conditions provide linear constraints on !. Given a sufficient number of
+such constraints ! may be computed and hence the camera calibration K also follows
+since ! = (KKT)−1.
+The number of entries of ! that need be determined from scene constraints of this
+sort can be reduced if the calibration matrix K has a more specialized form than (6.10–
+p157). In the case where K is known to have zero skew (s = 0), or square pixels
+(
+x = 
+y and s = 0), we can take advantage of this condition to help find !. In
+particular, it is quickly verified by direct computation that:
+Result 8.26. If s = K12 = 0 then !12 = !21 = 0 . If in addition 
+x = K11 = K22 = 
+y,
+then !11 = !22.
+Thus, in solving for the image of the absolute conic, one may easily take into account
+the zero-skew or square-aspect ratio constraint on the camera, if such a constraint is
+known to exist. One may also verify that no such simple connection as result 8.26
+exists between the entries of K and those of !
+∗ = KKT.
+We have now seen three sources of constraints on !:
+(i) metric information on a plane imaged with a known homography, see (8.12–
+p211)
+(ii) vanishing points and lines corresponding to perpendicular directions and
+planes, (8.16)
+(iii) “internal constraints” such as zero skew or square pixels, as in result 8.26
+These constraints are summarized in table 8.1. We now describe how these constraints
+may be combined to estimate ! and thence K.
+Since all the above constraints (including the internal constraints) are described algebraically
+as linear equations on !, it is a simple matter to combine them as rows of
+8.8 Determining camera calibration K from a single view 225
+Objective
+Compute K via ! by combining scene and internal constraints.
+Algorithm
+(i) Represent ! as a homogeneous 6-vector w = (w1,w2,w3,w4,w5,w6)T where:
+! =
+"
+w1 w2 w4
+w2 w3 w5
+w4 w5 w6
+#
+(ii) Each available constraint from table 8.1 may be written as aTw = 0. For example,
+for the orthogonality constraint uT
+!v = 0, where u = (u1, u2, u3)T and
+v = (v1, v2, v3)T, the 6-vector a is given by
+a = (v1u1, v1u2 + v2u1, v2u2, v1u3 + v3u1, v2u3 + v3u2, v3u3)T.
+Similar constraints vectors are obtained from the other sources of scene and internal
+constraints. For example a metric plane generates two such constraints.
+(iii) Stack the equations aTw = 0 from each constraint in the form Aw = 0, where A is a
+n × 6 matrix for n constraints.
+(iv) Solve for w using the SVD as in algorithm 4.2(p109). This determines !.
+(v) Decompose ! into K using matrix inversion and Cholesky factorization (see section
+A4.2.1(p582)).
+Algorithm 8.2. Computing K from scene and internal constraints.
+a constraint matrix. All constraints may be collected together so that for n constraints
+the system of equations may be written as Aw = 0, where A is a n × 6 matrix and w
+is a 6-vector containing the six distinct homogeneous entries of !. With a minimum
+of 5 constraint equations an exact solution is found. With more than five equations, a
+least-squares solution is found by algorithm A5.4(p593). The method is summarized
+in algorithm 8.2.
+With more than the minimum required five constraints, we have the option to apply
+some of the constraints as hard constraints – that is, constraints that will be satisfied
+exactly. This can be done by parametrizing ! so that the constraints are satisfied explicitly
+(for instance setting !21 = !12 = 0 for the zero skew constraint, and also
+!11 = !22 for the square-pixel constraint). The minimization method of algorithm
+A5.5(p594) may also be used to enforce hard constraints. Otherwise, treating all constraints
+as soft constraints and using algorithm A5.4(p593) will produce a solution in
+which the constraints are not satisfied exactly in the presence of noise – for instance,
+pixels may not be quite square.
+Finally, an important issue in practice is that of degeneracy. This occurs when the
+combined constraints are not independent and results in the matrix A dropping rank.
+If the rank is less than the number of unknowns, then a parametrized family of solutions
+for ! (and hence K) is obtained. Also, if conditions are near degenerate then
+the solution is ill-conditioned and the particular member of the family is determined
+by “noise”. These degeneracies can often be understood geometrically – for example
+in example 8.18 if the three metric planes are parallel then the three pairs of imaged
+226 8 More Single View Geometry
+  
+  
+!!
+!!
+  
+  
+  
+!!
+!!
+!!
+ 
+   
+!
+! !
+a b c
+Fig. 8.22. For the case that image skew is zero and the aspect ratio unity the principal point is the
+orthocentre of an orthogonal triad of vanishing points. (a) Original image. (b) Three sets of parallel
+lines in the scene, with each set having direction orthogonal to the others. (c) The principal point is the
+orthocentre of the triangle with the vanishing points as vertices.
+circular points are coincident and only provide a total of two constraints instead of six.
+A pragmatic solution to the problem of degeneracy, popularized by Zhang [Zhang-00],
+is to image a metric plane many times in varying positions. This reduces the chances
+of degeneracy occurring, and also provides a very over-determined solution.
+Example 8.27. Calibration from three orthogonal vanishing points
+Suppose that it is known that the camera has zero skew, and that the pixels are square
+(or equivalently their aspect ratio is known). A triad of orthogonal vanishing point
+directions supplies three more constraints. This gives a total of 5 constraints – sufficient
+to compute !, and hence K.
+In outline the algorithm has the following steps:
+(i) In the case of square pixels ! has the form
+! =
+
+
+w1 0 w2
+0 w1 w3
+w2 w3 w4
+
+
+.
+(ii) Each pair of vanishing points vi, vj generates an equation vT
+i !vj = 0, which
+is linear in the elements of !. The constraints from the three pairs of vanishing
+points are stacked together to form an equation Aw = 0, where A is a 3 × 4
+matrix.
+(iii) The vector w is obtained as the null vector of A, and this determines !. The matrix
+K is obtained from ! = (KKT)−1 by Cholesky factorization of !, followed
+by inversion.
+An example is shown in figure 8.22(a). Vanishing points are computed corresponding
+to the three perpendicular directions shown in figure 8.22(b). The image
+is 1024 × 768 pixels, and the calibration matrix is computed to be
+K =
+
+
+1163 0 548
+0 1163 404
+0 0 1
+
+
+.
+△
+8.8 Determining camera calibration K from a single view 227
+􀁓
+n
+p
+v
+image
+plane
+3
+1 2
+2
+1
+3
+3
+x
+v l x
+l
+p
+l
+v
+v
+C
+l l
+3 l
+a b
+Fig. 8.23. Geometric construction of the principal point. The vanishing line l3 back-projects to a
+plane  with normal n. The vanishing point v3 back-projects to a line orthogonal to the plane . (a)
+The normal n of the plane  through the camera centre C and the principal axis define a plane, which
+intersects the image in the line l = hv3, xi. The line l3 is the intersection of  with the image plane,
+and is also its vanishing line. The point v3 is the intersection of the normal with the image plane, and
+is also its vanishing point. Clearly the principal point lies on l, and l and l3 are perpendicular on the
+image plane. (b) The principal point may be determined from three such constraints as the orthocentre
+of the triangle.
+x
+v3
+p 􀁄 C 􀁄
+v3
+p
+x
+a 􀁄 b
+l
+a b
+Fig. 8.24. Geometric construction of the focal length. (a) Consider the plane defined by the camera
+centre C, principal point and one of the vanishing points, e.g. v3 as shown in figure 8.23(a). The rays
+from C to v3 and x are perpendicular to each other. The focal length, 
+, is the distance from the camera
+centre to the image plane. By similar triangles, 
+2 = d(p, v3)d(p, x), where d(u, v) is the distance
+between the points u and v. (b) In the image a circle is drawn with diameter the line between v3 and
+x. A line through p perpendicular to hv3, xi meets the circle in two points a and b. The focal length
+equals the distance d(p, a).
+The principal point and focal length may also be computed geometrically in this
+case. The principal point is the orthocentre of the triangle with vertices the vanishing
+points. Figure 8.23 shows that the principal point lies on the perpendicular line from
+one triangle side to the opposite vertex. A similar construction for the other two sides
+shows that the principal point is the orthocentre. An algebraic derivation of this result
+is left to the exercises. The focal length can also be computed geometrically as shown
+in figure 8.24.
+As a cautionary note, this estimation method is degenerate if one of the vanishing
+228 8 More Single View Geometry
+a b
+Fig. 8.25. Plane rectification via partial internal parameters (a) Original image. (b) Rectification
+assuming the camera has square pixels and principal point at the centre of the image. The focal length
+is computed from the single orthogonal vanishing point pair. The aspect ratio of a window in the rectified
+image differs from the ground truth value by 3.7%. Note that the two parallel planes, the upper building
+facade and the lower shopfront, are both mapped to fronto-parallel planes.
+points, say the vertical, is at infinity. In this case A drops rank to two, and there is a
+one-parameter family of solutions for ! and correspondingly for K. This degeneracy
+can be seen geometrically from the orthocentre construction of figure 8.23. If v3 is at
+infinity then the principal point p lies on the line l3 = hv1, v2i, but its x position is not
+defined.
+Example 8.28. Determining the focal length when the other internal parameters
+are known
+We consider a further example of calibration from a single view. Suppose that it is
+known that the camera has zero skew, that the pixels are square (or equivalently their
+aspect ratio is known), and also that the principal point is at the image centre. Then only
+the focal length is unknown. In this case, the form of ! is very simple: it is a diagonal
+matrix diag(1/f2, 1/f2, 1) with only one degree of freedom. Using algorithm 8.2, the
+focal length f may be determined from one further constraint, such as the one arising
+from two vanishing points corresponding to orthogonal directions.
+An example is shown in figure 8.25(a). Here the vanishing points used in the constraint
+are computed from the horizontal edges of the windows and pavement, and the
+vertical edges of the windows. These vanishing points also determine the vanishing
+line l of the building facade. Given K and the vanishing line l, the camera can be synthetically
+rotated such that the facade is fronto-parallel by mapping the image with a
+homography as in example 8.13(p205). The result is shown in figure 8.25(b). Note,
+in example 8.13 it was necessary to know the aspect ratio of a rectangle on the scene
+plane in order to rectify the plane. Here it is only necessary to know the vanishing
+line of the plane because the camera calibration K provides the additional information
+required for the homography. △
+8.8.1 The geometry of the constraints
+Although the algebraic constraints given in table 8.1 appear to arise from distinct
+sources, they are in fact all equivalent to one of two simple geometric relations: two
+points lying on the conic !, or conjugacy of two points with respect to !.
+For example, the zero skew constraint is an orthogonality constraint: it specifies that
+8.9 Single view reconstruction 229
+the image x and y axes are orthogonal. These axes correspond to rays with directions
+in the camera’s Euclidean coordinate frame, (1, 0, 0)T and (0, 1, 0)T, respectively, that
+are imaged at vx = (1, 0, 0)T and vy = (0, 1, 0)T (since the rays are parallel to the
+image plane). The zero skew constraint !12 = !21 = 0 is just another way of writing
+the orthogonality constraint (8.16) vT
+y!vx = 0. Geometrically skew zero is equivalent
+to conjugacy of the points (1, 0, 0)T and (0, 1, 0)T with respect to !.
+The square pixel constraint may be interpreted in two ways. A square has the property
+of defining two sets of orthogonal lines: adjacent edges are orthogonal, and so
+are the two diagonals. Thus, the square pixel constraint may be interpreted as a pair
+of orthogonal line constraints. The diagonal vanishing points of a square pixel are
+(1, 1, 0)T and (−1, 1, 0)T. The resulting orthogonality constraints lead to the square
+pixel constraints given in table 8.1.
+Alternatively, the square pixel constraint can be interpreted in terms of two known
+points lying on the IAC. If the image plane has square pixels, then it has a Euclidean
+coordinate system and the circular points have known coordinates (1,±i, 0)T. It may be
+verified that the two square pixel equations are equivalent to (1,±i, 0)!(1,±i, 0)T = 0.
+This is the most important geometric equivalence. In essence an image plane with
+square pixels acts as a metric plane in the scene. A square pixel image plane is equivalent
+to a metric plane imaged with a homography given by the identity. Indeed if
+the homography H in the “metric plane imaged with known homography” constraint of
+table 8.1 is replaced by the identity then the square pixel constraints are immediately
+obtained.
+Thus, we see that all the constraints given in table 8.1 are derived either from known
+points lying on !, or from pairs of points that are conjugate with respect to !. Determining
+! may therefore be viewed as a conic fitting problem, given points on the conic
+and conjugate point pairs.
+It is well to bear in mind that conic fitting is a delicate problem, often unstable
+([Bookstein-79]) if the points are not well distributed on the conic. The same observation
+is true of the present problem, which we have seen is equivalent to conic fitting.
+The method given in algorithm 8.2 for finding the calibration from vanishing points
+amounts to minimization of algebraic error, and therefore does not give an optimal solution.
+For greater accuracy, the methods of chapter 4, for instance the Sampson error
+method of section 4.2.6(p98) should be used.
+8.9 Single view reconstruction
+As an application of the methods developed in this chapter we demonstrate now the
+3D reconstruction of a texture mapped piecewise planar graphical model from a single
+image. The camera calibration methods of section 8.8 and the rectification method of
+example 8.28 may be combined to back project image regions to texture the planes of
+the model.
+The method will be illustrated for the image of figure 8.26(a), where the scene contains
+three dominant and mutually orthogonal planes: the building facades on the left
+and right and the ground plane. The parallel line sets in three orthogonal directions de230
+8 More Single View Geometry
+a
+b c
+Fig. 8.26. Single view reconstruction. (a) Original image of the Fellows quad,Merton College, Oxford.
+(b) (c) Views of the 3D model created from the single image. The vanishing line of the roof planes is
+computed from the repetition of the texture pattern.
+fine three vanishing points and together with the constraint of square pixels the camera
+calibration may be computed using the method described in section 8.8. From the vanishing
+lines of the three planes, likewise determined by the vanishing points, together
+with the computed !, homographies may be computed to texture map the appropriate
+image regions onto the orthogonal planes of the model.
+In more detail taking the left facade as a reference plane in figure 8.26(a), its correctly
+proportioned width and height are determined by the rectification. The right facade
+and ground planes define 3D planes orthogonal to the reference (we have assumed
+the orthogonality of the planes in computing the camera, so relative orientations are
+defined). Scaling of the right and ground planes is computed from the points common
+to the planes and this completes a three orthogonal plane model.
+Having computed the calibration, the relative orientation of planes in the scene that
+are not orthogonal (such as the roof) can be computed if their vanishing lines can be
+found using (8.14–p218). Their relative positions and dimensions can be determined
+if the intersection of a pair of planes is visible in the image, so that there are points
+common to both planes. Relative size can be computed from the rectification of a
+distance between common points using the homographies of both planes. Views of the
+model, with texture mapped correctly to the planes, appear in figure 8.26(b) and (c).
+8.10 The calibrating conic 231
+8.10 The calibrating conic
+The image of the absolute conic (IAC) is an imaginary conic in an image, and hence
+is not visible. Sometimes it is useful for visualization purposes to consider a different
+conic that is closely related to the calibration of the camera. Such a conic is the calibrating
+conic, which is the image of a cone with apex angle 45◦ and axis coinciding
+with the principal axis of the camera.
+We wish to compute a formula for this cone in terms of the calibration matrix of the
+camera. Since the 45◦ cone moves with the camera, its image is clearly independent
+of the orientation and position of the camera. Thus, we may assume that the camera is
+located at the origin and oriented directly along the Z-axis. Thus, let the camera matrix
+be P = K[I | 0]. Now, any point on the 45◦ cone satisfies X
+2 + Y
+2 = Z
+2. Points on this
+cone map to points on the conic
+C = K−T
+
+
+1
+1
+−1
+
+
+K−1 (8.18)
+as one easily verifies from result 8.6(p199). This conic will be referred to as the calibrating
+conic of the camera. For a calibrated camera with identity calibration matrix
+K = I, the calibrating conic is a unit circle centred at the origin (which is the principal
+point of the image). The conic of (8.18) is simply this unit circle transformed by an
+affine transformation according to the conic transformation rule of result 2.13(p37):
+(C 7→ H−TCH−1). Thus the calibrating conic of a camera with calibration matrix K is the
+affine transformation of a unit circle centred on the origin by the matrix K.
+The calibration parameters are easily read from the calibrating conic. The principal
+point is the centre of the conic, and the scale factors and skew are easily identified, as in
+figure 8.27. In the case of zero skew, the calibrating conic has its principal axes aligned
+with the image coordinate axes. An example on a real image is shown in figure 8.29.
+Example 8.29. Suppose K = diag(f, f, 1), which is the calibration matrix for a camera
+of focal length f pixels, with no skew, square pixels, and image origin coincident
+with the principal point. Then from (8.18) the calibrating conic is C = diag(1, 1,−f2),
+which is a circle of radius f centred on the principal point. △
+Orthogonality and the calibrating conic
+A formula was given in (8.9–p210) for the angle between the rays corresponding to
+two image points. In particular the rays corresponding to two points x and x′ are
+perpendicular when x′T
+!x = 0. As shown in figure 8.13(p212) this may be interpreted
+as the point x′ lying on the line !x, which is the polar of x with respect to the IAC.
+We wish to carry out a similar analysis in terms of the calibrating conic. Writing
+C = K−TDK−1, where D = diag(1, 1,−1), we find
+C = (K−T
+K−1)(KDK−1) = !S
+where S = KDK−1. However, for any point x, the product Sx represents the reflection of
+232 8 More Single View Geometry
+( x 0 , y0 )
+􀁄 x
+􀁄y
+s
+( x 0 , y )
+􀁄 y 􀁄x
+0
+a b
+Fig. 8.27. Reading the internal camera parameters K from the calibrating conic. (a) Skew s is zero.
+(b) Skew s is non-zero. The skew parameter of K (see (6.10–p157), is given by the x-coordinate of the
+highest point of the conic.
+x
+x
+l
+C
+.
+Fig. 8.28. To construct the line perpendicular to the ray through image point x proceed as follows: (i)
+Reflect x through the centre of C to get point x˙ (i.e. at the same distance from the centre as x). (ii) The
+desired line is the polar of x˙ .
+the point x through the centre of the conic C, that is, the principal point of the camera.
+Representing this reflected point by x˙ , one finds that
+x′T
+!x = x′TCx˙ . (8.19)
+This leads to the following geometric result:
+Result 8.30. The line in an image corresponding to the plane perpendicular to a ray
+through image point x is the polar Cx˙ of the reflected point x˙ with respect to the calibrating
+conic.
+This construction is illustrated in figure 8.28.
+Example 8.31. The calibrating conic given three orthogonal vanishing points
+The calibrating conic can be drawn directly for the example of figure 8.22. Again
+assume there is no skew and square pixels, then the calibrating conic is a circle. Now
+given three mutually perpendicular vanishing points, one can find the calibrating conic
+by direct geometric construction as shown in figure 8.29.
+(i) First, construct the triangle with vertices the three vanishing points v1, v2 and
+v3.
+(ii) The centre of C is the orthocentre of the triangle.
+8.11 Closure 233
+c
+v3
+v v2 1
+conic
+calibrating
+v
+1
+c
+   
+ 
+! !
+!
+   ! !
+ 
+ 
+ 
+!
+!
+! v3
+1 2 v v
+calibrating
+conic
+a b
+Fig. 8.29. The calibrating conic computed from three orthogonal vanishing points. (a) The geometric
+construction. (b) The calibrating conic for the image of figure 8.22.
+(iii) Reflect one of the vanishing points (say v1) in the centre to get v˙ 1.
+(iv) The radius of C is determined by the condition that the polar of v˙ 1 is the line
+passing though v2 and v3.
+△
+8.11 Closure
+8.11.1 The literature
+Faugeras and Mourrain [Faugeras-95a], and Faugeras and Papadopoulo [Faugeras-97]
+develop the projection of lines using Pl¨ucker coordinates. Koenderink [Koenderink-84,
+Koenderink-90], and Giblin andWeiss [Giblin-87] give many properties of the contour
+generator and apparent contour, and their relation to the differential geometry of surfaces.
+[Kanatani-92] gives an alternative, calibrated, treatment of vanishing points and
+lines, and of the result that images acquired by cameras with the same centre are related
+by a planar homography. Mundy and Zisserman [Mundy-92] showed this result
+geometrically, and [Hartley-94a] gave a simple algebraic derivation based on camera
+projection matrices. [Faugeras-92b] introduced the projective (reduced) camera matrix.
+The link between the image of the absolute conic and camera calibration was first
+given in [Faugeras-92a].
+The computation of panoramic mosaics is described in [Capel-98, Sawhney-98,
+Szeliski-97]. The ML method of computing vanishing points is given in Liebowitz &
+Zisserman [Liebowitz-98]. Applications of automatic vanishing line estimation from
+coplanar equally spaced lines are given in [Schaffalitzky-00b] and also [Se-00]. Affine
+3D measurements from a single view is described in [Criminisi-00, Proesmans-98].
+The result that K may be computed from multiple scene planes on which metric
+structure (such as a square) is known was given in [Liebowitz-98]. Algorithms for
+this computation are given in [Liebowitz-99a, Sturm-99c, Zhang-00]. The advantage
+in using !, rather than !
+∗, when imposing the skew zero constraint was first noted
+in [Armstrong-96b]. The method of internal calibration using three vanishing points
+for orthogonal directions was given by Caprile and Torre [Caprile-90], though there
+234 8 More Single View Geometry
+is an earlier reference to this result in the photogrammetry literature [Gracie-68]. A
+simple formula for the focal length in this case is given in [Cipolla-99, Hartley-02b].
+A discussion of the degeneracies that arise when combining multiple constraints is
+given in [Liebowitz-99b, Liebowitz-01]. Single view reconstruction is investigated
+in [Criminisi-99a, Criminisi-01, Horry-97, Liebowitz-99a, Sturm-99a].
+8.11.2 Notes and exercises
+(i) Homography from a world plane. Suppose H is computed (e.g. from the
+correspondence between four or more known world points and their images)
+and K known, then the pose of the camera {R, t} may be computed from the
+camera matrix [r1, r2, r1 × r2, t], where
+[r1, r2, t] = ±K−1
+H/kK−1
+Hk.
+Note that there is a two-fold ambiguity. This result follows from (8.1–p196)
+which gives the homography between a world plane and calibrated camera P =
+K[R | t].
+Show that the homography x = HeX
+between points on a world plane (nT, d)T
+and the image may be expressed as H = K(R−tnT/d). The points on the plane
+have coordinates eX
+= (X, Y, Z)T.
+(ii) Line projection.
+(a) Show that any line containing the camera centre lies in the null-space of
+the map (8.2–p198), i.e. it is projected to the line l = 0.
+(b) Show that the line L = PTx in IP3 is the ray through the image point x
+and the camera centre. Hint: start from result 3.5(p72), and show that
+the camera centre C lies on L.
+(c) What is the geometric interpretation of the columns of P?
+(iii) Contour generator of a quadric. The contour generator   of a quadric consists
+of the set of points X on Q for which the tangent planes contain the camera
+centre, C. The tangent plane at a point X on Q is given by  = QX, and the
+condition that C is on  is C
+T
+ = C
+TQX = 0. Thus points X on   satisfy
+C
+TQX = 0, and thus lie on the plane   = QC since 
+T
+ X = C
+TQX = 0. This
+shows that the contour generator of a quadric is a plane curve and furthermore,
+since   = QC, that the plane of   is the polar plane of the camera centre with
+respect to the quadric.
+(iv) Apparent contour of an algebraic surface. Show that the apparent contour
+of a homogeneous algebraic surface of degree n is a curve of degree n(n − 1).
+For example, if n = 2 then the surface is a quadric and the apparent contour
+a conic. Hint: write the surface as F(X, Y, Z, W) = 0, then the tangent plane
+contains the camera centre C if
+CX
+@F
+@X
++ CY
+@F
+@Y
++ CZ
+@F
+@Z
++ CW
+@F
+@W
+= 0
+which is a surface of a degree n − 1.
+8.11 Closure 235
+(v) Rotation axis vanishing point for H = KRK−1. The homography of a conjugate
+rotation H = KRK−1 has an eigenvector Ka, where a is the direction of the
+rotation axis, since HKa = KRa = Ka. The last equality follows because Ra =
+1a, i.e. a is the unit eigenvector of R. It follows that (a) Ka is a fixed point under
+the homography H; and (b) from result 8.20(p215) v = Ka is the vanishing
+point of the rotation axis.
+(vi) Synthetic rotations. Suppose, as in example 8.12(p205), that a homography
+is estimated between two images related by a pure rotation about the camera
+centre. Then the estimated homography will be a conjugate rotation, so that
+H = KR()K−1 (though K and R are unknown). However, H2 applied to the
+first image generates the image that would have been obtained by rotating the
+camera about the same axis through twice the angle, since H2 = KR2K−1 =
+KR(2)K−1.
+More generally we may write H to represent a rotation through any fractional
+angle . To make sense of H, observe that the eigenvalue decomposition of H
+is H() = U diag(1, ei, e−i) U−1, and both  and U may be computed from the
+estimated H. Then
+H = U diag(1, ei, e−i) U−1 = KR()K−1.
+which is the conjugate of a rotation through angle . Writing  instead of ,
+we may use this homography to generate synthetic images rotated through any
+angle . The images are interpolated between the original images (if 0 <  <
+), or extrapolated (if  > ).
+(vii) Show that the imaged circular points of a perspectively imaged plane may be
+computed if any of the following are on the plane: (i) a square grid; (ii) two
+rectangles arranged such that the sides of one rectangle are not parallel to the
+sides of the other; (iii) two circles of equal radius; (iv) two circles of unequal
+radius.
+(viii) Show that in the case of zero skew, ! is the conic
+
+x − x0
+
+x
+2
++
+ 
+y − y0
+
+y
+!2
++ 1 = 0
+which may be interpreted as an ellipse aligned with the axes, centred on the
+principal point, and with axes of length i
+x and i
+y in the x and y directions
+respectively.
+(ix) If the camera calibration K and the vanishing line l of a scene plane are known
+then the scene plane can be metric rectified by a homography corresponding
+to a synthetic rotation H = KRK−1 that maps l to l∞, i.e. it is required that
+H−Tl = (0, 0, 1)T. This condition arises because if the plane is rotated such that
+its vanishing line is l∞ then it is fronto-parallel. Show that H−Tl = (0, 0, 1)T is
+equivalent to Rn = (0, 0, 1)T, where n = KTl is the normal to the scene plane.
+This is the condition that the scene normal is rotated to lie along the camera Z
+axis. Note the rotation is not uniquely defined since a rotation about the plane’s
+236 8 More Single View Geometry
+normal does not affect its metric rectification. However, the last row of R equals
+n, so that R = [r1, r2, n]T where n, r1 and r2 are a triad of orthonormal vectors.
+(x) Show that the angle between two planes with vanishing lines l1 and l2 is
+cos  =
+lT
+1!
+∗l2 q
+lT
+1!
+∗l1
+q
+lT
+2!
+∗l2
+.
+(xi) Derive (8.15–p218). Hint, the line l lies in the pencil defined by l1 and l2, so
+it can be expressed as l = 
+l1 + l2. Then use the relations ln = l0 + nl for
+n = 1, 2 to solve for 
+ and .
+(xii) For the case of vanishing points arising from three orthogonal directions, and
+for an image with square pixels, show algebraically that the principal point is
+the orthocentre of the triangle with vertices the vanishing points. Hint: suppose
+the vanishing point at one vertex of the triangle is v and the line of the opposite
+side (through the other two vanishing points) is l. Then from (8.17–p219) v =
+!
+∗l since v and l arise from an orthogonal line and plane respectively. Show
+that the principal point lies on the line from v to l which is perpendicular in
+the image to l. Since this result is true for any vertex the principal point is the
+orthocentre of the triangle.
+(xiii) Show that the vanishing points of an orthogonal triad of directions are the vertices
+of a self-polar triangle [Springer-64] with respect to !.
+(xiv) If a camera has square pixels, then the apparent contour of a sphere centred on
+the principal axis is a circle. If the sphere is translated parallel to the image
+plane, then the apparent contour deforms from a circle to an ellipse with the
+principal point on its major axis.
+(a) How can this observation be used as a method of internal parameter
+calibration?
+(b) Show by a geometric argument that the aspect ratio of the ellipse does
+not depend on the distance of the sphere from the camera.
+If the sphere is now translated parallel to the principal axis the apparent contour
+can deform to a hyperbola, but only one branch of the hyperbola is imaged.
+Why is this?
+(xv) Show that for a general camera the apparent contour of a sphere is related to the
+IAC as:
+! = C + vvT
+where C is the conic outline of the imaged sphere, and v is a 3-vector that
+depends on the position of the sphere. A proof is given in [Agrawal-03]. Note
+this relation places two constraints on !, so that in principle !, and hence
+the calibration K, may be computed from three images of a sphere. However,
+in practice this is not a well conditioned method for computing K because the
+deviation of the sphere’s outline from a circle is small.
+Part II
+Two-View Geometry
+The Birth of Venus (detail), c. 1485 (tempera on canvas) by Sandro Botticelli (1444/5-1510)
+Galleria degli Uffizi, Florence, Italy/Bridgeman Art Library
+Outline
+This part of the book covers the geometry of two perspective views. These views may be acquired
+simultaneously as in a stereo rig, or acquired sequentially, for example by a camera moving relative to
+the scene. These two situations are geometrically equivalent and will not be differentiated here. Each
+view has an associated camera matrix, P, P′, where ′ indicates entities associated with the second view,
+and a 3-space point X is imaged as x = PX in the first view, and x′ = P′X in the second. Image points
+x and x′ correspond because they are the image of the same 3-space point. There are three questions
+that will be addressed:
+(i) Correspondence geometry. Given an image point x in the first view, how does this constrain
+the position of the corresponding point x′ in the second view?
+(ii) Camera geometry (motion). Given a set of corresponding image points
+{xi ↔ x′
+i}, i = 1, . . . , n, what are the cameras P and P′ for the two views?
+(iii) Scene geometry (structure). Given corresponding image points x ↔ x′ and cameras P, P′,
+what is the position of (their pre-image) X in 3-space?
+Chapter 9 describes the epipolar geometry of two views, and directly answers the first question: a
+point in one view defines an epipolar line in the other view on which the corresponding point lies. The
+epipolar geometry depends only on the cameras – their relative position and their internal parameters.
+It does not depend at all on the scene structure. The epipolar geometry is represented by a 3 × 3
+matrix called the fundamental matrix F. The anatomy of the fundamental matrix is described, and its
+computation from camera matrices P and P′ given. It is then shown that P and P′ may be computed from
+F up to a projective ambiguity of 3-space.
+Chapter 10 describes one of the most important results in uncalibrated multiple view geometry – a
+reconstruction of both cameras and scene structure can be computed from image point correspondences
+alone; no other information is required. This answers both the second and third questions simultaneously.
+The reconstruction obtained from point correspondences alone is up to a projective ambiguity of 3-space,
+and this ambiguity can be resolved by supplying well defined additional information on the cameras or
+scene. In this manner an affine or metric reconstruction may be computed from uncalibrated images. The
+following two chapters then fill in the details and numerical algorithms for computing this reconstruction.
+Chapter 11 describes methods for computing F from a set of corresponding image points {xi ↔
+x′
+i}, even though the structure (3D pre-image Xi) of these points is unknown and the camera matrices
+are unknown. The cameras P and P′ may then be determined, up to a projective ambiguity, from the
+computed F.
+Chapter 12 then describes the computation of scene structure by triangulation given the cameras
+and corresponding image points – the point X in 3-space is computed as the intersection of rays backprojected
+from the corresponding points x and x′ via their associated cameras P, P′. Similarly, the 3D
+position of other geometric entities, such as lines or conics, may also be computed given their image
+correspondences.
+Chapter 13 covers the two-view geometry of planes. It provides an alternative answer to the first
+question: if scene points lie on a plane, then once the geometry of this plane is computed, the image x of
+a point in one image determines the position of x′ in the other image. The points are related by a plane
+projective transformation. This chapter also describes a particularly important projective transformation
+between views – the infinite homography, which is the transformation arising from the plane at infinity.
+Chapter 14 describes two-view geometry in the specialized case that the two cameras P and P′ are
+affine. This case has a number of simplifications over the general projective case, and provides a very
+good approximation in many practical situations.
+238
+</p><p>
+</p><p>
+    </body>
+</html>

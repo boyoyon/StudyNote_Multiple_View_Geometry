@@ -1,0 +1,1483 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>15章</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>15章 三焦点テンソル</center></h1>
+<p>
+三焦点テンソルは、2つの視点における基礎行列と同様の役割を3つの視点で果たします。シーン構造に依存しない、3つの視点間の（射影的な）幾何学的関係をすべて包含します。
+<!-- The trifocal tensor plays an analogous role in three views to that played by the fundamental
+matrix in two. It encapsulates all the (projective) geometric relations between
+three views that are independent of scene structure.-->
+</p><p>
+この章では、まず三焦点テンソルの主要な幾何学的および代数的性質について簡単に紹介する。三焦点テンソルとその性質を正式に展開するには、テンソル記法を用いる。しかし、まずは標準的なベクトル記法と行列記法を用いると便利である。そうすれば、（おそらく）馴染みのない記法を扱う負担なしに、三焦点テンソルに関する幾何学的な知見を得ることができる。したがって、テンソル記法の使用は15.2節まで延期する。
+<!-- We begin this chapter with a simple introduction to the main geometric and algebraic
+properties of the trifocal tensor. A formal development of the trifocal tensor and its
+properties involves the use of tensor notation. To start, however, it is convenient to
+use standard vector and matrix notation, thus obtaining some geometric insight into
+the trifocal tensor without the additional burden of dealing with a (possibly) unfamiliar
+notation. The use of tensor notation will therefore be deferred until section 15.2. -->
+</p><p>
+テンソルの3つの主要な幾何学的性質は15.1節で紹介されています。
+これらは、一方のビューの直線から逆投影された平面によって誘導される2つのビュー間のホモグラフィ、3次元空間における入射関係から生じる点と直線の画像対応関係、そしてテンソルからの基礎行列とカメラ行列の取得です。
+
+<!-- The three principal geometric properties of the tensor are introduced in section 15.1.
+These are the homography between two of the views induced by a plane back-projected
+from a line in the other view; the relations between image correspondences for points
+and lines which arise from incidence relations in 3-space; and the retrieval of the fundamental
+and camera matrices from the tensor. -->
+</p><p>
+テンソルは、2つのビューにおける対応点から、3番目のビューにおける対応する点へ点を転送するために使用できます。テンソルは線にも適用され、あるビューにおける線の像は、他の2つのビューにおける対応する像から計算できます。転送については15.3節で説明します。
+<!-- The tensor may be used to transfer points from a correspondence in two views to the
+corresponding point in a third view. The tensor also applies to lines, and the image of
+a line in one view may be computed from its corresponding images in two other views.
+Transfer is described in section 15.3.-->
+</p><p>
+テンソルは、ビュー間の動きとカメラの内部パラメータのみに依存し、ビューのカメラ行列によって一意に定義されます。しかし、動きやキャリブレーションの知識を必要とせず、画像の対応関係のみから計算できます。この計算については第16章で説明します。
+<!-- The tensor only depends on the motion between views and the internal parameters
+of the cameras and is defined uniquely by the camera matrices of the views. However,
+it can be computed from image correspondences alone without requiring knowledge of
+the motion or calibration. This computation is described in chapter 16.-->
+</p>
+<h2><center>15.1 三焦点テンソルの幾何学的基礎</center></h2>
+<p>
+三焦点テンソルへのアプローチはいくつかありますが、この節では、対応する3本の直線の入射関係を出発点とします。
+直線の入射関係。図15.1のように、3次元空間内の直線が3つのビューに投影されていると仮定します。この場合、対応する像の直線にはどのような制約条件が課されるでしょうか？各ビューの直線から逆投影された平面はすべて、空間内で1本の直線、つまり3つの像の対応する直線に投影される3次元直線で交わる必要があります。一般に、空間内の任意の3つの平面は1本の直線で交わらないため、この幾何学的入射条件は、対応する直線の集合に真の制約条件を与えます。ここで、この幾何学的制約条件を、3本の直線に対する代数的制約条件に変換します。
+<!-- There are several ways that the trifocal tensor may be approached, but in this section
+the starting point is taken to be the incidence relationship of three corresponding lines.
+Incidence relations for lines. Suppose a line in 3-space is imaged in three views, as
+in figure 15.1, what constraints are there on the corresponding image lines? The planes
+back-projected from the lines in each view must all meet in a single line in space, the
+3D line that projects to the matched lines in the three images. Since in general three
+arbitrary planes in space do not meet in a single line, this geometric incidence condition
+provides a genuine constraint on sets of corresponding lines. We will now translate this
+geometric constraint into an algebraic constraint on the three lines.-->
+</p><p>
+
+<!-- Fig. 15.1. A line L in 3-space is imaged as the corresponding triplet l ↔ l′ ↔ l′′ in three views indicated
+by their centres, C,C′,C′′, and image planes. Conversely, corresponding lines back-projected from the
+first, second and third images all intersect in a single 3D line in space.
+
+</p><p>
+
+
+We denote a set of corresponding lines as li ↔ l′
+i ↔ l′′
+i . Let the camera matrices for
+the three views be P = [I | 0], as usual, and P′ = [A | a4], P′′ = [B | b4], where A and
+B are 3 × 3 matrices, and the vectors ai and bi are the i-th columns of the respective
+camera matrices for i = 1, . . . , 4.
+• a4 and b4 are the epipoles in views two and three respectively, arising from the first
+camera. These epipoles will be denoted by e′ and e′′ throughout this chapter, with
+e′ = P′C, e′′ = P′′C, where C is the first camera centre. (For the most part we will
+not be concerned with the epipoles between the second and third views).
+• A and B are the infinite homographies from the first to the second and third cameras
+respectively.
+As has been seen in chapter 9, any set of three cameras is equivalent to a set with
+P = [I | 0] under projective transformations of space. In this chapter we will be concerned
+with properties (such as image coordinates and 3D incidence relations) that are
+invariant under 3D projective transforms, so we are free to choose the cameras in this
+form.
+Now, each image line back-projects to a plane, as shown in figure 15.1. From result
+8.2(p197) these three planes are
+ = P
+Tl =
+ 
+l
+0
+!
+
+′ = P′Tl′ =
+ 
+ATl′
+aT
+4 l′
+!
+
+′′ = P′′Tl′′ =
+ 
+BTl′′
+bT
+4 l′′
+!
+.
+Since the three image lines are derived from a single line in space, it follows that
+these three planes are not independent but must meet in this common line in 3-space.
+This intersection constraint can be expressed algebraically by the requirement that the
+4 × 3 matrix M = [,
+′,
+′′] has rank 2. This may be seen as follows. Points on the
+line of intersection may be represented as X = αX1 + βX2, with X1 and X2 linearly
+independent. Such points lie on all three planes and so 
+T
+X = 
+′T
+X = 
+′′T
+X = 0. It
+15.1 The geometric basis for the trifocal tensor 367
+follows that MT
+X = 0. Consequently M has a 2-dimensional null-space since MT
+X1 = 0
+and MT
+X2 = 0.
+This intersection constraint induces a relation amongst the image lines l, l′, l′′. Since
+the rank of M is 2, there is a linear dependence between its columns mi. Denoting
+M = [m1,m2,m3] =
+"
+l ATl′ BTl′′
+0 aT
+4 l′ bT
+4 l′′
+#
+the linear relation may be written m1 = αm2 + βm3. Then noting that the bottom
+left hand element of M is zero, it follows that α = k(bT
+4 l′′) and β = −k(aT
+4 l′) for
+some scalar k. Applying this to the top 3-vectors of each column shows that (up to a
+homogeneous scale factor)
+l = (bT
+4 l′′)A
+Tl′ − (aT
+4 l′)B
+Tl′′ = (l′′Tb4)A
+Tl′ − (l′Ta4)B
+Tl′′.
+The i-th coordinate li of l may therefore be written as
+li = l′′T(b4aT
+i )l′ − l′T(a4bT
+i )l′′ = l′T(aibT
+4 )l′′ − l′T(a4bT
+i )l′′
+and introducing the notation
+Ti = aibT
+4 − a4bT
+i (15.1)
+the incidence relation can be written
+li = l′TTil′′. (15.2)
+Definition 15.1. The set of three matrices {T1, T2, T3} constitute the trifocal tensor in
+matrix notation.
+We introduce a further notation1. Denoting the ensemble of the three matrices Ti by
+[T1, T2, T3], or more briefly [Ti], this last relation may be written as
+lT = l′T[T1, T2, T3]l′′ (15.3)
+where l′T[T1, T2, T3]l′′ is understood to represent the vector (l′TT1l′′, l′TT2l′′, l′TT3l′′).
+Of course there is no intrinsic difference between the three views, and so by analogy
+with (15.3) there will exist similar relations l′T = lT[T′
+i]l′′ and l′′T = lT[T′′
+i ]l′. The three
+tensors [Ti], [T′
+i] and [T′′
+i ] exist, but are distinct. In fact, although all three tensors may
+be computed from any one of them, there is no very simple relationship between them.
+Thus, in fact there are three trifocal tensors existing for a given triple of views. Usually
+one will be content to consider only one of them. However, a method of computing the
+other trifocal tensors [T′
+i] and [T′′
+i ] given [Ti] is outlined in exercise (viii) on page 389.
+Note that (15.3) is a relationship between image coordinates only, not involving 3D
+coordinates. Hence (as remarked previously), although it was derived under the assumption
+of a canonical camera set (that is P = [I | 0]), the value of the matrix elements
+[Ti] is independent of the form of the cameras. The particular simple formula
+(15.1) for the trifocal tensor given the camera matrices holds only in the case where
+1 This notation is somewhat cumbersome, and its meaning is not quite self-evident. It is for this reason that tensor notation is
+introduced in section 15.2.
+368 15 The Trifocal Tensor
+C
+C
+C
+􀁓
+/
+/
+x x//
+X
+/
+//
+l
+image 1
+image 2
+image 3
+Fig. 15.2. Point transfer. A line l′ in the second view back-projects to a plane 
+′ in 3-space. A point
+x in the first image defines a ray in 3-space which intersects 
+′ in the point X. This point X is then
+imaged as the point x′′ in the third view. Thus, any line l′ induces a homography between the first and
+third views, defined by its back-projected plane 
+′.
+P = [I | 0], but a general formula (17.12–p415) for the trifocal tensor corresponding to
+any three cameras will be derived later.
+Degrees of freedom. The trifocal tensor consists of three 3 × 3 matrices, and thus
+has 27 elements. There are therefore 26 independent ratios apart from the (common)
+overall scaling of the matrices. However, the tensor has only 18 independent degrees
+of freedom. In other words once 18 parameters are specified, all 27 elements of the
+tensor are determined up to a common scale. The number of degrees of freedom may
+be computed as follows. Each of 3 camera matrices has 11 degrees of freedom, which
+makes 33 in total. However, 15 degrees of freedom must be subtracted to account for
+the projective world frame, thus leaving 18 degrees of freedom. The tensor therefore
+satisfies 26 − 18 = 8 independent algebraic constraints. We return to this point in
+chapter 16.
+15.1.1 Homographies induced by a plane
+A fundamental geometric property encoded in the trifocal tensor is the homography
+between the first view and the third induced by a line in the second image. This is
+illustrated in figure 15.2 and figure 15.3. A line in the second view defines (by backprojection)
+a plane in 3-space, and this plane induces a homography between the first
+and third views.
+We now derive the algebraic representation of this geometry in terms of the trifocal
+tensor. The homography map between the first and third images, defined by the plane
+
+′ in figure 15.2 and figure 15.3, may be written as x′′ = Hx and (2.6–p36) l = HTl′′
+respectively. Notice that the three lines l, l′ and l′′ in figure 15.3 are a corresponding
+line triple, the projections of the 3D line L. Therefore, they satisfy the line incidence
+relationship li = l′TTil′′ of (15.2). Comparison of this formula and l = HTl′′ shows that
+H = [h1, h2, h3] with hi = T
+T
+i l′.
+15.1 The geometric basis for the trifocal tensor 369
+C
+l
+L
+l
+C
+l// C
+􀁓
+/
+/
+/
+//
+image 1
+image 2
+image 3
+Fig. 15.3. Line transfer. The action on lines of the homography defined by figure 15.2 may similarly be
+visualized geometrically. A line, l, in the first image defines a plane in 3-space, which intersects 
+′ in
+the line L. This line L is then imaged as the line l′′ in the third view.
+Thus, H defined by the above formula represents the (point) homography H13 between
+views one and three specified by the line l′ in view two.
+The second and third views play similar roles, and the homography between the first
+and second views defined by a line in the third can be derived in a similar manner.
+These ideas are formalized in the following result.
+Result 15.2. The homography from the first to the third image induced by a line l′ in
+the second image (see figure 15.2) is given by x′′ = H13(l′) x, where
+H13(l′) = [T
+T
+1 , T
+T
+2 , T
+T
+3 ]l′.
+Similarly, a line l′′ in the third image defines a homography x′ = H12(l′′) x from the
+first to the second views, given by
+H12(l′′) = [T1, T2, T3]l′′.
+Once this mapping is understood the algebraic properties of the tensor are straightforward
+and can easily be generated. In the following section we deduce a number of
+incidence relations between points and lines based on (15.3) and result 15.2.
+15.1.2 Point and line incidence relations
+It is easy to deduce various linear relationships between lines and points in three images
+involving the trifocal tensor. We have seen one such relationship already, namely
+(15.3). This relation holds only up to scale since it involves homogeneous quantities.
+We may eliminate the scale factor by taking the vector cross product of both sides,
+which must be zero. This leads to the formula
+(l′T[T1, T2, T3]l′′)[l]× = 0T, (15.4)
+where we have used the matrix [l]× to denote the cross product (see (A4.5–p581)), or
+more briefly (l′T[Ti]l′′)[l]× = 0T. Note the symmetry between l′ and l′′ – swapping the
+370 15 The Trifocal Tensor
+roles of these two lines is accounted for by transposing each Ti, resulting in a relation
+(l′′T[TT
+i ]l′)[l]× = 0T.
+Consider again figure 15.3. Now, a point x on the line l must satisfy
+xTl =
+P
+i xili = 0 (using upper indices for the point coordinates, foreshadowing the
+use of tensor notation). Since li = l′TTil′′, this may be written as
+l′T(
+X
+i
+xiTi)l′′ = 0 (15.5)
+(note that (
+P
+i xiTi) is simply a 3 × 3 matrix). This is an incidence relation in the
+first image: the relationship will hold for a point–line–line correspondence – that is
+whenever some 3D line L maps to l′ and l′′ in the second and third images, and to a
+line passing through x in the first image. An important equivalent definition of a point–
+line–line correspondence for which (15.5) holds results from an incidence relation in
+3-space – there exists a 3D point X mapping to x in the first image, and to points on
+the lines l′ and l′′ in the second and third images as shown in figure 15.4(a).
+From result 15.2 we may obtain relations involving points x′ and x′′ in the second
+and third images. Consider a point–line–point correspondence as in figure 15.4(b) so
+that
+x′′ = H13(l′) x = [T
+T
+1 l′, T
+T
+2 l′, T
+T
+3 l′] x = (
+X
+i
+xiT
+T
+i )l′
+which is valid for any line l′ passing through x′ in the second image. The homogeneous
+scale factor may be eliminated by (post-)multiplying the transpose of both sides by
+[x′′]× to give
+x′′T[x′′]× = l′T(
+X
+i
+xiTi)[x′′]× = 0T, (15.6)
+A similar analysis may be undertaken with the roles of the second and third images
+swapped.
+Finally, for a 3-point correspondence as shown in figure 15.4(c), there is a relation
+[x′]×(
+X
+i
+xiTi)[x′′]× = 03×3. (15.7)
+Proof. The line l′ in (15.6) passes through x′ and so may be written
+as l′ = x′ × y′ = [x′]×y′ for some point y′ on l′. Consequently, from (15.6)
+l′T(
+P
+i xiTi)[x′′]× = y′T[x′]×(
+P
+i xiTi)[x′′]× = 0T. However, the relation (15.6) is
+true for all lines l′ through x′ and so is independent of y′. The relation (15.7) then
+follows.
+The various relationships between lines and points in three views are summarized in
+table 15.1, and their properties are investigated further in section 15.2.1, once tensor
+notation has been introduced. Note that there are no relations listed for point–line–line
+correspondence in which the point is in the second or third view. Such simple relations
+do not exist in terms of the trifocal tensor in which the first view is the special view.
+It is also worth noting that satisfying an image incidence relation does not guarantee
+incidence in 3-space, as illustrated in figure 15.5.
+15.1 The geometric basis for the trifocal tensor 371
+/
+X
+l
+C
+/
+L
+/ /
+C
+C
+x
+x/
+l//
+x//
+(a) point–line–line
+/
+/ /
+C
+C
+C
+x
+x/ /
+l/
+x/
+X
+L
+(b) point–line–point
+/
+/ /
+x
+x/ /
+X
+x /
+C
+C
+C
+(c) point–point–point
+Fig. 15.4. Incidence relations. (a) Consider a 3-view point correspondence x ↔ x′ ↔ x′′. If l′
+and l′′ are any two lines through x′ and x′′ respectively, then x ↔ l′ ↔ l′′ forms a point–line–line
+correspondence, corresponding to a 3D line L. Consequently, (15.5) holds for any choice of lines l′
+through x′ and l′′ through x′′. (b) The space point X is incident with the space line L. This defines an
+incidence relation x ↔ l′ ↔ x′′ between their images. (c) The correspondence x ↔ x′ ↔ x′′ arising
+from the image of a space point X.
+We now begin to extract the two-view geometry, the epipoles and fundamental matrix,
+from the trifocal tensor.
+15.1.3 Epipolar lines
+A special case of a point–line–line correspondence occurs when the plane 
+′ backprojected
+from l′ is an epipolar plane with respect to the first two cameras, and hence
+372 15 The Trifocal Tensor
+(i) Line–line–line correspondence
+l′T[T1, T2, T3]l′′ = lT or
+$
+l′T[T1, T2, T3]l′′
+[l]× = 0T
+(ii) Point–line–line correspondence
+l′T(
+X
+i
+xiTi)l′′ = 0 for a correspondence x ↔ l′ ↔ l′′
+(iii) Point–line–point correspondence
+l′T(
+X
+i
+xiTi)[x′′]× = 0T for a correspondence x ↔ l′ ↔ x′′
+(iv) Point–point–line correspondence
+[x′]×(
+X
+i
+xiTi)l′′ = 0 for a correspondence x ↔ x′ ↔ l′′
+(v) Point–point–point correspondence
+[x′]×(
+X
+i
+xiTi)[x′′]× = 03×3
+Table 15.1. Summary of trifocal tensor incidence relations using matrix notation.
+/
+/
+/ /
+C
+C
+C
+x
+l
+x/ /
+L
+X
+Fig. 15.5. Non-incident configuration. The imaged points and lines of this configuration satisfy the
+point–line–point incidence relation of table 15.1. However, the space pointXand line L are not incident.
+Compare with figure 15.4.
+passes through the camera centre C of the first camera. Suppose X is a point on the
+plane 
+′; then the ray defined by X and C lies in this plane, and l′ is the epipolar line
+corresponding to the point x, the image of X. This is shown in figure 15.6.
+The plane 
+′′ back-projected from a line l′′ in the third image will intersect the plane
+
+′ in a line L. Further, since the ray corresponding to x lies entirely in the plane 
+′ it
+must intersect the line L. This gives a 3-way intersection between the ray and planes
+back-projected from point x and lines l′ and l′′, and so they constitute a point–line–line
+correspondence, satisfying l′T(
+P
+i xiTi)l′′ = 0. The important point now is that this is
+true for any line l′′, and it follows that l′T(
+P
+i xiTi) = 0T. The same argument holds
+with the roles of l′ and l′′ reversed. To summarize:
+15.1 The geometric basis for the trifocal tensor 373
+C
+l /
+e /
+x
+􀁓
+l
+X
+C /
+C
+/ /
+/
+/
+/
+Fig. 15.6. If the plane 
+′ defined by l′ is an epipolar plane for the first two views, then any line l′′ in the
+third view gives a point–line–line incidence.
+Result 15.3. If x is a point and l′ and l′′ are the corresponding epipolar lines in the
+second and third images, then
+l′T(
+X
+i
+xiTi) = 0T and (
+X
+i
+xiTi)l′′ = 0.
+Consequently, the epipolar lines l′ and l′′ corresponding to x may be computed as the
+left and right null-vectors of the matrix
+P
+i xiTi.
+As the point x varies, the corresponding epipolar lines vary, but all epipolar lines in
+one image pass through the epipole. Thus, one may compute this epipole by computing
+the intersection of the epipolar lines for varying values of x. Three convenient choices
+of x are the points represented by homogeneous coordinates (1, 0, 0)T, (0, 1, 0)T and
+(0, 0, 1)T, with
+P
+i xiTi equal to T1, T2 and T3 respectively for these three choices of x.
+From this we deduce the following important result:
+Result 15.4. The epipole e′ in the second image is the common intersection of the
+epipolar lines represented by the left null-vectors of the matrices Ti, i = 1, . . . , 3.
+Similarly the epipole e′′ is the common intersection of lines represented by the right
+null-vectors of the Ti.
+Note that the epipoles involved here are the epipoles in the second and third images
+corresponding to the first image centre C.
+The usefulness of this result may not be apparent at present. However, it will be seen
+below that it is an important step in computing the camera matrices from the trifocal
+tensor, and in chapter 16 in the accurate computation of the trifocal tensor.
+Algebraic properties of the Ti matrices. This section has established a number of
+algebraic properties of the Ti matrices. We summarize these here:
+• Each matrix Ti has rank 2. This is evident from (15.1) since Ti = aie′′T−e′bT
+i is the
+sum of two outer products.
+• The right null-vector of Ti is l′′
+i = e′′ × bi, and is the epipolar line in the third view
+for the point x = (1, 0, 0)T, (0, 1, 0)T or (0, 0, 1)T, as i = 1, 2 or 3 respectively.
+374 15 The Trifocal Tensor
+• The epipole e′′ is the common intersection of the epipolar lines l′′
+i for i = 1, 2, 3.
+• The left null-vector of Ti is l′
+i = e′ × ai, and is the epipolar line in the second view
+for the point x = (1, 0, 0)T, (0, 1, 0)T or (0, 0, 1)T, as i = 1, 2 or 3 respectively.
+• The epipole e′ is the common intersection of the epipolar lines l′
+i for i = 1, 2, 3.
+• The sum of the matrices M(x) = (
+P
+i xiTi) also has rank 2. The right null-vector
+of M(x) is the epipolar line l′′ of x in the third view, and its left null-vector is the
+epipolar line l′ of x in the second view.
+It’s worth emphasizing again that although a particular canonical form of the camera
+matrices P, P′ and P′′ is used in the derivation, the epipolar properties of the Ti matrices
+are independent of this choice.
+15.1.4 Extracting the fundamental matrices
+It is simple to compute the fundamental matrices F21 and F31 between the first1 and the
+other views from the trifocal tensor. It was seen in section 9.2.1(p242) that the epipolar
+line corresponding to some point can be derived by transferring the point to the other
+view via a homography and joining the transferred point to the epipole. Consider a
+point x in the first view. According to figure 15.2 and result 15.2, a line l′′ in the
+third view induces a homography from the first to the second view given by x′ =
+([T1, T2, T3]l′′) x. The epipolar line corresponding to x is then found by joining x′ to
+the epipole e′. This gives l′ = [e′]× ([T1, T2, T3]l′′) x, from which it follows that
+F21 = [e′]×[T1, T2, T3]l′′.
+This formula holds for any vector l′′, but it is important to choose l′′ to avoid the degenerate
+condition where l′′ lies in the null-space of any of the Ti. A good choice is e′′
+since as has been seen e′′ is perpendicular to the right null-space of each Ti. This gives
+the formula
+F21 = [e′]×[T1, T2, T3]e′′. (15.8)
+A similar formula holds for F31 = [e′′]×[TT
+1 , TT
+2 , TT
+3 ]e′.
+15.1.5 Retrieving the camera matrices
+It was remarked that the trifocal tensor, since it expresses a relationship between image
+entities only, is independent of 3D projective transformations. Conversely, this
+implies that the camera matrices may be computed from the trifocal tensor only up to
+a projective ambiguity. It will now be shown how this may be done.
+Just as in the case of reconstruction from two views, because of the projective ambiguity,
+the first camera may be chosen as P = [I | 0]. Now, since F21 is known (from
+(15.8)), we can make use of result 9.9(p254) to derive the form of the second camera
+as
+P′ = [[T1, T2, T3]e′′ | e′]
+and the camera pair {P, P′} then has the fundamental matrix F21. It might be thought
+1 The fundamental matrix F21 satisfies x
+′T
+F21x = 0 for corresponding points x ↔ x
+′. The subscript notation refers to
+figure 15.8.
+15.1 The geometric basis for the trifocal tensor 375
+Given the trifocal tensor written in matrix notation as [T1, T2, T3].
+(i) Retrieve the epipoles e′, e′′
+Let ui and vi be the left and right null-vectors respectively of Ti, i.e. uT
+i
+Ti = 0T,
+Tivi = 0. Then the epipoles are obtained as the null-vectors to the following 3 × 3
+matrices:
+e′T[u1, u2, u3] = 0 and e′′T[v1, v2, v3] = 0.
+(ii) Retrieve the fundamental matrices F21, F31
+F21 = [e′]×[T1, T2, T3]e′′ and F31 = [e′′]×[T
+T
+1 , T
+T
+2 , T
+T
+3 ]e′.
+(iii) Retrieve the camera matrices P′, P′′ (with P = [I | 0])
+Normalize the epipoles to unit norm. Then
+P′ = [[T1, T2, T3]e′′ | e′] and P′′ = [(e′′e′′T − I)[T
+T
+1 , T
+T
+2 , T
+T
+3 ]e′ | e′′].
+Algorithm 15.1. Summary of F and P retrieval from the trifocal tensor. Note, F21 and F31 are
+determined uniquely. However, P′ and P′′ are determined only up to a common projective transformation
+of 3-space.
+that the third camera could be chosen in a similar manner as P′′ = [[TT
+1 , TT
+2 , TT
+3 ]e′ | e′′],
+but this is incorrect. This is because the two camera pairs {P, P′} and {P, P′′} do not
+necessarily define the same projective world frame; although each pair is correct by
+itself, the triple {P, P′, P′′} is inconsistent.
+The third camera cannot be chosen independently of the projective frame of the first
+two. To see this, suppose the camera pair {P, P′} is chosen and points Xi reconstructed
+from their image correspondences xi ↔ x′
+i. Then the coordinates of Xi are specified
+in the projective world frame defined by by {P, P′}, and a consistent camera P′′ may
+be computed from the correspondences Xi ↔ x′′
+i . Clearly, P′′ depends on the frame
+defined by {P, P′}. However, it is not necessary to explicitly reconstruct 3D structure,
+a consistent camera triplet can be recovered from the trifocal tensor directly.
+The pair of camera matrices P = [I | 0] and P′ = [[T1, T2, T3]e′′ | e′] are not the only
+ones compatible with the given fundamental matrix F21. According to (9.10–p256), the
+most general form for P′ is
+P′ = [[T1, T2, T3]e′′ + e′vT|λe′]
+for some vector v and scalar λ. A similar choice holds for P′′. To find a triple of camera
+matrices compatible with the trifocal tensor, we need to find the correct values of P′ and
+P′′ from these families so as to be compatible with the form (15.1) of the trifocal tensor.
+Because of the projective ambiguity, we are free to choose P′ = [[T1, T2, T3]e′′|e′],
+thus ai = Tie′′. This choice fixes the projective world frame so that P′′ is now defined
+uniquely (up to scale). Then substituting into (15.1) (observing that a4 = e′ and b4 =
+e′′)
+Ti = Tie′′e′′T − e′bT
+i
+from which it follows that e′bT
+i = Ti(e′′e′′T − I). Since the scale may be chosen such
+376 15 The Trifocal Tensor
+that ke′k = e′Te′ = 1, we may multiply on the left by e′T and transpose to get
+bi = (e′′e′′T − I)T
+T
+i e′
+so P′′ = [(e′′e′′T − I)[TT
+1 , TT
+2 , TT
+3 ]e′|e′′]. A summary of the steps involved in extracting
+the camera matrices from the trifocal tensor is given in algorithm 15.1.
+We have seen that the trifocal tensor may be computed from the three camera matrices,
+and that conversely the three camera matrices may be computed, up to projective
+equivalence, from the trifocal tensor. Thus, the trifocal tensor completely captures the
+three cameras up to projective equivalence.
+15.2 The trifocal tensor and tensor notation
+The style of notation that has been used up to now for the trifocal tensor is derived
+from the standard matrix–vector notation. Since a matrix has two indices only, it is
+possible to distinguish between the two indices using the devices of matrix transposition
+and right or left multiplication, and in dealing with matrices and vectors, one can
+do without writing the indices explicitly. Because the trifocal tensor has three indices,
+instead of the two indices that a matrix has, it becomes increasingly cumbersome to
+persevere with this style of matrix notation, and we now turn to using standard tensor
+notation when dealing with the trifocal tensor. For those unfamiliar with tensor notation
+a gentle introduction is given in appendix 1(p562). This appendix should be read
+before proceeding with this chapter.
+Image points and lines are represented by homogeneous column and row 3-vectors,
+respectively, i.e. x = (x1, x2, x3)T and l = (l1, l2, l3). The ij-th entry of a matrix A is
+denoted by ai
+j , index i being the contravariant (row) index and j being the covariant
+(column) index. We observe the convention that indices repeated in the contravariant
+and covariant positions imply summation over the range (1, . . . , 3) of the index. For
+example, the equation x′ = Ax is equivalent to x′i =
+P
+j ai
+jxj , which may be written
+x′i = ai
+jxj .
+We begin with the definition of the trifocal tensor given in (15.1). Using tensor
+notation, this becomes
+T jk
+i = aj
+i bk
+4 − aj
+4bk
+i . (15.9)
+The positions of the indices in T jk
+i (two contravariant and one covariant) are dictated by
+the positions of the indices on the right side of the equation. Thus, the trifocal tensor is
+a mixed contravariant–covariant tensor. In tensor notation, the basic incidence relation
+(15.3) becomes
+li = l′
+j l′′
+kT jk
+i . (15.10)
+Note that when multiplying tensors the order of the entries does not matter, in contrast
+with standard matrix notation. For instance the right side of the above expression is
+l′
+j l′′
+kT jk
+i =
+X
+j,k
+l′
+j l′′
+kT jk
+i =
+X
+j,k
+l′
+jT jk
+i l′′
+k = l′
+jT jk
+i l′′
+k .
+15.2 The trifocal tensor and tensor notation 377
+Definition. The trifocal tensor T is a valency 3 tensor T jk
+i with two contravariant and one
+covariant indices. It is represented by a homogeneous 3×3×3 array (i.e. 27 elements). It has
+18 degrees of freedom.
+Computation from camera matrices. If the canonical 3 × 4 camera matrices are
+P = [I | 0], P′ = [ai
+j ], P′′ = [bi
+j ]
+then
+T jk
+i = aj
+i bk
+4 − aj
+4bk
+i .
+See (17.12–p415) for computation from three general camera matrices.
+Line transfer from corresponding lines in the second and third views to
+the first.
+li = l′
+j l′′
+kT jk
+i
+Transfer by a homography.
+(i) Point transfer from first to third view via a plane in the second
+The contraction l′
+jT jk
+i is a homography mapping between the first and third views
+induced by a plane defined by the back-projection of the line l′ in the second view.
+x′′k = hk
+i xi where hk
+i = l′
+j T jk
+i
+(ii) Point transfer from first to second view via a plane in the third
+The contraction l′′
+kT jk
+i is a homography mapping between the first and second views
+induced by a plane defined by the back-projection of the line l′′ in the third view.
+x′j = hj
+ixi where hj
+i = l′′
+k T jk
+i
+Table 15.2. Definition and transfer properties of the trifocal tensor.
+The homography maps of figure 15.2 and figure 15.3 may be deduced from the incidence
+relation (15.10). In the case of the plane defined by back-projecting the line
+l′,
+li = l′
+j l′′
+kT jk
+i = l′′
+k(l′
+jT jk
+i ) = l′′
+k hk
+i where hk
+i = l′
+jT jk
+i
+and hk
+i are the elements of the homography matrix H. This homography maps points
+between the first and third view as
+x′′k = hk
+i xi.
+Note that the homography is obtained from the tensor by contraction with a line (i.e. a
+summation over one contravariant (upper) index of the tensor, and the covariant (lower)
+index of the line), i.e. l′ extracts a 3 × 3 matrix from the tensor – think of the trifocal
+tensor as an operator which takes a line and produces a homography matrix. Table 15.2
+summarizes the definition and transfer properties of the trifocal tensor.
+A pair of particularly important tensors are ǫijk and its contravariant counterpart ǫijk,
+defined in section A1.1(p563). This tensor is used to represent the vector product. For
+378 15 The Trifocal Tensor
+(i) Line–line–line correspondence
+(lrǫris)l′
+j l′′
+kT jk
+i = 0s
+(ii) Point–line–line correspondence
+xil′
+j l′′
+kT jk
+i = 0
+(iii) Point–line–point correspondence
+xil′
+j(x′′k ǫkqs)T jq
+i = 0s
+(iv) Point–point–line correspondence
+xi(x′jǫjpr)l′′
+k T pk
+i = 0r
+(v) Point–point–point correspondence
+xi(x′j ǫjpr)(x′′k ǫkqs)T pq
+i = 0rs
+Table 15.3. Summary of trifocal tensor incidence relations – the trilinearities.
+instance, the line joining two points xi and yj is equal to the cross product xiyjǫijk =
+lk, and the skew-symmetric matrix [x]× is written as xiǫirs in tensor notation. It is
+now relatively straightforward to write down the basic incidence results involving the
+trifocal tensor given in table 15.1. The results are summarized in table 15.3. In this
+table, a notation such as 0r represents an array of zeros.
+The form of the relations in table 15.3 is more easily understood if one observes
+that three indices i, j and k in T jk
+i correspond to entities in the first, second and third
+views respectively. Thus for instance a partial expression such as l′′
+j T jk
+i cannot occur,
+because the index j belongs to the second view, and hence does not belong on the line
+l′′ in the third view. Repeated indices (indicating summation) must occur once as a
+contravariant (upper) index and once as a covariant (lower) index. Thus, we cannot
+write x′jT jk
+i , since the index j occurs twice in the upper position. Think of the ǫ tensor
+as being used to raise or lower indices, for instance by replacing l′
+j by xiǫijk. However,
+this may not be done arbitrarily, as pointed out in exercise (x) on page 389.
+15.2.1 The trilinearities
+The incidence relations in table 15.3 are trilinear relations or trilinearities in the coordinates
+of the image elements (points and lines). Tri- since every monomial in
+the relation involves a coordinate from each of the three image elements involved;
+and linear because the relations are linear in each of the algebraic entities (i.e. the
+three “arguments” of the tensor). For example in the point–point–point relation,
+xi(x′j ǫjpr)(x′′k ǫkqs)T pq
+i = 0rs, suppose both x1 and x2 satisfy the relation, then so
+does x = αx1 + βx2, i.e. the relation is linear in its first argument. Similarly, the
+relation is linear in the second and third argument. This multi-linearity is a standard
+property of tensors, and follows directly from the form xil′
+j l′′
+kT jk
+i = 0 which is a contraction
+of the tensor over all three of its indices (arguments).
+We will now describe the point–point–point trilinearities in more detail. There are
+15.3 Transfer 379
+nine of these trilinearities arising from the three choices of r and s. Geometrically these
+trilinearities arise from special choices of the lines in the second and third image for
+the point–line–line relation (see figure 15.4(a)). Choosing r = 1, 2 or 3 corresponds to
+a line parallel to the image x-axis, parallel to the image y-axis, or through the image
+coordinate origin (the point (0, 0, 1)T), respectively. For example, choosing r = 1 and
+expanding x′jǫjpr results in
+l′
+p = x′jǫjp1 = (0,−x′3, x′2)
+which is a horizontal line in the second view through x′ (since points of the form
+y′ = (x′1 + λ, x′2, x′3)T satisfy y′Tl′ = 0 for any λ). Similarly, choosing s = 2 in the
+third view results in the vertical line through x′′
+l′′
+q = x′′kǫkq2 = (x′′3, 0,−x′′1)
+and the trilinear point relation expands to
+0 = xix′jx′′k ǫjp1ǫkq2T pq
+i
+= xi[−x′3(x′′3 T 21
+i − x′′1 T 23
+i ) + x′2(x′′3 T 31
+i − x′′1 T 33
+i )].
+Of these nine trilinearities, four are linearly independent. This means that from
+a basis of four trilinearities all nine can be generated by linear combinations. The
+four degrees of freedom may be traced back to those of the point-line-line relation
+xil′
+j l′′
+kT jk
+i = 0 and are counted as follows. There is a one-parameter family of lines
+through x′′ in the third view. If m′′ and n′′ are two members of this family, then any
+other line through x′′ can be obtained from a linear combination of these:
+l′′ = αm′′ + βn′′.
+The incidence relation is linear in l′′, so that given
+l′
+jm′′
+kT jk
+i xi = 0
+l′
+jn′′
+kT jk
+i xi = 0
+then the incidence relation for any other line l′′ can be generated by a linear combination
+of these two. Consequently, there are only two linearly independent incidence
+relations for l′′. Similarly there is a one-parameter family of lines through x′, and the
+incidence relation is also linear in lines l′ through x′. Thus, there are a total of four
+linearly independent incidence relations between a point in the first view and lines in
+the second and third.
+The main virtue of the trilinearities is that they are linear, otherwise their properties
+are often subsumed by transfer, as described in the following section.
+15.3 Transfer
+Given three views of a scene and a pair of matched points in two views one may wish
+to determine the position of the point in the third view. Given sufficient information
+about the placement of the cameras, it is usually possible to determine the location of
+380 15 The Trifocal Tensor
+e e
+F x F x
+image 3
+31 32
+32 31
+x
+/
+/ /
+F32
+x/
+image 2
+image 3
+epipolar line
+from image 2
+from image 1
+epipolar line
+x
+image 1
+F31
+a b
+Fig. 15.7. Epipolar transfer. (a) The image of X in the first two views is the correspondence x ↔ x′.
+The image of X in the third view may be computed by intersecting the epipolar lines F31x and F32x′.
+(b) The configuration of the epipoles and transferred point x′′ as seen in the third image. Point x′′ is
+computed as the intersection of epipolar lines passing through the two epipoles e31 and e32. However,
+if x′′ lies on the line through the two epipoles, then its position cannot be determined. Points close to
+the line through the epipoles will be estimated with poor precision.
+the point in the third view without reference to image content. This is the point transfer
+problem. A similar transfer problem arises for lines.
+In principle the problem can generally be solved given the cameras for the three
+views. Rays back-projected from corresponding points in the first and second view
+intersect and thus determine the 3D point. The position of the corresponding point
+in the third view is computed by projecting this 3D point onto the image. Similarly
+lines back-projected from the first and second image intersect in the 3D line, and the
+projection of this line in 3-space to the third image determines its image position.
+15.3.1 Point transfer using fundamental matrices
+The transfer problem may be solved using knowledge of the fundamental matrices
+only. Thus, suppose we know the three fundamental matrices F21, F31 and F32 relating
+the three views, and let points x and x′ in the first two views be a matched pair. We
+wish to find the corresponding point x′′ in the third image.
+The required point x′′ matches point x in the first image, and consequently must lie
+on the epipolar line corresponding to x. Since we know F31, this epipolar line may be
+computed, and is equal to F31x. By a similar argument, x′′ must lie on the epipolar line
+F32x′. Taking the intersection of the epipolar lines gives
+x′′ = (F31x) × (F32x′) .
+See figure 15.7a.
+Note that the fundamental matrix F21 is not used in this expression. The question
+naturally arises whether we can gain anything by knowledge of F21, and the answer is
+yes. In the presence of noise, the points x ↔ x′ will not form an exact matched pair,
+meaning that they will not satisfy the equation x′TF21x = 0 exactly. Given F21 one may
+use optimal triangulation as in algorithm 12.1(p318) to correct x and x′, resulting in a
+pair ˆx ↔ ˆx′ that satisfies this relation. The transferred point may then be computed as
+x′′ = (F31ˆx) × (F32ˆx′). This method of point transfer using the fundamental matrices
+will be called epipolar transfer.
+15.3 Transfer 381
+C C
+e
+C
+1
+21
+2
+3
+image 1 image 3
+e13
+e12
+e23
+e32
+e31
+image 2
+Fig. 15.8. The trifocal plane is defined by the three camera centres. The notation for the epipoles is
+eij = PiCj . Epipolar transfer fails for any point X on the trifocal plane. If the three camera centres
+are collinear then there is a one-parameter family of planes containing the three centres.
+Though at one time used for point transfer, epipolar transfer has a serious deficiency
+that rules it out as a practical method. This deficiency is due to the degeneracy that
+can be seen from figure 15.7(b): epipolar transfer fails when the two epipolar lines in
+the third image are coincident (and becomes increasingly ill-conditioned as the lines
+become less “transverse”). The degeneracy condition that x′′, e31 and e32 are collinear
+in the third image means that the camera centres C and C′ and the 3D point X lie in
+a plane through the centre C′′ of the third camera; thus X lies on the trifocal plane
+defined by the three camera centres, see figure 15.8. Epipolar transfer will fail for
+points X lying on the trifocal plane and will be inaccurate for points lying near that
+plane. Note, in the special case that the three camera centres are collinear the trifocal
+plane is not uniquely defined, and epipolar transfer fails for all points. In this case
+e31 = e32.
+15.3.2 Point transfer using the trifocal tensor
+The degeneracy of epipolar transfer is avoided by use of the trifocal tensor. Consider a
+correspondence x ↔ x′. If a line l′ passing through the point x′ is chosen in the second
+view, then the corresponding point x′′ may be computed by transferring the point x
+from the first to the third view using x′′k = xil′
+jT jk
+i , from table 15.2. It is clear from
+figure 15.4(p371)(b) that this transfer is not degenerate for general points X lying on
+the trifocal plane.
+However, note from result 15.3 and figure 15.6 that if l′ is the epipolar line corresponding
+to x, then xil′
+jT jk
+i = 0k, so the point x′′ is undefined. Consequently, the
+choice of line l′ is important. To avoid choosing only an epipolar line, one possibility
+is to use two or three different lines passing through x′, namely l′
+jp = x′rǫrjp for the
+three choices of p = 1, . . . , 3. For each such line, one computes the value of x′′ and
+retains the one that has the largest norm (i.e. is furthest from being zero). An alternative
+method entirely for finding x′′ is as the least-squares solution of the system of linear
+equations xi(x′j ǫjpr)(x′′k ǫkqs)T pq
+i = 0rs, but this method is probably an overkill.
+The method we recommend is the following. Before attempting to compute the point
+x′′ transferred from a pair of points x ↔ x′, first correct the pair of points using the
+fundamental matrix F21, as described above in the case of epipolar transfer. If ˆx and ˆx′
+382 15 The Trifocal Tensor
+x
+x
+C C
+X
+C
+//
+1
+2
+3
+􀁓 /
+B23 B12
+l /
+e
+e
+12
+21
+image 1 image 3
+image 2
+Fig. 15.9. Degeneracy for point transfer using the trifocal tensor. The 3D point X is defined by the
+intersection of the ray through x with the plane 
+′. A point X on the baseline B12 between the first and
+second views cannot be defined in this manner. So a 3D point on the line B12 cannot be transferred to
+the third view via a homography defined by a line in the second view. Note that a point on the line B12
+projects to e12 in the first image and e21 in the second image. Apart from the line B12 any point can
+be transferred. In particular there is not a degeneracy problem for points on the baseline B23, between
+views two and three, or for any other point on the trifocal plane.
+are an exact match, then the transferred point x′′k = ˆxil′
+jT jk
+i does not depend on the
+line l′ chosen passing through ˆx′ (as long as it is not the epipolar line). This may be
+verified geometrically by referring to figure 15.2(p368). A good choice is always given
+by the line perpendicular to F21ˆx.
+To summarize, a measured correspondence x ↔ x′ is transferred by the following
+steps:
+(i) Compute F21 from the trifocal tensor (by the method given in algorithm 15.1),
+and correct x ↔ x′ to the exact correspondence ˆx ↔ ˆx′ using algorithm 12.1-
+(p318).
+(ii) Compute the line l′ through ˆx′ and perpendicular to l′
+e = F21ˆx. If
+l′
+e = (l1, l2, l3)T and ˆx′ = (ˆx1, ˆx2, 1)T, then l′ = (l2,−l1,−ˆx1l2 + ˆx2l1)T.
+(iii) The transferred point is x′′k = ˆxil′
+jT jk
+i .
+Degenerate configurations. Consider transfer to the third view via a plane, as shown
+in figure 15.9. The 3D point X is only undefined if it lies on the baseline joining the
+first and second camera centres. This is because rays through x and x′ are collinear
+for such 3D points and so their intersection is not defined. In such a case, the points x
+and x′ correspond with the epipoles in the two images. However, there is no problem
+transferring a point lying on the baseline between views two and three, or anywhere
+else on the trifocal plane. This is the key difference between epipolar transfer and
+transfer using the trifocal tensor. The former is undefined for any point on the trifocal
+plane.
+15.3.3 Line transfer using the trifocal tensor
+Using the trifocal tensor, it is possible to transfer lines from a pair of images to a third
+according to the line-transfer equation li = l′
+j l′′
+kT jk
+i of table 15.2. This gives an explicit
+15.4 The fundamental matrices for three views 383
+formula for the line in the first view, given lines in the other two views. Note however
+that if the lines l and l′ are known in the first and second views then l′′ may be computed
+by solving the set of linear equations (lrǫris)l′
+j l′′
+kT jk
+i = 0s, thereby transferring it into
+the third image. Similarly one may transfer lines into the second image. Line transfer
+is not possible using only the fundamental matrices.
+Degeneracies. Consider the geometry of figure 12.8(p322). The line L in 3-space is
+defined by the intersection of the planes through l and l′, namely  and 
+′ respectively.
+This line is clearly undefined when the planes  and 
+′ are coincident, i.e. in the case
+of epipolar planes. Consequently, lines cannot be transferred between the first and third
+image if both l and l′ are corresponding epipolar lines for the first and second views.
+Algebraically, the line-transfer equation gives li = l′
+j l′′
+kT jk
+i = 0, and the equation
+matrix (lrǫris)l′
+jT jk
+i used to solve for l′′ becomes zero. It is quite common for lines to
+be near epipolar, and their transfer is then inaccurate, so this condition should always
+be checked for. There is an equivalent degeneracy for line transfer between views one
+and two defined by a line in view three. Again, it occurs if the lines in views one and
+three are corresponding epipolar lines for these two views.
+In general the epipolar geometries between views one and two, and one and three
+will differ, for instance the epipole e12 arising in the first view from view two will not
+coincide with the epipole e13 arising in the first view from view three. Thus an epipolar
+line in the first view for views one and two will not coincide with an epipolar line for
+views one and three. Consequently, when line transfer into the third view is degenerate,
+line transfer into the second view will not in general be degenerate. However, for lines
+in the trifocal plane transfer is degenerate (i.e. undefined) always.
+15.4 The fundamental matrices for three views
+The three fundamental matrices F21, F31, F32 are not independent, but satisfy three relations:
+eT
+23
+F21 e13 = eT
+31
+F32 e21 = eT
+32
+F31 e12 = 0. (15.11)
+These relations are easily seen from figure 15.8. For example, eT
+32
+F31 e12 = 0 follows
+from the observation that e32 and e12 are matching points, corresponding to the centre
+of camera number 2.
+Projectively, the three-camera configuration has 18 degrees of freedom counting 11
+for each camera less 15 for an overall projective ambiguity. Alternatively, this may be
+accounted for as 21 for the 3 × 7 degrees of freedom of the fundamental matrices less
+3 for the relations. The trifocal tensor also has 18 degrees of freedom and fundamental
+matrices computed from the trifocal tensor will automatically satisfy the three relations.
+The counting argument implies that the three relations of (15.11) are sufficient to
+ensure consistency of three fundamental matrices. The counting argument alone is not
+a convincing proof of this, however, so a proof is given below.
+Definition 15.5. Three fundamental matrices F21, F31 and F32 are said to be compatible
+if they satisfy the conditions (15.11).
+384 15 The Trifocal Tensor
+In most cases, these conditions are sufficient to ensure that the three fundamental matrices
+correspond to some geometric configuration of cameras.
+Theorem 15.6. Let a set of three fundamental matrices F21, F31 and F32 be given satisfying
+the conditions (15.11). Assume also that e12 6= e13, e21 6= e23, and e31 6= e32.
+Then there exist three camera matrices P1, P2, P3 such that Fij is the fundamental matrix
+corresponding to the pair (Pi, Pj).
+Note that the conditions eij 6= eik in this theorem ensure that the three cameras
+are non-collinear. For this reason they will be referred to here as the non-collinearity
+conditions. One may show by example (left to the reader) that these conditions are
+necessary for the truth of the theorem.
+Proof. In this proof, the indices i, j and k are intended to be distinct. We begin by
+choosing three points xi; i = 1, . . . , 3, consistent with the three fundamental matrices.
+In other words, we require that xT
+i
+Fijxj = 0 for all pairs (i, j). This is easily done
+by choosing first x1 and x2 to satisfy xT
+2
+F21x1 = 0, and then defining x3 to be the
+intersection of the two epipolar lines F32x2 and F31x1.
+In a similar manner, we choose a second set of points yi; i = 1, . . . , 3 satisfying
+yT
+i
+Fijyj = 0. This is done in such a way that the four points xi, yi, eij , eik in each
+image i are in general position – that is no three are collinear. This is possible by the
+assumption that the two epipoles in each image are distinct.
+Next we choose five world points C1,C2,C3,X,Y in general position. For example,
+one could take the usual projective basis. We may now define the three camera matrices.
+Let the i-th camera matrix Pi satisfy the conditions
+PiCi = 0; PiCj = eij ; PiCk = eik; PiX = xi; PiY = yi.
+In other words, the i-th camera has centre at Ci and maps the four other world points
+Cj ,Ck,X,Y to the four image points eij , eik, xi, yi. This uniquely determines the camera
+matrix since the points are in general position. To see this, recall that the camera
+matrix defines a homography between the image and the rays through the camera centre
+(a 2D projective space). The images of four points specify this homography completely.
+Let ˆFij be the fundamental matrix defined by the pair of camera matrices Pi
+and Pj . The proof is completed by proving that ˆFij = Fij for all i, j.
+The epipoles of ˆFij and Fij are the same, by the way that Pi and Pj are constructed.
+Consider the pencil of epipolar lines through eij in image i. This pencil forms a 1-
+dimensional projective space of lines, and the fundamental matrix Fij induces a oneto-
+one correspondence (in fact a homography) between this pencil and the pencil of
+lines through eji in image j. The fundamental matrix ˆFij also induces a homography
+between the same pencils. The two fundamental matrices are the same if the homographies
+they induce are the same.
+Two 1-dimensional homographies are the same if they agree on three points (or in this
+case epipolar lines). The relation xT
+i
+Fijxj = 0 means that the epipolar lines through
+xi in image i and xj in image j correspond under the homography induced by Fij . By
+construction xiˆFijxj = 0 as well, since xi and xj are the projections of the point X in
+15.4 The fundamental matrices for three views 385
+the two images. Thus, both homographies agree on this pair of epipolar lines. In the
+same way, the homographies induced by Fij and ˆFij agree on the epipolar lines corresponding
+to the pairs yi ↔ yj and eik ↔ ejk. The two homographies therefore agree
+on three lines in the pencil and hence are equal; so are the corresponding fundamental
+matrices. (We are grateful to Frederik Schaffalitzky for this proof).
+15.4.1 Uniqueness of camera matrices given three fundamental matrices
+The proof just given shows that there is at least one set of cameras corresponding to
+three compatible fundamental matrices (provided they satisfying the non-collinearity
+condition). It is important to know that the three fundamental matrices determine the
+configuration of the three cameras uniquely, at least up to the unavoidable projective
+ambiguity. This will be shown next.
+The first two camera matrices P and P′ may be determined from the fundamental
+matrix F21 by two-view techniques (chapter 9). It remains to determine the third camera
+matrix P′′ in the same projective frame. In principle, this may be done as follows.
+(i) Select a set of matching points xi ↔ x′
+i in the first two images, satisfying
+x′
+i
+TF21xi = 0, and use triangulation to determine the corresponding 3D points
+Xi.
+(ii) Use epipolar transfer to determine the corresponding points x′′
+i in the third image,
+using the fundamental matrices F31 and F32.
+(iii) Solve for the camera matrix P′′ from the set of 3D–2D correspondences
+Xi ↔ x′′
+i .
+The second step in this algorithm will fail in the case where the point Xi lies in the
+trifocal plane. Such a point Xi is easily detected and discarded, since it projects into
+the first image as a point xi lying on the line joining the two epipoles e12 and e13. Since
+there are infinitely many possible matched points, we can compute sufficiently many
+such points to compute P′′.
+The only situation in which this method will fail is when all space points Xi lie in a
+trifocal plane. This can occur only in the degenerate situation in which the three camera
+centres are collinear, in which case the trifocal plane is not uniquely determined. Thus,
+we see that unless the three camera centres are collinear, the three camera matrices
+may be determined from the fundamental matrices. On the other hand, if the three
+cameras are collinear, then there is no way to determine the relative spacings of the
+cameras along the line of their centres. This is because the length of the baseline
+cannot be determined from the fundamental matrices, and the three baselines (distances
+between the camera centres) may be arbitrarily chosen and remain consistent with the
+fundamental matrices. Thus we have demonstrated the following fact:
+Result 15.7. Given three compatible fundamental matrices F21, F31 and F32 satisfying
+the non-collinearity condition, the three corresponding camera matrices P, P′ and P′′
+are unique up to the choice of a 3D projective coordinate frame.
+386 15 The Trifocal Tensor
+15.4.2 Computation of camera matrices from three fundamental matrices
+Given three compatible fundamental matrices, there exists a simple method for computing
+a corresponding set of three camera matrices. From the fundamental matrix
+F21, one can compute a corresponding pair of camera matrices (P, P′) using result 9.14-
+(p256). Next, according to result 9.12(p255) the third camera matrix P′′ must satisfy
+the condition that P′′TF31P and P′′TF32P′ be skew-symmetric. Each of these matrices
+gives rise to 10 linear equations in the entries of P′′, a total of 20 equations in the 12
+entries of P′′. From these, P′′ may be computed linearly.
+If the three fundamental matrices are compatible in the sense of definition 15.5 and
+the non-collinearity condition of theorem 15.6 holds, then there will exist a solution,
+and it will be unique. If however the three fundamental matrices are computed independently
+from point correspondences, then they will not satisfy the compatibility
+conditions exactly. In this case it will be necessary to compute a least-squares solution
+to find P′′. The error being minimized is not geometrically based. It is best to use this
+algorithm only when the fundamental matrices are known to be compatible.
+One can think of doing three-view reconstruction by estimating the three fundamental
+matrices using pairwise point correspondences, then using the above algorithm to
+estimate the three camera matrices. This is not a very good strategy, for the following
+reasons.
+(i) The method for computing the three camera matrices from the fundamental
+matrices assumes that the fundamental matrices are compatible. Otherwise, a
+least-squares problem involving a non-geometrically justified cost function is
+involved.
+(ii) Although result 15.7 shows that three fundamental matrices may determine the
+camera geometry, and hence the trifocal tensor, this is only true when the cameras
+are not collinear. As they approach collinearity, the estimate of the relative
+camera placement becomes unstable.
+The trifocal tensor is preferable to a triple of compatible fundamental matrices as a
+means of determining the geometry of three views. This is because the difficulty with
+the views being collinear is not an issue with the trifocal tensor. It is well defined and
+uniquely determines the geometry even for collinear cameras. The difference is that the
+fundamental matrices do not contain a direct constraint on the relative displacements
+between the three cameras, whereas this is built into the trifocal tensor.
+Since the projective structure of the three cameras may be computed explicitly from
+the trifocal tensor, it follows that all three fundamental matrices for the three view pairs
+are determined by the trifocal tensor. In fact simple formulae, given in algorithm 15.1-
+(p375) exist for the two fundamental matrices F21 and F31. The fundamental matrices
+determined from the trifocal tensor will satisfy the compatibility conditions (15.11).
+15.4.3 Camera matrices compatible with two fundamental matrices
+Suppose we are given only two fundamental matrices F21 and F31. To what extent do
+these fix the geometry of the three cameras? It will be shown here that there are four
+15.5 Closure 387
+degrees of freedom in the solution for the camera matrices, beyond the usual projective
+ambiguity.
+From F21 one may compute a pair of camera matrices (P, P′), and from F31 the pair
+(P, P′′). In both cases we may choose P = [I | 0], resulting in a triple of camera matrices
+(P, P′, P′′) compatible with the pair of fundamental matrices.
+However, the choice of the three camera matrices is not unique, since for any
+matrices H1 and H2 representing 3D projective transforms, the pairs (PH1, P′H1) and
+(PH2, P′′H2) are also compatible with the same fundamental matrices. In order to preserve
+the condition that P is equal to [I | 0] in each case, the form of Hi must be restricted
+to:
+Hi =
+"
+I 0
+vT
+i ki
+#
+.
+We may now fix on a particular choice of the first two camera matrices (P, P′) compatible
+with F21. This is equivalent to fixing on a specific projective coordinate frame.
+The general solution for the camera matrices is then (P, P′, P′′H2), where H2 is of the
+form given above and the two pairs (P, P′) and (P, P′′) are compatible with the two
+fundamental matrices.
+Allowing also for the overall projective ambiguity, the most general solution is
+(PH, P′H, P′′H2H), which gives a total of 19 degrees of freedom, 15 for the projective
+transformation H and 4 for the degrees of freedom of H2. The same number of degrees
+of freedom may be found using a counting argument as follows: two fundamental matrices
+have 7 degrees of freedom each, for a total of 14. Three arbitrary camera matrices
+on the other hand have 3 × 11 = 33 degrees of freedom. The 14 constraints imposed
+by the two fundamental matrices leave 19 remaining degrees of freedom for the three
+camera matrices.
+15.5 Closure
+The development of three-view geometry proceeds in an analogous manner to that of
+two-view geometry covered in part II of this book. The trifocal tensor may be computed
+from image correspondences over three views, and a projective reconstruction of the
+cameras and 3D scene then follows. This computation is described in chapter 16.
+The projective ambiguity may be reduced to affine or metric by supplying additional
+information on the scene or cameras in the same manner as that of chapter 10. A similar
+development to that of chapter 13 may be given for the relations between homographies
+induced by scene planes and the trifocal tensor.
+15.5.1 The literature
+With hindsight, the discovery of the trifocal tensor may be traced to [Spetsakis-91]
+and [Weng-88], where it was used for scene reconstruction from lines in the case of
+calibrated cameras. It was later shown in [Hartley-94d] to be equally applicable to
+projective scene reconstruction in the uncalibrated case. At this stage matrix notation
+was used, but [Vieville-93] used tensor notation for this problem.
+388 15 The Trifocal Tensor
+Meanwhile in independent work, Shashua introduced trilinearity conditions relating
+the coordinates of corresponding points in three views with uncalibrated cameras
+[Shashua-94, Shashua-95a]. [Hartley-95b, Hartley-97a] then showed that Shashua’s relation
+for points and scene reconstruction from lines both arise from a common tensor,
+and the trifocal tensor was explicitly identified.
+In subsequent work properties of the tensor have been investigated, e.g.
+[Shashua-95b]. In particular [Triggs-95] described the mixed covariant–contravariant
+behaviour of the indices, and [Zisserman-96] described the geometry of the homographies
+encoded by the tensor. Faugeras and Mourrain [Faugeras-95a] gave enlightening
+new derivations of the trifocal tensor equations and considered the trifocal tensor in
+the context of general linear constraints involving multiple views. This approach will
+be discussed in chapter 17. Further geometric properties of the tensor were given in
+Faugeras & Papadopoulo [Faugeras-97].
+Epipolar point transfer was described by [Barrett-92, Faugeras-94], and its deficiencies
+pointed out by [Zisserman-94], amongst others.
+The trifocal tensor has been used for various applications including establishing
+correspondences in image sequences [Beardsley-96], independent motion detection
+[Torr-95a], and camera self-calibration [Armstrong-96a].
+15.5.2 Notes and exercises
+(i) The trifocal tensor is invariant to 3D projective transforms. Verify explicitly
+that if H4×4 is a transform preserving the first camera matrix P = [I | 0], then
+the tensor defined by (15.1–p367) is unchanged.
+(ii) In this chapter the starting point for the trifocal tensor derivation was the incidence
+property of three corresponding lines. Show that alternatively the starting
+point may be the homography induced by a plane.
+Here is a sketch derivation: choose the camera matrices to be a canonical set
+P = [I | 0], P′ = [A | a4], P′′ = [B | b4] and start from the homography H13 between
+the first and third views induced by a plane 
+′. From result 13.1(p326)
+this homography may be written as H13 = B − b4vT, where 
+′T = (vT, 1). In
+this case the plane is defined by a line l′ in the second view as 
+′ = P′Tl′. Show
+that result 15.2(p369) follows.
+(iii) Homographies involving the first view are simply expressed in terms of the
+trifocal tensor T jk
+i as given by result 15.2(p369). Investigate whether a simple
+formula exists for the homography H23 from the second to the third view,
+induced by a line l in the first image.
+(iv) The contraction xiT jk
+i is a 3 × 3 matrix. Show that this may be interpreted as
+a correlation (see definition 2.29(p59)) mapping between the second and third
+views induced by the line which is the back-projection of the point x in the first
+view.
+(v) Plane plus parallax over three views. There is a rich geometry associated
+with the plane plus two points configuration (see figure 13.9(p336)) over three
+views: suppose the points off the (reference) plane are X and Y. Project the
+15.5 Closure 389
+point X onto the reference plane from each of the three camera centres to form
+a triangle x, x′, x′′, and similarly project the point Y to the triangle y, y′, y′′.
+Then the two triangles form a Desargues’s configuration and are related by a
+planar homology (see section A7.2(p629)). A simple sketch shows that the
+lines joining corresponding triangle vertices, (x, y), (x′, y′), (x′′, y′′), are concurrent,
+and their intersection is the point at which the line joining X and Y
+pierces the reference plane. Similarly the intersection points of corresponding
+triangle sides are collinear, and the line so formed is the intersection of the trifocal
+plane of the cameras with the reference plane. Further details are given
+in [Criminisi-98, Irani-98, Triggs-00b].
+(vi) In the case where two of the three cameras have the same camera centre, the
+trifocal tensor may be related to simpler entities. There are two cases.
+(a) If the second and third camera have the same centre, then
+T jk
+i = FriHk
+s ǫrjs, where Fri is the fundamental matrix for the first two
+views, and H is the homography from the second to the third view induced
+by the fact that they have the same centre.
+(b) If the first and the second views have the same centre, then T jk
+i = H
+j
+ie′′k,
+where H is the homography from the first to the second view and e′′ is
+the epipole in the third image.
+Prove these relationships using the approach of chapter 17.
+(vii) Consider the case of a small baseline between the cameras and derive a differential
+form of the trifocal tensor, see [Astrom-98, Triggs-99b].
+(viii) There are actually three different trifocal tensors relating three views, depending
+on which of the three cameras corresponds to the covariant index. Given
+one such tensor [Ti], verify that the tensor [T′
+i] may be computed in several steps,
+as follows:
+(a) Extract the three camera matrices P = [I | 0], P′ and P′′ from the trifocal
+tensor.
+(b) Find a 3D projective transformation H such that P′H = [I | 0], and apply
+it to each of P and P′′ as well.
+(c) Compute the tensor [T′
+i] by applying (15.1–p367).
+(ix) Investigate the form and properties (e.g. rank of the matrices Ti) of the trifocal
+tensor for the special motions (pure translation, planar motion) described in
+section 9.3(p247) for the fundamental matrix.
+(x) Comparison of the incidence relationships of table 15.3(p378) indicates that
+one may replace a line l′
+j by the expression ǫjrsx′
+r, and proceed similarly with
+l′′
+k. Also, one gets a three-view line equation by replacing xi by ǫirsli. Can both
+of these operations be carried out at once to obtain an equation
+
+ǫiruli
+ 
+ǫjsvx′j
+ 
+ǫktwx′′k
+
+T st
+r = 0u
+vw?
+Why, or why not?
+390 15 The Trifocal Tensor
+(xi) Affine trifocal tensor. If the three cameras P, P′ and P′′ are all affine (definition
+6.3(p166)), then the corresponding tensor TA is the affine trifocal tensor. This
+affine specialization of the tensor has 12 degrees of freedom and 16 non-zero
+entries. The affine trifocal tensor was first defined in [Torr-95b], and has been
+studied in [Kahl-98a, Quan-97a, Thorhallsson-99]. It shares with the affine
+fundamental matrix (chapter 14) very stable numerical estimation behaviour. It
+has been shown to perform very well in tracking applications where the object
+of interest (for example a car) has small relief compared to the depth of the
+scene [Hayman-03, Tordoff-01]. -->
+</p><p>
+</p><p>
+    </body>
+</html>

@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <meta charset="utf-8" />
+        <title>付録4</title>
+        <style type="text/css">
+            p
+            {
+                padding-left: 2em;
+            }
+            .margin-large
+            {
+                margin-left: 30px;
+            }
+           .margin-abstract {
+               margin-left: 60px; /* 左マージンを広くする */
+               margin-right: 60px; /* 右マージンを広くする */
+           }
+        </style>
+    <style>
+        .two-columns {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* 列間のスペース */
+        }
+        .column {
+            flex: 1; /* 各列が均等に幅を取る */
+        }
+    </style>
+<style>
+.three-columns {
+  display: flex;
+  gap: 10px; /* 列間の余白を設定 */
+}
+.column {
+  flex: 1; /* 各列の幅を均等にする */
+  padding: 10px; /* 内側の余白を設定 */
+}
+</style>
+    <style>
+        .styleRef { 
+            text-indent: -40px; /* 最初の行の字下げを逆方向に */
+            margin-left: 10px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 40px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+        .styleBullet { 
+            text-indent: -20px; /* 最初の行の字下げを逆方向に */
+            margin-left: 30px; /* 2行目以降の字下げを調整 */
+            ul {
+                  list-style-type: none; /* 箇条書き記号を非表示 */
+                  padding-left: 0px; /* 全体の左余白 */
+            }
+            li {
+            }
+        }
+    </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
+    </head>
+    <body>
+        <h1><center>付録4</center><center>行列の特性と分解</center></h1>
+<p>
+この付録では、本書全体を通して登場する特定の形式の行列と、さまざまな行列分解について説明します。
+
+<!-- In this appendix we discuss matrices with particular forms that occur throughout the
+book, and also various matrix decompositions. -->
+</p>
+<h2><center>A4.1 直交行列</center></h2>
+<p>
+正方行列 \(U\) は、その転置行列が逆行列、つまり記号的に \(U^TU = I\) であるとき、直交行列と呼ばれます。これは、\(U\) の列ベクトルがすべて単位ノルムで直交していることを意味します。これは \(\mathbf u_i^T\mathbf u_j = \delta_{ij}\) と表記されます。条件 \(U^TU = I\) から、\(UU^T = I.\) であることが容易にわかります。したがって、\(U\) の行ベクトルも単位ノルムで直交しています。もう一度、方程式 \(U^TU = I\) を考えてみましょう。行列式を取ると、方程式 \((det\,U)^2 = 1\) が導かれます。これは \(det\, U = det\, U^T\) だからです。したがって、\(U\) が直交している場合、\(det\, U = ±1\) となります。
+
+<!-- A square matrix \(U\) is known as orthogonal if its transpose is its inverse – symbolically
+ \(U^TU = I\), where \(I\) is the identity matrix. This means that the column vectors of \(U\) are all of unit norm and are orthogonal. This may be written \(\mathbf u_i^T\mathbf u_j = \delta_{ij}\) . From the condition
+ \(U^TU = I\) one easily deduces that \(UU^T = I.\) Hence the row vectors of \(U\) are also of
+unit norm and are orthogonal. Consider once more the equation \(U^TU = I\). Taking
+determinants leads to the equation \((det U)^2 = 1\), since \(det\; U = det\; U^T\). Thus if \(U\) is
+orthogonal, then \(det\; U = ±1\).-->
+
+</p><p>
+与えられた固定次元の直交行列が \(O_n\) と表記される群を形成することは容易に証明できる。 \(U\) と \(V\) が直交するならば、\((UV)^TUV = V^TU^TUV = I\) となるからである。
+さらに、正の行列式を持つn次元の直交行列は \(SO_n\) と呼ばれる群を形成する。\(SO_n\) の元は \(n\)次元回転と呼ばれる。
+
+<!-- One easily verifies that the orthogonal matrices of a given fixed dimension form a
+group, denoted \(O_n\), since if \(U\) and \(V\) are orthogonal, then \((UV)^TUV = V^TU^TUV = I\).
+Furthermore, the orthogonal matrices of dimension n with positive determinant form a
+group, called \(SO_n\). An element of \(SO_n\) is called an n-dimensional rotation. -->
+
+</p><p>
+<strong>直交行列のノルム保存特性</strong><br>
+ベクトル \(\mathbf x\) が与えられたとき、\(||\mathbf x||\) という表記はそのユークリッド長さを表します。これは \(||\mathbf x|| = (\mathbf x^T\mathbf x)^{1/2}\) と表すことができます。直交行列の重要な特性は、ベクトルに直交行列を乗じてもノルムが保存されることです。これは次のように計算すれば簡単にわかります。
+
+<!-- <strong>Norm-preserving properties of orthogonal matrices.</strong><br>
+ Given a vector x, the notation
+kxk represents its Euclidean length. This can be written as \(||\mathbf x|| = (\mathbf x^T\mathbf x)^{1/2}\). An
+important property of orthogonal matrices is that multiplying a vector by an orthogonal
+matrix preserves its norm. This is easily seen by computing
+\[
+(U\mathbf x)^T(U\mathbf x) = \mathbf x^TU^TU\mathbf x = \mathbf x^T\mathbfx.
+\]
+</p><p>
+By the QR decomposition of a matrix is usually meant the decomposition of the
+matrix A into a product A = QR, where Q is orthogonal, and R is an upper-triangular
+matrix. The letter R stands for Right, meaning upper-triangular. Similar to the QR
+decomposition, there are also QL, LQ and RQ decompositions, where L denotes a Left
+or lower-triangular matrix. In fact, the RQ decomposition of a matrix is the one that
+will be of most use in this book, and which will therefore be discussed here. The most
+important case is the decomposition of a 3 × 3 matrix and we will concentrate on this
+in the following section.
+
+</p>
+<h3>A4.1.1 Givens rotations and RQ decomposition</h3>
+<p>
+A 3-dimensional Givens rotation is a rotation about one of the three coordinate axes.
+The three Givens rotations are
+Qx =
+
+
+1
+c −s
+s c
+
+
+Qy =
+
+
+c s
+1
+−s c
+
+
+Qz =
+
+
+c −s
+s c
+1
+
+
+(A4.1)
+where c = cos() and s = sin() for some angle  and blank entries represent zeros.
+
+</p><p>
+Multiplying a 3×3 matrix A on the right by (for instance) Qz has the effect of leaving
+the last column of A unchanged, and replacing the first two columns by linear combinations
+of the original two columns. The angle  may be chosen so that any given entry
+in the first two columns becomes zero.
+
+</p><p>
+For instance, to set the entry A21 to zero, we need to solve the equation ca21+sa22 =
+0. The solution to this is c = −a22/(a2
+22 + a2
+21)1/2 and s = a21/(a2
+22 + a2
+21)1/2. It is
+required that c2 + s2 = 1 since c = cos() and s = sin(), and the values of c and s
+given here satisfy that requirement.
+
+</p><p>
+The strategy of the RQ algorithm is to clear out the lower half of the matrix one entry
+at a time by multiplication by Givens rotations. Consider the decomposition of a 3 × 3
+matrix A as A = RQ where R is upper-triangular and Q is a rotation matrix. This may
+take place in three steps. Each step consists of multiplication on the right by a Givens
+rotation to set a chosen entry of the matrix A to zero. The sequence of multiplications
+must be chosen in such a way as not to disturb the entries that have already been set to
+zero. An implementation of the RQ decomposition is given in algorithm A4.1.
+Objective
+Carry out the RQ decomposition of a 3 × 3 matrix A using Givens rotations.
+Algorithm
+(i) Multiply by Qx so as to set A32 to zero.
+(ii) Multiply by Qy so as to set A31 to zero. This multiplication does not change the second
+column of A, hence A32 remains zero.
+(iii) Multiply by Qz so as to set A21 to zero. The first two columns are replaced by linear
+combinations of themselves. Thus, A31 and A32 remain zero.
+Algorithm A4.1. RQ decomposition of a 3 × 3 matrix.
+Other sequences of Givens rotations may be chosen to give the same result. As
+a result of these operations, we find that AQxQyQz = R where R is upper-triangular.
+Consequently, A = RQT
+z QT
+y QT
+x , and so A = RQ where Q = QT
+z QT
+y QT
+x is a rotation. In
+addition, the angles x, y and z associated with the three Givens rotations provide a
+parametrization of the rotation by three Euler angles, otherwise known as roll, pitch
+and yaw angles.
+It should be clear from this description of the decomposition algorithm how similar
+QR, QL and LQ factorizations may be carried out. Furthermore, the algorithm is easily
+generalized to higher dimensions.
+580 Appendix 4 Matrix Properties and Decompositions
+A4.1.2 Householder matrices and QR decomposition
+For matrices of larger dimension, the QR decomposition is more efficiently carried out
+using Householder matrices. The symmetric matrix
+Hv = I − 2vvT/vTv (A4.2)
+has the property that HT
+vHv = I, and so Hv is orthogonal.
+Let e1 be the vector (1, 0, . . . , 0)T, and let x be any vector. Let v = x±kxke1. One
+easily verifies that Hvx = ∓kxke1; thus Hv is an orthogonal matrix that transforms the
+vector x to a multiple of e1. Geometrically Hv is a reflection in the plane perpendicular
+to v, and v = x ± kxke1 is a vector that bisects x and ±kxke1. Thus reflection in the
+v direction takes x to ∓kxke1. For reasons of stability, the sign ambiguity in defining
+v should be resolved by setting
+v = x + sign(x1)kxke1. (A4.3)
+If A is a matrix, x is the first column of A, and v is defined by (A4.3), then forming
+the product HvA will clear out the first column of the matrix, replacing the first column
+by (kxk, 0, 0, . . . , 0)T. One continues left multiplication by orthogonal Householder
+matrices to clear out the below-diagonal part of the matrix A. In this way, one finds
+that eventually QA = R, where Q is a product of orthogonal matrices and R is an uppertriangular
+matrix. Therefore, one has A = QTR. This is the QR decomposition of the
+matrix A.
+When multiplying by Householder matrices it is inefficient to form the Householder
+matrix explicitly. Multiplication by a vector a may be carried out most efficiently as
+Hva = (I − 2vvT/vTv)a = a − 2v(vTa)/vvT (A4.4)
+and the same holds for multiplication by a matrix A. For more about Householder
+matrices and the QR decomposition, the reader is referred to [Golub-89].
+Note. In the QR or RQ decomposition, R refers to an upper-triangular matrix and
+Q refers to an orthogonal matrix. In the notation used elsewhere in this book, R refers
+usually to a rotation (hence orthogonal) matrix.
+A4.2 Symmetric and skew-symmetric matrices
+Symmetric and skew-symmetric matrices play an important role in this book. A matrix
+is called symmetric if AT = A and skew-symmetric if AT = −A. The eigenvalue
+decompositions of these matrices are summarized in the following result.
+Result A4.1. Eigenvalue decomposition.
+(i) If A is a real symmetric matrix, then A can be decomposed as A = UDUT, where U
+is an orthogonal matrix and D is a real diagonal matrix. Thus, a real symmetric
+matrix has real eigenvalues, and the eigenvectors are orthogonal.
+(ii) If S is real and skew-symmetric, then S = UBUT where B is a block-diagonal
+A4.2 Symmetric and skew-symmetric matrices 581
+matrix of the form diag(a1Z, a2Z, . . . , amZ, 0, . . . , 0), where Z =
+"
+0 1
+−1 0
+#
+.
+The eigenvectors of S are all purely imaginary, and a skew-symmetric matrix of
+odd order is singular.
+A proof of this result is given in [Golub-89].
+Jacobi’s method. In general, eigenvalue extraction from arbitrary matrices is a difficult
+numerical problem. For real symmetric matrices however, a very stable method
+exists: Jacobi’s method. An implementation of this algorithm is given in [Press-88].
+Cross products
+Of particular interest are 3 × 3 skew-symmetric matrices. If a = (a1, a2, a3)T is a
+3-vector, then one defines a corresponding skew-symmetric matrix as follows:
+[a]× =
+
+
+0 −a3 a2
+a3 0 −a1
+−a2 a1 0
+
+
+. (A4.5)
+Note that any skew-symmetric 3 × 3 matrix may be written in the form [a]× for a
+suitable vector a. Matrix [a]× is singular, and a is its null-vector (right or left). Hence,
+a 3 × 3 skew-symmetric matrix is defined up to scale by its null-vector.
+The cross product (or vector product) of two 3-vectors a × b (sometimes written
+a ∧ b) is the vector (a2b3 − a3b2, a3b1 − a1b3, a1b2 − a2b1)T. The cross product is
+related to skew-symmetric matrices according to
+a × b = [a]×b =
+
+aT[b]×
+T
+. (A4.6)
+Cofactor and adjoint matrices. Let M be a square matrix. By M∗ is meant the matrix
+of cofactors of M. That is, the (ij)-th entry of the matrix M∗ is equal to (−1)i+j detˆMij ,
+where ˆMij is the matrix obtained from M by striking out the i-th row and j-th column.
+The transpose of the cofactor matrix M∗ is known as the adjoint of M, and denoted
+adj(M).
+If M is invertible, then it is well known that
+M∗ = det(M) M−T (A4.7)
+where M−T is the inverse transpose of M. This formula does not hold for non-invertible
+matrices, but adj(M) M = M adj(M) = det(M) I is always valid.
+The cofactor matrix is related to the way matrices distribute with respect to the cross
+product.
+Lemma A4.2. If M is any 3 × 3 matrix (invertible or not), and x and y are column
+vectors, then
+(Mx) × (My) = M∗(x × y). (A4.8)
+582 Appendix 4 Matrix Properties and Decompositions
+This equation may be written as [Mx]×M = M∗[x]×, dropping y which is inessential.
+Now, putting t = Mx and assuming M is invertible, one obtains a rule for commuting a
+skew-symmetric matrix [t]× with any non-singular matrix M. One may write (A4.8) as
+follows.
+Result A4.3. For any vector t and non-singular matrix M one has
+[t]×M = M∗[M−1t]× = M−T[M−1t]× (up to scale).
+Note (see result 9.9(p254)) that [t]×M is the form of the fundamental matrix for a pair
+of cameras P = [I | 0] and P′ = [M|t]. The formula of result A4.3 is used in deriving
+alternative forms (9.2–p244) for the fundamental matrix.
+A curious property of 3 × 3 skew-symmetric matrices is that up to scale,
+[a]× = [a]×[a]×[a]× (including scale [a]3
+× = −kak2[a]×). This is easily verified, since
+the right hand side is clearly skew-symmetric and its null-space generator is a. The
+next result follows immediately:
+Result A4.4. If F = [e′]×M is a fundamental matrix (a 3 × 3 singular matrix), then
+[e′]×[e′]×F = F (up to scale). Hence one may decompose F as F = [e′]×M, where
+M = [e′]×F.
+A4.2.1 Positive-definite symmetric matrices
+The special class of real symmetric matrices that have positive real eigenvalues are
+called positive-definite symmetric matrices. We list some of the important properties
+of a positive-definite symmetric real matrix.
+Result A4.5. Positive-definite symmetric real matrix.
+(i) A symmetric matrix A is positive-definite if and only if xTAx > 0 for any nonzero
+vector x.
+(ii) A positive-definite symmetric matrix A may be uniquely decomposed as A = KKT
+where K is an upper-triangular real matrix with positive diagonal entries.
+Proof. The first part of this result follows almost immediately from the decomposition
+A = UDUT. As for the second part, since A is symmetric and positive-definite, it may
+be written as A = UDUT where D is diagonal, real and positive and U is orthogonal. We
+may take the square root of D, writing D = EET where E is diagonal. Then A = VVT
+where V = UE. The matrix V is not upper-triangular. However, we may apply the RQdecomposition
+(section A4.1.1) to write V = KQ where K is upper-triangular and Q is
+orthogonal. Then A = VVT = KQQTKT = KKT. This is the Cholesky factorization of A.
+One may ensure that the diagonal entries of K are all positive by multiplying K on the
+right by a diagonal matrix with diagonal entries equal to ±1. This will not change the
+product KKT.
+A4.3 Representations of rotation matrices 583
+Now, we prove uniqueness of the factorization. Specifically, if K1 and K2 are two uppertriangular
+matrices satisfying K1KT
+1 = K2KT
+2 then K−1
+2 K1 = KT
+2 K−T
+1 . Since the left side of
+this equation is upper-triangular, and the right side is lower-triangular, they must both
+in fact be diagonal. Thus D = K−1
+2 K1 = KT
+2 K−T
+1 . However, K−1
+2 K1 is the inverse transpose
+of KT
+2 K−T
+1 , and so D is equal to its own inverse transpose, and hence is a diagonal matrix
+with diagonal entries equal to ±1. If both K1 and K2 have positive diagonal entries then
+D = I, and K1 = K2.
+The above proof gives a constructive method for computing the Cholesky factorization.
+There is, however, a very simple and more efficient direct method for computing
+the Cholesky factorization. See [Press-88] for an implementation.
+A4.3 Representations of rotation matrices
+A4.3.1 Rotations in n-dimensions
+Given a matrix T, we define eT to be the sum of the series
+eT = I + T + T2/2! + . . . + Tk/k! + . . .
+This series converges absolutely for all values of T. Now, we consider powers
+of a skew-symmetric matrix. According to result A4.1 a skew-symmetric matrix
+can be written as S = UBUT where B is block diagonal of the form B =
+diag(a1Z, a2Z, . . . , amZ, 0, . . . , 0), matrix U is orthogonal, and Z2 = −I2×2. We observe
+that the powers of Z are
+Z2 = −I ; Z3 = −Z ; Z4 = I
+and so on. Thus,
+eZ = I + Z − I/2! − Z/3! + . . . = cos(1)I + sin(1)Z = R2×2(1)
+Where R2×2(1) means the 2 × 2 matrix representing a rotation through 1 radian. More
+generally,
+eaZ = cos(a)I + sin(a)Z = R2×2(a) .
+With S = UBUT as above, it now follows that
+eS = UeBU
+T = U diag(R(a1), R(a2), . . . , R(am), 1, . . . , 1) U
+T
+Thus eS is a rotation matrix. On the other hand, any rotation matrix may be written
+in the block-diagonal form U diag(R(a1), R(a2), . . . , R(am), 1, . . . , 1) UT, and it follows
+that the matrices eS where S is an n × n skew-symmetric are exactly the set of n-
+dimensional rotation matrices.
+A4.3.2 Rotations in 3-dimensions
+If t is a 3-vector, then [t]× is a skew-symmetric matrix, and any 3×3 skew-symmetric
+matrix is of this form. Consequently, any 3-dimensional rotation can be written as e[t]×.
+We seek to describe the rotation e[t]×.
+584 Appendix 4 Matrix Properties and Decompositions
+Let [t]× = U diag(aZ, 0) UT. Then by matching the Frobenius norms of the matrices
+on both sides, we see that a = ktk. Thus,
+e[t]× = U diag(R(ktk), 1) U
+T .
+Thus, e[t]× represents a rotation through an angle ktk. It is easily verified that u3, the
+3-rd column of U is the eigenvector of U diag(R, 1) UT with unit eigenvector, hence the
+axis of rotation. However, [t]×u3 = Udiag(aZ, 0)UTu3 = U diag(aZ, 0)(0, 0, 1)T = 0.
+Since u3 is the generator of the null space of [t]×, it must be that u3 is a unit vector in
+the direction of t. We have shown
+Result A4.6. The matrix e[t]× is a rotation matrix representing a rotation through an
+angle ktk about the axis represented by the vector t.
+This representation of a rotation is called the angle-axis representation.
+We may write a specific formula for the rotation matrix corresponding to e[t]×. We
+observe that [t]3
+× = −ktk2 [t]× = −ktk3 [ˆt]×, where ˆt represents a unit vector in the
+direction t. Then, with sinc() representing sin()/, we have
+e[t]× = I + [t]× + [t]2
+×/2! + [t]3
+×/3! + [t]4
+×/4! + . . .
+= I + ktk [ˆt]× + ktk2 [ˆt]2
+×/2! − ktk3 [ˆt]×/3! − ktk4 [ˆt]2
+×/4! + . . .
+= I + sin ktk [ˆt]× + (1 − cos ktk) [ˆt]2
+×
+= I + sincktk [t]× +
+1 − cos ktk
+ktk2 [t]2
+× (A4.9)
+= cos ktkI + sincktk [t]× +
+1 − cos ktk
+ktk2
+ttT
+where the last line follows from the identity [t]2
+× = ttT − ktk2I.
+Some properties of these representations:
+(i) Extraction of the axis and rotation angle from a rotation matrix R is just a little
+tricky. The unit rotation axis v can be found as the eigenvector corresponding
+to the unit eigenvalue – that is by solving (R − I)v = 0. Next, it is easily seen
+from (A4.9) that the rotation angle  satisfies
+2 cos() = (trace(R) − 1)
+2 sin()v = (R32 − R23, R13 − R31, R21 − R12)T. (A4.10)
+Writing this second equation as 2 sin()v = ˆv, we can then compute 2 sin() =
+vTˆv. Now, the angle  can be computed from sin() and cos() using a twoargument
+arctan function (such as the C-language function atan2(y, x)).
+It has often been written that  can be computed directly from (A4.10) using
+arccos or arcsin. However, this method is not numerically accurate, and fails
+to find the axis when  = .
+(ii) To apply a rotation R(t) to some vector x, it is not necessary to construct the
+A4.4 Singular value decomposition 585
+matrix representation of t. In fact
+R(t)x =
+ 
+I + sincktk[t]× +
+1 − cos ktk
+ktk2 [t]2
+×
+!
+x
+= x + sincktkt × x +
+1 − cos ktk
+ktk2
+t × (t × x) (A4.11)
+(iii) If t is written as t = ˆt, where ˆt is a unit vector in the direction of the axis,
+and  = ktk is the angle of rotation, then (A4.9) is equivalent to the Rodrigues
+formula for a rotation matrix:
+R(,ˆt) = I + sin [ˆt ]× + (1 − cos )[ˆt]2
+× (A4.12)
+A4.3.3 Quaternions
+Three-dimensional rotations may also be represented by unit quaternions. A unit
+quaternion is a 4-vector and may be written in the form q = (v sin(/2), cos(/2))T, as
+may indeed any unit 4-vector. Such a quaternion represents a rotation about the vector
+v through the angle . This is a 2-to-1 representation in that both q and −q represent
+the same rotation. To check this, note that −q = (v sin(/2 + ), cos(/2 + ))T,
+which represents a rotation through  + 2 = .
+The relationship between the angle-axis representation of a rotation and the quaternion
+representation is easily determined. Given a vector t, the angle-axis representation
+of a rotation, the corresponding quaternion is easily seen to be
+t ↔ q = (sinc(ktk/2)t, cos(ktk/2))T
+A4.4 Singular value decomposition
+The singular value decomposition (SVD) is one of the most useful matrix decompositions,
+particularly for numerical computations. Its most common application is in the
+solution of over-determined systems of equations.
+Given a square matrix A, the SVD is a factorization of A as A = UDVT, where U and V
+are orthogonal matrices, and D is a diagonal matrix with non-negative entries. Note that
+it is conventional to write VT instead of V in this decomposition. The decomposition
+may be carried out in such a way that the diagonal entries of D are in descending order,
+and we will assume that this is always done. Thus a circumlocutory phrase such as
+“the column of V corresponding to the smallest singular value” is replaced by “the last
+column of V.”
+The SVD also exists for non-square matrices A. Of most interest is the case where A
+has more rows than columns. Specifically, let A be an m × n matrix with m ≥ n. In
+this case A may be factored as A = UDVT where U is an m × n matrix with orthogonal
+columns, D is an n × n diagonal matrix and V is an n × n orthogonal matrix. The fact
+that U has orthogonal columns means that UTU = In×n. Furthermore U has the normpreserving
+property that kUxk = kxk for any vector x, as one readily verifies. On the
+other hand, UUT is in general not the identity unless m = n.
+Not surprisingly, one can also define a singular value decomposition for matrices
+586 Appendix 4 Matrix Properties and Decompositions
+with more columns than rows, but generally this will not be of interest to us. Instead
+on the occasional instances in this book where we need to take the singular value decomposition
+of a matrix A with m < n, it is appropriate to extend A by adding rows of
+zeros to obtain a square matrix, and then take the SVD of this resulting matrix. Usually
+this will be done without special remark.
+Common implementations of the SVD, such as the one in [Press-88], assume that
+m ≥ n. Since in this case the matrix U has the same dimension m × n as the input,
+matrix A may be overwritten by the output matrix U.
+Implementation of the SVD. A description of the singular value decomposition algorithm,
+or a proof of its existence, is not given in this book. For a description of how
+the algorithm works, the reader is referred to [Golub-89]. A practical implementation
+of the SVD is given in [Press-88]. However, the implementation of the SVD given in
+the first edition of “Numerical Recipes in C” can sometimes give incorrect results. The
+version of the algorithm given in the second edition [Press-88] of “Numerical Recipes
+in C” corrects mistakes in the earlier version.
+Singular values and eigenvalues. The diagonal entries of matrix D in the SVD are
+non-negative. These entries are known as the singular values of the matrix A. They are
+not the same thing as eigenvalues. To see the connection of the singular values of A with
+eigenvalues, we start with A = UDVT. From this it follows that ATA = VDUTUDVT =
+VD2VT. Since V is orthogonal, VT = V−1, and so ATA = VD2V−1. This is the defining
+equation for eigenvalues, indicating that the entries of D2 are the eigenvalues of ATA
+and the columns of V are the eigenvectors of ATA. In short, the singular values of A are
+the square-roots of the eigenvalues of ATA.
+Note, ATA is symmetric and positive-semi-definite (see section A4.2.1 above), so
+its eigenvalues are real and non-negative. Consequently, singular values are real and
+non-negative.
+Computational complexity of the SVD
+The computational complexity of the SVD depends on how much information needs
+to be returned. For instance in algorithm A5.4 to be considered later, the solution to
+the problem is the last column of the matrix V in the SVD. The matrix U is not used,
+and does not need to be computed. On the other hand, algorithm A5.1 of section A5.1
+requires the complete SVD to be computed. For systems of equations with many more
+rows than columns, the extra effort required to compute the matrix U is substantial.
+Approximate numbers of floating-point operations (flops) required to compute the
+SVD of an m × n matrix are given in [Golub-89]. To find matrices U, V and D, a total
+of 4m2n + 8mn2 + 9n3 flops are needed. However, if only the matrices V and D are
+required, then only 4mn2 + 8n3 flops are required. This is an important distinction,
+since this latter expression does not contain any term in m2. Specifically, the number
+of operations required to compute U varies as the square of m, the number of rows.
+On the other hand, the complexity of computing D and V is linear in m. For cases
+where there are many more rows than columns, therefore, it is important (supposing
+A4.4 Singular value decomposition 587
+computation time is an issue) to avoid computing the matrix U unless it is needed. To
+illustrate this point we consider the DLT algorithm for camera resection, described in
+chapter 7. In this algorithm a 3×4 camera matrix is computed from a set of n 3D to 2D
+point matches. The solution involves using algorithm A5.4, to solve a set of equations
+Ap = 0 where A is a 2n × 12 matrix. The solution vector p is the last column of the
+matrix V in an SVD, A = UDVT. Thus the matrix U is not required. Table A4.1 gives the
+total number of flops for carrying out the SVD for six (the minimum number), 100 or
+1000 point correspondences.
+# points # equations # equations #unknowns # operations # operations
+per point (m) (n) not computing U computing U
+6 2 12 12 20,736 36,288
+100 2 200 12 129,024 2,165,952
+1000 2 2000 12 1,165,824 194,319,552
+Table A4.1. Comparison of the number of flops required to compute the SVD of a matrix of size m× n,
+for varying values of m and for n = 12. Note that the computational complexity increases sub-linearly
+in the number of equations when U is not computed. On the other hand, the extra computational burden
+of computing U is very large, especially for large numbers of equations.
+Further reading. Two invaluable text books for this area are [Golub-89] and
+[Lutkepohl-96].-->
+</p><p>
+</p><p>
+    </body>
+</html>
