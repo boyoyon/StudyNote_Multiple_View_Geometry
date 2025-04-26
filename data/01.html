@@ -63,9 +63,19 @@
             }
         }
     </style>
+    <style>
+            ol
+            {
+                margin-left: 30px;
+            }
+            ul
+            {
+                margin-left: 30px;
+            }
+    </style>
     </head>
     <body>
-        <h1><center>1章 はじめに： 複数ビュージオメトリのツアー</center></h1>
+        <h1><center>1章 はじめに： 複数視点幾何学のツアー</center></h1>
 <p>
 この章は、本書で扱われる主要な概念の導入部です。これらのトピックについて、簡潔に解説します。正確で明確な定義、綿密な代数計算、そして洗練された推定アルゴリズムの解説は、本書の第2章以降で行います。本章全体を通して、これらの章への具体的な参照は示しません。
 </p>
@@ -83,7 +93,7 @@
 これらの無限遠点を加えることで、馴染みのあるユークリッド空間は、射影空間という新しいタイプの幾何学的対象へと変換されます。これは非常に便利な考え方です。なぜなら、距離、角度、点、直線、入射といった概念を含むユークリッド空間の性質はよく知られているからです。射影空間にはそれほど不思議なところはありません。ユークリッド空間の単なる拡張であり、2本の直線は常に1点で交わりますが、時には謎めいた無限遠点で交わることもあります。
 </p>
 <p>
-座標。ユークリッド2次元空間の点は、実数の順序付きペア \((x, y)\) で表されます。このペアに座標を追加して、\((x, y, 1)\) という組を作り、同じ点を表すと宣言します。最後の座標を追加または削除するだけで、点の表現を切り替えられるので、これは一見無害に思えます。ここで、最後の座標がなぜ1でなければならないのかという重要な概念的ステップに進みます。結局のところ、他の2つの座標はそれほど制約されていません。では、座標の組 \((x, y, 2)\) はどうでしょうか。ここで定義を行い、\((x, y, 1)\) と \((2x, 2y, 2)\) は同じ点を表し、さらに、任意の非ゼロ値 \(k\) に対して、\((kx, ky, k)\) も同じ点を表します。正式には、点は座標三組の同値類によって表されます。つまり、2つの三組が公倍数だけ異なる場合、それらは同値となります。これらは点の同次座標と呼ばれます。座標三組 \((kx, ky, k)\) が与えられた場合、k で割って \((x, y)\) を得ることで元の座標を復元できます。
+<strong>座標</strong>　ユークリッド2次元空間の点は、実数の順序付きペア \((x, y)\) で表されます。このペアに座標を追加して、\((x, y, 1)\) という組を作り、同じ点を表すと宣言します。最後の座標を追加または削除するだけで、点の表現を切り替えられるので、これは一見無害に思えます。ここで、最後の座標がなぜ1でなければならないのかという重要な概念的ステップに進みます。結局のところ、他の2つの座標はそれほど制約されていません。では、座標の組 \((x, y, 2)\) はどうでしょうか。ここで定義を行い、\((x, y, 1)\) と \((2x, 2y, 2)\) は同じ点を表し、さらに、任意の非ゼロ値 \(k\) に対して、\((kx, ky, k)\) も同じ点を表します。正式には、点は座標三組の同値類によって表されます。つまり、2つの三組が公倍数だけ異なる場合、それらは同値となります。これらは点の同次座標と呼ばれます。座標三組 \((kx, ky, k)\) が与えられた場合、k で割って \((x, y)\) を得ることで元の座標を復元できます。
 </p>
 <p>
 読者は、\((x, y, 1)\) が座標ペア \((x, y)\) と同じ点を表す一方で、\((x, y, 0)\) に対応する点がないことに気付くでしょう。最後の座標で割ると、無限遠点である \((x/0, y/0)\) が得られます。このようにして無限遠点が生じます。無限遠点は、最後の座標が 0 となる同次座標で表される点です。
@@ -92,7 +102,7 @@
 2次元ユークリッド空間において、点を同次ベクトルとして表現することで射影空間に拡張する方法を一度見てきましたが、どの次元でも同じようにできることは明らかです。ユークリッド空間 \(\mathbb R^n\) は、点を同次ベクトルとして表現することで射影空間 \(\mathbb P^n\) に拡張できます。2次元射影空間における無限遠点は直線を形成し、通常は無限遠直線と呼ばれます。3次元では、無限遠点は平面を形成します。
 </p>
 <p>
-同質性。古典的なユークリッド幾何学では、すべての点は同一です。区別される点は存在しません。空間全体が同質です。座標を追加すると、一見すると1つの点が原点として選ばれるように見えます。しかし、これは選択された特定の座標系による偶然の産物に過ぎないことを認識することが重要です。別の点を原点と見なす、平面を座標化する別の方法を見つけることも可能でしょう。実際、ユークリッド空間において、軸を別の位置に移動および回転させる座標変換を考えることができます。これは、空間自体が別の位置に移動および回転すると考えることもできます。この操作はユークリッド変換として知られています。
+<strong>同質性</strong>　古典的なユークリッド幾何学では、すべての点は同一です。区別される点は存在しません。空間全体が同質です。座標を追加すると、一見すると1つの点が原点として選ばれるように見えます。しかし、これは選択された特定の座標系による偶然の産物に過ぎないことを認識することが重要です。別の点を原点と見なす、平面を座標化する別の方法を見つけることも可能でしょう。実際、ユークリッド空間において、軸を別の位置に移動および回転させる座標変換を考えることができます。これは、空間自体が別の位置に移動および回転すると考えることもできます。この操作はユークリッド変換として知られています。
 </p>
 <p>
 より一般的な変換は、\(\mathbb R^n\) に線形変換を適用し、続いてユークリッド変換によって空間の原点を移動させるものです。これは、空間が移動、回転し、最終的に異なる方向に異なる比率で線形に伸びると考えることができます。結果として得られる変換はアフィン変換と呼ばれます。
@@ -114,7 +124,7 @@ X^\prime=H_{(n+1)\times (n+1)}X
 ユークリッド空間に無限遠直線（または無限遠平面）を加えることで射影空間が得られることを見てきました。ここでは、逆の過程を考察します。この議論は主に2次元および3次元の射影空間についてです。
 </p>
 <p>
-アフィン幾何学。ここでは、射影空間は元来同次であり、特定の座標系は存在しないという立場をとります。このような空間では、直線の平行性という概念は存在しません。なぜなら、平行線（三次元の場合は平面）は無限遠点で交わるからです。射影空間では、どの点が無限遠点にあるかという概念は存在せず、すべての点は等しく作られるからです。したがって、平行性は射影幾何学の概念ではないと言えます。平行性について議論するのは全く無意味です。
+<strong>アフィン幾何学</strong>　ここでは、射影空間は元来同次であり、特定の座標系は存在しないという立場をとります。このような空間では、直線の平行性という概念は存在しません。なぜなら、平行線（三次元の場合は平面）は無限遠点で交わるからです。射影空間では、どの点が無限遠点にあるかという概念は存在せず、すべての点は等しく作られるからです。したがって、平行性は射影幾何学の概念ではないと言えます。平行性について議論するのは全く無意味です。
 </p>
 <p>
 この概念を理解するには、ある特定の直線を選び出し、それを無限遠直線と定義する必要があります。こうすることで、すべての点は等しく作られているものの、ある点は他の点よりも等しくなっているという状況が生まれます。まず、白紙を1枚用意し、それが無限遠まで伸びて射影空間 \(\mathbb P^2\) を形成すると想像してみましょう。私たちが見ているのは、この空間のほんの一部であり、通常のユークリッド平面の一部によく似ています。さて、紙に直線を描き、これを無限遠直線と定義しましょう。次に、この線で交差する2本の直線を描きます。これらの直線は「無限遠直線」で交わるので、平行であると定義します。これは、無限平面を見るときに見えるものと似ています。地球の非常に平坦な地域で撮影された写真を想像してみてください。平面上の無限遠点は、画像では地平線として現れます。鉄道の線路などの線も、画像では地平線で交わる線として現れます。地平線 (空の画像) より上にある画像内の点は、ワールド平面上の点とは明らかに対応していません。ただし、対応する光線をカメラの背後に後方に延長することを考えると、カメラの背後の点で平面と交わります。したがって、画像内の点とワールド平面内の点の間には 1 対 1 の関係があります。ワールド平面内の無限遠の点は画像内の実際の地平線に対応し、ワールド内の平行線は地平線で交わる線に対応します。私たちの観点からすると、ワールド平面とその画像は、射影平面の幾何学と区別された直線の別の見方にすぎません。射影平面と区別された直線の幾何学はアフィン幾何学として知られており、一方の空間の区別された直線をもう一方の空間の区別された直線にマッピングする射影変換はすべてアフィン変換として知られています。
@@ -123,7 +133,7 @@ X^\prime=H_{(n+1)\times (n+1)}X
 特別な直線を「無限遠直線」と定義することで、平面上の直線の平行性を定義できます。しかし、平行性を定義できれば、他の概念も理解しやすくなります。例えば、平行線上の2点間の間隔が等しいと定義できます。例えば、A、B、C、Dが点であり、直線ABとCDが平行である場合、直線ACとBDも平行であれば、2つの区間ABとCDの長さは等しいと定義できます。同様に、同じ直線上の2つの区間が等しい場合、その2つの区間の長さは、平行線上に2つの区間の長さが等しい別の区間が存在する場合に等しくなります。
 </p>
 <p>
-ユークリッド幾何学。射影平面上の特定の直線を区別することで、平行性の概念が得られ、それに伴いアフィン幾何学も生まれます。アフィン幾何学は射影幾何学の特殊化とみなされ、特定の直線（または次元によっては平面）を取り出し、それを無限遠直線と呼びます。
+<strong>ユークリッド幾何学</strong>　射影平面上の特定の直線を区別することで、平行性の概念が得られ、それに伴いアフィン幾何学も生まれます。アフィン幾何学は射影幾何学の特殊化とみなされ、特定の直線（または次元によっては平面）を取り出し、それを無限遠直線と呼びます。
 </p><p>
 次にユークリッド幾何学に目を向け、無限遠直線または無限遠平面の特定の特徴を取り出すことで、アフィン幾何学がユークリッド幾何学になることを示します。その際、本書で最も重要な概念の一つである絶対円錐曲線を導入します。
 </p><p>
@@ -145,7 +155,7 @@ X^\prime=H_{(n+1)\times (n+1)}X
 </p><p>
 二つの円点を選り分けることで、おなじみのユークリッド幾何学の全体が得られることは驚くべきことではありません。特に、角度や長さの比といった概念は、円点を用いて定義できます。しかし、これらの概念は、後の章で述べるように、ユークリッド平面の座標系を用いて定義するのが最も容易です。
 </p><p>
-3次元ユークリッド幾何学。ユークリッド平面は、無限遠直線と2つの円弧点を指定することにより、射影平面を用いて定義されることを理解しました。同じ考え方は3次元幾何学にも適用できます。2次元の場合と同様に、球面とその交差を注意深く観察してみましょう。2つの球面は円で交差し、代数的に示唆されるような一般的な4次曲線や、2つの一般的な楕円体（またはその他の二次曲面）のように交差することはありません。この考え方から、同次座標系 \((X, Y, Z, T)^T\) において、すべての球面は無限遠平面と曲線で交差し、その式は \(X^2 + Y^2 + Z^2 = 0; T = 0\) となることがわかります。これは、無限遠平面上に存在する2次曲線（円錐曲線）であり、複素点のみで構成されています。これは絶対円錐曲線として知られており、この本で重要な幾何学的実体の 1 つです。特に、後述するように、カメラのキャリブレーションとの関連が重要です。
+<strong>3次元ユークリッド幾何学</strong>　ユークリッド平面は、無限遠直線と2つの円弧点を指定することにより、射影平面を用いて定義されることを理解しました。同じ考え方は3次元幾何学にも適用できます。2次元の場合と同様に、球面とその交差を注意深く観察してみましょう。2つの球面は円で交差し、代数的に示唆されるような一般的な4次曲線や、2つの一般的な楕円体（またはその他の二次曲面）のように交差することはありません。この考え方から、同次座標系 \((X, Y, Z, T)^T\) において、すべての球面は無限遠平面と曲線で交差し、その式は \(X^2 + Y^2 + Z^2 = 0; T = 0\) となることがわかります。これは、無限遠平面上に存在する2次曲線（円錐曲線）であり、複素点のみで構成されています。これは絶対円錐曲線として知られており、この本で重要な幾何学的実体の 1 つです。特に、後述するように、カメラのキャリブレーションとの関連が重要です。
 </p><p>
 絶対円錐曲線は、上記の式によってユークリッド座標系においてのみ定義されます。一般に、3次元ユークリッド空間は、特定の平面を無限遠平面として選び、その平面上に存在する特定の円錐曲線を絶対円錐曲線と指定することによって、射影空間から導かれると考えることができます。これらの実体は、射影空間の座標系を用いて非常に一般的な記述を持つ場合があります。
 </p><p>
@@ -208,106 +218,109 @@ T\\
 <p>
 図 1.1　カメラ中心が重要です。(a) 画像の形成: 画像点 \(x_i\) は、空間点 \(X_i\) からカメラ中心 \(C\) を通る光線と平面との交点です。(b) 空間点が共面の場合、ワールド平面と画像平面の間には射影変換 \(x_i = H_{3×3}X_i\) が存在します。(c) 同じカメラ中心を持つすべての画像は、射影変換 \(x_i^\prime= H_{3×3}^\prime x_i\) によって関連付けられます。(b) と (c) を比較してください。どちらの場合も、平面は中心を通る光線によって互いにマッピングされています。(b) ではマッピングはシーンと画像平面の間で行われ、(c) では 2 つの画像平面の間で行われます。(d) カメラ中心が移動する場合、(e) すべての空間点が共面である場合を除き、画像は一般に射影変換によって関連付けられません。
 </p><p>
-<strong>キャリブレーションされたカメラ。</strong><br>
-画像と世界との間のユークリッド関係を完全に理解するには、それらの相対的なユークリッド幾何学を表現する必要があります。既に述べたように、3次元世界のユークリッド幾何学は、\(\mathbb P^3\) 内の特定の平面を無限遠平面として指定し、その平面内の特定の円錐曲線 \(\Omega\) を絶対円錐曲線として指定することによって決定されます。無限遠平面上に配置されていないカメラの場合、世界における無限遠平面は画像平面に1対1で写像されます。これは、画像内の任意の点が、無限遠平面と一点で交わる空間内の光線を定義するためです。したがって、世界における無限遠平面は、画像について何も新しいことを教えてくれません。しかし、絶対円錐曲線は無限遠平面内の円錐曲線であるため、画像内の円錐曲線に投影される必要があります。結果として得られる画像曲線は、絶対円錐曲線の像、またはIACと呼ばれます。画像内で IAC の位置がわかっている場合、カメラはキャリブレーションされていると言えます。
-<!-- Calibrated cameras. To understand fully the Euclidean relationship between the image and the world, it is necessary to express their relative Euclidean geometry. As we have seen, the Euclidean geometry of the 3D world is determined by specifying a particular plane in \(\mathbb P^3\) as being the plane at infinity, and a specific conic  \(\Omega\) in that plane as being the absolute conic. For a camera not located on the plane at infinity, the plane at infinity in the world maps one-to-one onto the image plane. This is because any point in the image defines a ray in space that meets the plane at infinity in a single point. Thus, the plane at infinity in the world does not tell us anything new about the image. The absolute conic, however being a conic in the plane at infinity must project to a conic in the image. The resulting image curve is called the Image of the Absolute Conic, or IAC. If the location of the IAC is known in an image, then we say that the camera is calibrated.
+<strong>キャリブレーションされたカメラ</strong>　画像と世界との間のユークリッド関係を完全に理解するには、それらの相対的なユークリッド幾何学を表現する必要があります。既に述べたように、3次元世界のユークリッド幾何学は、\(\mathbb P^3\) 内の特定の平面を無限遠平面として指定し、その平面内の特定の円錐曲線 \(\Omega\) を絶対円錐曲線として指定することによって決定されます。無限遠平面上に配置されていないカメラの場合、世界における無限遠平面は画像平面に1対1で写像されます。これは、画像内の任意の点が、無限遠平面と一点で交わる空間内の光線を定義するためです。したがって、世界における無限遠平面は、画像について何も新しいことを教えてくれません。しかし、絶対円錐曲線は無限遠平面内の円錐曲線であるため、画像内の円錐曲線に投影される必要があります。結果として得られる画像曲線は、絶対円錐曲線の像、またはIACと呼ばれます。画像内で IAC の位置がわかっている場合、カメラはキャリブレーションされていると言えます。
+<!-- Calibrated cameras. To understand fully the Euclidean relationship between the image and the world, it is necessary to express their relative Euclidean geometry. As we have seen, the Euclidean geometry of the 3D world is determined by specifying a particular plane in \(\mathbb P^3\) as being the plane at infinity, and a specific conic  \(\Omega\) in that plane as being the absolute conic. For a camera not located on the plane at infinity, the plane at infinity in the world maps one-to-one onto the image plane. This is because any point in the image defines a ray in space that meets the plane at infinity in a single point. Thus, the plane at infinity in the world does not tell us anything new about the image. The absolute conic, however being a conic in the plane at infinity must project to a conic in the image. The resulting image curve is called the Image of the Absolute Conic, or IAC. If the location of the IAC is known in an image, then we say that the camera is calibrated. -->
 </p><p>
-In a calibrated camera, it is possible to determine the angle between the two rays
-back-projected from two points in the image. We have seen that the angle between two
-lines in space is determined by where they meet the plane at infinity, relative to the
-absolute conic. In a calibrated camera, the plane at infinity and the absolute conic 
-\(\Omega_\infty\) are projected one-to-one onto the image plane and the IAC, denoted \(\omega\). The projective
-relationship between the two image points and \(\omega\) is exactly equal to the relationship
-between the intersections of the back-projected rays with the plane at infinity, and 
-\(\Omega_\infty\). Consequently, knowing the IAC, one can measure the angle between rays by direct
-measurements in the image. Thus, for a calibrated camera, one can measure angles
-between rays, compute the field of view represented by an image patch or determine
-whether an ellipse in the image back-projects to a circular cone. Later on, we will see
-that it helps us to determine the Euclidean structure of a reconstructed scene.
+キャリブレーションされたカメラでは、画像内の2点から逆投影された2本の光線間の角度を測定できます。空間内の2本の線の間の角度は、絶対円錐曲線を基準として、それらが無限遠平面と交わる位置によって決まることを既に説明しました。キャリブレーションされたカメラでは、無限遠平面と絶対円錐曲線 \(\Omega_\infty\) は、画像平面とIAC（\(\omega\) と表記）に1対1で投影されます。2つの画像点と \(\omega\) の投影関係は、逆投影された光線と無限遠平面の交点と \(\Omega_\infty\) の関係と完全に一致します。したがって、IAC がわかれば、画像内で直接測定することで光線間の角度を測定できます。このように、キャリブレーションされたカメラであれば、光線間の角度を測定したり、画像パッチによって表される視野を計算したり、画像内の楕円が円錐に逆投影されるかどうかを判断したりすることができます。後ほど、これが再構成されたシーンのユークリッド構造を決定するのに役立つことを見ていきます。
+<!--
+In a calibrated camera, it is possible to determine the angle between the two rays back-projected from two points in the image. We have seen that the angle between two lines in space is determined by where they meet the plane at infinity, relative to the absolute conic. In a calibrated camera, the plane at infinity and the absolute conic  \(\Omega_\infty\) are projected one-to-one onto the image plane and the IAC, denoted \(\omega\). The projective relationship between the two image points and \(\omega\) is exactly equal to the relationship between the intersections of the back-projected rays with the plane at infinity, and  \(\Omega_\infty\). Consequently, knowing the IAC, one can measure the angle between rays by direct measurements in the image. Thus, for a calibrated camera, one can measure angles between rays, compute the field of view represented by an image patch or determine whether an ellipse in the image back-projects to a circular cone. Later on, we will see that it helps us to determine the Euclidean structure of a reconstructed scene.
+-->
 </p><p>
-Example 1.1. 3D reconstructions from paintings
-Using techniques of projective geometry, it is possible in many instances to reconstruct
-scenes from a single image. This cannot be done without some assumptions being
-made about the imaged scene. Typical techniques involve the analysis of features such
-as parallel lines and vanishing points to determine the affine structure of the scene, for example by determining the line at infinity for observed planes in the image. Knowledge
-(or assumptions) about angles observed in the scene, most particularly orthogonal
-lines or planes, can be used to upgrade the affine reconstruction to Euclidean.
+<strong>例1.1. 絵画からの3D再構成</strong><br>
+射影幾何学の手法を用いることで、多くの場合、単一の画像からシーンを再構成することが可能です。しかし、これは、撮影されたシーンについて何らかの仮定を置かずには実現できません。典型的な手法としては、平行線や消失点などの特徴を分析し、シーンのアフィン構造を判定することが挙げられます。例えば、画像内の観測面の無限遠直線を決定するなどです。シーン内で観測される角度、特に直交する直線や平面に関する知識（または仮定）は、アフィン再構成をユークリッド再構成へと昇格させるのに利用できます。
+<!--
+Example 1.1. 3D reconstructions from paintings Using techniques of projective geometry, it is possible in many instances to reconstruct scenes from a single image. This cannot be done without some assumptions being made about the imaged scene. Typical techniques involve the analysis of features such as parallel lines and vanishing points to determine the affine structure of the scene, for example by determining the line at infinity for observed planes in the image. Knowledge (or assumptions) about angles observed in the scene, most particularly orthogonal lines or planes, can be used to upgrade the affine reconstruction to Euclidean.
+-->
 </p><p>
-Fig. 1.2. Single view reconstruction. (a) Original painting – St. Jerome in his study, 1630, Hendrick
-van Steenwijck (1580-1649), Joseph R. Ritman Private Collection, Amsterdam, The Netherlands. (b)
-(c)(d) Views of the 3D model created from the painting. Figures courtesy of Antonio Criminisi.
-
+このような技術を完全に自動化することはまだ不可能です。しかし、射影幾何学の知識をシステムに組み込むことで、ユーザーガイドによる単一視点からのシーン再構成が可能になる可能性があります。
+<!--
+It is not yet possible for such techniques to be fully automatic. However, projective geometric knowledge may be built into a system that allows user-guided single-view reconstruction of the scene.
+-->
 </p><p>
-It is not yet possible for such techniques to be fully automatic. However, projective
-geometric knowledge may be built into a system that allows user-guided single-view
-reconstruction of the scene.
-
+このような技術は、古典絵画から派生した3Dテクスチャマッピングされたグラフィックモデルの復元に用いられてきました。ルネサンス以降、極めて正確な遠近法を用いた絵画が制作されました。図1.2は、そのような絵画から復元されたものです。
+<!--
+Such techniques have been used to reconstruct 3D texture mapped graphical models derived from old-master paintings. Starting in the Renaissance, paintings with extremely accurate perspective were produced. In figure 1.2 a reconstruction carried out from such a painting is shown. 
+-->
+</p>
+<center><img src="images/fig1_2.png"></center>
+<p>
+図1.2. 単一視点からの再構成。(a) 原画「書斎の聖ヒエロニムス」（1630年）、ヘンドリック・ファン・ステーンウィック（1580-1649）、ジョセフ・R・リトマン個人コレクション、アムステルダム、オランダ。(b) (c) (d) 絵画から作成された3Dモデルの図。
+<!--
+Fig. 1.2. Single view reconstruction. (a) Original painting – St. Jerome in his study, 1630, Hendrick van Steenwijck (1580-1649), Joseph R. Ritman Private Collection, Amsterdam, The Netherlands. (b) (c)(d) Views of the 3D model created from the painting. Figures courtesy of Antonio Criminisi.
+-->
+</p>
+<h2>1.3 複数の視点からの復元</h2>
+<p>
+さて、本書の主要なトピックの一つ、複数の画像からシーンを再構成する方法について考察します。まずは、最も単純な例として2枚の画像からシーンを再構成するケースについて考えます。数学的な抽象化のため、ここでは点のみで構成される「シーン」に議論を限定します。
+<!--
+We now turn to one of the major topics in the book – that of reconstructing a scene from several images. The simplest case is that of two images, which we will consider first. As a mathematical abstraction, we restrict the discussion to “scenes” consisting of points only.
+-->
 </p><p>
-Such techniques have been used to reconstruct 3D texture mapped graphical models
-derived from old-master paintings. Starting in the Renaissance, paintings with extremely
-accurate perspective were produced. In figure 1.2 a reconstruction carried out
-from such a painting is shown. 
+本書で紹介する多くのアルゴリズムへの通常の入力は、点の対応関係の集合です。したがって、2視点の場合、2枚の画像における対応関係の集合 \(x_i\leftrightarrow x_i^\prime\) を考慮します。カメラ行列 \(P\) と \(P^\prime\) と、これらの画像対応関係（\(PX_i = x_i\) および \(P^\prime X_i = x_i^\prime\) ）を生み出す3D点集合 \(X_i\) が存在すると仮定します。したがって、点 \(X_i\) は、与えられた2つのデータ点に投影されます。ただし、カメラ（投影行列 \(P\) と \(P^\prime\) で表される）も点 Xi も既知ではありません。これらを特定することが私たちの課題です。
+<!--
+The usual input to many of the algorithms given in this book is a set of point correspondences. In the two-view case, therefore, we consider a set of correspondences \(x_i\leftrightarrow x_i^\prime\) in two images. It is assumed that there exist some camera matrices, \(P\) and \(P^\prime\) and a set of 3D points \(X_i\) that give rise to these image correspondences in the sense that \(PX_i = x_i\) and \(P^\prime X_i = x_i^\prime\). Thus, the point \(X_i\) projects to the two given data points. However, neither the cameras (represented by projection matrices \(P\) and \(P^\prime\)), nor the points Xi are known. It is our task to determine them.
+-->
 </p><p>
-<h2>1.3 Reconstruction from more than one view</h2>
+最初から明らかなのは、点の位置を一意に特定することは不可能だということです。これは、どんなに多くの画像が与えられても、また点の対応データ以上のものを持っていても、常に存在する一般的な曖昧性です。例えば、立方体の画像が複数あっても、その絶対位置（アディスアベバのナイトクラブにあるか、それとも大英博物館にあるか）、向き（どちらの面が北を向いているか）、あるいは大きさを判断することは不可能です。これを、再構成はせいぜい世界の相似変換までしか不可能ではないと表現します。しかし、2台のカメラのキャリブレーションについて何かが分かっていない限り、再構成における曖昧性は、より一般的なクラスの変換、つまり射影変換によって表現されることがわかります。
+<!--
+It is clear from the outset that it is impossible to determine the positions of the points uniquely. This is a general ambiguity that holds however many images we are given, and even if we have more than just point correspondence data. For instance, given several images of a cube, it is impossible to tell its absolute position (is it located in a night-club in Addis Ababa, or the British Museum), its orientation (which face is facing north) or its scale. We express this by saying that the reconstruction is possible at best up to a similarity transformation of the world. However, it turns out that unless something is known about the calibration of the two cameras, the ambiguity in the reconstruction is expressed by a more general class of transformations – projective transformations.
+-->
 </p><p>
-We now turn to one of the major topics in the book – that of reconstructing a scene
-from several images. The simplest case is that of two images, which we will consider
-first. As a mathematical abstraction, we restrict the discussion to “scenes” consisting
-of points only.
-</p><p>
-The usual input to many of the algorithms given in this book is a set of point correspondences.
-In the two-view case, therefore, we consider a set of correspondences
-\(x_i\leftrightarrow x_i^\prime\) in two images. It is assumed that there exist some camera matrices, \(P\) and \(P^\prime\) and a set of 3D points \(X_i\) that give rise to these image correspondences in the sense
-that \(PX_i = x_i\) and \(P^\prime X_i = x_i^\prime\). Thus, the point \(X_i\) projects to the two given data points.
-However, neither the cameras (represented by projection matrices \(P\) and \(P^\prime\)), nor the
-points Xi are known. It is our task to determine them.
-</p><p>
-It is clear from the outset that it is impossible to determine the positions of the points
-uniquely. This is a general ambiguity that holds however many images we are given,
-and even if we have more than just point correspondence data. For instance, given
-several images of a cube, it is impossible to tell its absolute position (is it located in
-a night-club in Addis Ababa, or the British Museum), its orientation (which face is
-facing north) or its scale. We express this by saying that the reconstruction is possible
-at best up to a similarity transformation of the world. However, it turns out that unless
-something is known about the calibration of the two cameras, the ambiguity in the
-reconstruction is expressed by a more general class of transformations – projective
-transformations.
-</p><p>
-This ambiguity arises because it is possible to apply a projective transformation (represented
-by a 4 × 4 matrix \(H\)) to each point \(X_i\), and on the right of each camera matrix
-\(P_j\) , without changing the projected image points, thus:
+この曖昧さは、投影された画像ポイントを変更せずに、各ポイント \(X_i\) と各カメラ行列 \(P_j\) の右側に射影変換 (4 × 4 行列 \(H\) で表される) を適用できるため発生します。
+<!--
+This ambiguity arises because it is possible to apply a projective transformation (represented by a 4 × 4 matrix \(H\)) to each point \(X_i\), and on the right of each camera matrix \(P_j\) , without changing the projected image points, thus:
+-->
 \[
-P_jX_i = (PjH^{−1})(HX_i) \tag{1.1}
+P_jX_i = (P_jH^{−1})(HX_i) \tag{1.1}
 \]
-There is no compelling reason to choose one set of points and camera matrices over the
-other. The choice of \(H\) is essentially arbitrary, and we say that the reconstruction has a
-projective ambiguity, or is a projective reconstruction.
+どちらか一方の点群とカメラ行列を選択する強い理由はありません。\(H\)の選択は本質的に任意であり、再構成には射影的曖昧性がある、あるいは射影再構成であると言います。
+<!--
+There is no compelling reason to choose one set of points and camera matrices over the other. The choice of \(H\) is essentially arbitrary, and we say that the reconstruction has a projective ambiguity, or is a projective reconstruction.
+-->
 </p><p>
-However, the good news is that this is the worst that can happen. It is possible to
-reconstruct a set of points from two views, up to an unavoidable projective ambiguity.
-Well, to be able to say this, we need to make a few qualifications; there must be sufficiently
-many points, at least seven, and they must not lie in one of various well-defined
-critical configurations.
+しかし、朗報なのは、これが最悪の事態に過ぎないということです。避けられない射影的曖昧さを除けば、2つの視点から点の集合を再構成することは可能です。ただし、これを言えるためには、いくつかの条件が必要です。点の数は十分に多く、少なくとも7つである必要があります。また、それらの点は、明確に定義された様々な臨界配置のいずれかに含まれてはなりません。
+<!--
+However, the good news is that this is the worst that can happen. It is possible to reconstruct a set of points from two views, up to an unavoidable projective ambiguity. Well, to be able to say this, we need to make a few qualifications; there must be sufficiently many points, at least seven, and they must not lie in one of various well-defined critical configurations.
+-->
 </p><p>
+2つの視点から点集合を再構成するための基本的なツールは基礎行列であり、これは、像点 \(x\) と \(x^\prime\) が同じ3次元点の像となる場合に、それらが従う制約を表す。この制約は、2つの視点、像点、および空間点のカメラ中心が同一平面にあることから生じる。基礎行列 F が与えられた場合、対応する点のペア \(x_i\leftrightarrow x^\prime\) は、
+<!--
 The basic tool in the reconstruction of point sets from two views is the fundamental
 matrix, which represents the constraint obeyed by image points \(x\) and \(x^\prime\) if they are
 to be images of the same 3D point. This constraint arises from the coplanarity of the
 camera centres of the two views, the images points and the space point. Given the
 fundamental matrix F, a pair of matching points \(x_i\leftrightarrow x^\prime\) must satisfy
+-->
 \[
 {x_i^\prime}^TFx_i = 0
 \]
+ここで、\(F\) は階数2の3×3行列です。これらの方程式は行列 \(F\) の要素について線形であり、つまり、\(F\) が不明な場合は、点の対応関係の集合から計算できます。
+<!--
 where \(F\) is a 3 × 3 matrix of rank 2. These equations are linear in the entries of the
 matrix \(F\), which means that if \(F\) is unknown, then it can be computed from a set of point
-correspondences.
-
+correspondences. 
+-->
 </p><p>
+カメラ行列のペア \(P\) と \(P^\prime\) は、基礎行列 \(F\) を一意に決定し、逆に、基礎行列は、3次元の射影的曖昧性を除いて、カメラ行列のペアを決定します。したがって、基礎行列はカメラペアの完全な射影幾何学を包含し、3次元の射影変換によって変化しません。
+<!--
 A pair of camera matrices \(P\) and \(P^\prime\) uniquely determine a fundamental matrix \(F\), and
 conversely, the fundamental matrix determines the pair of camera matrices, up to a 3D
 projective ambiguity. Thus, the fundamental matrix encapsulates the complete projective
 geometry of the pair of cameras, and is unchanged by projective transformation of
 3D.
-</p><p>
+-->
+</p>
+<p>
+シーンを再構成するための基礎行列法は非常にシンプルで、以下の手順から成ります。
+<div class="styleBullet">
+<ul>
+<li>(i) 2つの視点にわたる複数の点の対応 \(x_i\leftrightarrow x^\prime\) が与えられた場合、共平面性方程式 \({x_i^\prime}^TFx_i = 0\) に基づいて、\(F\) の各要素に線形方程式を作成します。</li><br>
+<li>(ii) 線形方程式の解として \(F\) を求めます。</li><br>
+<li>(iii) セクション9.5に示されている簡単な式に従って、F からカメラ行列のペアを計算します。</li><br>
+<li>(iv) 2台のカメラ (\(P\), \(P^\prime\)) と対応する画像点のペア \(x_i\leftrightarrow x_i^\prime\) が与えられた場合、3D 点を求めます。与えられた画像点に投影される \(X_i\) です。このように \(X\) を解くことは、三角測量と呼ばれます。</li>
+</ul>
+</div>
+<!--
 The fundamental-matrix method for reconstructing the scene is very simple, consisting
 of the following steps:
 <div class="styleBullet">
@@ -316,64 +329,72 @@ of the following steps:
 <li>(ii) Find \(F\) as the solution to a set of linear equations.</li>
 <li>(iii) Compute a pair of camera matrices from F according to the simple formula
 given in section 9.5.</li>
-<li>(iv) Given the two cameras (\(P\), \(P^\prime\)) and the corresponding image point pairs \(x_i\leftrightarrow x_i\prime\), find the 3D point \(X_i\) that projects to the given image points. Solving for \(X\) in this way is known as triangulation.</li>
+<li>(iv) Given the two cameras (\(P\), \(P^\prime\)) and the corresponding image point pairs \(x_i\leftrightarrow x_i^\prime\), find the 3D point \(X_i\) that projects to the given image points. Solving for \(X\) in this way is known as triangulation.</li>
 </ul>
 </div>
+-->
 </p><p>
+ここで示すアルゴリズムは概要のみであり、各部分は本書で詳細に検討されています。この簡潔な説明からアルゴリズムをそのまま実装することは推奨しません。
+<!--
 The algorithm given here is an outline only, and each part of it is examined in detail
 in this book. The algorithm should not be implemented directly from this brief
 description.
+-->
 </p><p>
-<h2>1.4 Three-view geometry</h2>
+<h2>1.4 三視点幾何学</h2>
 </p><p>
-In the last section it was discussed how reconstruction of a set of points, and the relative
-placement of the cameras, is possible from two views of a set of points. The reconstruction
-is possible only up to a projective transformation of space, and the corresponding
-adjustment to the camera matrices.
+前のセクションでは、点群の2つの視点から点群の再構成とカメラの相対的な配置がどのように可能になるかについて説明しました。再構成は、空間の射影変換と、それに応じたカメラ行列の調整によってのみ可能になります。
+<!--
+In the last section it was discussed how reconstruction of a set of points, and the relative placement of the cameras, is possible from two views of a set of points. The reconstruction is possible only up to a projective transformation of space, and the corresponding adjustment to the camera matrices.
+-->
 </p><p>
-In this section, we consider the case of three views. Whereas for two views, the
-basic algebraic entity is the fundamental matrix, for three views this role is played by
-the trifocal tensor. The trifocal tensor is a 3 × 3 × 3 array of numbers that relate the
-coordinates of corresponding points or lines in three views. Just as the fundamental
-matrix is determined by the two camera matrices, and determines them up to projective
-transformation, so in three views, the trifocal tensor is determined by the three camera
-matrices, and in turn determines them, again up to projective transformation. Thus, the
-trifocal tensor encapsulates the relative projective geometry of the three cameras.
+このセクションでは、3つの視点の場合を考察します。2つの視点の場合、基本的な代数的実体は基礎行列ですが、3つの視点の場合、この役割は三焦点テンソルによって担われます。三焦点テンソルは、3つの視点における対応する点または線の座標を関連付ける3×3×3の数値配列です。基礎行列が2つのカメラ行列によって決定され、射影変換までそれらを決定するのと同様に、3つの視点の場合、三焦点テンソルは3つのカメラ行列によって決定され、さらに射影変換までそれらを決定します。このように、三焦点テンソルは3台のカメラの相対的な射影幾何学をカプセル化します。
+<!--
+In this section, we consider the case of three views. Whereas for two views, the basic algebraic entity is the fundamental matrix, for three views this role is played by the trifocal tensor. The trifocal tensor is a 3 × 3 × 3 array of numbers that relate the coordinates of corresponding points or lines in three views. Just as the fundamental matrix is determined by the two camera matrices, and determines them up to projective transformation, so in three views, the trifocal tensor is determined by the three camera matrices, and in turn determines them, again up to projective transformation. Thus, the trifocal tensor encapsulates the relative projective geometry of the three cameras.
+-->
 </p><p>
-For reasons that will be explained in chapter 15 it is usual to write some of the indices
-of a tensor as lower and some as upper indices. These are referred to as the covariant
-and contravariant indices. The trifocal tensor is of the form \(T_i^{jk}\) , having two upper and
-one lower index.
+第15章で説明する理由により、テンソルの添え字のいくつかは下付き添字、いくつかは上付き添字と表記するのが一般的です。これらは共変添え字と反変添え字と呼ばれます。三焦点テンソルは \(T_i^{jk}\) の形をとり、2つの上付き添字と1つの下付き添字を持ちます。
+<!--
+For reasons that will be explained in chapter 15 it is usual to write some of the indices of a tensor as lower and some as upper indices. These are referred to as the covariant and contravariant indices. The trifocal tensor is of the form \(T_i^{jk}\) , having two upper and one lower index.
+-->
 </p><p>
-The most basic relationship between image entities in three views concerns a correspondence
-between two lines and a point. We consider a correspondence \(x\leftrightarrow l^\prime\leftrightarrow l^{\prime\prime}\) between a point \(x\) in one image and two lines \(l^\prime\) and \(l^{\prime\prime}\) in the other two images. This
-relationship means that there is a point \(X\) in space that maps to \(x\) in the first image, and
-to points \(x^\prime\) and \(x^{\prime\prime}\) lying on the lines \(l^\prime\) and \(l^{\prime\prime}\) in the other two images. The coordinates
-of these three images are then related via the trifocal tensor relationship:
+3つの視点における画像エンティティ間の最も基本的な関係は、2本の直線と1点の対応関係です。1つの画像内の点 \(x\)と、他の2つの画像内の2本の直線 \(l^\prime\) および \(l^{\prime\prime}\) との間の対応関係 \(x\leftrightarrow l^\prime\leftrightarrow l^{\prime\prime}\) を考えます。この関係は、最初の画像内の \(x\) と、他の2つの画像内の直線\(l^\prime\)および\(l^{\prime\prime}\) 上の点 \(x^\prime\) および \(x^{\prime\prime}\) に対応する空間内の点 \(X\) が存在することを意味します。これらの3つの画像の座標は、三焦点テンソル関係によって次のように関連付けられます。
+<!--
+The most basic relationship between image entities in three views concerns a correspondence between two lines and a point. We consider a correspondence \(x\leftrightarrow l^\prime\leftrightarrow  l^{\prime\prime}\) between a point \(x\) in one image and two lines \(l^\prime\) and \(l^{\prime\prime}\) in the other two images. This relationship means that there is a point \(X\) in space that maps to \(x\) in the first image, and to points \(x^\prime\) and \(x^{\prime\prime}\) lying on the lines \(l^\prime\) and \(l^{\prime\prime}\) in the other two images. The coordinates of these three images are then related via the trifocal tensor relationship:
+-->
 \[
 \sum_{i,j,k}x^il_j^\prime l_k^{\prime\prime}T_i^{jk}=0  \tag{1.2}
 \]
-This relationship gives a single linear relationship between the elements of the tensor.
-With sufficiently many such correspondences, it is possible to solve linearly for the
-elements of the tensor. Fortunately, one can obtain more equations from a point correspondence
-\(x\leftrightarrow x^\prime\leftrightarrow x^{\prime\prime}\). In fact, in this situation, one can choose any lines \(l^\prime\) and \(l^{\prime\prime}\) passing through the points \(x^\prime\) and \(x^{\prime\prime}\) and generate a relation of the sort (1.2). Since it
-is possible to choose two independent lines passing through \(x^\prime\), and two others passing
-through \(x^{\prime\prime}\), one can obtain four independent equations in this way. A total of seven
-point correspondences are sufficient to compute the trifocal tensor linearly in this way.
-It can be computed from a minimum of six point correspondences using a non-linear
-method.
+この関係は、テンソルの要素間に単一の線形関係を与えます。このような対応が十分に多ければ、テンソルの要素について線形に解くことができます。幸いなことに、点対応 \(x\leftrightarrow x^\prime\leftrightarrow x^{\prime\prime}\) からより多くの方程式を得ることができます。実際、この状況では、点 \(x^\prime\) と \(x^{\prime\prime}\) を通る任意の直線  \(l^\prime\) と \(l^{\prime\prime}\) を選択して、(1.2) のような関係を生成できます。\(x^\prime\) を通る独立した直線を 2 本、\(x^{\prime\prime}\) を通る独立した直線を 2 本選択することができるため、この方法で 4 つの独立した方程式を得ることができます。このようにして三焦点テンソルを線形に計算するには、合計 7 つの点対応で十分です。非線形法を使用して、最低 6 点の対応から計算できます。
+<!--
+This relationship gives a single linear relationship between the elements of the tensor. With sufficiently many such correspondences, it is possible to solve linearly for the elements of the tensor. Fortunately, one can obtain more equations from a point correspondence \(x\leftrightarrow x^\prime\leftrightarrow x^{\prime\prime}\). In fact, in this situation, one can choose any lines \(l^\prime\) and \(l^{\prime\prime}\) passing through the points \(x^\prime\) and \(x^{\prime\prime}\) and generate a relation of the sort (1.2). Since it is possible to choose two independent lines passing through \(x^\prime\), and two others passing through \(x^{\prime\prime}\), one can obtain four independent equations in this way. A total of seven point correspondences are sufficient to compute the trifocal tensor linearly in this way. It can be computed from a minimum of six point correspondences using a non-linear method.
+-->
 </p><p>
+しかしながら、テンソルの27個の要素は独立ではなく、いわゆる内部制約によって関連付けられています。これらの制約は非常に複雑ですが、制約を満たすテンソルは、例えば6点非線形法を用いるなど、様々な方法で計算できます。基礎行列（2視点テンソル）も内部制約を満たしますが、これは比較的単純なもので、要素は \(det F = 0\) に従います。
+<!--
 The 27 elements of the tensor are not independent, however, but are related by a set
 of so called internal constraints. These constraints are quite complicated, but tensors
 satisfying the constraints can be computed in various ways, for instance by using the
 6 point non-linear method. The fundamental matrix (which is a 2-view tensor) also
 satisfies an internal constraint but a relatively simple one: the elements obey det F = 0.
+-->
 </p><p>
+基礎行列と同様に、三焦点テンソルが分かれば、そこから3つのカメラ行列を抽出し、シーン上の点と線の再構成を得ることができます。これまでと同様に、この再構成は3次元射影変換を除いては一意であり、射影再構成です。
+<!--
 As with the fundamental matrix, once the trifocal tensor is known, it is possible to
 extract the three camera matrices from it, and thereby obtain a reconstruction of the
 scene points and lines. As ever, this reconstruction is unique only up to a 3D projective
 transformation; it is a projective reconstruction.
+-->
 </p><p>
+このように、2視点用の手法を3視点にも一般化することができます。再構成にこのような3視点手法を用いることには、いくつかの利点があります。
+<div class="styleBullet">
+<ul>
+<li>(i) 射影再構成を計算する際に、線対応と点対応を混在させることができます。2視点の場合は、点対応のみを使用できます。
+</li><br><li>(ii) 3視点を用いることで再構成の安定性が向上し、再構成に2視点のみを用いた場合に発生する可能性のある不安定な構成を回避できます。</li>
+</ul>
+</div>
+<!--
 Thus, we are able to generalize the method for two views to three views. There are
 several advantages to using such a three-view method for reconstruction.
 (i) It is possible to use a mixture of line and point correspondences to compute the
@@ -381,9 +402,12 @@ projective reconstruction. With two views, only point correspondences can be
 used.
 (ii) Using three views gives greater stability to the reconstruction, and avoids unstable
 configurations that may occur using only two views for the reconstruction.
+-->
 </p><p>
-<h2>1.5 Four view geometry and n-view reconstruction</h2>
+<h2>1.5 4視点幾何学とn視点再構成</h2>
 </p><p>
+テンソルベースの手法では、さらに一歩進んで、4つの視点で見える実体を関連付ける4焦点テンソルを定義することができます。しかし、この手法は、内部制約を満たす4焦点テンソルを計算するのが比較的難しいため、ほとんど使用されません。それでも、4つの視点に基づく射影再構成を計算するための非反復的な手法を提供します。ただし、テンソル法は4つ以上の視点には拡張できないため、4つ以上の視点からの再構成はより困難になります。
+<!--
 It is possible to go one more step with tensor-based methods and define a quadrifocal
 tensor relating entities visible in four views. This method is seldom used, however, because
 of the relative difficulty of computing a quadrifocal tensor that obey its internal
@@ -391,13 +415,19 @@ constraints. Nevertheless, it does provide a non-iterative method for computing 
 reconstruction based on four views. The tensor method does not extend to more
 than four views, however, and so reconstruction from more than four views becomes
 more difficult.
+-->
 </p><p>
+複数の視点からの再構成には多くの手法が検討されており、本書ではそのうちのいくつかを取り上げます。一つの方法は、3視点または2視点の手法を用いて、シーンを少しずつ再構成することです。この手法はあらゆる画像シーケンスに適用でき、適切な3視点を慎重に選択すれば、通常は成功します。
+<!--
 Many methods have been considered for reconstruction from several views, and we
 consider a few of these in the book. One way to proceed is to reconstruct the scene
 bit by bit, using three-view or two-view techniques. Such a method may be applied to
 any image sequence, and with care in selecting the right triples to use, it will generally
 succeed.
+-->
 </p><p>
+特定の状況で使用できる手法がいくつかあります。アフィンカメラと呼ばれるより単純なカメラモデルを適用できれば、再構成作業は容易になります。このカメラモデルは、シーンまでの距離がシーンの前後の奥行きの差に比べて大きい場合、透視投影の適切な近似となります。アフィンカメラを含むn個の視点セットのすべてで点の集合が見える場合、よく知られたアルゴリズムである因数分解アルゴリズムを使用して、特異値分解を用いてシーンの構造と特定のカメラモデルの両方を1つのステップで計算できます。このアルゴリズムは非常に信頼性が高く、実装も簡単です。主な難点は、完全な射影モデルではなくアフィンカメラモデルを使用することと、すべての点がすべての視点で見える必要があることです。
+<!--
 There are methods that can be used in specific circumstances. The task of reconstruction
 becomes easier if we are able to apply a simpler camera model, known as the affine
 camera. This camera model is a fair approximation to perspective projection whenever
@@ -409,18 +439,27 @@ in one step using the Singular Value Decomposition. This algorithm is very relia
 and simple to implement. Its main difficulties are the use of the affine camera model,
 rather than a full projective model, and the requirement that all the points be visible in
 all views.
+-->
 </p><p>
+この手法は、射影分解として知られる手法で射影カメラに拡張されています。この手法は一般的には満足のいくものですが、すべてのケースで正しい解に収束することを証明することはできません。さらに、すべての点がすべての画像で見える必要があります。
+<!--
 This method has been extended to projective cameras in a method known as projective
 factorization. Although this method is generally satisfactory, it can not be proven
 to converge to the correct solution in all cases. Besides, it also requires all points to be
 visible in all images.
+-->
 </p><p>
+n視点再構成のための他の手法には、様々な仮定が伴います。例えば、すべての視点から見える4つの共面点、あるいはシーケンス内のすべての画像から見える6点または7点といった仮定です。直線運動、平面運動、単軸（ターンテーブル）運動といった特定の運動シーケンスに適用できる手法も開発されています。
+<!--
 Other methods for n-view reconstruction involve various assumptions, such as
 knowledge of four coplanar points in the world visible in all views, or six or seven
 points that are visible in all images in the sequence. Methods that apply to specific motion
 sequences, such as linear motion, planar motion or single axis (turntable) motion
 have also been developed.
+-->
 </p><p>
+一般的な再構成問題に対する主要な手法はバンドル調整です。これは反復的な手法であり、測定データ（点の対応関係）に非線形モデルを当てはめようとします。バンドル調整の利点は、非常に汎用的な手法であり、幅広い再構成問題や最適化問題に適用できることです。バンドル調整は、発見された解が問題の最大尤度解、つまり画像測定の不正確さを考慮したモデルの観点からある意味で最適な解となるように実装できます。
+<!--
 The dominant methodology for the general reconstruction problem is bundle adjustment.
 This is an iterative method, in which one attempts to fit a non-linear model to
 the measured data (the point correspondences). The advantage of bundle-adjustment is
@@ -428,7 +467,10 @@ that it is a very general method that may be applied to a wide range of reconstr
 and optimization problems. It may be implemented in such a way that the discovered
 solution is the Maximum Likelihood solution to the problem, that is a solution that is in
 some sense optimal in terms of a model for the inaccuracies of image measurements.
+-->
 </p><p>
+残念ながら、バンドル調整は反復的なプロセスであり、任意の開始点から最適解に収束する保証はありません。再構成手法に関する多くの研究では、バンドル調整の開始点として使用できる、容易に計算可能な非最適解が求められています。再構成には、初期化ステップに続いてバンドル調整を行う手法が一般的に好まれます。バンドル調整は必然的に時間のかかる手法であるという印象が一般的ですが、実際には、慎重に実装すれば非常に効率的です。本書の長大な付録では、バンドル調整の効率的な手法について解説しています。
+<!--
 Unfortunately, bundle adjustment is an iterative process, which can not be guaranteed
 to converge to the optimal solution from an arbitrary starting point. Much research
 in reconstruction methods seeks easily computable non-optimal solutions that can be
@@ -437,58 +479,72 @@ adjustment is the generally preferred technique for reconstruction. A common imp
 is that bundle-adjustment is necessarily a slow technique. The truth is that it is
 quite efficient when implemented carefully. A lengthy appendix in this book deals
 with efficient methods of bundle adjustment.
+-->
 </p><p>
+n視点再構成技術を用いることで、非常に長い画像シーケンスから自動的に再構成を行うことができます。図1.3に、700フレームからの再構成例を示します。
+<!--
 Using n-view reconstruction techniques, it is possible to carry out reconstructions
 automatically from quite long sequences of images. An example is given in figure 1.3,
 showing a reconstruction from 700 frames.
-</p><p>
-<h2>1.6 Transfer</h2>
-</p><p>
-We have discussed 3D reconstruction from a set of images. Another useful application
-of projective geometry is that of transfer: given the position of a point in one (or more)
-image(s), determine where it will appear in all other images of the set. To do this, we
-must first establish the relationship between the cameras using (for instance) a set of
-auxiliary point correspondences. Conceptually transfer is straightforward given that a
-reconstruction is possible. For instance, suppose the point is identified in two views (at
-x and x′) and we wish to know its position x′′ in a third, then this may be computed by
-the following steps:
-(i) Compute the camera matrices of the three views P, P′, P′′ from other point correspondences
-xi ↔ x′
-i ↔ x′′
-i .
-(ii) Triangulate the 3D point X from x and x′ using P and P′.
-(iii) Project the 3D point into the third view as x′′ = P′′X.
-This procedure only requires projective information. An alternative procedure is to use
-the multi-view tensors (the fundamental matrix and trifocal tensor) to transfer the point
-directly without an explicit 3D reconstruction. Both methods have their advantages.
-</p><p>
-
-</p><p>
+-->
+</p>
+<center><img src="images/fig1_3.png"></center>
+<p>
+図1.3　再構成。(a) オックスフォードの街路を歩きながら手持ちカメラで撮影した700フレームのシーケンスのうち7フレーム。(b)(c) 再構成された点群とカメラパス（赤い曲線）の2つの視点。
+<!--
 Fig. 1.3. Reconstruction. (a) Seven frames of a 700 frame sequence acquired by a hand held camera
 whilst walking down a street in Oxford. (b)(c) Two views of the reconstructed point cloud and camera
 path (the red curve). Figures courtesy of David Capel and 2d3 (www.2d3.com).
+-->
+</p>
+<h2>1.6 移送(？Transfer)</h2>
+<p>
+画像セットからの3D再構成について論じました。射影幾何学のもう一つの有用な応用は、移送(Transfer)です。1枚（または複数枚）の画像における点の位置が与えられた場合、その点が集合内の他のすべての画像でどこに現れるかを決定します。これを行うには、まず（例えば）補助的な点の対応関係を用いて、カメラ間の関係を確立する必要があります。再構成が可能である限り、概念的には転送は簡単です。例えば、ある点が2つの視点 \((xとx^\prime)\) で特定されており、3つ目の視点におけるその点の位置 \(x^{\prime\prime}\) を知りたい場合、これは以下の手順で計算できます。
+<!--
+We have discussed 3D reconstruction from a set of images. Another useful application
+of projective geometry is that of transfer: given the position of a point in one (or more) image(s), determine where it will appear in all other images of the set. To do this, we must first establish the relationship between the cameras using (for instance) a set of auxiliary point correspondences. Conceptually transfer is straightforward given that a reconstruction is possible. For instance, suppose the point is identified in two views (at x and x′) and we wish to know its position x′′ in a third, then this may be computed by the following steps:
+-->
+<div class="styleBullet">
+<ul>
+<li>(i) 3つの視点 \(P, P^\prime, P^{\prime\prime}\) のカメラ行列を他の点の対応 \(x_i \leftrightarrow x_i^\prime \leftrightarrow x_i^{\prime\prime}\) から計算します。
+</li><li>(ii) \(P\) と \(P^\prime\) を使用して、\(x\) と \(x^\prime\) から3D 点 \(X\) を三角測量します。
+</li><li>(iii) 3D 点を \(x^{\prime\prime} = P^{\prime\prime}X\) として3番目の視点に投影します。</li>
+</ul>
+</div>
+<!--
+(i) Compute the camera matrices of the three views \(P, P′, P′′\) from other point correspondences \(x_i \leftrightarrow x_i^\prime \leftrightarrow x_i^{\prime\prime}\).
+(ii) Triangulate the 3D point X from x and x′ using P and P′.
+(iii) Project the 3D point into the third view as x′′ = P′′X.
+-->
 </p><p>
-
-Fig. 1.4. Projective ambiguity: Reconstructions of a mug (shown with the true shape in the centre)
-under 3D projective transformations in the Z direction. Five examples of the cup with different degrees
-of projective distortion are shown. The shapes are quite different from the original.
+この手順では射影情報のみが必要です。別の方法として、多視点テンソル（基礎行列と三焦点テンソル）を用いて、明示的な3D再構成を行わずに直接点を転送する方法があります。どちらの方法にも利点があります。
+<!--
+This procedure only requires projective information. An alternative procedure is to use
+the multi-view tensors (the fundamental matrix and trifocal tensor) to transfer the point directly without an explicit 3D reconstruction. Both methods have their advantages.
+-->
 </p><p>
-
-
+カメラがその中心周りに回転するか、シーン上のすべての関心点が平面上にあると仮定します。その場合、適切な多視点関係は、画像間の平面射影変換です。この場合、1枚の画像に映っている点は、他の任意の画像に転送できます。
+<!--
 Suppose the camera rotates about its centre or that all the scene points of interest
 lie on a plane. Then the appropriate multiple view relations are the planar projective
 transformations between the images. In this case, a point seen in just one image can be
 transferred to any other image.
+-->
 </p><p>
-<h2>1.7 Euclidean reconstruction</h2>
+<h2>1.7 ユークリッド再構成</h2>
 </p><p>
+これまで、キャリブレーションされていないカメラ群で撮影された画像のシーン再構成、つまり転送について検討してきました。このようなカメラでは、焦点距離、画像の幾何学的中心（主点）、そして場合によっては画像内のピクセルのアスペクト比といった重要なパラメータが不明です。各カメラの完全なキャリブレーションが分かっていれば、再構成されたシーンの曖昧さをある程度排除することが可能です。
+<!--
 So far we have considered the reconstruction of a scene, or transfer, for images taken
 with a set of uncalibrated cameras. For such cameras, important parameters such as
 the focal length, the geometric centre of the image (the principal point) and possibly
 the aspect ratio of the pixels in the image are unknown. If a complete calibration of
 each of the cameras is known then it is possible to remove some of the ambiguity of
 the reconstructed scene.
+-->
 </p><p>
+これまで、カメラやシーンのキャリブレーションに関する情報を必要とせずに実行できる唯一の手法である射影再構成について説明してきました。射影再構成は、ユークリッド世界を見ることに慣れた人間には奇妙に見えるモデルの歪みを伴うため、コンピュータグラフィックスへの応用など、多くの目的には不十分です。例えば、射影変換が単純な物体に引き起こす歪みを図1.4に示します。射影再構成の手法を用いると、図1.4に示すマグカップの可能な形状のいずれかを選択することはできず、射影再構成アルゴリズムは、そこに示されている再構成のいずれかを生成する可能性が他の再構成と同様に高くなります。射影再構成によって、さらにひどく歪んだモデルが生じる可能性もあります。
+<!--
 So far, we have discussed projective reconstruction, which is all that is possible without
 knowing something about the calibration of the cameras or the scene. Projective
 reconstruction is insufficient for many purposes, such as application to computer graphics,
@@ -499,7 +555,21 @@ there is no way to choose between any of the possible shapes of the mug
 in figure 1.4, and a projective reconstruction algorithm is as likely to come up with
 any one of the reconstructions shown there as any other. Even more severely distorted
 models may arise from projective reconstruction.
+-->
+</p>
+<center><img src="images/fig1_4.png"></center>
+<p>
+図1.4. 射影的曖昧性：マグカップ（中央に真の形状を表示）のZ方向への3次元射影変換による再構成。射影歪みの程度が異なる5つのカップの例が示されている。形状は元のものとは大きく異なっている。
+<!--
+Fig. 1.4. Projective ambiguity: Reconstructions of a mug (shown with the true shape in the centre)
+under 3D projective transformations in the Z direction. Five examples of the cup with different degrees
+of projective distortion are shown. The shapes are quite different from the original.
+-->
 </p><p>
+物体が正しい（ユークリッド）形状を持つモデルの再構成を得るには、カメラのキャリブレーションを決定する必要があります。これでシーンのユークリッド構造を決定できることは容易にわかります。
+既に述べたように、世界のユークリッド構造を決定することは、無限遠平面と絶対円錐曲線を指定することと同等です。実際、絶対円錐曲線は無限遠平面上にあるため、空間内で絶対円錐曲線を見つければ十分です。
+ここで、キャリブレーション済みのカメラを用いて世界の射影再構成を計算したと仮定します。定義により、これは各画像におけるIACが既知であることを意味します。i番目の画像において、それを!iで表します。各!iの逆投影は空間における円錐であり、絶対円錐曲線はすべての円錐の交点になければなりません。 2つの円錐は一般に4次曲線で交差しますが、円錐曲線で交差しなければならないことを考えると、この曲線は2つの円錐曲線に分割される必要があります。したがって、2枚の画像から絶対円錐曲線を再構成することは一意ではなく、むしろ一般に2つの解が考えられます。しかし、3枚以上の画像から得られる円錐の交点は一般に一意です。このようにして絶対円錐曲線が決定され、それとともにシーンのユークリッド構造も決定されます。
+<!--
 In order to obtain a reconstruction of the model in which objects have their correct
 (Euclidean) shape, it is necessary to determine the calibration of the cameras. It is
 easy to see that this is sufficient to determine the Euclidean structure of the scene.
@@ -515,22 +585,31 @@ a conic, this curve must split into two conics. Thus, reconstruction of the abso
 from two images is not unique – rather, there are two possible solutions in general.
 However, from three or more images, the intersection of the cones is unique in general.
 Thus the absolute conic is determined and with it the Euclidean structure of the scene.
+-->
 </p><p>
+もちろん、シーンのユークリッド構造が分かっていれば、絶対円錐曲線の位置も分かっています。この場合、それを各画像に投影し直し、各画像のIACを生成してカメラをキャリブレーションすることができます。したがって、カメラのキャリブレーションを知っていることは、シーンのユークリッド構造を決定できることと同等です。
+<!--
 Of course, if the Euclidean structure of the scene is known, then so is the position of
 the absolute conic. In this case we may project it back into each of the images, producing
 the IAC in each image, and hence calibrating the cameras. Thus knowledge of the
 camera calibration is equivalent to being able to determine the Euclidean structure of
 the scene.
+-->
 </p><p>
-<h2>1.8 Auto-calibration</h2>
+<h2>1.8 自動キャリブレーション</h2>
 </p><p>
+カメラのキャリブレーションに関する情報がなければ、射影再構成よりも優れた結果を得ることは不可能です。任意の数の視点にわたる特徴点の対応関係の集合には、絶対円錐の像、つまりカメラのキャリブレーションを見つけるのに役立つ情報は存在しません。しかし、カメラのキャリブレーションについて少しでも情報があれば、絶対円錐の位置を特定できる可能性があります。
+<!--
 Without any knowledge of the calibration of the cameras, it is impossible to do better
 than projective reconstruction. There is no information in a set of feature correspondences
 across any number of views that can help us find the image of the absolute
 conic, or equivalently the calibration of the cameras. However, if we know just a little
 about the calibration of the cameras then we may be able to determine the position of
 the absolute conic.
+-->
 </p><p>
+例えば、画像シーケンスからシーンを再構成する際に使用される各カメラのキャリブレーションが同じであることが分かっているとします。これは、以下のことを意味します。各画像には座標系が定義されており、その座標系において、射影再構成を行うために使用した対応する特徴の画像座標を測定します。これらのすべての画像座標系において、IACは同じですが、それがどこに位置しているかは不明であるとします。この知識に基づいて、絶対円錐の位置を計算します。
+<!--
 Suppose, for instance that it is known that the calibration is the same for each of the
 cameras used in reconstructing a scene from an image sequence. By this we mean the
 following. In each image a coordinate system is defined, in which we have measured
@@ -538,24 +617,36 @@ the image coordinates of corresponding features used to do projective reconstruc
 Suppose that in all these image coordinate systems, the IAC is the same, but just where
 it is located is unknown. From this knowledge, we wish to compute the position of the
 absolute conic.
+-->
 </p><p>
+絶対円錐曲線を見つける一つの方法は、1枚の画像におけるIACの位置を仮定することです。この仮定により、他の画像におけるIACの位置も同じになります。それぞれの円錐曲線を逆投影すると、空間上の円錐になります。3つの円錐がすべて1つの円錐曲線で交わる場合、それが絶対円錐曲線の位置の可能な解であり、再構成結果と整合するはずです。
+<!--
 One way to find the absolute conic is to hypothesize the position of the IAC in one
 image; by hypothesis, its position in the other images will be the same. The backprojection
 of each of the conics will be a cone in space. If the three cones all meet in a
 single conic, then this must be a possible solution for the position of the absolute conic,
 consistent with the reconstruction.
+-->
 </p><p>
+これは概念的な説明に過ぎないことに注意してください。IACは当然のことながら複素点のみを含む円錐であり、その逆投影は複素円錐になります。しかし、代数的には、この問題はより扱いやすくなります。複雑ではありますが、IACは実二次形式（実対称行列で表される）で記述できます。逆投影された円錐も実二次形式で表されます。IACのある値に対して、逆投影された3つの円錐は空間内で円錐曲線で交わります。
+<!--
 Note that this is a conceptual description only. The IAC is of course a conic containing
 only complex points, and its back-projection will be a complex cone. However,
 algebraically, the problem is more tractable. Although it is complex, the IAC may be
 described by a real quadratic form (represented by a real symmetric matrix). The backprojected
 cone is also represented by a real quadratic form. For some value of the IAC,
 the three back-projected cones will meet in a conic curve in space.
+-->
 </p><p>
+通常、同じキャリブレーションを持つ3台のカメラがあれば、絶対円錐曲線を決定し、それによってカメラのキャリブレーションを決定することが可能です。しかし、これには様々な手法が提案されているものの、依然として非常に難しい問題です。
+<!--
 Generally given three cameras known to have the same calibration, it is possible
 to determine the absolute conic, and hence the calibration of the cameras. However,
 although various methods have been proposed for this, it remains quite a difficult problem.
+-->
 </p><p>
+無限遠平面の把握。自動キャリブレーションの一つの方法は、まずそれが位置する平面を決定することから段階的に進めることである。これは、世界における無限遠平面を特定すること、ひいては世界のアフィン幾何学を決定することと等価である。第二段階として、平面上の絶対円錐の位置を特定し、空間のユークリッド幾何学を決定する。無限遠平面が分かっていると仮定すると、一連の画像のそれぞれから仮定されたIACを逆投影し、得られた円錐を無限遠平面と交差させることができる。IACが正しく選択されていれば、交差曲線が絶対円錐となる。したがって、各画像ペアから、逆投影された円錐が無限遠平面上の同じ円錐曲線で交わるという条件が得られる。これは、IACを表す行列の要素に線形制約を与えることがわかる。一連の線形方程式からIAC、ひいては絶対円錐を決定できる。したがって、無限遠面が特定されれば、自動キャリブレーションは比較的簡単です。しかし、無限遠面そのものを特定するのは、はるかに困難です。
+<!--
 Knowing the plane at infinity. One method of auto-calibration is to proceed in steps
 by first determining the plane on which it lies. This is equivalent to identifying the plane
 at infinity in the world, and hence to determining the affine geometry of the world. In
@@ -569,7 +660,10 @@ out that this gives a linear constraint on the entries of the matrix representin
 From a set of linear equations, one can determine the IAC, and hence the absolute
 conic. Thus, auto-calibration is relatively simple, once the plane at infinity has been
 identified. The identification of the plane at infinity itself is substantially more difficult.
+-->
 </p><p>
+画像内の正方形ピクセルを用いた自動キャリブレーション。カメラが部分的にキャリブレーションされている場合、投影再構成からキャリブレーションを完了することが可能です。カメラのキャリブレーションに関する非常に最小限の条件、つまりIACで表現される条件で十分です。興味深い例の1つは、カメラの正方形ピクセル制約です。これは、各画像においてユークリッド座標系が既知であることを意味します。この場合、無限遠平面にある絶対円錐は、画像平面の2つの円点で交わる必要があります。平面上の円点は、絶対円錐がその平面と交わる2つの点です。画像平面の円点を通る逆投影された光線は、絶対円錐と交差する必要があります。したがって、正方形ピクセルを持つ各画像から、絶対円錐と交わる2つの光線が決定されます。n枚の画像が与えられた場合、自動キャリブレーションのタスクは、空間内の2n本の光線と交わる空間円錐（絶対円錐）を決定するタスクになります。同等の幾何学的描像は、光線の集合を平面と交差させ、交点の集合が円錐曲線上にあることを求めることです。単純な数え上げの議論から、空間において8本の所定の光線と交わる円錐曲線は有限個しかないことがわかります。したがって、4枚の像から、可能性は有限個までではありますが、較正を決定できます。
+<!--
 Auto-calibration given square pixels in the image. If the cameras are partially
 calibrated, then it is possible to complete the calibration starting from a projective
 reconstruction. One can make do with quite minimal conditions on the calibration
@@ -587,23 +681,27 @@ intersection points lie on a conic. By a simple counting argument one may see th
 are only a finite number of conics that meet eight prescribed rays in space. Therefore,
 from four images one may determine the calibration, albeit up to a finite number of
 possibilities.
+-->
 </p><p>
-<h2>1.9 The reward I : 3D graphical models</h2>
+<h2>1.9 報酬I：3Dグラフィックモデル</h2>
 </p><p>
+ここまで、画像シーケンスからリアルなグラフィックスモデルを計算するために必要なすべての要素について説明しました。画像間の点の対応付けから、まず点集合の射影再構成を行い、選択した射影座標系におけるカメラの動きを決定することが可能です。
+<!--
 We have now described all the ingredients necessary to compute realistic graphics models
 from image sequences. From point matches between images, it is possible to carry
 out first a projective reconstruction of the point set, and determine the motion of the
 camera in the chosen projective coordinate frame.
+-->
 </p><p>
+自動キャリブレーション技術を使用すると、画像シーケンスを撮影したカメラのキャリブレーションに一定の制約があると仮定すると、カメラをキャリブレーションし、その後、シーンを真のユークリッド構造に変換することができます。
+<!--
 Using auto-calibration techniques, assuming some restrictions on the calibration of
 the camera that captured the image sequence, the camera may be calibrated, and the
 scene subsequently transformed to its true Euclidean structure.
-
+-->
 </p><p>
-Fig. 1.5. (a) Three high resolution images (3000 × 2000 pixels) from a set of eleven of the cityhall in
-Leuven, Belgium. (b) Three views of a Euclidean reconstruction computed from the image set showing
-the 11 camera positions and point cloud.
-</p><p>
+シーンの射影構造が分かれば、画像のペアを関連付けるエピポーラ幾何学を見つけることが可能になり、これにより、更なる対応探索が直線に限定されます。つまり、一方の画像上の点は、もう一方の画像上の直線を定義し、その直線上に（まだ未知の）対応点が存在するはずです。実際、適切なシーンであれば、画像間の稠密な点のマッチングを実行し、撮影されたシーンの稠密な3Dモデルを作成することが可能です。これは三角形状の形状モデルの形をとり、その後、提供された画像からシェーディングまたはテクスチャマッピングされ、新しい視点を生成するために使用されます。このプロセスの手順は、図1.5と図1.6に示されています。
+<!--
 Knowing the projective structure of the scene, it is possible to find the epipolar geometry
 relating pairs of images and this restricts the correspondence search for further
 matches to a line – a point in one image defines a line in the other image on which the
@@ -612,15 +710,41 @@ to carry out a dense point match between images and create a dense 3D model of t
 imaged scene. This takes the form of a triangulated shape model that is subsequently
 shaded or texture-mapped from the supplied images and used to generate novel views.
 The steps of this process are illustrated in figure 1.5 and figure 1.6.
+-->
+</p>
+<center><img src="images/fig1_5.png"></center>
+<p>
+図1.5. (a) ベルギー、ルーヴェンの市庁舎の11枚の画像セットから抽出した3枚の高解像度画像（3000 × 2000ピクセル）。(b) 画像セットから計算されたユークリッド再構成画像の3つの視点。11台のカメラ位置と点群を表示。
+<!--
+Fig. 1.5. (a) Three high resolution images (3000 × 2000 pixels) from a set of eleven of the cityhall in
+Leuven, Belgium. (b) Three views of a Euclidean reconstruction computed from the image set showing
+the 11 camera positions and point cloud.
+-->
+</p>
+<center><img src="images/fig1_6.png"></center>
+<p>
+図1.6. 稠密な再構成画像。これらは図1.5のカメラと画像から計算されたものです。(a) テクスチャなし、(b) テクスチャありのシーン全体の再構成画像。(c) テクスチャなし、(d) テクスチャありの (b) の白い四角形で囲まれた領域のクローズアップ画像。(e) テクスチャなし、(f) テクスチャありの (d) の白い四角形で囲まれた領域のクローズアップ画像。稠密な表面は、[Strecha-02] で説明されている3視点ステレオアルゴリズムを用いて計算されています。
+<!--
+Fig. 1.6. Dense reconstructions. These are computed from the cameras and image of figure 1.5. (a)
+Untextured and (b) textured reconstruction of the full scene. (c) Untextured and (d) textured close up of
+the area shown in the white rectangle of (b). (e) Untextured and (f) textured close up of the area shown
+in the white rectangle of (d). The dense surface is computed using the three-view stereo algorithm
+described in [Strecha-02]. Figures courtesy of Christoph Strecha, Frank Verbiest, and Luc Van Gool.
+-->
 </p><p>
-<h2>1.10 The reward II: video augmentation</h2>
+<h2>1.10 報酬II：ビデオ拡張</h2>
 </p><p>
+この導入の最後に、コンピュータグラフィックスへの再構成手法のさらなる応用について述べます。自動再構成技術は、近年、映画業界では、実際のビデオシーケンスに人工的なグラフィックスオブジェクトを追加する手段として広く利用されるようになりました。カメラの動きをコンピュータで解析することで、これまで手動で行われていた人工的な挿入オブジェクトの位置合わせが簡素化されつつあります。
+<!--
 We finish this introduction with a further application of reconstruction methods to computer
 graphics. Automatic reconstruction techniques have recently become widely used
 in the film industry as a means for adding artificial graphics objects in real video sequences.
 Computer analysis of the motion of the camera is replacing the previously
 used manual methods for correctly aligning the artificial inserted object.
+-->
 </p><p>
+ビデオシーケンスに人工物体をリアルに挿入するための最も重要な要件は、カメラの正しい動きを計算することです。カメラの動きが正しく決定されなければ、背景ビデオと整合したグラフィックモデルの正しい視点シーケンスを生成することは不可能です。一般的に、ここで重要なのはカメラの動きだけです。シーンは既存のビデオに既に存在しているため、シーンを再構築する必要はありません。また、ビデオに映っているシーンの新しい視点も必要ありません。唯一の要件は、グラフィックモデルの正しい透視視点を生成できることです。
+<!--
 The most important requirement for realistic insertion of an artificial object in a video sequence is to compute the correct motion of the camera. Unless the camera motion
 is correctly determined, it is impossible to generate the correct sequences of views of
 the graphics model in a way that will appear consistent with the background video.
@@ -628,21 +752,10 @@ Generally, it is only the motion of the camera that is important here; we do not
 reconstruct the scene, since it is already present in the existing video, and novel views
 of the scene visible in the video are not required. The only requirement is to be able to
 generate correct perspective views of the graphics model.
+-->
 </p><p>
-
-</p><p>
-Fig. 1.6. Dense reconstructions. These are computed from the cameras and image of figure 1.5. (a)
-Untextured and (b) textured reconstruction of the full scene. (c) Untextured and (d) textured close up of
-the area shown in the white rectangle of (b). (e) Untextured and (f) textured close up of the area shown
-in the white rectangle of (d). The dense surface is computed using the three-view stereo algorithm
-described in [Strecha-02]. Figures courtesy of Christoph Strecha, Frank Verbiest, and Luc Van Gool.
-
-</p><p>
-Fig. 1.7. Augmented video. The animated robot is inserted into the scene and rendered using the
-computed cameras of figure 1.3. (a)-(c) Original frames from the sequence. (d)-(f) The augmented
-frames. Figures courtesy of 2d3 (www.2d3.com).
-</p><p>
-
+ユークリッド座標系におけるカメラの動きを計算することが不可欠です。カメラの射影運動を知るだけでは不十分です。これは、シーンにユークリッド物体を配置する必要があるためです。このグラフィックスオブジェクトとカメラが同じ座標系で認識されていない場合、挿入されたオブジェクトの生成された視点は、既存のビデオで見られるシーンの構造に対して歪んで見えることになります。
+<!--
 
 It is essential to compute the motion of the camera in a Euclidean frame. It is not
 enough merely to know the projective motion of the camera. This is because a Euclidean
@@ -650,18 +763,33 @@ object is to be placed in the scene. Unless this graphics object and the cameras
 are known in the same coordinate frame, then generated views of the inserted object
 will be seen to distort with respect to the perceived structure of the scene seen in the
 existing video.
+-->
 </p><p>
+カメラの正しい動きとキャリブレーションが分かれば、挿入されたオブジェクトをシーンにリアルにレンダリングできます。フレームごとのカメラキャリブレーションの変化が正しく判断されれば、シーケンス中にカメラの焦点距離（ズーム）を変更できます。クロップによって、シーケンス中に主点が変化することさえ可能です。
+<!--
 Once the correct motion of the camera, and its calibration are known the inserted
 object may be rendered into the scene in a realistic manner. If the change of the camera
 calibration from frame to frame is correctly determined, then the camera may change
 focal length (zoom) during the sequence. It is even possible for the principal point to
 vary during the sequence through cropping.
-
+-->
 </p><p>
+レンダリングされたモデルをビデオに挿入する際、モデルが既存のシーン全体の前面に配置されていれば、作業は比較的簡単です。そうでない場合、シーンによってモデルの一部が隠れてしまうオクルージョンが発生する可能性があります。ビデオ拡張の例を図1.7に示します。
+<!--
 In inserting the rendered model into the video, the task is relatively straight-forward
 if it lies in front of all the existing scene. Otherwise the possibility of occlusions arises,
 in which the scene may obscure parts of the model. An example of video augmentation
-is shown in figure 1.7. -->
+is shown in figure 1.7. 
+-->
+</p>
+<center><img src="images/fig1_7.png"></center>
+<p>
+図1.7. 拡張ビデオ。アニメーション化されたロボットがシーンに挿入され、図1.3の計算されたカメラを使用してレンダリングされます。(a)-(c) シーケンスの元のフレーム。(d)-(f) 拡張されたフレーム。図は2d3 (www.2d3.com) の提供です。
+<!--
+Fig. 1.7. Augmented video. The animated robot is inserted into the scene and rendered using the
+computed cameras of figure 1.3. (a)-(c) Original frames from the sequence. (d)-(f) The augmented
+frames. Figures courtesy of 2d3 (www.2d3.com).
+-->
 </p>
     </body>
 </html>
