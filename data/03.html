@@ -1,4 +1,4 @@
-<!doctype html>
+and similarly for the other components, giving<!doctype html>
 <html lang="ja">
     <head>
         <script type="text/javascript" id="MathJax-script" async
@@ -77,7 +77,7 @@
     <body>
         <h1><center>3章 射影幾何学と3Dの変換</h1>
 <p>
-この章では、射影 3 次元空間、すなわち \(\mathbb P^3\) の性質と実体について説明します。これらの多くは、第 2 章で説明した射影平面の性質と実体の直接的な一般化です。例えば、\(\mathbb P^3\) では、ユークリッド 3 次元空間に、無限遠平面 \(\pi_\infty\) 上の理想点の集合が追加されます。これは、\(\mathbb P^2\) における \(l_\infty\) に相当します。平行線、そして平行平面は、\(\pi_\infty\) 上で交差します。当然のことながら、同次座標がここでも重要な役割を果たし、ここではすべての次元が 1 つ増加します。しかし、追加の次元によって、追加の性質が現れます。例えば、2 本の直線は射影平面上では常に交差しますが、3 次元空間では必ずしも交差する必要はありません。
+この章では、射影 3 次元空間、すなわち \(\mathbb P^3\) の性質と実体について説明します。これらの多くは、第 2 章で説明した射影平面の性質と実体の直接的な一般化です。例えば、\(\mathbb P^3\) では、ユークリッド 3 次元空間に、無限遠平面 \(\boldsymbol{\pi}_\infty\) 上の理想点の集合が追加されます。これは、\(\mathbb P^2\) における \(l_\infty\) に相当します。平行線、そして平行平面は、\(\pi_\infty\) 上で交差します。当然のことながら、同次座標がここでも重要な役割を果たし、ここではすべての次元が 1 つ増加します。しかし、追加の次元によって、追加の性質が現れます。例えば、2 本の直線は射影平面上では常に交差しますが、3 次元空間では必ずしも交差する必要はありません。
 
 <!-- This chapter describes the properties and entities of projective 3-space, or \(\mathbb P^3\). Many
 of these are straightforward generalizations of those of the projective plane, described
@@ -97,12 +97,12 @@ of the previous chapter. -->
 </p>
 <h2><center>3.1 点と射影変換</center></h2>
 <p>
-3次元空間の点Xは、同次座標では4次元ベクトルとして表されます。具体的には、\(X_4\neq 0\)となる同次ベクトル\(\mathbf X = (X_1, X_2, X_3, X_4)^T\)は、\(\mathbb R^3\)の非同次座標を持つ点\((X, Y, Z)^T\)を表します。
+3次元空間の点Xは、同次座標では4次元ベクトルとして表されます。具体的には、\(X_4\neq 0\) となる同次ベクトル \(\mathbf X = (X_1, X_2, X_3, X_4)^T\)は、\(\mathbb R^3\)の非同次座標を持つ点 \((X, Y, Z)^T\) を表します。
 
 <!-- A point X in 3-space is represented in homogeneous coordinates as a 4-vector. Specifically,
 the homogeneous vector \(\mathbf X = (X_1, X_2, X_3, X_4)^T\) with \(X_4\neq 0\) represents the point \((X, Y, Z)^T\) of \(\mathbb R^3\) with inhomogeneous coordinates -->
 \[
-X = X_1/X_4, Y = X_2/X_4, Z = X_3/X_4
+X = \frac{X_1}{X_4},　Y = \frac{X_2}{X_4},　Z = \frac{X_3}{X_4}
 \]
 例えば、\((X, Y, Z)^T\)の同次表現は\(X = (X, Y, Z, 1)^T\)です。\(X_4 = 0\)となる同次点は、無限遠点を表します。
 
@@ -110,7 +110,7 @@ X = X_1/X_4, Y = X_2/X_4, Z = X_3/X_4
 points with \(X_4 = 0\) represent points at infinity. -->
 </p><p>
 
-<! --A projective transformation acting on IP3 is a linear transformation on homogeneous
+<! --A projective transformation acting on \(mathbb P^3\) is a linear transformation on homogeneous
 4-vectors represented by a non-singular 4×4 matrix: X′ = HX. The matrix H representing
 the transformation is homogeneous and has 15 degrees of freedom. The degrees of
 freedom follow from the 16 elements of the matrix less one for overall scaling. -->
@@ -120,195 +120,297 @@ freedom follow from the 16 elements of the matrix less one for overall scaling. 
 <!-- As in the case of planar projective transformations, the map is a collineation (lines
 are mapped to lines), which preserves incidence relations such as the intersection point
 of a line with a plane, and order of contact.
-
+-->
 </p>
-<h2>3.2 Representing and transforming planes, lines and quadrics</h2>
+<h2><center>3.2 平面、直線、二次曲面の表現と変換</center></h2>
+<!--
+<h2><center>3.2 Representing and transforming planes, lines and quadrics</center></h2>
+-->
 <p>
-In IP3 points and planes are dual, and their representation and development is analogous
-to the point–line duality in IP2. Lines are self-dual in IP3.
+\(\mathbb P^3\) では点と平面は双対であり、その表現と展開は \(\mathbb P^2\) における点と直線の双対性に類似している。\(\mathbb P^3\) では直線は自己双対である。
+<!--
+In \(\mathbb P^3\) points and planes are dual, and their representation and development is analogous
+to the point–line duality in \(\mathbb P^2\). Lines are self-dual in \(\mathbb P^3\).
+-->
 </p>
+<h3>3.2.1 平面</h3>
+<!--
 <h3>3.2.1 Planes</h3>
+-->
 <p>
+3次元空間の平面は次のように書ける。
+<!--
 A plane in 3-space may be written as
-1X + 2Y + 3Z + 4 = 0. (3.1)
-Clearly this equation is unaffected by multiplication by a non-zero scalar, so only the
-three independent ratios {1 : 2 : 3 : 4} of the plane coefficients are significant. It
-follows that a plane has 3 degrees of freedom in 3-space. The homogeneous representation
-of the plane is the 4-vector  = (1, 2, 3, 4)T.
-</p><p>
-Homogenizing (3.1) by the replacements X 7→ X1/X4, Y 7→ X2/X4, Z 7→ X3/X4 gives
-1X1 + 2X2 + 3X3 + 4X4 = 0
-or more concisely
-
-T
-X = 0 (3.2)
-which expresses that the point X is on the plane .
+-->
 
+\[
+\pi_1X + \pi_2Y + \pi_3Z + \pi_4 = 0 \tag{3.1}
+\]
+
+明らかにこの方程式は非ゼロのスカラーによる乗算の影響を受けないので、平面係数の3つの独立した比{\(\pi_1 : \pi_2 : \pi_3 : \pi_4\)}のみが意味を持ちます。したがって、平面は3次元空間において3つの自由度を持ちます。平面の同次表現は4次元ベクトル\(\boldsymbol{\pi} = (\pi_1, \pi_2, \pi_3, \pi_4)^T\)です。
+<!--
+Clearly this equation is unaffected by multiplication by a non-zero scalar, so only the
+three independent ratios {\(\pi_1 : \pi_2 : \pi_3 : \pi_4\)} of the plane coefficients are significant. It
+follows that a plane has 3 degrees of freedom in 3-space. The homogeneous representation
+of the plane is the 4-vector \(\boldsymbol{\pi} = (\pi_1, \pi_2, \pi_3, \pi_4)^T\).
+-->
 </p><p>
-The first 3 components of  correspond to the plane normal of Euclidean geometry
-– using inhomogeneous notation (3.2) becomes the familiar plane equation written in
-3-vector notation as n.eX + d = 0, where n = (1, 2, 3)T, eX = (X, Y, Z)T, X4 = 1
-and d = 4. In this form d/knk is the distance of the plane from the origin.
+(3.1)を\(X \mapsto X_1/X4,　Y\mapsto X_2/X_4,　Z\mapsto X_3/X_4\)の置換で同次化すると、
+<!--
+Homogenizing (3.1) by the replacements \(X \mapsto X_1/X4,　Y\mapsto X_2/X_4,　Z\mapsto X_3/X_4\) gives
+-->
+\[
+\pi_1X_1 + \pi_2X_2 + \pi_3X_3 + \pi_4X_4 = 0
+\]
+
+あるいはもっと簡潔に
+<!--
+or more concisely
+-->
+\[
+\pi^T\mathbf X=0 \tag{3.2}
+\]
+
+これは点\(\mathbf X\)が平面\(\pi\)上にあることを表しています。
+<!--
+which expresses that the point \(\mathbf X\) is on the plane \(\pi\).
+-->
 </p><p>
-Join and incidence relations. In IP3 there are numerous geometric relations between
+\(\pi\)の最初の3つの要素はユークリッド幾何学の平面法線に対応します。非同次記法(3.2)を用いると、\(\mathbf n.\tilde{X} + d = 0\)という3ベクトル記法で書かれたおなじみの平面方程式になります。ここで、\(\mathbf n = (\pi_1, \pi_2, \pi_3)^T, \tilde{X} = (X, Y, Z)^T, X_4 = 1\)
+かつ \(d = \pi_4\)です。この形式では、\(d/||\mathbf n||\)は原点からの平面の距離です。
+<!--
+The first 3 components of \(\pi\) correspond to the plane normal of Euclidean geometry – using inhomogeneous notation (3.2) becomes the familiar plane equation written in 3-vector notation as \(\mathbf n.\tilde{X} + d = 0\), where \(\mathbf n = (\pi_1, \pi_2, \pi_3)^T, \tilde{X} = (X, Y, Z)^T, X_4 = 1\)
+and \(d = \pi_4\). In this form \(d/||\mathbf n||\) is the distance of the plane from the origin.
+-->
+</p><p>
+<strong>結合関係と包含関係</strong>　\(\mathbb P^3\) には、平面と点および直線の間に多数の幾何学的関係があります。例えば、
+<!--
+<strong>Join and incidence relations</strong>　In \(\mathbb P^3\) there are numerous geometric relations between
 planes and points and lines. For example,
+-->
 <div class="styleBullet">
 <ul>
-<li>(i) A plane is defined uniquely by the join of three points, or the join of a line and
+<li>
+(i) 平面は、3点の結ぶ線、または直線と点の結ぶ線によって一意に定義されます（後者の場合、3点は同一線上になく、直線と交差していません）。</li>
+<li>(ii) 2つの異なる平面は、1つの直線で交差します。</li>
+<li>(iii) 3つの異なる平面は、1つの点で交差します。
+<!--
+(i) A plane is defined uniquely by the join of three points, or the join of a line and
 point, in general position (i.e. the points are not collinear or incident with the
 line in the latter case).</li>
 <li>(ii) Two distinct planes intersect in a unique line.</li>
-<li>(iii) Three distinct planes intersect in a unique point.</li>
-</ul>
+<li>(iii) Three distinct planes intersect in a unique point.
+-->
+</li></ul>
 </div>
 </p><p>
-
+これらの関係は代数的表現を持ち、点と平面の場合に展開されます。直線を含む関係の表現は、\(\mathbb P^2\) の3次元ベクトル代数から生じる表現（例えば、\(\mathbf{l}= \mathbf{x} \times \mathbf{y}\) ほど単純ではなく、3.2.2節で直線表現が導入されるまで延期されます。
+<!--
 These relations have algebraic representations which will now be developed in the
 case of points and planes. The representations of the relations involving lines are not
-as simple as those arising from 3D vector algebra of IP2 (e.g. l = x × y), and are
+as simple as those arising from 3D vector algebra of \(\mathbb P^2\) (e.g. \(\mathbf l = \mathbf x × \mathbf y)\), and are
 postponed until line representations are introduced in section 3.2.2.
-Three points define a plane. Suppose three points Xi are incident with the plane
-. Then each point satisfies (3.2) and thus 
-T
-Xi = 0, i = 1, . . . , 3. Stacking these
+-->
+</p><p>
+<strong>3点が平面を定義する</strong><br>　3点 \(\mathbf X_i\) が平面 \(\pi\) に接すると仮定する。すると各点は(3.2)式を満たし、\(\pi^T\mathbf X_i = 0, i = 1, . . . , 3\) となる。これらの式を行列に積み重ねると、次のようになる。
+<!--
+<strong>Three points define a plane</strong>　Suppose three points \(\mathbf X_i\) are incident with the plane \(\pi\). Then each point satisfies (3.2) and thus \(\pi^T\mathbf X_i = 0,　 i = 1, . . . , 3\). Stacking these
 equations into a matrix gives
-
-
-X
-T
-1
-X
-T
-2
-X
-T
-3
-
-
- = 0. (3.3)
-Since three points X1,X2 and X3 in general position are linearly independent, it follows
+-->
+\[
+\begin{bmatrix}
+\mathbf X_1^T \\
+\mathbf X_2^T \\
+\mathbf X_3^T 
+\end{bmatrix}
+\pi=0 \tag{3.3}
+\]
+
+一般位置にある3点 \(\mathbf X_1,\mathbf X_2\)、\(\mathbf X_3\) は線型独立であるため、これらの点を行として構成する3 × 4行列の階数は3となります。したがって、これらの点によって定義される平面 \(\pi\) は、（スケールの制限まで）1次元の（右）零空間として一意に得られます。行列の階数が2で、結果として零空間が2次元である場合、これらの点は同一直線上にあり、同一直線上にある点の線を軸とする平面束を定義します。
+<!--
+Since three points \(\mathbf X_1,\mathbf X_2\) and \(\mathbf X_3\) in general position are linearly independent, it follows
 that the 3 × 4 matrix composed of the points as rows has rank 3. The plane
- defined by the points is thus obtained uniquely (up to scale) as the 1-dimensional
+\(\pi\) defined by the points is thus obtained uniquely (up to scale) as the 1-dimensional
 (right) null-space. If the matrix has only a rank of 2, and consequently the null-space
 is 2-dimensional, then the points are collinear, and define a pencil of planes with the
 line of collinear points as axis.
-</p><p>
-In IP2, where points are dual to lines, a line l through two points x, y can similarly
-be obtained as the null-space of the 2 × 3 matrix with xT and yT as rows. However, a
-more convenient direct formula l = x × y is also available from vector algebra. In IP3
-the analogous expression is obtained from properties of determinants and minors.
-</p><p>
-We start from the matrix M = [X,X1,X2,X3] which is composed of a general point
-X and the three points Xi which define the plane . The determinant det M = 0 when
-X lies on  since the point X is then expressible as a linear combination of the points
-Xi, i = 1, . . . , 3. Expanding the determinant about the column X we obtain
-det M = X1D234 − X2D134 + X3D124 − X4D123
-whereDjkl is the determinant formed from the jkl rows of the 4×3 matrix [X1,X2,X3].
-Since det M = 0 for points on  we can then read off the plane coefficients as
- = (D234,−D134,D124,−D123)T . (3.4)
-This is the solution vector (the null-space) of (3.3) above.
-</p><p>
-Example 3.1. Suppose the three points defining the plane are
-X1 =
- 
-eX
-1
-1
-!
-X2 =
- 
-eX
-2
-1
-!
-X3 =
- 
-eX3
-1
-!
-where eX = (X, Y, Z)T. Then
-D234 =
-
-Y1 Y2 Y3
-Z1 Z2 Z3
-1 1 1
-
-=
-
-Y1 − Y3 Y2 − Y3 Y3
-Z1 − Z3 Z2 − Z3 Z3
-0 0 1
-
-=
-
-(eX1 − eX3) × (eX2 − eX3)
-
-1
-and similarly for the other components, giving
- =
- 
-(eX1 − eX3) × (eX2 − eX3)
-−eX
-T
-3 (eX1 × eX2)
-!
-.
-This is the familiar result from Euclidean vector geometry where, for example, the
-plane normal is computed as (eX1 − eX3) × (eX2 − eX3). △
-</p><p>
-Three planes define a point. The development here is dual to the case of three
-points defining a plane. The intersection point X of three planes i can be computed
-straightforwardly as the (right) null-space of the 3 × 4 matrix composed of the planes
-as rows: 
-
-
-T
-1
-
-T
-2
-
-T
-3
-
-
-X = 0. (3.5)
-</p><p>
-Fig. 3.1. A line may be specified by its points of intersection with two orthogonal planes. Each intersection
-point has 2 degrees of freedom, which demonstrates that a line in IP3 has a total of 4 degrees of
-freedom.
+-->
 </p><p>
 
-A direct solution for X, in terms of determinants of 3 × 3 submatrices, is obtained as
-an analogue of (3.4), though computationally a numerical solution would be obtained
-by algorithm A5.1(p589).
-The two following results are direct analogues of their 2D counterparts.
+点が直線の双対である \(\mathbb P^2\) において、2点 \(\mathbf x, \mathbf y\) を通る直線 l は、同様に、\(\mathbf x^T\) と \(\mathbf y^T\) を行とする2 × 3行列の零空間として得られる。しかし、ベクトル代数からは、より便利な直接的な式 \(\mathbf l = \mathbf x × \mathbf y\) も得られる。\(\mathbb P^3\) では、行列式と小行列式の性質から同様の表現が得られる。
+<!--
+In \(\mathbb P^2\), where points are dual to lines, a line l through two points \(\mathbf x, \mathbf y\) can similarly
+be obtained as the null-space of the 2 × 3 matrix with \(\mathbf x^T\) and \(\mathbf y^T\) as rows. However, a
+more convenient direct formula \(\mathbf l = \mathbf x × \mathbf y\) is also available from vector algebra. In \(\mathbb P^3\)
+the analogous expression is obtained from properties of determinants and minors.
+-->
 </p><p>
-Projective transformation. Under the point transformation X′ = HX, a plane transforms
-as
-
-′ = H−T
-. (3.6)
-Parametrized points on a plane. The points X on the plane  may be written as
-X = Mx (3.7)
-where the columns of the 4×3 matrix M generate the rank 3 null-space of 
-T, i.e. 
-TM =
-0, and the 3-vector x (which is a point on the projective plane IP2) parametrizes points
-on the plane . M is not unique, of course. Suppose the plane is  = (a, b, c, d)T and a is
-non-zero, then MT can be written as MT = [p | I3×3], where p = (−b/a,−c/a,−d/a)T.
-This parametrized representation is simply the analogue in 3D of a line l in IP2
-defined as a linear combination of its 2D null-space as x = μa + b, where lTa =
-lTb = 0.
+一般点 \(\mathbf X\) と平面 \(\mathbf X_i\) を定義する3点 \(\mathbf X_i\) からなる行列 \(\mathtt{M} = [\mathbf X,\mathbf X_1,\mathbf X_2,\mathbf X_3]\) から始めます。点 \(\mathbf X\) が \(\pi\) 上にあるとき、行列式 \(\det \mathtt{M} = 0\) は点
+\(\mathbf X_i,　i = 1, . . , 3\) の線形結合として表すことができます。行列式を列 \(\mathbf X\) について展開すると、次の式が得られます。
+<!--
+We start from the matrix \(\mathtt{M} = [\mathbf X,\mathbf X_1,\mathbf X_2,\mathbf X_3]\) which is composed of a general point
+\(\mathbf X\) and the three points \(\mathbf X_i\) which define the plane \(\pi\). The determinant \(det M = 0\) when
+\(\mathbf X\) lies on \(\pi\) since the point \(\mathbf X\) is then expressible as a linear combination of the points
+\(\mathbf X_i,　i = 1, . . . , 3\). Expanding the determinant about the column \(\mathbf X\) we obtain
+-->
+\[
+\det \mathtt{M} = \mathbf x_1D_{234} − \mathbf x_2D_{134} + \mathbf x_3D_{124} − \mathbf x_4D_{123}
+\]
+ここで \(D_{jkl}\) は 4×3 行列 \([\mathbf X_1,\mathbf X_2,\mathbf X_3]\) の \(jkl\) 行から形成される行列式です。
+<!--
+where \(D_{jkl}\) is the determinant formed from the \(jkl\) rows of the 4×3 matrix \([\mathbf X_1,\mathbf X_2,\mathbf X_3]\).
+-->
+</p><p>
+\(\pi\)上の点では\(\det \mathtt{M} = 0\)となるので、平面の係数は次のように読み取ることができる。
+<!--
+Since \(\det \mathtt{M} = 0\) for points on \(\pi\) we can then read off the plane coefficients as
+-->
+\[
+\pi = (D_{234}, -D_{134}, D_{124}, -D_{123})^T  \tag{3.4}
+\]
+これは上記(3.3)の解ベクトル（零空間）である。
+<!--
+This is the solution vector (the null-space) of (3.3) above.
+-->
+</p><p>
+<strong>例3.1</strong>　平面を定義する3つの点が
+<!--
+<strong>Example 3.1</strong>　Suppose the three points defining the plane are
+-->
+\[
+\mathbf X_1 =
+\begin{pmatrix}
+\tilde{\mathbf X}_1 \\
+1
+\end{pmatrix}
+　
+\mathbf X_2 =
+\begin{pmatrix}
+\tilde{\mathbf X}_2 \\
+1
+\end{pmatrix}
+　
+\mathbf X_3 =
+\begin{pmatrix}
+\tilde{\mathbf X}_3 \\
+1
+\end{pmatrix}
+\]
+where \(\tilde{\mathbf X} = (X, Y, Z)^T\). Then
+\[
+D_{234}=
+\begin{vmatrix}
+Y_1 & Y_2 & Y_3 \\
+Z_1 & Z_2 & Z_3 \\
+1 & 1 & 1
+\end{vmatrix}
+=
+\begin{vmatrix}
+Y_1-Y_3 & Y_2-Y_3 & Y_3 \\
+Z_1-Z_3 & Z_2-Z_3 & Z_3 \\
+0 & 0 & 1
+\end{vmatrix}
+=\left((\tilde{X}_1-\tilde{X}_3)\times (\tilde{X}_2-\tilde{X}_3)\right)_1
+\]
+他の成分についても同様にして、
+<!--
+and similarly for the other components, giving
+-->
+\[
+\pi=
+\begin{pmatrix}
+(\tilde{X}_1-\tilde{X}_3)\times (\tilde{X}_2-\tilde{X}_3) \\
+-3\tilde{X}_3^T(\tilde{X}_1\times \tilde{X}_2)
+\end{pmatrix}
+\]
+これはユークリッドベクトル幾何学でよく知られた結果であり、例えば平面法線は\((\tilde{X}_1 −\tilde{X}_3)\times (\tilde{X}_2 − \tilde{X}_3)\)として計算されます。△
+<!--
+This is the familiar result from Euclidean vector geometry where, for example, the
+plane normal is computed as \((\tilde{X}_1 −\tilde{X}_3)\times (\tilde{X}_2 − \tilde{X}_3)\). △
+-->
+</p><p>
+<strong>3つの平面が1つの点を定義する</strong><br>　ここでの展開は、3つの点が1つの平面を定義する場合と双対です。3つの平面 \(\pi_i\) の交点 \(\mathbf X\) は、平面を行として構成される3×4行列の（右）零空間として直接計算できます。
+<!--
+<strong>Three planes define a point</strong>　The development here is dual to the case of three
+points defining a plane. The intersection point \(\mathbf X\) of three planes \(\pi_i\) can be computed
+straightforwardly as the (right) null-space of the 3 × 4 matrix composed of the planes
+as rows: 
+-->
+\[
+\begin{bmatrix}
+\pi_1^T \\
+\pi_2^T \\
+\pi_3^T
+\end{bmatrix}
+\mathbf X=0 
+\tag{3.5}
+\]
+
 </p>
-<h3>3.2.2 Lines</h3>
+<center><img src="images/fig3_1.png"></center>
 <p>
+図3.1. 直線は、2つの直交平面との交点によって規定されます。各交点は2つの自由度を持ち、\(\mathbb P^3\) 内の直線は合計4つの自由度を持つことがわかります。
+<!--
+Fig. 3.1. A line may be specified by its points of intersection with two orthogonal planes. Each intersection
+point has 2 degrees of freedom, which demonstrates that a line in \(\mathbb P^3\) has a total of 4 degrees of
+freedom.
+-->
+</p><p>
+3×3部分行列の行列式を用いた\(\mathbf X\)の直接解は、(3.4)の類似として得られるが、計算的にはアルゴリズムA5.1によって数値解が得られる。
+以下の2つの結果は、2次元の場合の対応する結果の直接類似である。
+<!--
+A direct solution for \(\mathbf X\), in terms of determinants of 3 × 3 submatrices, is obtained as
+an analogue of (3.4), though computationally a numerical solution would be obtained
+by algorithm A5.1.
+The two following results are direct analogues of their 2D counterparts.
+-->
+</p><p>
+<strong>射影変換</strong> 点変換\(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\)のもとで、平面は次のように変換される。
+<!--
+<strong>Projective transformation</strong>　Under the point transformation \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), a plane transforms
+as
+-->
+\[
+\pi^\prime=\mathtt{H}^{-T}\pi \tag{3.6}
+\]
+</p><p>
+<strong>平面上のパラメータ化された点</strong>　平面\(\pi\)上の点\(\mathbf X\)は次のように書けます。
+<!--
+<strong>Parametrized points on a plane</strong>　The points \(\mathbf X\) on the plane \(\pi\) may be written as
+-->
+\[
+\mathbf X = \mathtt{M}\mathbf{x} \tag{3.7}
+\]
+ここで、4×3行列Mの列は\(\pi^T\)の階数3の零空間、つまり\(\pi^T\mathtt{M} =0\)を生成し、3次元ベクトル\(\mathbf x\)（射影平面\(\mathbb P^2\)上の点）は平面\(\pi\)上の点をパラメータ化します。もちろん、\(\mathtt{M}\)は一意ではありません。平面が \(\pi= (a, b, c, d)^T\) で a がゼロでない場合、\(\mathtt{M}^T\) は \(\mathtt{M}^T = [\mathbf{p} | I_{3×3}]\) と表すことができます。ここで \(\mathbf{p} = (−b/a,−c/a,−d/a)^T\) です。
+<!--
+where the columns of the 4×3 matrix M generate the rank 3 null-space of \(\pi^T\), i.e. \(\pi^T\mathtt{M} =0\), and the 3-vector \(\mathbf x\) (which is a point on the projective plane \(\mathbb P^2\)) parametrizes points
+on the plane \(\pi\). \(\mathtt{M}\) is not unique, of course. Suppose the plane is \(\pi= (a, b, c, d)^T\) and a is non-zero, then \(\mathtt{M}^T\) can be written as \(\mathtt{M}^T = [\mathbf{p} | I_{3×3}]\), where \(\mathbf{p} = (−b/a,−c/a,−d/a)^T\).
+-->
+</p><p>
+このパラメーター化された表現は、\(\mathbb P^2\) 内の直線 \(\mathbf l\) の 3D 版に過ぎません。\(\mathbf x = μ\mathbf a + \lambda\mathbf b\) の 2D 零空間への線形結合として定義されます (\(\mathbf l^T\mathbf a =
+\mathbf l^T\mathbf b = 0\))。
+<!--
+This parametrized representation is simply the analogue in 3D of a line \(\mathbf l\) in \(\mathbb P^2\)
+defined as a linear combination of its 2D null-space as \(\mathbf x = μ\mathbf a + \lambda\mathbf b\), where \(\mathbf l^T\mathbf a =
+\mathbf l^T\mathbf b = 0\).
+-->
+</p>
+<h3>3.2.2 直線</h3>
+<!--
+<h3>3.2.2 Lines</h3>
+-->
+<p>
+直線は、2点の結線、または2平面の交点によって定義されます。直線は3次元空間において4つの自由度を持ちます。これらの自由度を数える説得力のある方法は、図3.1に示すように、直線を2つの直交平面との交点によって定義されるものと考えることです。各平面上の交点は2つのパラメータによって指定され、直線には合計4つの自由度が生じます。
+<!--
 A line is defined by the join of two points or the intersection of two planes. Lines
 have 4 degrees of freedom in 3-space. A convincing way to count these degrees of
 freedom is to think of a line as defined by its intersection with two orthogonal planes,
 as in figure 3.1. The point of intersection on each plane is specified by two parameters,
 producing a total of 4 degrees of freedom for the line.
+-->
 </p><p>
+直線を3次元空間で表現するのは非常に難しい。なぜなら、4自由度を持つ物体の自然な表現は同次5次元ベクトルになるからである。問題は、同次5次元ベクトルは、点や平面を表現する4次元ベクトルと共に数式で容易に使用できないことである。この問題を克服するために、これまで多くの直線表現が提案されてきたが、それらは数学的な複雑さが異なっている。ここではこれらの表現のうち3つを概観する。いずれの場合も、表現は直線を2点の結線、2平面の交線で定義する双対バージョン、そしてこれら2つの定義間の写像によって定義するメカニズムを提供する。これらの表現は、例えば直線が平面と交差する点など、結線関係や接続関係を計算することも可能にする。
+<!--
 Lines are very awkward to represent in 3-space since a natural representation for an
 object with 4 degrees of freedom would be a homogeneous 5-vector. The problem is
 that a homogeneous 5 vector cannot easily be used in mathematical expressions together
@@ -319,8 +421,11 @@ provides mechanisms for a line to be defined by: the join of two points,
 a dual version where the line is defined by the intersection of two planes, and also a
 map between the two definitions. The representations also enable join and incidence
 relations to be computed, for example the point at which a line intersects a plane.
+-->
 </p><p>
-I. Null-space and span representation. This representation builds on the intuitive
+<strong>I. 零空間とスパン表現</strong>　この表現は、直線は同一直線上にある点の束（1パラメータ族）であり、これらの点の任意の2点によって定義されるという直感的な幾何学的概念に基づいています。同様に、直線は平面の束の軸であり、その束から伸びる任意の2つの平面の交点によって定義されます。どちらの場合も、実際の点や平面は重要ではありません（実際には、2つの点は6つの自由度を持ち、2つの4次元ベクトルによって表現されます。これはパラメータが多すぎます）。この概念は、直線を2つのベクトルのスパンとして表現することで数学的に表現されます。A、Bが2つの（一致しない）空間点であるとします。これらの点を結ぶ線は、\(\mathbf{A}^T\)と\(\mathbf{B}^T\)を行とする2×4行列\(\mathtt{W}\)の行空間のスパンによって表されます。
+<!--
+<strong>I. Null-space and span representation</strong>　This representation builds on the intuitive
 geometric notion that a line is a pencil (one-parameter family) of collinear points, and is
 defined by any two of these points. Similarly, a line is the axis of a pencil of planes, and
 is defined by the intersection of any two planes from the pencil. In both cases the actual
@@ -328,1093 +433,1524 @@ points or planes are not important (in fact two points have 6 degrees of freedom
 are represented by two 4-vectors – far too many parameters). This notion is captured
 mathematically by representing a line as the span of two vectors. Suppose A,B are two
 (non-coincident) space points. Then the line joining these points is represented by the
-span of the row space of the 2 × 4 matrix W composed of A
-T and B
-T as rows:
-W =
-"
-A
-T
-B
-T
-#
-.
+span of the row space of the 2 × 4 matrix \(\mathtt{W}\) composed of \(\mathbf{A}^T\) and \(\mathbf{B}^T\) as rows:
+-->
+\[
+\mathtt{W}=
+\begin{bmatrix}
+\mathbf{A}^T \\
+\mathbf{B}^T
+\end{bmatrix}
+\]
+そうすると
+<!--
 Then:
-<div class="styleBullet>
-<ul>
-<li>(i) The span of WT is the pencil of points A + μB on the line.</li>
-<li>(ii) The span of the 2-dimensional right null-space of W is the pencil of planes with
-the line as axis.</li<
-</ul>
-</div>
-</p><p>
-It is evident that two other points, A′T and B′T, on the line will generate a matrix W′
-with the same span as W, so that the span, and hence the representation, is independent
-of the particular points used to define it.
-</p><p>
-To prove the null-space property, suppose that P and Q are a basis for the null-space.
-Then WP = 0 and consequently A
-T
-P = B
-T
-P = 0, so that P is a plane containing the
-points A and B. Similarly, Q is a distinct plane also containing the points A and B.
-Thus A and B lie on both the (linearly independent) planes P and Q, so the line defined
-by W is the plane intersection. Any plane of the pencil, with the line as axis, is given by
-the span ′P + μ′Q.
-</p><p>
-The dual representation of a line as the intersection of two planes, P,Q, follows in
-a similar manner. The line is represented as the span (of the row space) of the 2 × 4
-matrix W∗ composed of P
-T and Q
-T as rows:
-W∗ =
-"
-P
-T
-Q
-T
-#
-with the properties
+-->
 <div class="styleBullet">
 <ul>
-<li>(i) The span of W∗T is the pencil of planes ′P + μ′Q with the line as axis.</li>
-<li>(ii) The span of the 2-dimensional null-space of W∗ is the pencil of points on the
-line.</li>
+<li>
+(i) \(\mathtt{W}^T\) の張力は、直線上の点 \(\lambda\mathbf A + μ\mathbf B\) の束である。</li>
+<li>(ii) \(\mathtt{W}\) の2次元右零空間の張力は、直線を軸とする平面の束である。
+<!--
+(i) The span of \(\mathtt{W}^T\) is the pencil of points \(\lambda\mathbf A + μ\mathbf B\) on the line.</li>
+<li>(ii) The span of the 2-dimensional right null-space of \(\mathtt{W}\) is the pencil of planes with
+the line as axis.
+-->
+</li>
 </ul>
 </div>
-
-The two representations are related by W∗ WT = W W∗T = 02×2, where 02×2 is a 2 × 2
-null matrix.
 </p><p>
-Example 3.2. The X-axis is represented as
-W =
-"
-0 0 0 1
-1 0 0 0
-#
-W∗ =
-"
-0 0 1 0
-0 1 0 0
-#
-where the points A and B are here the origin and ideal point in the X-direction, and the
-planes P and Q are the XY- and XZ-planes respectively. △
+直線上の他の2つの点、\({\mathbf{A}^\prime}^T\) と \({\mathbf{B}^\prime}^T\) は、\(W\) と同じスパンを持つ行列 \(\mathtt{W}^\prime\) を生成することは明らかであり、そのため、スパン、つまり表現は、それを定義するために使用される特定の点から独立しています。
+<!--
+It is evident that two other points, \({\mathbf{A}^\prime}^T\) and \({\mathbf{B}^\prime}^T\), on the line will generate a matrix \(\mathtt{W}^\prime\) with the same span as \(W\), so that the span, and hence the representation, is independent
+of the particular points used to define it.
+-->
+</p><p>
+零空間の性質を証明するために、\(\mathbf{P}\) と \(\mathbf{Q}\) が零空間の基底であると仮定します。すると \(\mathtt{W}\mathbf{P} = 0\) となり、\(\mathbf{A}^T\mathbf{P} = \mathbf{B}^T\mathbf{P} = 0\) となります。つまり、\(\mathbf{P}\) は点 \(\mathbf{A}\) と \(\mathbf{B}\) を含む平面となります。同様に、\(\mathbf{Q}\) も点 \(\mathbf{A}\) と \(\mathbf{B}\) を含む別の平面となります。したがって、\(\mathbf{A}\) と \(\mathbf{B}\) は（線形独立な）平面 \(\mathbf{P}\) と \(\mathbf{Q}\) の両方に位置するため、\(\mathtt{W}\) によって定義される直線は平面の交点となります。この直線を軸とする鉛筆の任意の平面は、その張力 \(\lambda^\prime \mathbf{P} + μ^\prime \mathbf{Q}\) によって与えられます。
+<!--
+To prove the null-space property, suppose that \(\mathbf{P}\) and \(\mathbf{Q}\) are a basis for the null-space. Then \(\mathtt{W}\mathbf{P} = 0\) and consequently \(\mathbf{A}^T\mathbf{P} = \mathbf{B}^T\mathbf{P} = 0\), so that \(\mathbf{P}\) is a plane containing the points \(\mathbf{A}\) and \(\mathbf{B}\). Similarly, \(\mathbf{Q}\) is a distinct plane also containing the points \(\mathbf{A}\) and \(\mathbf{B}\). Thus \(\mathbf{A}\) and \(\mathbf{B}\) lie on both the (linearly independent) planes \(\mathbf{P}\) and \(\mathbf{Q}\), so the line defined by \(\mathtt{W}\) is the plane intersection. Any plane of the pencil, with the line as axis, is given by the span \(\lambda^\prime \mathbf{P} + μ^\prime \mathbf{Q}\).
+-->
+</p><p>
+直線を2つの平面の交点 \(\mathbf{P},\mathbf{Q}\) として双対的に表現する場合も同様です。直線は、\(\mathbf{P}^T\) と \(\mathbf{Q}^T\) を行とする2 × 4行列 \(\mathtt{W}^∗\) の（行空間の）範囲として表されます。
+<!--
+The dual representation of a line as the intersection of two planes, \(\mathbf{P},\mathbf{Q}\), follows in a similar manner. The line is represented as the span (of the row space) of the 2 × 4 matrix \(\mathtt{W}^∗\) composed of \(\mathbf{P}^T\) and \(\mathbf{Q}^T\) as rows:
+-->
+\[
+\mathtt{W}^∗ =
+\begin{bmatrix}
+\mathbf{P}^T \\
+\mathbf{Q}^T
+\end{bmatrix}
+\]
+これは以下の特性を持ちます。
+<!--
+with the properties
+-->
+<div class="styleBullet">
+<ul>
+<li>
+(i) \({\mathtt{W}^∗}^T\) の張力は、直線を軸とする平面束 \(\lambda^\prime \mathbf{P} + μ^\prime \mathbf{Q}\) である。</li>
+<li>(ii) \(\mathtt{W}^∗\) の2次元零空間の張力は、直線上の点束である。
+<!--
+(i) The span of \({\mathtt{W}^∗}^T\) is the pencil of planes \(\lambda^\prime \mathbf{P} + μ^\prime \mathbf{Q}\) with the line as axis.</li>
+<li>(ii) The span of the 2-dimensional null-space of \(\mathtt{W}^∗\) is the pencil of points on the line.
+-->
+</li>
+</ul>
+</div>
+</p><p>
+2つの表現は、\(\mathtt{W}^∗\mathtt{W}^T = \mathtt{W}{\mathtt{W}^∗}^T = 0_{2×2}\) によって関連付けられています。ここで、\(0_{2×2}\) は 2×2 のヌル行列です。
+<!--
+The two representations are related by \(\mathtt{W}^∗\mathtt{W}^T = \mathtt{W}{\mathtt{W}^∗}^T = 0_{2×2}\), where \(0_{2×2}\) is a 2×2 null matrix.
+-->
+</p><p>
+<strong>例3.2.</strong>　X軸は次のように表される。
+<!--
+<strong>Example 3.2.</strong>　The X-axis is represented as
+-->
+\[
+\mathtt{W} =
+\begin{bmatrix}
+0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0
+\end{bmatrix}
+　
+\mathtt{W}^＊＝
+\begin{bmatrix}
+0 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0
+\end{bmatrix}
+\]
+
+ここで、点 \(\mathbf{A}\) と \(\mathbf{B}\) はそれぞれ X 方向の原点と理想点であり、平面 \(\mathbf{P}\) と \(\mathbf{Q}\) はそれぞれ \(XY\) 平面と \(XZ\) 平面です。△
+<!--
+where the points \(\mathbf{A}\) and \(\mathbf{B}\) are here the origin and ideal point in the X-direction, and the planes \(\mathbf{P}\) and \(\mathbf{Q}\) are the \(XY\)- and \(XZ\)-planes respectively. △
+-->
+</p><p>
+結合関係と包含関係も零空間から計算されます。
+<!--
 Join and incidence relations are also computed from null-spaces.
-(i) The plane  defined by the join of the point X and line W is obtained from the
-null-space of
-M =
-"
-W
-X
-T
-#
-.
-If the null-space of M is 2-dimensional then X is on W, otherwise M = 0.
-(ii) The point X defined by the intersection of the line W with the plane  is obtained
-from the null-space of
-M =
-"
-W∗
-
-T
-#
-.
-If the null-space of M is 2-dimensional then the line W is on , otherwise MX = 0.
+-->
+<div class="styleBullet">
+<ul>
+<li>
+(i) 点 \(\mathbf{X}\) と直線 \(\mathtt{W}\) の交点で定義される平面 \(\pi\) は、
+\[
+\mathtt{M} =
+\begin{bmatrix}
+\mathtt{W} \\
+\mathbf{X}^T
+\end{bmatrix}
+\]
+\(\mathtt{M}\) の零空間が2次元の場合、\(\mathbf{X}\) は \(\mathtt{W}\) 上にあり、そうでない場合は \(\mathtt{M}\pi = 0\) です。</li><br>
+<li>(ii) 直線 \(\mathtt{W}\) と平面 \(\pi\) の交点で定義される点 \(X\) は、零空間から得られます。
+\[
+\mathtt{M} =
+\begin{bmatrix}
+\mathtt{W}^* \\
+\pi^T
+\end{bmatrix}
+\]
+<!--
+(i) The plane \(\pi\) defined by the join of the point \(\mathbf{X}\) and line \(\mathtt{W}\) is obtained from the null-space of
+\[
+\mathtt{M} =
+\begin{bmatrix}
+\mathtt{W} \\
+\mathbf{X}^T
+\end{bmatrix}
+\]
+If the null-space of \(\mathtt{M}\) is 2-dimensional then \(\mathbf{X}\) is on \(\mathtt{W}\), otherwise \(\mathtt{M}\pi = 0\).</li><br>
+<li>(ii) The point \(X\) defined by the intersection of the line \(\mathtt{W}\) with the plane \(\pi\) is obtained from the null-space of
+\[
+\mathtt{M} =
+\begin{bmatrix}
+\mathtt{W}^* \\
+\pi^T
+\end{bmatrix}
+\]
+-->
+</li>
+</ul>
+</div>
+</p><p>
+\(\mathtt{M}\) の零空間が 2 次元の場合、直線 \(\mathtt{W}\) は \(\pi\) 上にあり、そうでない場合は \(\mathtt{M}\mathbf{X} = 0\) です。
+<!--
+If the null-space of \(\mathtt{M}\) is 2-dimensional then the line \(\mathtt{W}\) is on \(\pi\), otherwise \(\mathtt{M}\mathbf{X} = 0\).
+-->
+</p><p>
+これらの性質は、ほとんど観察によって導くことができます。例えば、最初の性質は、平面を定義する3点(3.3)に相当します。
+<!--
 These properties can be derived almost by inspection. For example, the first is equivalent
 to three points defining a plane (3.3).
+-->
+</p><p>
+スパン表現は、ほとんどの行列パッケージで利用可能なSVDアルゴリズム（セクションA4.4-を参照）を用いて零空間を単純に計算できる実用的な数値計算実装において非常に有用です。また、推定対象の実体が過剰にパラメータ化されていることが問題にならないことが多い推定問題においても有用です（セクション4.5の議論を参照）。
+<!--
 The span representation is very useful in practical numerical implementations where
 null-spaces can be computed simply by using the SVD algorithm (see section A4.4-
-(p585)) available with most matrix packages. The representation is also useful in estimation
+) available with most matrix packages. The representation is also useful in estimation
 problems, where it is often not a problem that the entity being estimated is
-over-parametrized (see the discussion of section 4.5(p110)).
+over-parametrized (see the discussion of section 4.5).
+-->
 </p><p>
-II. Pl¨ucker matrices. Here a line is represented by a 4 × 4 skew-symmetric homogeneous
-matrix. In particular, the line joining the two points A,B is represented by the
-matrix L with elements
-lij = AiBj − BiAj
+<strong>II. プリュッカー行列(Pl&uuml;cker matrices)</strong>　ここでは、直線は4×4の歪対称同次行列で表される。特に、2点\(A,B\)を結ぶ直線は、要素が\(L\)である行列\(L\)で表される。
+<!--
+<strong>II. Pl&uuml;cker matrices.</strong>　Here a line is represented by a 4 × 4 skew-symmetric homogeneous
+matrix. In particular, the line joining the two points \(A,B\) is represented by the matrix \(L
+\) with elements
+-->
+\[
+l_{ij} = A_iB_j − B_iA_j
+\]
+あるいはベクトル表記では次のように表せる。
+<!--
 or equivalently in vector notation as
-L = AB
-T − BA
-T (3.8)
-First a few properties of L:
-(i) L has rank 2. Its 2-dimensional null-space is spanned by the pencil of planes
-with the line as axis (in fact LW∗T = 0, with 0 a 4 × 2 null-matrix).
-(ii) The representation has the required 4 degrees of freedom for a line. This is accounted
-as follows: the skew-symmetric matrix has 6 independent non-zero elements,
-but only their 5 ratios are significant, and furthermore because det L = 0
-the elements satisfy a (quadratic) constraint (see below). The net number of degrees
-of freedom is then 4.
-(iii) The relation L = AB
-T − BA
-T is the generalization to 4-space of the vector
-product formula l = x × y of IP2 for a line l defined by two points x, y all
-represented by 3-vectors.
-(iv) The matrix L is independent of the points A,B used to define it, since if a
-different point C on the line is used, with C = A + μB, then the resulting
-matrix is
-ˆL
-= AC
-T − CA
-T = A(A
-T + μB
-T) − (A + μB)A
-T
-= AB
-T − BA
-T = L.
-(v) Under the point transformation X′ = HX, the matrix transforms as L′ = HLHT,
-i.e. it is a valency-2 tensor (see appendix 1(p562)).
-
+-->
+\[
+\mathtt{L} = \mathbf{AB}^T − \mathbf{BA}^T \tag{3.8}
+\]
+まず\(\mathtt{L}\)のいくつかの特性について説明します。
+<!--
+First a few properties of \(\mathtt{L}\):
+-->
+<div class="styleBullet">
+<ul>
+<li>
+(i) \(\mathtt{L}\) は階数2です。その2次元零空間は、直線を軸とする平面束によって張られます（実際には \(\mathtt{LW^∗}^T = 0\) であり、0 は4 × 2 零行列です）。
+</li><br><li>(ii) この表現は直線に必要な4つの自由度を持ちます。これは次のように説明されます。歪対称行列には6つの独立した非ゼロ要素がありますが、それらの5つの比のみが重要であり、さらに \(\det \mathtt{L} = 0\) であるため、要素は（二次の）制約を満たします（以下を参照）。したがって、自由度の純数は 4 です。
+</li><br><li>(iii) 関係 \(\mathtt{L} = \mathbf{AB}^T − \mathbf{BA}^T\) は、3 次元ベクトルで表される 2 点 \(x, y\) によって定義される直線 \(l\) に対する \(\mathbb P^2\) のベクトル積公式 \(l = x × y\) の 4 次元空間への一般化です。
+</li><br><li>(iv) 行列 \(\mathtt{L}\) は、それを定義する点 \(\mathbf{A,B}\) とは独立しています。なぜなら、直線上の別の点 \(\mathbf{C}\) が使用され、\(\mathbf{C} = \mathbf{A} + μ\mathbf{B}\) とする場合、結果の行列は
+\[
+\begin{align}
+\hat{\mathtt{L}} &= \mathbf{AC}^T − \mathbf{CA}^T = \mathbf{A}(\mathbf{A}^T + μ\mathbf{B}^T) − (\mathbf{A} + μ\mathbf{B})\mathbf{A}^T \\
+&= \mathbf{AB}^T − \mathbf{BA}^T = \mathtt{L}
+\end{align}
+\]
+</li><br><li>(v) 点変換 \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\) のもとで、行列は \(\mathtt{L}^\prime = \mathtt{HLH}^T\) のように変換されます。つまり、これは価数2のテンソルです（付録1を参照）。
+<!--
+(i) \(\mathtt{L}\) has rank 2. Its 2-dimensional null-space is spanned by the pencil of planes with the line as axis (in fact \(\mathtt{LW^∗}^T = 0\), with 0 a 4 ×2 null-matrix).
+</li><br><li>(ii) The representation has the required 4 degrees of freedom for a line. This is accounted as follows: the skew-symmetric matrix has 6 independent non-zero elements, but only their 5 ratios are significant, and furthermore because \(\det \mathtt{L} = 0\) the elements satisfy a (quadratic) constraint (see below). The net number of degreesof freedom is then 4.
+</li><br><li>(iii) The relation \(\mathtt{L} = \mathbf{AB}^T − \mathbf{BA}^T\) is the generalization to 4-space of the vector product formula \(l = x × y\) of \(\mathbb P^2\) for a line \(l\) defined by two points \(x, y\) all represented by 3-vectors.
+</li><br><li>(iv) The matrix \(\mathtt{L}\) is independent of the points \(\mathbf{A,B}\) used to define it, since if a different point \(\mathbf{C}\) on the line is used, with \(\mathbf{C} = \mathbf{A} + μ\mathbf{B}\), then the resulting matrix is
+\[
+\begin{align}
+\hat{\mathtt{L}} &= \mathbf{AC}^T − \mathbf{CA}^T = \mathbf{A}(\mathbf{A}^T + μ\mathbf{B}^T) − (\mathbf{A} + μ\mathbf{B})\mathbf{A}^T \\
+&= \mathbf{AB}^T − \mathbf{BA}^T = \mathtt{L}
+\end{align}
+\]
+</li><br><li>(v) Under the point transformation \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), the matrix transforms as \(\mathtt{L}^\prime = \mathtt{HLH}^T\), i.e. it is a valency-2 tensor (see appendix 1).
+-->
+</li>
+</ul>
+</div>
 </p><p>
-Example 3.3. From (3.8) the X-axis is represented as
-L =
-
-
-0
-0
-0
+<strong>例3.3.</strong> (3.8) から、\(X\)-軸は次のように表される。
+<!--
+<strong>Example 3.3.</strong>　From (3.8) the \(X\)-axis is represented as
+-->
+\[
+\mathtt{L} =
+\begin{pmatrix}
+0 \\
+0 \\
+0 \\
 1
-
-
-
-1 0 0 0
-
-−
-
-
-1
+\end{pmatrix}
+(1\;0\;0\;0)-
+\begin{pmatrix}
+1 \\
+0 \\
+0 \\
 0
-0
-0
-
-
-
-0 0 0 1
-
-=
-
-
-0 0 0 −1
-0 0 0 0
-0 0 0 0
-1 0 0 0
-
-
-where the points A and B are (as in the previous example) the origin and ideal point in
-the X-direction respectively. △
-A dual Pl¨ucker representation L∗ is obtained for a line formed by the intersection of
-two planes P,Q,
-L∗ = PQ
-T − QP
-T (3.9)
-and has similar properties to L. Under the point transformation X′ = HX, the matrix
-L∗ transforms as L∗′ = H−TLH−1. The matrix L∗ can be obtained directly from L by a
-simple rewrite rule:
-l12 : l13 : l14 : l23 : l42 : l34 = l∗
-34 : l∗
-42 : l∗
-23 : l∗
-14 : l∗
-13 : l∗
-12. (3.10)
+\end{pmatrix}
+(0\;0\;0\;1)=
+\begin{bmatrix}
+0 & 0 & 0 & -1 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+1 &0 & 0 & 0
+\end{bmatrix}
+\]
+
+ここで、点\(\mathbf{A}\)と点\(\mathbf{B}\)は（前の例と同様に）それぞれ\(X\)方向の原点と理想的な点です。△
+<!--
+where the points \(\mathbf{A}\) and \(\mathbf{B}\) are (as in the previous example) the origin and ideal point in the \(X\)-direction respectively. △
+-->
+</p><p>
+
+2つの平面 \(\mathbf P,\mathbf Q\) の交差によって形成される直線に対して、双対プリュッカー表現 \(\mathtt{L}^∗\) が得られる。
+<!--
+A dual Pl&uuml;cker representation \(\mathtt{L}^∗\) is obtained for a line formed by the intersection of two planes \(\mathbf P,\mathbf Q\),
+-->
+\[
+\mathtt{L}^∗ = \mathbf{PQ}^T − \mathbf{QP}^T \tag{3.9}
+\]
+は \(\mathtt{L}\) と同様の特性を持ちます。点変換 \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\) のもとで、行列 \(\mathtt{L}^∗\) は \({\mathtt{L}^∗}^\prime = \mathtt{H}^{-T}\mathtt{LH}^{^-1}\) に変換されます。行列 \(\mathtt{L}^∗\) は、簡単な書き換え規則によって \(\mathtt{L}\) から直接得ることができます。
+<!--
+and has similar properties to \(\mathtt{L}\). Under the point transformation \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), the matrix \(\mathtt{L}^∗\) transforms as \({\mathtt{L}^∗}^\prime = \mathtt{H}^{-T}\mathtt{LH}^{^-1}\). The matrix \(\mathtt{L}^∗\) can be obtained directly from 
+\(\mathtt{L}\) by a simple rewrite rule:
+-->
+\[
+l_{12} : l_{13} : l_{14} : l_{23} : l_{42} : l_{34} = l_{34}^* : l_{42}^* : l_{23}^* : l_{14}^* : l_{13}^* : l_{12}^*   \tag{3.10}
+\]
+
+対応規則は非常に単純です。双対要素と元の要素の添え字には常にすべての数 \(\{1, 2, 3, 4\}\) が含まれます。したがって、元の要素が \(ij\) であれば、双対要素は \(\{1, 2, 3, 4\}\) のうち \(ij\) 以外の数になります。例えば、 \(12 \mapsto 34\) です。
+<!--
 The correspondence rule is very simple: the indices of the dual and original component
-always include all the numbers {1, 2, 3, 4}, so if the original is ij then the dual is those
-numbers of {1, 2, 3, 4} which are not ij. For example 12 7→ 34.
+always include all the numbers \(\{1, 2, 3, 4\}\), so if the original is \(ij\) then the dual is those numbers of \(\{1, 2, 3, 4\}\) which are not \(ij\). For example \(12 \mapsto 34\).
+-->
+</p><p>
+結合と発生のプロパティは、次の表記法で非常にわかりやすく表現されます。
+<!--
 Join and incidence properties are very nicely represented in this notation:
-(i) The plane defined by the join of the point X and line L is
- = L∗X
-and L∗X = 0 if, and only if, X is on L.
-(ii) The point defined by the intersection of the line L with the plane  is
-X = L
-and L = 0 if, and only if, L is on .
-The properties of two (or more) lines L1, L2, . . . can be obtained from the null-space
-of the matrix M = [L1, L2, . . .]. For example if the lines are coplanar then MT has a
-1-dimensional null-space corresponding to the plane  of the lines.
-</p><p>
-Example 3.4. The intersection of the X-axis with the plane X = 1 is given by X = L
-as
-X =
-
-
-0 0 0 −1
-0 0 0 0
-0 0 0 0
-1 0 0 0
-
-
-
-
-1
-0
-0
-−1
-
-
-=
-
-
-1
-0
-0
-1
-
-
-which is the inhomogeneous point (X, Y, Z)T = (1, 0, 0)T. △
-</p><p>
-III. Pl¨ucker line coordinates. The Pl¨ucker line coordinates are the six non-zero
-elements of the 4 × 4 skew-symmetric Pl¨ucker matrix (3.8) L, namely1
-L = {l12, l13, l14, l23, l42, l34}. (3.11)
-This is a homogeneous 6-vector, and thus is an element of IP5. It follows from evaluating
-det L = 0 that the coordinates satisfy the equation
-l12l34 + l13l42 + l14l23 = 0. (3.12)
-A 6-vector L only corresponds to a line in 3-space if it satisfies (3.12). The geometric
-interpretation of this constraint is that the lines of IP3 define a (co-dimension 1) surface
-in IP5 which is known as the Klein quadric, a quadric because the terms of (3.12) are
-quadratic in the Pl¨ucker line coordinates.
-Suppose two lines L, ˆ L are the joins of the points A,B and bA, bB respectively. The
-lines intersect if and only if the four points are coplanar. A necessary and sufficient
-condition for this is that det[A,B, bA, bB] = 0. It can be shown that the determinant
-expands as
-det[A,B, bA, bB] = l12ˆ l34 +ˆ l12l34 + l13ˆ l42 +ˆ l13l42 + l14ˆ l23 +ˆ l14l23
-= (L| ˆ L). (3.13)
-Since the Pl¨ucker coordinates are independent of the particular points used to define
-them, the bilinear product (L| ˆ L) is independent of the points used in the derivation and
-only depends on the lines L and ˆ L. Then we have
-</p><p>
-Result 3.5. Two lines L and ˆ L are coplanar (and thus intersect) if and only if (L| ˆ L) =
-0.
-This product appears in a number of useful formulae:
-1 The element l42 is conventionally used instead of l24 as it eliminates negatives in many of the subsequent formulae.
-3.2 Representing and transforming planes, lines and quadrics 73
-(i) A 6-vector L only represents a line in IP3 if (L|L) = 0. This is simply repeating
-the Klein quadric constraint (3.12) above.
-(ii) Suppose two lines L, ˆ L are the intersections of the planes P,Q and bP, bQ respectively.
-Then
-(L| ˆ L) = det[P,Q, bP, bQ]
-and again the lines intersect if and only if (L| ˆ L) = 0.
-(iii) If L is the intersection of two planes P and Q and ˆ L is the join of two points A
-and B, then
-(L| ˆ L) = (P
-T
-A)(Q
-T
-B) − (Q
-T
-A)(P
-T
-B). (3.14)
-Pl¨ucker coordinates are useful in algebraic derivations. They will be used in defining
-the map from a line in 3-space to its image in chapter 8.
-</p>
-<h3>3.2.3 Quadrics and dual quadrics</h3>
-<p>
-A quadric is a surface in IP3 defined by the equation
-X
-T
-QX = 0 (3.15)
-where Q is a symmetric 4 × 4 matrix. Often the matrix Q and the quadric surface it
-defines are not distinguished, and we will simply refer to the quadric Q.
+-->
+<div class="styleBullet">
+<ul><li>
+(i) 点 \(\mathbf X\) と直線 \(\mathtt{L}\) の結線によって定義される平面は
+<!--
+(i) The plane defined by the join of the point \(\mathbf X\) and line \(\mathtt{L}\) is
+-->
+\[
+\pi = \mathtt L^∗\mathbf X
+\]
 
+そして \(\mathtt{L}^∗\mathbf X = \mathbf 0\) となるのは、\(\mathbf X\) が \(\mathtt L\) 上にある場合であり、その場合に限ります。
+</li><br><li>(ii) 直線 \(\mathtt{L}\) と平面 \(\pi\) との交点が
+<!--
+and \(\mathtt{L}^∗\mathbf X = \mathbf 0\) if, and only if, \(\mathbf X\) is on \(\mathtt L\).
+</li><br><li>(ii) The point defined by the intersection of the line \(\mathtt{L}\) with the plane \(\pi\) is
+-->
+\[
+\mathbf{X} = \mathtt{L}\pi
+\]
+
+そして \(\mathtt{L}\pi = 0\) となるのは、\(\mathtt{L}\) が \(\pi\) 上にある場合のみである。
+<!--
+and \(\mathtt{L}\pi = 0\) if, and only if, \(\mathtt{L}\) is on \(\pi\).
+-->
+</li></ul></div>
 </p><p>
-Many of the properties of quadrics follow directly from those of conics in section
-2.2.3(p30). To highlight a few:
+
+2本（またはそれ以上）の直線 \(\mathtt{L}_1, \mathtt{L}_2, . . . \) の特性は、行列 \(\mathtt{M} = [\mathtt{L}_1, \mathtt{L}_2, . . .]\) の零空間から得ることができます。例えば、直線が共面である場合、\(\mathtt{M}^T\) には直線の平面 \(\pi\) に対応する1次元の零空間があります。
+<!--
+The properties of two (or more) lines \(\mathtt{L}_1, \mathtt{L}_2, . . .\) can be obtained from the null-space
+of the matrix \(\mathtt{M} = [\mathtt{L}_1, \mathtt{L}_2, . . .]\). For example if the lines are coplanar then \(\mathtt{M}^T\) has a 1-dimensional null-space corresponding to the plane \(\pi\) of the lines.
+-->
+</p><p>
+<strong>例 3.4.</strong> X軸と平面X = 1の交点は\(\mathbf{X} = \mathtt{L}\pi\)で与えられ、
+<!--
+<strong>Example 3.4.</strong> The intersection of the X-axis with the plane X = 1 is given by \(\mathbf{X} = \mathtt{L}\pi\) as
+-->
+\[
+\mathbf{X} =
+\begin{bmatrix}
+0 & 0 & 0 & −1 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0
+\end{bmatrix}
+\begin{pmatrix}
+1 \\
+0 \\
+0 \\
+−1
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 \\
+0 \\
+0 \\
+1
+\end{pmatrix}
+\]
+
+これは非同次点 \((X, Y, Z)^T = (1, 0, 0)^T\) である。△
+</p><p>
+<strong>III. プリュッカー線座標</strong> プリュッカー線座標は、4 × 4 歪対称プリュッカー行列 (3.8) L の 6 つの非ゼロ要素、すなわち <sup>1</sup> である。
+<!--
+which is the inhomogeneous point \((X, Y, Z)^T = (1, 0, 0)^T\). △
+</p><p>
+<strong>III. Pl&uuml;cker line coordinates.</strong> The Pl&uuml;cker line coordinates are the six non-zero elements of the 4 × 4 skew-symmetric Pl¨ucker matrix (3.8) L, namely<sup>1</sup>
+-->
+<p><p class="margin-large">
+<sup>1</sup> 
+要素 \(l_{42}\) は、後続の式の多くで負の数を消去するため、慣例的に \(l_{24}\) の代わりに使用されます。
+<!--
+The element \(l_{42}\) is conventionally used instead of \(l_{24}\) as it eliminates negatives in many of the subsequent formulae.
+-->
+</p><p>
+
+\[
+\mathcal{L} = \{l_{12}, l_{13}, l_{14}, l_{23}, l_{42}, l_{34}\}  \tag{3.11}
+\]
+
+これは同次6次元ベクトルであり、\(\mathbb{P}^5\)の元である。\(\det \mathtt{L} = 0\)を評価すると、座標が次式を満たすことが分かる。
+<!--
+This is a homogeneous 6-vector, and thus is an element of \(\mathbb{P}^5\). It follows from evaluating \(\det \mathtt{L} = 0\) that the coordinates satisfy the equation
+-->
+\[
+l_{12}l_{34} + l_{13}l_{42} + l_{14}l_{23} = 0  \tag{3.12}
+\]
+
+6次元ベクトル \(\mathcal{L}\) は、(3.12) を満たす場合にのみ、3次元空間の直線に対応する。この制約の幾何学的解釈は、\(\mathbb P^3\) の直線が \(\mathbb{P}^5\) において（余次元 1）の曲面を定義するというものである。これはクラインの二次曲面として知られる。二次曲面である理由は、(3.12) の項がプリュッカーの直線座標において二次式となるからである。
+<!--
+A 6-vector \(\mathcal{L}\) only corresponds to a line in 3-space if it satisfies (3.12). The geometric interpretation of this constraint is that the lines of \(\mathbb P^3\) define a (co-dimension 1) surface
+in \(\mathbb{P}^5\) which is known as the Klein quadric, a quadric because the terms of (3.12) are
+quadratic in the Pl&uuml;cker line coordinates.
+-->
+</p><p>
+2本の直線 \(\mathcal{L},\hat{\mathcal{L}}\) がそれぞれ点 \(\mathbf{A,B}\) と \(\hat{\mathbf{A}}, \hat{\mathbf{B}}\) を結んでいるとする。これらの直線が交差するのは、4点が同一平面上にある場合のみである。このための必要十分条件は、\(\det[\mathbf{A,B},\hat{\mathbf{A}},\hat{\mathbf{B}}] = 0\) である。行列式は次のように展開されることが示される。
+<!--
+Suppose two lines \(\mathcal{L},\hat{\mathcal{L}}\) are the joins of the points \(\mathbf{A,B}\) and \(\hat{\mathbf{A}}, \hat{\mathbf{B}}\) respectively. The
+lines intersect if and only if the four points are coplanar. A necessary and sufficient
+condition for this is that \(\det[\mathbf{A,B},\hat{\mathbf{A}},\hat{\mathbf{B}}] = 0\). It can be shown that the determinant expands as
+-->
+\[
+\begin{align}
+\det[\mathbf{A,B}, \hat{\mathbf{A}}, \hat{\mathbf{B}}] &= l_{12}\hat{l}_{34} +\hat{l}_{12}l_{34} + l_{13}\hat{l}_{42} +\hat{l}_{13}l_{42} + l_{14}\hat{l}_{23} +\hat{l}_{14}l_{23} \\
+\\
+&= (\mathcal{L}|\hat{\mathcal{L}})  \tag{3.13}
+\end{align}
+\]
+
+プリュッカー座標は、それを定義するために用いられる特定の点とは独立しているので、双線形積\((\mathcal{L}|\hat{\mathcal{L)}})\)は、導出に用いられる点とは独立しており、直線\(\mathcal{L}\)と\(\hat{\mathcal{L}}\)のみに依存する。したがって、
+<!--
+Since the Pl&uuml;cker coordinates are independent of the particular points used to define
+them, the bilinear product \((\mathcal{L}|\hat{\mathcal{L)}})\) is independent of the points used in the derivation and
+only depends on the lines \(\mathcal{L}\) and \(\hat{\mathcal{L}}\). Then we have
+-->
+</p><p>
+
+<strong>結果 3.5.</strong> 2 つの直線 \(\mathcal{L}\) と \(\hat{\mathcal{L}}\) が共面である (つまり交差する) のは、\((\mathcal{L}|\hat{\mathcal{L}}) = 0\) の場合のみです。
+<!--
+<strong>Result 3.5.</strong> Two lines \(\mathcal{L}\) and \(\hat{\mathcal{L}}\) are coplanar (and thus intersect) if and only if \((\mathcal{L}|\hat{\mathcal{L}}) = 0\).
+-->
+</p><p>
+この製品は、数多くの便利な処方に登場します。
+<!--
+This product appears in a number of useful formulae:
+-->
+<div class="styleBullet">
+<ul><li>
+(i) 6次元ベクトル \(\mathcal{L}\) は、\((\mathcal{L}|\mathcal{L}) = 0\) の場合にのみ、\(\mathbb P^3\) 内の直線を表します。これは、上記のクラインの二次曲面制約 (3.12) を単純に繰り返しているだけです。
+</li><br><li>(ii) 2つの直線 \(\mathcal{L},\hat{\mathcal{L}}\) が、それぞれ平面 \(\mathbf{P},\mathbf{Q}\) と \(\hat{\mathbf{P}},\hat{\mathbf{Q}}\) の交点であるとします。すると、
+<!--
+(i) A 6-vector \(\mathcal{L}\) only represents a line in \(\mathbb P^3\) if \((\mathcal{L}|\mathcal{L}) = 0\). This is simply repeating
+the Klein quadric constraint (3.12) above.
+</li><br><li>(ii) Suppose two lines \(\mathcal{L},\hat{\mathcal{L}}\) are the intersections of the planes \(\mathbf{P},\mathbf{Q}\) and \(\hat{\mathbf{P}},\hat{\mathbf{Q}}\) respectively. Then
+-->
+\[
+(\mathcal{L}|\hat{\mathcal{L}}) = \det[\mathbf{P},\mathbf{Q}, \hat{\mathbf{P}}, \hat{\mathbf{Q}}]
+\]
+
+そして、\((\mathcal{L}|\hat{\mathcal{L}}) = 0\) のときのみ、直線は交わります。
+</li><br><li>(iii) \(\mathcal{L}\) が 2 つの平面 \(\mathbf{P}\) と \(\mathbf{Q}\) の交点であり、\(\hat{\mathcal{L}}\) が 2 つの点 \(\mathbf{A}\) と \(\mathbf{B}\) の結線である場合、
+<!--
+and again the lines intersect if and only if \((\mathcal{L}|\hat{\mathcal{L}}) = 0\).
+</li><br><li>(iii) If \(\mathcal{L}\) is the intersection of two planes \(\mathbf{P}\) and \(\mathbf{Q}\) and \(\hat{\mathcal{L}}\) is the join of two points \(\mathbf{A}\) and \(\mathbf{B}\), then
+-->
+\[
+(\mathcal{L}|\hat{\mathcal{L}}) = (\mathbf{P}^T\mathbf{A})(\mathbf{Q}^T
+\mathbf{B}) − (\mathbf{Q}^T\mathbf{A})(\mathbf{P}^T\mathbf{B})  \tag{3.14}
+\]
+
+</li></ul></div>
+</p><p>
+
+プリュッカー座標は代数微分において有用です。第8章では、3次元空間の直線からその像への写像を定義する際に用いられます。
+<!--
+Pl&uuml;ucker coordinates are useful in algebraic derivations. They will be used in defining
+the map from a line in 3-space to its image in chapter 8.
+-->
+</p>
+<h3>3.2.3 二次曲線と双対二次曲線</h3>
+<!--
+<h3>3.2.3 Quadrics and dual quadrics</h3>
+-->
+<p>
+二次曲面とは、\(\mathbb P^3\) 上の次の式で定義される曲面である。
+<!--
+A quadric is a surface in \(\mathbb P^3\) defined by the equation
+-->
+\[
+\mathbf{X}^T\mathtt{Q}\mathbf{X} = 0  \tag{3.15}
+\]
+
+ここで、\(\mathtt{Q}\) は対称4×4行列です。行列 \(\mathtt{Q}\) とそれが定義する二次曲面は区別されないことが多く、ここでは単に二次曲面 \(\mathtt{Q}\) と呼びます。
+<!--
+where \(\mathtt{Q}\) is a symmetric 4 × 4 matrix. Often the matrix \(\mathtt{Q}\) and the quadric surface it
+defines are not distinguished, and we will simply refer to the quadric \(\mathtt{Q}\).
+-->
+</p><p>
+二次曲線の性質の多くは、2.2.3節で述べた双曲線の性質から直接導かれます。いくつか例を挙げると、
+<!--
+Many of the properties of quadrics follow directly from those of conics in section 2.2.3. To highlight a few:
+-->
+<div class="styleBullet">
+<ul><li>
+(i) 二次曲面は9つの自由度を持ちます。これらは、4×4対称行列の10個の独立要素から縮尺分の1を除いた要素に相当します。
+</li><br><li>(ii) 二次曲面は、一般的な位置にある9つの点で定義されます。
+</li><br><li>(iii) 行列 \(\mathtt{Q}\) が特異行列である場合、二次曲面は退化しており、より少ない点で定義できます。
+</li><br><li>(iv) 二次曲面は、点と直線の間の円錐曲線によって定義される極性（セクション2.8.1）と同様に、点と平面の間の極性を定義します。
+平面 \(\pi = \mathtt{Q}\mathbf{X}\) は、\(\mathtt{Q}\) に関する \(\mathbf{X}\) の極平面です。 \(\mathtt{Q}\) が特異でなく、\(\mathbf{X}\) が二次曲面の外側にある場合、極平面は、\(\mathbf{X}\) を通り \(\mathtt{Q}\) に接する光線円錐が \(\mathtt{Q}\) と接する点によって定義されます。\(\mathbf{X}\) が \(\mathtt{Q}\) 上にある場合、\(\mathtt{Q}\mathbf{X}\) は \(\mathbf{X}\) における \(\mathtt{Q}\) の接平面です。 </li><br><li>(v) 平面 \(\pi\) と二次曲面 \(\mathtt{Q}\) の交点は円錐曲線 \(\mathtt{C}\) です。円錐曲線の計算は、平面の座標系が必要となるため、難しい場合があります。(3.7) から、平面の座標系は \(\pi\) の補空間によって \(\mathbf{X} = \mathtt{M}\mathbf{x}\) と定義できることを思い出してください。\(\pi\) 上の点は、\(\mathtt{Q}\) 上にあるとは、\(\mathbf{X}^T\mathtt{Q}\mathbf{X} = \mathbf{x}^T\mathtt{M}^T\mathtt{QM}\mathbf{x} = 0\) のことです。これらの点は、\(\mathtt{C}\) 上にある。\(\mathbf{x}^T\mathtt{C}\mathbf{x} = 0\) であり、\(\mathtt{C} = \mathtt{M}^T\mathtt{QM}\) である。
+</li><br><li>(vi) 点変換 \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\) のもとで、(点)二次曲面は次のように変換される。
+<!--
 (i) A quadric has 9 degrees of freedom. These correspond to the ten independent
 elements of a 4 × 4 symmetric matrix less one for scale.
-(ii) Nine points in general position define a quadric.
-(iii) If the matrix Q is singular, then the quadric is degenerate, and may be defined
+</li><br><li>(ii) Nine points in general position define a quadric.
+</li><br><li>(iii) If the matrix \(\mathtt{Q}\) is singular, then the quadric is degenerate, and may be defined
 by fewer points.
-(iv) A quadric defines a polarity between a point and a plane, in a similar manner
+</li><br><li>(iv) A quadric defines a polarity between a point and a plane, in a similar manner
 to the polarity defined by a conic between a point and a line (section 2.8.1).
-The plane  = QX is the polar plane of X with respect to Q. In the case that Q
-is non-singular and X is outside the quadric, the polar plane is defined by the
-points of contact with Q of the cone of rays through X tangent to Q. If X lies on
-Q, then QX is the tangent plane to Q at X.
-(v) The intersection of a plane  with a quadric Q is a conic C. Computing the
+The plane \(\pi = \mathtt{Q}\mathbf{X}\) is the polar plane of \(\mathbf{X}\) with respect to \(\mathtt{Q}\). In the case that \(\mathtt{Q}\)
+is non-singular and \(\mathbf{X}\) is outside the quadric, the polar plane is defined by the
+points of contact with \(\mathtt{Q}\) of the cone of rays through \(\mathbf{X}\) tangent to \(\mathtt{Q}\). If \(\mathbf{X}\) lies on
+\(\mathtt{Q}\), then \(\mathtt{Q}\mathbf{X}\) is the tangent plane to \(\mathtt{Q}\) at \(\mathbf{X}\).
+</li><br><li>(v) The intersection of a plane \(\pi\) with a quadric \(\mathtt{Q}\) is a conic \(\mathtt{C}\). Computing the
 conic can be tricky because it requires a coordinate system for the plane. Recall
 from (3.7) that a coordinate system for the plane can be defined by the complement
-space to  as X = Mx. Points on  are on Q if X
-TQX = xTMTQMx = 0.
-These points lie on a conic C, since xTCx = 0, with C = MTQM.
-(vi) Under the point transformation X′ = HX, a (point) quadric transforms as
-Q′ = H−T
-QH−1. (3.16)
+space to \(\pi\) as \(\mathbf{X} = \mathtt{M}\mathbf{x}\). Points on \(\pi\) are on \(\mathtt{Q}\)  if \(\mathbf{X}^T\mathtt{Q}\mathbf{X} = \mathbf{x}^T\mathtt{M}^T\mathtt{QM}\mathbf{x} = 0\).
+These points lie on a conic \(\mathtt{C}\), since \(\mathbf{x}^T\mathtt{C}\mathbf{x} = 0\), with \(\mathtt{C} = \mathtt{M}^T\mathtt{QM}\).
+</li><br><li>(vi) Under the point transformation \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), a (point) quadric transforms as
+-->
+\[
+\mathtt{Q}^\prime = \mathtt{H}^{-T}\mathtt{Q}H^{-1}  \tag{3.16}
+\]
+</li></ul></div>
 </p><p>
+二次曲面の双対もまた二次曲面である。双対二次曲面は平面上の方程式である。点二次曲面 \(\pi\) の接平面は \(\pi^T\mathtt{Q}^∗\pi = 0\) を満たす。ここで \(\mathtt{Q}^∗ = adjoint \mathtt{Q}\)
+または \(\mathtt{Q}\) が逆行列を持つ場合は \(\mathtt{Q}^{-1}\) を満たす。点変換 \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\) のもとで、双対二次曲面は次のように変換される。
+<!--
 The dual of a quadric is also a quadric. Dual quadrics are equations on planes: the
-tangent planes  to the point quadric Q satisfy 
-TQ∗ = 0, where Q∗ = adjoint Q,
-or Q−1 if Q is invertible. Under the point transformation X′ = HX, a dual quadric
-transforms as
-Q∗′ = HQ∗H
-T. (3.17)
-The algebra of imaging a quadric is far simpler for a dual quadric than a point quadric.
-This is detailed in chapter 8.
+tangent planes \(\pi\) to the point quadric \(\mathtt{Q}\) satisfy \(\pi^T\mathtt{Q}^∗\pi = 0\), where \(\mathtt{Q}^∗ = adjoint \mathtt{Q}\),
+or \(\mathtt{Q}^{-1}\) if \(\mathtt{Q}\) is invertible. Under the point transformation \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), a dual quadric transforms as
+-->
+\[
+\mathtt{Q}^{∗\prime} = \mathtt{HQ}^∗\mathtt{H}^T  \tag{3.17}
+\]
+
+二次曲面の結像代数は、点二次曲面よりも双対二次曲面の方がはるかに単純です。これは第8章で詳しく説明します。
+<!--
+The algebra of imaging a quadric is far simpler for a dual quadric than a point quadric. This is detailed in chapter 8.
+-->
 </p>
+<h3>3.2.4 二次曲面の分類</h3>
+<!--
 <h3>3.2.4 Classification of quadrics</h3>
+-->
 <p>
-Since the matrix, Q, representing a quadric is symmetric, it may be decomposed as
-Q = UTDU where U is a real orthogonal matrix and D is a real diagonal matrix. Further,
-by appropriate scaling of the rows of U, one may write Q = HTDH where D is diagonal
-with entries equal to 0, 1, or −1. We may further ensure that the zero entries of D
-appear last along the diagonal, and that the +1 entries appear first. Now, replacement
-of Q = HTDH by D is equivalent to a projective transformation effected by the matrix
+二次関数を表す行列 \(\mathtt{Q}\) は対称行列なので、\(\mathtt{Q} = \mathtt{U}^T\mathtt{DU}\) と分解できます。ここで、\(\mathtt{U}\) は実直交行列、\(\mathtt{D}\) は実対角行列です。さらに、\(\mathtt{U}\) の行を適切にスケーリングすることで、\(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\) と書くことができます。ここで、\(\mathtt{D}\) は対角行列で、各要素は 0、1、または -1 です。さらに、\(\mathtt{D}\) の 0 要素が対角線の最後に現れ、+1 要素が最初に現れるようにすることができます。ここで、\(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\) を \(\mathtt{D}\) に置き換えることは、行列 H による射影変換と同値である（(3.16) 参照）。したがって、射影同値性を除き、二次曲面は与えられた単純形式の行列 D によって表されると仮定してよい。
+<!--
+Since the matrix, \(\mathtt{Q}\), representing a quadric is symmetric, it may be decomposed as \(\mathtt{Q} = \mathtt{U}^T\mathtt{DU}\) where \(\mathtt{U}\) is a real orthogonal matrix and \(\mathtt{D}\) is a real diagonal matrix. Further,
+by appropriate scaling of the rows of \(\mathtt{U}\), one may write \(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\) where \(\mathtt{D}\) is diagonal
+with entries equal to 0, 1, or -1. We may further ensure that the zero entries of \(\mathtt{D}\) appear last along the diagonal, and that the +1 entries appear first. Now, replacement
+of \(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\) by \(\mathtt{D}\) is equivalent to a projective transformation effected by the matrix
 H (see (3.16)). Thus, up to projective equivalence, we may assume that the quadric is
 represented by a matrix D of the given simple form.
-
+-->
 </p><p>
-The signature of a diagonal matrix D, denoted (D), is defined to be the number of
+対角行列 \(\mathtt{D}\) の符号は、\(\sigma(\mathtt{D})\) と表記され、+1 要素の数から -1 要素の数を引いたものとして定義されます。この定義は、任意の実対称行列 \(\mathtt{Q}\) に拡張され、\(\sigma(\mathtt{Q}) = \sigma(\mathtt{D})\) と定義して、\(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\) が成り立ちます。ここで、H は実行列です。符号は H の特定の選択とは独立して、明確に定義されていることが証明できます。2 次関数を表す行列は符号までしか定義されないため、その符号は非負であると仮定できます。すると、2 次関数の射影型は、その階数と符号によって一意に決定されます。これにより、二次曲面のさまざまな射影同値類を列挙できるようになります。
+<!--
+The signature of a diagonal matrix \(\mathtt{D}\), denoted \(\sigma(\mathtt{D})\), is defined to be the number of
 +1 entries minus the number of −1 entries. This definition is extended to arbitrary
-real symmetric matrices Q by defining (Q) = (D) such that Q = HTDH, where H is
+real symmetric matrices \(\mathtt{Q}\) by defining \(\sigma(\mathtt{Q}) = \sigma(\mathtt{D})\) such that \(\mathtt{Q} = \mathtt{H}^T\mathtt{DH}\), where H is
 a real matrix. It may be proved that the signature is well defined, being independent
 of the particular choice of H. Since the matrix representing a quadric is defined only
 up to sign, we may assume that its signature is non-negative. Then, the projective type
 of a quadric is uniquely determined by its rank and signature. This will allow us to
 enumerate the different projective equivalence classes of quadrics.
+-->
 </p><p>
-A quadric represented by a diagonal matrix diag(d1, d2, d3, d4) corresponds to a set
-of points satisfying an equation d1X
-2 +d2Y
-2 +d3Z
-2 +d4T
-2 = 0. One may set T = 1 to
+対角行列 \(diag(d_1, d_2, d_3, d_4)\) で表される二次曲面は、方程式 \(d_1X^2 + d_2Y^2 + d_3Z^2 + d_4T^2 = 0\) を満たす点の集合に対応する。\(\mathtt{T} = 1\) と設定すると、二次曲面上の非無限点の方程式が得られる。表3.1 を参照。二次曲面の例を図3.2～図3.4 に示す。
+<!--
+A quadric represented by a diagonal matrix \(diag(d_1, d_2, d_3, d_4)\) corresponds to a set
+of points satisfying an equation \(d_1X^2 +d_2Y^2 +d_3Z^2 +d_4T^2 = 0\). One may set \(\mathtt{T} = 1\) to
 get an equation for the non-infinite points on the quadric. See table 3.1. Examples of
 quadric surfaces are shown in figure 3.2 – figure 3.4.
-Rank  Diagonal Equation Realization
-4 4 (1, 1, 1, 1) X
-2 + Y
-2 + Z
-2 + 1 = 0 No real points
-2 (1, 1, 1,−1) X
-2 + Y
-2 + Z
-2 = 1 Sphere
-0 (1, 1,−1,−1) X
-2 + Y
-2 = Z
-2 + 1 Hyperboloid of one sheet
-3 3 (1, 1, 1, 0) X
-2 + Y
-2 + Z
-2 = 0 One point (0, 0, 0, 1)T
-1 (1, 1,−1, 0) X
-2 + Y
-2 = Z
-2 Cone at the origin
-2 2 (1, 1, 0, 0) X
-2 + Y
-2 = 0 Single line (Z-axis)
-0 (1,−1, 0, 0) X
-2 = Y
-2 Two planes X = ±Y
-1 1 (1, 0, 0, 0) X
-2 = 0 The plane X = 0
+-->
+</p>
+<center><img src="images/table3_1.png"></center>
+<p>
+<center>表3.1. 点二次曲線の分類</center>
+<!--
 Table 3.1. Categorization of point quadrics.
-3.3 Twisted cubics 75
-</p><p>
+-->
+</p>
+<center><img src="images/fig3_2.png"></center>
+<p>
+図3.2. 非直線族二次曲面。球面、楕円体、二枚双曲面、放物面のプロットを示している。これらはすべて射影的に同値である。
+<!--
 Fig. 3.2. Non-ruled quadrics. This shows plots of a sphere, ellipsoid, hyperboloid of two sheets and
 paraboloid. They are all projectively equivalent.
-</p><p>
+-->
+</p>
+<center><img src="images/fig3_3.png"></center>
+<p>
+図3.3. 直線族二次曲面。一枚の板でできた双曲面の例を2つ示します。これらの曲面はそれぞれ方程式 \(X^2 + Y^2 = Z^2 + 1\) および \(XY = Z\) で与えられ、射影的に同値です。これらの2つの曲面は互いに交わらない直線の2組で構成されており、一方の組の各直線はもう一方の組の各直線と交わることに注意してください。ここに示す2つの二次曲面は射影的に（ただしアフィン的にではない）同値です。
+<!--
 Fig. 3.3. Ruled quadrics. Two examples of a hyperboloid of one sheet are given. These surfaces are
-given by equations X
-2 + Y
-2 = Z
-2 + 1 and XY = Z respectively, and are projectively equivalent. Note
+given by equations \(X^2 + Y^2 = Z^2 + 1\) and \(XY = Z\) respectively, and are projectively equivalent. Note
 that these two surfaces are made up of two sets of disjoint straight lines, and that each line from one set
 meets each line from the other set. The two quadrics shown here are projectively (though not affinely)
 equivalent.
+-->
 </p><p>
-
-Ruled quadrics. Quadrics fall into two classes – ruled and unruled quadrics. A
+<strong>直線族二次曲面</strong> 二次曲面は、直線族二次曲面と非直線族二次曲面の2つのクラスに分類されます。直線族二次曲面は、直線を含む二次曲面です。より具体的には、図3.3に示すように、非退化直線族二次曲面（一枚の双曲面）には、生成線と呼ばれる2つの直線族が含まれます。直線族二次曲面の詳細な性質については、[Semple-79]を参照してください。
+<!--
+<strong>Ruled quadrics.</strong> Quadrics fall into two classes – ruled and unruled quadrics. A
 ruled quadric is one that contains a straight line. More particularly, as shown in
 figure 3.3, the non-degenerate ruled quadric (hyperboloid of one sheet) contains two
 families of straight lines called generators. For more properties of ruled quadrics, refer
 to [Semple-79].
+-->
 </p><p>
+最も興味深いのは、階数4の2つの二次曲面です。これら2つの二次曲面は、位相型においても異なることに注意してください。シグネチャ2の二次曲面（球面）は（当然のことながら）位相的に球面です。一方、1枚の双曲面は、位相的に球面と同値（同相）ではありません。実際、位相的にはトーラスです（位相的に \(S^1 × S^1\) と同値です）。これは、これらが射影的に同値ではないことを最も明確に示しています。
+<!--
 The most interesting of the quadrics are the two quadrics of rank 4. Note that these
 two quadrics differ even in their topological type. The quadric of signature 2 (the
 sphere) is (obviously enough) topologically a sphere. On the other hand, the hyperboloid
 of 1 sheet is not topologically equivalent (homeomorphic) to a sphere. In fact,
-it is topologically a torus (topologically equivalent to S1 × S1). This gives the clearest
+it is topologically a torus (topologically equivalent to \(S^1 × S^1\)). This gives the clearest
 indication that they are not projectively equivalent.
-3.3 Twisted cubics
+-->
+</p>
+<h2>3.3 ねじれ立方体</h2>
+<!--
+<h2>3.3 Twisted cubics</h2>
+-->
+<p>
+ねじれ立方体は、2次元円錐の3次元版と考えることができます（ただし、他の点では2次元円錐の3次元版である二次曲面です）。
+<!--
 The twisted cubic may be considered to be a 3-dimensional analogue of a 2D conic
 (although in other ways it is a quadric surface which is the 3-dimensional analogue of
 a 2D conic.)
-76 3 Projective Geometry and Transformations of 3D
+-->
+</p>
+<center><img src="images/fig3_4.png"></center>
+<p>
+図3.4. 退化した二次曲面。最も重要な2つの退化した二次曲面、円錐と2つの平面が示されている。これらの二次曲面はどちらも線状である。円錐を表す行列は階数3で、零ベクトルは円錐の節点を表す。2つの（一致しない）平面を表す行列は階数2で、階数2の零空間の2つの生成元は、平面の交線上の2点である。
+<!--
 Fig. 3.4. Degenerate quadrics. The two most important degenerate quadrics are shown, the cone and
 two planes. Both these quadrics are ruled. The matrix representing the cone has rank 3, and the nullvector
 represents the nodal point of the cone. The matrix representing the two (non-coincident) planes
 has rank 2, and the two generators of the rank 2 null-space are two points on the intersection line of the
 planes.
+-->
+</p><p>
+2次元射影平面上の円錐曲線は、次式で表されるパラメータ化された曲線として記述される。
+<!--
 A conic in the 2-dimensional projective plane may be described as a parametrized
 curve given by the equation
-
-
-x1
-x2
-x3
-
-
-= A
-
-
-1
-
-2
-
-
+-->
+\[
+\begin{pmatrix}
+x_1 \\
+x_2 \\
+x_3
+\end{pmatrix}
+= \mathtt{A}
+\begin{pmatrix}
+1 \\
+\theta \\
+\theta^2
+\end{pmatrix}
 =
-
-
-a11 + a12 + a132
-a21 + a22 + a232
-a31 + a32 + a332
-
-
-(3.18)
-where A is a non-singular 3 × 3 matrix.
-In an analogous manner, a twisted cubic is defined to be a curve in IP3 given in
+\begin{pmatrix}
+a_{11} + a_{12}\theta + a_{13}\theta^2 \\
+a_{21} + a_{22}\theta + a_{23}\theta ^2 \\
+a_{31} + a_{32}\theta + a_{33}\theta^2
+\end{pmatrix}
+\tag{3.18}
+\]
+
+ここで\(\mathtt{A}\)は特異でない3×3行列です。
+<!--
+where \(\mathtt{A}\) is a non-singular 3 × 3 matrix.
+-->
+</p><p>
+同様に、ねじれ3次曲線は\(\mathbb P^3\)内の曲線として定義され、媒介変数形式で次のように与えられる。
+<!--
+In an analogous manner, a twisted cubic is defined to be a curve in \(\mathbb P^3\) given in
 parametric form as
-
-
-X1
-X2
-X3
-X4
-
-
-= A
-
-
-1
-
-2
-3
-
-
+-->
+\[
+\begin{pmatrix}
+X_1 \\
+X_2 \\
+X_3 \\
+X_4
+\end{pmatrix}
+= \mathtt{A}
+\begin{pmatrix}
+1 \\
+\theta \\
+\theta^2 \\
+\theta^3
+\end{pmatrix}
 =
-
-
-a11 + a12 + a132 + a143
-a21 + a22 + a232 + a243
-a31 + a32 + a332 + a343
-a41 + a42 + a432 + a443
-
-
-(3.19)
-where A is a non-singular 4 × 4 matrix.
+\begin{pmatrix}
+a_{11} + a_{12}\theta + a_{13}\theta^2 + a_{14}\theta^3 \\
+a_{21} + a_{22}\theta + a_{23}\theta^2 + a_{24}\theta^3 \\
+a_{31} + a_{32}\theta + a_{33}\theta^2 + a_{34}\theta^3 \\
+a_{41} + a_{42}\theta + a_{43}\theta^2 + a_{44}\theta^3
+\end{pmatrix}
+\tag{3.19}
+\]
+ここで\(\mathtt{A}\)は特異でない4×4行列です。
+<!--
+where \(\mathtt{A}\) is a non-singular 4 × 4 matrix.
+-->
+</p><p>
+ねじれ立方曲線はおそらく馴染みのない物体なので、図3.5に様々な角度から見た曲線を示します。実際、ねじれ立方曲線は非常に穏やかな空間曲線です。
+<!--
 Since a twisted cubic is perhaps an unfamiliar object, various views of the curve are
 shown in figure 3.5. In fact, a twisted cubic is a quite benign space curve.
-Properties of a twisted cubic. Let c be a non-singular twisted cubic. Then c is not
-contained within any plane of IP3; it intersects a general plane at three distinct points. A
-twisted cubic has 12 degrees of freedom (counted as 15 for the matrix A, less 3 for a 1D
-projectivity on the parametrization , which leaves the curve unaltered). Requiring the
-curve to pass through a point X places two constraints on c, since X = A(1, , 2, 3)T
-is three independent ratios, but only two constraints once  is eliminated. Thus, there
-is a unique c through six points in general position. Finally, all non-degenerate twisted
+-->
+</p><p>
+<strong>ねじれ立方曲線の性質</strong> c を特異でないねじれ立方曲線とします。c は \(\mathbb P^3\) のどの平面にも含まれず、一般平面と3つの異なる点で交差します。ねじれ立方曲線は12の自由度を持ちます（行列 \(\mathtt{A}\) では15としてカウントされますが、1次元の媒介変数化 \(\theta\) の射影性により3が減るため、曲線は変化しません）。曲線が点 \(\mathbf{X}\) を通ることを要求すると、\(c\) に2つの制約が課されます。\(\mathbf{X} = \mathtt{A}(1, \theta, \theta^2, \theta^3)^T\) は3つの独立した比ですが、\(\theta\) を消去すると制約は2つだけになります。したがって、一般位置では6点を通る \(c\) は1つだけです。最後に、すべての非退化ツイスト3次曲線は射影的に同値です。これは定義 (3.19) から明らかです。射影変換 \(\mathtt{A}^{-1}\) は c を標準形 \(c(\theta^\prime)= (1, \theta^\prime, \theta^{\prime 2}, \theta^{\prime 3})^T\) に写像します。また、すべてのねじれ三次曲線はこの曲線に写像できるため、すべてのねじれ三次曲線は射影的に同値であることがわかります。
+<!--
+<strong>Properties of a twisted cubic.</strong> Let c be a non-singular twisted cubic. Then c is not
+contained within any plane of \(\mathbb P^3\); it intersects a general plane at three distinct points. A
+twisted cubic has 12 degrees of freedom (counted as 15 for the matrix \(\mathtt{A}\), less 3 for a 1D
+projectivity on the parametrization \(\theta\), which leaves the curve unaltered). Requiring the
+curve to pass through a point \(\mathbf{X}\) places two constraints on \(c\), since \(\mathbf{X} = \mathtt{A}(1, \theta, \theta^2, \theta^3)^T\)
+is three independent ratios, but only two constraints once \(\theta\) is eliminated. Thus, there
+is a unique \(c\) through six points in general position. Finally, all non-degenerate twisted
 cubics are projectively equivalent. This is clear from the definition (3.19): a projective
-transformation A−1 maps c to the standard form c(′) = (1, ′, ′2, ′3)T, and since
-3.4 The hierarchy of transformations 77
+transformation \(\mathtt{A}^{-1}\) maps c to the standard form \(c(\theta^\prime) = (1, ^theta^\prime, \theta^{\prime 2}, \theta^{\prime 3)^T\), and since all twisted cubics can be mapped to this curve, it follows that all twisted cubics are
+projectively equivalent.
+-->
+</p>
+<center><img src="images/fig3_5.png"></center>
+<p>
+図3.5. ねじれ立方曲線 \((t^3, t^2, t, )^T\) のさまざまな図。曲線は視覚化を容易にするためにチューブ状に太くしてある。
+<!--
 Fig. 3.5. Various views of the twisted cubic (t3, t2, t, )T. The curve is thickened to a tube to aid in
 visualization.
-all twisted cubics can be mapped to this curve, it follows that all twisted cubics are
-projectively equivalent.
+-->
+</p><p>
+円錐曲線や一致直線など、ねじれ立方体の様々な特殊なケースの分類は[Semple-79]に示されている。ねじれ立方体は、二視点幾何学におけるホロプターとして登場し（第9章）、カメラ再断面法における退化集合の定義において中心的な役割を果たす（第22章）。
+<!--
 A classification of the various special cases of a twisted cubic, such as a conic and
 coincident line, are given in [Semple-79]. The twisted cubic makes an appearance as
 the horopter for two-view geometry (chapter 9), and plays the central role in defining
 the degenerate set for camera resectioning (chapter 22).
-3.4 The hierarchy of transformations
+-->
+</p>
+<h2>3.4 変換の階層</h2>
+<!--
+<h2>3.4 The hierarchy of transformations</h2>
+-->
+<p>
+3次元空間の射影変換には、本書で頻繁に登場するいくつかの特殊化があります。これらの特殊化は、平面変換のセクション2.4)の層に類似しています。それぞれの特殊化は部分群であり、その行列形式、あるいはそれと同値な不変量によって識別されます。これらは表3.2にまとめられています。この表には、2空間変換に対する3次元変換の追加特性のみが記載されています。3次元空間の変換は、対応する2空間変換について表2.1に挙げられている不変量も持ちます。
+<!--
 There are a number of specializations of a projective transformation of 3-space which
 will appear frequently throughout this book. The specializations are analogous to the
-strata of section 2.4(p37) for planar transformations. Each specialization is a subgroup,
+strata of section 2.4) for planar transformations. Each specialization is a subgroup,
 and is identified by its matrix form, or equivalently by its invariants. These are
 summarized in table 3.2. This table lists only the additional properties of the 3-space
 transformations over their 2-space counterparts – the transformations of 3-space also
-have the invariants listed in table 2.1(p44) for the corresponding 2-space transformations.
+have the invariants listed in table 2.1 for the corresponding 2-space transformations.
+-->
+</p><p>
+射影変換の15の自由度は、相似変換に7（回転に3、平行移動に3、等方性スケーリングに1）、アフィンスケーリングに5、そして変換の射影部分に3として計算されます。
+<!--
 The 15 degrees of freedom of a projective transformation are accounted for as seven
 for a similarity (three for rotation, three for translation, one for isotropic scaling), five
 for affine scalings, and three for the projective part of the transformation.
+-->
+</p><p>
+これらの変換における最も重要な特徴の2つは、平行性と角度です。例えば、アフィン変換後、元々平行だった線は平行のままですが、角度は歪んでしまいます。また、射影変換後、平行性は失われます。
+<!--
 Two of the most important characterizations of these transformations are parallelism
 and angles. For example, after an affine transformation lines which were originally
 parallel remain parallel, but angles are skewed; and after a projective transformation
 parallelism is lost.
+-->
+</p><p>
+以下では、本書の後半で特殊な運動について議論する際に役立つ、ユークリッド変換の分解について簡単に説明します。
+<!--
 In the following we briefly describe a decomposition of a Euclidean transformation
 that will be useful when discussing special motions later in this book.
-3.4.1 The screw decomposition
+-->
+</p>
+<h3>3.4.1 スクリュー分解</h3>
+<!--
+<h3>3.4.1 The screw decomposition</h3>
+-->
+<p>
+平面上のユークリッド変換は、並進ベクトルtが平面内にあり、回転軸が平面に垂直であるという制約の下での3次元空間のユークリッド変換の特殊化とみなすことができる。しかし、回転軸と並進は一般に垂直ではないため、3次元空間上のユークリッド作用はこれよりも一般化される。スクリュー分解により、任意のユークリッド作用（並進と組み合わせた回転）を2次元の場合とほぼ同じくらい単純な状況に縮減することができる。スクリュー分解とは、
+<!--
 A Euclidean transformation on the plane may be considered as a specialization of a
 Euclidean transformation of 3-space with the restrictions that the translation vector t
 lies in the plane, and the rotation axis is perpendicular to the plane. However, Euclidean
 actions on 3-space are more general than this because the rotation axis and translation
-are not perpendicular in general. The screw decomposition enables any Euclidean
-78 3 Projective Geometry and Transformations of 3D
-Group Matrix Distortion Invariant properties
-Projective
-15 dof
-
-A t
-vT v
- Intersection and tangency of surfaces
-in contact. Sign of Gaussian
-curvature.
-Affine
-12 dof
-
-A t
-0T 1
- Parallelism of planes, volume ratios,
-centroids. The plane at infinity,
-∞, (see section 3.5).
-Similarity
-7 dof
-
-sR t
-0T 1
-
-The absolute conic, 
-∞,
-(see section 3.6).
-Euclidean
-6 dof
-
-R t
-0T 1
-
-Volume.
+are not perpendicular in general. The screw decomposition enables any Euclidean action (a rotation composed with a translation) to be reduced to a situation almost as
+simple as the 2D case. The screw decomposition is that
+-->
+
+</p>
+<center><img src="images/table3_2.png"></center>
+<p>
+表3.2. 3次元空間でよく見られる変換に対して不変な幾何学的性質。行列\(\mathtt{A}\)は可逆な3×3行列、\(\mathtt{R}\)は3次元回転行列、\(\mathbf{t} = (t_X, t_Y, t_Z)^T\)は3次元並進、vは一般的な3次元ベクトル、vはスカラー、\(\mathbf{0} = (0, 0, 0)^T\)はヌル3次元ベクトルである。歪みの列は、立方体に対する変換の典型的な効果を示している。表の上位にある変換は、下位にある変換のすべての作用を引き起こす可能性がある。これらは、並進と回転のみが行われるユークリッド的なものから、5 つの点を他の任意の 5 つの点に変換できる射影的なものまで多岐にわたります（ただし、3 つの点が同一直線上になく、4 つの点が同一平面上にないことが条件です）。
+<!--
 Table 3.2. Geometric properties invariant to commonly occurring transformations of 3-space. The
-matrix A is an invertible 3 × 3 matrix, R is a 3D rotation matrix, t = (tX, tY, tZ)T a 3D translation, v
-a general 3-vector, v a scalar, and 0 = (0, 0, 0)T a null 3-vector. The distortion column shows typical
+matrix \(\mathtt{A}\) is an invertible 3 × 3 matrix, \(\mathtt{R}\) is a 3D rotation matrix, \(\mathbf{t} = (t_X, t_Y, t_Z)^T\) a 3D translation, v
+a general 3-vector, v a scalar, and \(\mathbf{0} = (0, 0, 0)^T\) a null 3-vector. The distortion column shows typical
 effects of the transformations on a cube. Transformations higher in the table can produce all the actions
 of the ones below. These range from Euclidean, where only translations and rotations occur, to projective
 where five points can be transformed to any other five points (provided no three points are collinear, or
 four coplanar).
-action (a rotation composed with a translation) to be reduced to a situation almost as
-simple as the 2D case. The screw decomposition is that
-Result 3.6. Any particular translation and rotation is equivalent to a rotation about a
+-->
+
+</p><p>
+<strong>結果 3.6.</strong> 任意の並進運動と回転運動は、ねじ軸を中心とした回転と、ねじ軸に沿った並進運動を組み合わせたものと等価です。ねじ軸は回転軸と平行です。
+<!--
+<strong>Result 3.6.</strong> Any particular translation and rotation is equivalent to a rotation about a
 screw axis together with a translation along the screw axis. The screw axis is parallel
 to the rotation axis.
+-->
+</p><p>
+並進運動と直交回転軸（平面運動と呼ばれる）の場合、運動はねじ軸の周りの回転のみに相当します。
+<!--
 In the case of a translation and an orthogonal rotation axis (termed planar motion), the
 motion is equivalent to a rotation alone about the screw axis.
-Proof. We will sketch a constructive geometric proof that can easily be visualized.
+-->
+</p><p>
+<strong>証明</strong> 簡単に視覚化できる構成的幾何学的証明を概説します。
+まず2次元の場合、つまり平面上のユークリッド変換を考えてみましょう。図3.6から、このような2次元変換にはねじ軸が存在することがわかります。 3次元の場合、並進運動 t を、回転軸方向に平行な成分と直交する成分の2つ (\(\mathbf{t} = \mathbf{t}_{||} + \mathbf{t}_{⊥}\)) に分解します。(\(\mathbf{t}_{||} = (\mathbf{t}.\mathbf{a})\mathbf{a}, \mathbf{t}_{⊥} = \mathbf{t}-(\mathbf{t}.\mathbf{a})\mathbf{a}\))。
+<!--
+<strong>Proof.</strong> We will sketch a constructive geometric proof that can easily be visualized.
 Consider first the 2D case – a Euclidean transformation on the plane. It is evident
 from figure 3.6 that a screw axis exists for such 2D transformations. For the 3D case,
-decompose the translation t into two components t = tk + t⊥, parallel and orthogonal
-respectively to the rotation axis direction (tk = (t.a)a, t⊥ = t − (t.a)a).
+decompose the translation t into two components \(\mathbf{t} = \mathbf{t}_{||} + \mathbf{t}_{⊥}\), parallel and orthogonal
+respectively to the rotation axis direction (\(\mathbf{t}_{||} = (\mathbf{t}.\mathbf{a})\mathbf{a}, \mathbf{t}_{⊥} = \mathbf{t}-(\mathbf{t}.\mathbf{a})\mathbf{a}\)).
+-->
+</p><p>
+すると、ユークリッド運動は2つの部分に分割されます。1つ目は、回転とt⊥をカバーする、ねじ軸の周りの回転です。2つ目は、ねじ軸に沿ったtkの移動です。
+完全な運動は図3.7に示されています。
+<!--
 Then the Euclidean motion is partitioned into two parts: first a rotation about the screw
-3.5 The plane at infinity 79
-t
-y
-x
-y
-O /
-/
-/
-S
-y
-x
-y
-O /
-/
-/
-R( 􀁔 )
-􀁔
-O x O x
-a b
-Fig. 3.6. 2D Euclidean motion and a “screw” axis. (a) The frame {x, y} undergoes a translation t⊥
-and a rotation by  to reach the frame {x′, y′}. The motion is in the plane orthogonal to the rotation
-axis. (b) This motion is equivalent to a single rotation about the screw axis S. The screw axis lies on the
-perpendicular bisector of the line joining corresponding points, such that the angle between the lines
-joining S to the corresponding points is . In the figure the corresponding points are the two frame
-origins and  has the value 90◦.
-O t
-􀁔
-O/
-S
-a
-screw
-axis
-t
-O O/
-S
-O/
-a
-screw
-axis S /
-a b
-Fig. 3.7. 3D Euclidean motion and the screw decomposition. Any Euclidean rotation R and translation
-t may be achieved by (a) a rotation about the screw axis, followed by (b) a translation along the
-screw axis by tk. Here a is the (unit) direction of the rotation axis (so that Ra = a), and t is decomposed
-as t = tk + t⊥, which are vector components parallel and orthogonal respectively to the rotation axis
-direction The point S is closest to O on the screw axis (so that the line from S to O is perpendicular to
-the direction of a). Similarly S′ is the point on the screw axis closest to O′.
 axis, which covers the rotation and t⊥; second a translation by tk along the screw axis.
 The complete motion is illustrated in figure 3.7.
+-->
+</p>
+<center><img src="images/fig3_6.png"></center>
+<p>
+図 3.6. 2次元ユークリッド運動と「ねじ」軸。(a) フレーム {\(x, y\)} は、フレーム {\(x^\prime, y^\prime\)} に到達するために、並進 \(\mathbf{t}_{⊥}\) と回転 \(\theta\) を受ける。この運動は、回転軸に直交する平面内で行われる。(b) この運動は、ねじ軸 \(\mathbf S\) の周りの一回転に相当する。ねじ軸は、対応する点を結ぶ線分の垂直二等分線上にあり、S と対応する点を結ぶ線分のなす角は \(\theta\) である。図では、対応する点は2つのフレームの原点であり、\(\theta\) の値は 90\(^\circ\) である。
+<!--
+Fig. 3.6. 2D Euclidean motion and a “screw” axis. (a) The frame {\(x, y\)} undergoes a translation \(\mathbf{t}_{⊥}\)
+and a rotation by \(\theta\) to reach the frame {\(x^\prime, y^\prime\)}. The motion is in the plane orthogonal to the rotation
+axis. (b) This motion is equivalent to a single rotation about the screw axis \(\mathbf S\). The screw axis lies on the
+perpendicular bisector of the line joining corresponding points, such that the angle between the lines
+joining S to the corresponding points is \(\theta\). In the figure the corresponding points are the two frame
+origins and \(\theta\) has the value 90\(^\circ\).
+-->
+</p>
+<center><img src="images/fig3_7.png"></center>
+<p>
+図3.7. 3次元ユークリッド運動とスクリュー分解。任意のユークリッド回転\(\mathtt{R}\)と並進tは、(a)スクリュー軸を中心とした回転と、それに続く(b)スクリュー軸に沿った\(\mathbf{t}_{||}\)の並進によって達成される。ここで、\(\mathbf{a}\) は回転軸の（単位）方向（\(\mathtt{R}\mathbf{a} = \mathbf{a}\) となる）、\(\mathbf{t}\) は \(\mathbf{t} = \mathbf{t}_{||} + \mathbf{t}_{⊥}\) と分解され、これらはそれぞれ回転軸方向に平行および直交するベクトル成分です。点 \(\mathbf{S}\) は、ねじ軸上で \(\mathbf{O}\) に最も近い（したがって、\(\mathbf{S}\) から \(\mathbf{O}\) への線は \(\mathbf{a}\) の方向に垂直となる）。同様に、\(\mathbf{S}^\prime\) は、\(\mathbf{O}^\prime\) に最も近いねじ軸上の点です。
+<!--
+Fig. 3.7. 3D Euclidean motion and the screw decomposition. Any Euclidean rotation \(\mathtt{R}\) and translation
+t may be achieved by (a) a rotation about the screw axis, followed by (b) a translation along the
+screw axis by \(\mathbf{t}_{||}\). Here \(\mathbf{a}\) is the (unit) direction of the rotation axis (so that \(\mathtt{R}\mathbf{a} = \mathbf{a}\)), and \(\mathbf{t}\) is decomposed
+as \(\mathbf{t} = \mathbf{t}_{||} + \mathbf{t}_{⊥}\), which are vector components parallel and orthogonal respectively to the rotation axis
+direction The point \(\mathbf{S}\) is closest to \(\mathbf{O}\) on the screw axis (so that the line from \(\mathbf{S}\) to \(\mathbf{O}\) is perpendicular to
+the direction of \(\mathbf{a}\)). Similarly \(\mathbf{S}^\prime\) is the point on the screw axis closest to \(\mathbf{O}^\prime\).
+-->
+</p><p>
+ねじ分解は、ユークリッド変換を表す4×4行列の不動点から決定できます。この考え方は、章末の演習で検証します。
+<!--
 The screw decomposition can be determined from the fixed points of the 4×4 matrix
 representing the Euclidean transformation. This idea is examined in the exercises at the
 end of the chapter.
-3.5 The plane at infinity
-In planar projective geometry identifying the line at infinity, l∞, allowed affine properties
-of the plane to be measured. Identifying the circular points on l∞ then allowed
-80 3 Projective Geometry and Transformations of 3D
+-->
+</p>
+<h2>3.5 無限遠平面</h2>
+<!--
+<h2>3.5 The plane at infinity</h2>
+-->
+<p>
+平面射影幾何学では、無限遠直線 \(\mathbf{l}_∞\) を同一視することで、平面のアフィン特性を測定できるようになりました。\(\mathbf{l}_∞\) 上の円点を同一視することで、計量特性を測定できるようになりました。3次元空間の射影幾何学では、対応する幾何学的実体は無限遠平面 \(\boldsymbol{\pi}_∞\) と絶対円錐 \(\Omega_∞\) です。
+<!--
+In planar projective geometry identifying the line at infinity, \(\mathbf{l}_∞\), allowed affine properties
+of the plane to be measured. Identifying the circular points on \(\mathbf{l}_∞\) then allowed
 the measurement of metric properties. In the projective geometry of 3-space the corresponding
-geometric entities are the plane at infinity, ∞, and the absolute conic, 
-∞.
-The plane at infinity has the canonical position ∞ = (0, 0, 0, 1)T in affine 3-space.
-It contains the directions D = (X1, X2, X3, 0)T, and enables the identification of affine
+geometric entities are the plane at infinity, \(\boldsymbol{\pi}_∞\), and the absolute conic, \(\Omega_∞\).
+-->
+</p><p>
+無限遠平面は、アフィン3次元空間において標準的な位置 \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\) を持ちます。
+無限遠平面は方向 \(\mathbf{D} = (X_1, X_2, X_3, 0)^T\) を含み、平行性などのアフィン特性の識別を可能にします。特に、
+<!--
+The plane at infinity has the canonical position \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\) in affine 3-space.
+It contains the directions \(\mathbf{D} = (X_1, X_2, X_3, 0)^T\), and enables the identification of affine
 properties such as parallelism. In particular:
-• Two planes are parallel if, and only if, their line of intersection is on ∞.
-• A line is parallel to another line, or to a plane, if the point of intersection is on ∞.
-We then have in IP3 that any pair of planes intersect in a line, with parallel planes
+-->
+<div class="styleBullet">
+<ul><li>
+• 2つの平面が平行であるためには、その交線が \(\boldsymbol{\pi}_∞\) 上にあることが必要です。
+</li><br><li>• 交点が \(\boldsymbol{\pi}_∞\) 上にある場合、その直線は別の直線または平面に平行です。
+<!--
+• Two planes are parallel if, and only if, their line of intersection is on \(\boldsymbol{\pi}_∞\).
+</li><br><li>• A line is parallel to another line, or to a plane, if the point of intersection is on \(\boldsymbol{\pi}_∞\).
+-->
+</li></ul></div>
+</p><p>
+すると、\(\mathbb P^3\) では、任意の平面のペアは一直線に交わり、平行平面は無限遠平面上で一直線に交わることがわかります。
+<!--
+We then have in \(\mathbb P^3\) that any pair of planes intersect in a line, with parallel planes
 intersecting in a line on the plane at infinity.
-The plane ∞ is a geometric representation of the 3 degrees of freedom required
+-->
+</p><p>
+平面 \(\boldsymbol{\pi}_∞\) は、射影座標系におけるアフィン特性を規定するために必要な3つの自由度の幾何学的表現です。簡単に言えば、無限遠平面はあらゆるアフィン変換に対して固定された平面ですが、射影変換を「見る」（つまり、射影変換によって動かされる）平面です。したがって、\(\boldsymbol{\pi}_∞\) の3つの自由度は、一般的なホモグラフィの射影成分を測るものであり、アフィニティ変換（12自由度）と比較して、この一般的な変換の15自由度を表します。より正式には、
+<!--
+The plane \(\boldsymbol{\pi}_∞\) is a geometric representation of the 3 degrees of freedom required
 to specify affine properties in a projective coordinate frame. In loose terms, the plane
 at infinity is a fixed plane under any affine transformation, but “sees” (is moved by) a
-projective transformation. The 3 degrees of freedom of ∞ thus measure the projective
+projective transformation. The 3 degrees of freedom of \(\boldsymbol{\pi}_∞\) thus measure the projective
 component of a general homography – they account for the 15 degrees of freedom of
 this general transformation compared to an affinity (12 dof). More formally:
-Result 3.7. The plane at infinity, ∞, is a fixed plane under the projective transformation
-H if, and only if, H is an affinity.
-The proof is the analogue of the derivation of result 2.17(p48). It is worth clarifying
+-->
+</p><p>
+<strong>結果 3.7.</strong> 無限遠平面 \(\boldsymbol{\pi}_∞\) が射影変換 \(\mathtt{H}\) の下で固定された平面となるのは、\(\mathtt{H}\) が親和性である場合に限ります。
+<!--
+<strong>Result 3.7.</strong> The plane at infinity, \(\boldsymbol{\pi}_∞\), is a fixed plane under the projective transformation
+\(\mathtt{H}\) if, and only if, \(\mathtt{H}\) is an affinity.
+-->
+</p><p>
+証明は結果2.17の導出と類似している。2点を明確にしておく価値がある。
+<!--
+The proof is the analogue of the derivation of result 2.17. It is worth clarifying
 two points:
-(i) The plane ∞ is, in general, only fixed as a set under an affinity; it is not fixed
+-->
+<div class="styleBullet">
+<ul><li>
+(i) 平面 \(\boldsymbol{\pi}_∞\) は一般に、親和性のもとで集合としてのみ固定され、点ごとに固定されることはありません。
+</li><br><li>(ii) 特定の親和性（例えばユークリッド運動）のもとでは、\(\boldsymbol{\pi}_∞\) に加えて、固定される平面が存在する場合があります。しかし、いかなる親和性のもとでも固定されるのは \(\boldsymbol{\pi}_∞\) のみです。
+<!--
+(i) The plane \(\boldsymbol{\pi}_∞\) is, in general, only fixed as a set under an affinity; it is not fixed
 pointwise.
-(ii) Under a particular affinity (for example a Euclidean motion) there may be
-planes in addition to ∞ which are fixed. However, only ∞ is fixed under
+</li><br><li>(ii) Under a particular affinity (for example a Euclidean motion) there may be
+planes in addition to \(\boldsymbol{\pi}_∞\) which are fixed. However, only \(\boldsymbol{\pi}_∞\) is fixed under
 any affinity.
+-->
+</li></ul></div>
+</p><p>
+これらの点は、次の例によってさらに詳しく説明されます。
+<!--
 These points are illustrated in more detail by the following example.
-Example 3.8. Consider the Euclidean transformation represented by the matrix
-HE =
-"
-R 0
-0T 1
-#
+-->
+</p><p>
+<strong>例3.8.</strong> 行列で表されるユークリッド変換を考える。
+<!--
+<strong>Example 3.8.</strong> Consider the Euclidean transformation represented by the matrix
+-->
+\[
+\mathtt{H}_{\mathtt{E}} =
+\begin{bmatrix}
+\mathtt{R} & \mathbf{0} \\
+\mathbf{0}^T & 1
+\end{bmatrix}
 =
-
-
-cos  −sin  0 0
-sin  cos  0 0
-0 0 1 0
-0 0 0 1
-
-
-. (3.20)
-This is a rotation by  about the Z-axis with a zero translation (it is a planar screw
+\begin{bmatrix}
+\cos \theta & -\sin \theta & 0 & 0 \\
+\sin \theta & \cos \theta & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\tag{3.20}
+\]
+
+これはZ軸を中心とした\(\theta\)の回転であり、並進運動はゼロです（平面ねじ運動です。セクション3.4.1を参照）。幾何学的には、回転軸に直交するXY平面の族は、この変換によってZ軸を中心に単純に回転することは明らかです。
+これは、Z軸に直交する固定された平面の束が存在することを意味します。平面は集合として固定されていますが、点ごとに固定されているわけではありません。なぜなら、軸上にない任意の（有限の）点は、このユークリッド作用によって水平円内で回転するからです。代数的には、Hの固定された平面は\(\mathtt{H}^T\)の固有ベクトルです（セクション2.9を参照）。この場合、固有値は\(\{e^{i\theta}, e^{-i\theta}, 1, 1\}\)
+であり、対応する\(\mathtt{H}_{\mathtt{E}}^T\)の固有ベクトルは
+<!--
+This is a rotation by \(\theta\) about the Z-axis with a zero translation (it is a planar screw
 motion, see section 3.4.1). Geometrically it is evident that the family of XY-planes orthogonal
 to the rotation axis are simply rotated about the Z-axis by this transformation.
 This means that there is a pencil of fixed planes orthogonal to the Z-axis. The planes
 are fixed as sets, but not pointwise as any (finite) point (not on the axis) is rotated in
 horizontal circles by this Euclidean action. Algebraically, the fixed planes of H are the
-eigenvectors of HT (refer to section 2.9). In this case the eigenvalues are {ei, e−i, 1, 1}
-3.6 The absolute conic 81
-and the corresponding eigenvectors of HT
-E are
-E1 =
-
-
+eigenvectors of \(\mathtt{H}^T\) (refer to section 2.9). In this case the eigenvalues are \(\{e^{i\theta}, e^{-i\theta}, 1, 1\}\)
+and the corresponding eigenvectors of \(\mathtt{H}_{\mathtt{E}}^T\) are
+-->
+\[
+\mathbf{E}_1 =
+\begin{pmatrix}
+1 \\
+i \\
+0 \\
+0
+\end{pmatrix}
+　\mathbf{E}_2 =
+\begin{pmatrix}
+1 \\
+−i \\
+0 \\
+0
+\end{pmatrix}
+　\mathbf{E}_3 =
+\begin{pmatrix}
+0 \\
+0 \\
+1 \\
+0
+\end{pmatrix}
+　\mathbf{E}_4 =
+\begin{pmatrix}
+0 \\
+0 \\
+0 \\
 1
-i
-0
-0
-
-
-E2 =
-
-
-1
-−i
-0
-0
-
-
-E3 =
-
-
-0
-0
-1
-0
-
-
-E4 =
-
-
-0
-0
-0
-1
-
-
-.
-The eigenvectors E1 and E2 do not correspond to real planes, and will not be discussed
-further here. The eigenvectors E3 and E4 are degenerate. Thus there is a pencil of
+\end{pmatrix}
+\]
+
+固有ベクトル \(\mathbf{E}_1\) と \(\mathbf{E}_2\) は実平面に対応しないため、ここではこれ以上議論しません。固有ベクトル \(\mathbf{E}_3\) と \(\mathbf{E}_4\) は退化しています。したがって、これらの固有ベクトルによって張られる固定平面の束が存在します。この束の軸は、平面（Z軸に垂直）と \(\boldsymbol{\pi}_∞\) の交線であり、束は \(\boldsymbol{\pi}_∞\) を含みます。△
+<!--
+The eigenvectors \(\mathbf{E}_1\) and \(\mathbf{E}_2\) do not correspond to real planes, and will not be discussed
+further here. The eigenvectors \(\mathbf{E}_3\) and \(\mathbf{E}_4\) are degenerate. Thus there is a pencil of
 fixed planes which is spanned by these eigenvectors. The axis of this pencil is the line
-of intersection of the the planes (perpendicular to the Z-axis) with ∞, and the pencil
-includes ∞. △
+of intersection of the the planes (perpendicular to the Z-axis) with \(\boldsymbol{\pi}_∞\), and the pencil
+includes \(\boldsymbol{\pi}_∞\). △
+-->
+</p><p>
+この例は、射影平面 \(\mathbb P^2\) と射影3次元空間 \(\mathbb P^3\) の幾何学の関係も示しています。平面 \(\boldsymbol{\pi}\) は、平面 \(\boldsymbol{\pi}\) の無限遠直線 \(\mathbf{l}_∞\) と直線で交差します。\(\mathbb P^3\) の射影変換は、\(\boldsymbol{\pi}\) 上の従属平面射影変換を誘導します。
+<!--
 The example also illustrates the connection between the geometry of the projective
-plane, IP2, and projective 3-space, IP3. A plane  intersects ∞ in a line which is
-the line at infinity, l∞, of the plane . A projective transformation of IP3 induces a
-subordinate plane projective transformation on .
-Affine properties of a reconstruction. In later chapters on reconstruction, for example
+plane, \(\mathbb P^2\), and projective 3-space, \(\mathbb P^3\). A plane \(\boldsymbol{\pi}\) intersects \(\boldsymbol{\pi}_∞\) in a line which is
+the line at infinity, \(\mathbf{l}_∞\), of the plane \(\boldsymbol{\pi}\). A projective transformation of \(\mathbb P^3\) induces a
+subordinate plane projective transformation on \(\boldsymbol{\pi}\).
+-->
+</p><p>
+<strong>再構成のアフィン特性</strong> 再構成に関する後の章、例えば第10章では、（ユークリッド）シーンの射影座標が複数の視点から再構成できることが示されます。射影3次元空間で\(\boldsymbol{\pi}_∞\)が特定されれば、つまりその射影座標が分かれば、再構成のアフィン特性、例えば幾何学的実体が平行かどうか（\(\boldsymbol{\pi}_∞\)上で交差する場合に平行）を判定することが可能になります。
+<!--
+<strong>Affine properties of a reconstruction.</strong> In later chapters on reconstruction, for example
 chapter 10, it will be seen that the projective coordinates of the (Euclidean) scene
-can be reconstructed from multiple views. Once ∞ is identified in projective 3-space,
+can be reconstructed from multiple views. Once \(\boldsymbol{\pi}_∞\) is identified in projective 3-space,
 i.e. its projective coordinates are known, it is then possible to determine affine properties
 of the reconstruction such as whether geometric entities are parallel – they are
-parallel if they intersect on ∞.
-A more algorithmic approach is to transform IP3 so that the identified ∞ is moved
-to its canonical position at ∞ = (0, 0, 0, 1)T. After this mapping we then have the
-situation that the Euclidean scene, where ∞ has the coordinates (0, 0, 0, 1)T, and our
-reconstruction are related by a projective transformation that fixes ∞ at (0, 0, 0, 1)T. It
+parallel if they intersect on \(\boldsymbol{\pi}_∞\).
+-->
+</p><p>
+よりアルゴリズム的なアプローチは、\(\mathbb P^3\) を変換して、特定された \(\boldsymbol{\pi}_∞\) をその標準位置 \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\) に移動することです。このマッピングの後、\(\boldsymbol{\pi}_∞\) が座標 \((0, 0, 0, 1)^T\) を持つユークリッドシーンと再構成が、\(\boldsymbol{\pi}_∞\) を (0, 0, 0, 1)T に固定する射影変換によって関連付けられる状況が生まれます。結果 3.7 から、シーンと再構成がアフィン変換によって関連付けられていることがわかります。したがって、アフィン特性はエンティティの座標から直接測定できるようになりました。
+<!--
+A more algorithmic approach is to transform \(\mathbb P^3\) so that the identified \(\boldsymbol{\pi}_∞\) is moved
+to its canonical position at \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\). After this mapping we then have the
+situation that the Euclidean scene, where \(\boldsymbol{\pi}_∞\) has the coordinates \((0, 0, 0, 1)^T\), and our
+reconstruction are related by a projective transformation that fixes \(\boldsymbol{\pi}_∞\) at (0, 0, 0, 1)T. It
 follows from result 3.7 that the scene and reconstruction are related by an affine transformation.
 Thus affine properties can now be measured directly from the coordinates
 of the entities.
-3.6 The absolute conic
+-->
+</p>
+<h2>3.6 絶対円錐曲線</h2>
+<!--
+<h2>3.6 The absolute conic</h2>
+-->
+<p>
+絶対円錐曲線
+\(\Omega_∞\) は、\(\boldsymbol{\pi}_∞\) 上の（点）円錐曲線です。計量フレーム \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\) において、
+\(\boldsymbol{\pi}_∞\) 上の点は次式を満たします。
+<!--
 The absolute conic, 
-∞, is a (point) conic on ∞. In a metric frame ∞ = (0, 0, 0, 1)T,
+\(\Omega_∞\), is a (point) conic on \(\boldsymbol{\pi}_∞\). In a metric frame \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\),
 and points on 
-∞ satisfy
-X
-2
-1 + X
-2
-2 + X
-2
-3
-X4
-)
-= 0. (3.21)
+\(\boldsymbol{\pi}_∞\) satisfy
+-->
+\[
+\begin{eqnarray}
+\left.
+\begin{array}{r}
+X_1^2 + X_2^2 + X_3^2 \\
+X_4
+\end{array}
+\right\} = 0 \tag{3.21}
+\end{eqnarray}
+\]
+
+\(\Omega_∞\) を定義するには 2 つの方程式が必要であることに注意してください。
+<!--
 Note that two equations are required to define 
-∞.
-For directions on ∞ (i.e. points with X4 = 0 ) the defining equation can be written
-(X1, X2, X3)I(X1, X2, X3)T = 0
-so that 
-∞ corresponds to a conic C with matrix C = I. It is thus a conic of purely
-imaginary points on ∞.
-82 3 Projective Geometry and Transformations of 3D
+\(\Omega_∞\).
+-->
+</p><p>
+
+\(\boldsymbol{\pi}_∞\)上の方向（つまり\(X_4 = 0\)の点）の定義式は次のように書ける。
+<!--
+For directions on \(\boldsymbol{\pi}_∞\) (i.e. points with \(X_4 = 0\) ) the defining equation can be written
+-->
+\[
+(X_1, X_2, X_3)\mathtt{I}(X_1, X_2, X_3)^T = 0
+\]
+
+したがって、\(\Omega_∞\)は、行列\(\mathtt{C} = \mathtt{I}\)を持つ円錐曲線\(\mathtt{C}\)に対応する。したがって、これは\(\boldsymbol{\pi}_∞\)上の純虚点の円錐曲線である。
+<!--
+so that \(\Omega_∞\) corresponds to a conic \(\mathtt{C}\) with matrix \(\mathtt{C} = \mathtt{I}\). It is thus a conic of purely
+imaginary points on \(\boldsymbol{\pi}_∞\).
+-->
+</p><p>
+円錐曲線
+\(\Omega_∞\) は、アフィン座標系における計量特性を規定するために必要な5つの追加自由度の幾何学的表現です。\(\Omega_∞\) の重要な特性は、任意の相似変換に対して固定円錐曲線となることです。より正式には、
+<!--
 The conic 
-∞ is a geometric representation of the 5 additional degrees of freedom
+\(\Omega_∞\) is a geometric representation of the 5 additional degrees of freedom
 that are required to specify metric properties in an affine coordinate frame. A key
 property of 
-∞ is that it is a fixed conic under any similarity transformation. More
+\(\Omega_∞\) is that it is a fixed conic under any similarity transformation. More
 formally:
-Result 3.9. The absolute conic, 
-∞, is a fixed conic under the projective transformation
-H if, and only if, H is a similarity transformation.
-Proof. Since the absolute conic lies in the plane at infinity, a transformation fixing it
+-->
+</p><p>
+<strong>結果 3.9.</strong> 絶対円錐曲線
+\(\Omega_∞\) は、射影変換
+\(\mathtt{H}\) が相似変換である場合に限り、固定円錐曲線となる。
+<!--
+<strong>Result 3.9.</strong> The absolute conic, 
+\(\Omega_∞\), is a fixed conic under the projective transformation
+\(\mathtt{H}\) if, and only if, \(\mathtt{H}\) is a similarity transformation.
+-->
+</p><p>
+
+<strong>証明</strong> 絶対円錐曲線は無限遠平面上にあるので、それを固定する変換は無限遠平面を固定する必要があり、したがってアフィン変換となる。そのような変換は次の形式をとる。
+<!--
+<strong>Proof.</strong> Since the absolute conic lies in the plane at infinity, a transformation fixing it
 must fix the plane at infinity, and hence must be affine. Such a transformation is of the
 form
-HA =
-"
-A t
-0T 1
-#
-.
-Restricting to the plane at infinity, the absolute conic is represented by the matrix I3×3,
-and since it is fixed by HA, one has A−TIA−1 = I (up to scale), and taking inverses gives
-AAT = I. This means that A is orthogonal, hence a scaled rotation, or scaled rotation
+-->
+\[
+\mathtt{H}_{\mathtt{A}} =
+\begin{bmatrix}
+A & \mathbf{t} \\
+\mathbf{0}^T & \mathbf{1}
+\end{bmatrix}
+\]
+
+無限遠平面に限定すると、絶対円錐曲線は行列 \(\mathtt{I}_{3×3}\) で表され、\(\mathtt{H}_{\mathtt{A}}\) で固定されるため、\(\mathtt{A}^{-T}\mathtt{IA}^{-1} = \mathtt{I}\) （スケールまで）となり、逆行列をとると
+\(\mathtt{AA}^T = \mathtt{I}\) となります。これは A が直交することを意味し、したがってスケール回転、または鏡映を伴うスケール回転となります。これで証明は完了です。
+<!--
+Restricting to the plane at infinity, the absolute conic is represented by the matrix \(\mathtt{I}_{3×3}\),
+and since it is fixed by \(\mathtt{H}_{\mathtt{A}}\), one has \(\mathtt{A}^{-T}\mathtt{IA}^{-1} = \mathtt{I}\) (up to scale), and taking inverses gives
+\(\mathtt{AA}^T = \mathtt{I}\). This means that A is orthogonal, hence a scaled rotation, or scaled rotation
 with reflection. This completes the proof.
+-->
+</p><p>
+\(\Omega_∞\) には実点が存在しませんが、任意の円錐曲線が持つ性質（例えば、直線が円錐曲線と2点で交差すること、極と極の関係など）を共有しています。以下に、\(\Omega_∞\) の具体的な性質をいくつか示します。
+<!--
 Even though 
-∞ does not have any real points, it shares the properties of any conic –
+\(\Omega_∞\) does not have any real points, it shares the properties of any conic –
 such as that a line intersects a conic in two points; the pole–polar relationship etc. Here
 are a few particular properties of 
-∞:
+\(\Omega_∞\):
+-->
+<div class="styleBullet">
+<ul><li>
+(i) \(\Omega_∞\) は、一般相似性によって集合としてのみ固定され、点ごとに固定されるわけではありません。つまり、相似性の下では、\(\Omega_∞\) 上の点は \(\Omega_∞\) 上の別の点に移動することはできますが、円錐曲線から外れた点には写像されません。
+</li><br><li>(ii) すべての円は \(\Omega_∞\) と2点で交差します。円の支持平面を \(\boldsymbol{\pi}\) と仮定します。すると、\(\boldsymbol{\pi}\) は \(\boldsymbol{\pi}_∞\) と直線で交差し、この直線は \(\Omega_∞\) と2点で交差します。
+これらの2点は \(\boldsymbol{\pi}\) の円周上の点です。
+</li><br><li>(iii) すべての球面は \(\boldsymbol{\pi}_∞\) と交差し、\(\Omega_∞\) となる。
+<!--
 (i) 
-∞ is only fixed as a set by a general similarity; it is not fixed pointwise. This
+\(\Omega_∞\) is only fixed as a set by a general similarity; it is not fixed pointwise. This
 means that under a similarity a point on 
-∞ may travel to another point on 
-∞,
+\(\Omega_∞\) may travel to another point on 
+\(\Omega_∞\),
 but it is not mapped to a point off the conic.
-(ii) All circles intersect 
-∞ in two points. Suppose the support plane of the circle
-is . Then  intersects ∞ in a line, and this line intersects 
-∞ in two points.
-These two points are the circular points of .
-(iii) All spheres intersect ∞ in 
-∞.
-Metric properties. Once 
-∞ (and its support plane ∞) have been identified in
+</li><br><li>(ii) All circles intersect 
+\(\Omega_∞\) in two points. Suppose the support plane of the circle
+is \(\boldsymbol{\pi}\). Then \(\boldsymbol{\pi}\) intersects \(\boldsymbol{\pi}_∞\) in a line, and this line intersects 
+\(\Omega_∞\) in two points.
+These two points are the circular points of \(\boldsymbol{\pi}\).
+</li><br><li>(iii) All spheres intersect \(\boldsymbol{\pi}_∞\) in 
+\(\Omega_∞\).
+-->
+</li></ul></div>
+</p><p>
+<strong>計量特性</strong> \(\Omega_∞\) (およびその支持平面 \(\boldsymbol{\pi}_∞\)) が射影 3 次元空間で特定されると、角度や相対的な長さなどの計量特性を測定できるようになります。
+<!--
+<strong>Metric properties.</strong> Once 
+\(\Omega_∞\) (and its support plane \(\boldsymbol{\pi}_∞\)) have been identified in
 projective 3-space then metric properties, such as angles and relative lengths, can be
 measured.
-Consider two lines with directions (3-vectors) d1 and d2. The angle between these
+-->
+</p><p>
+方向（3次元ベクトル）\(\mathbf{d}_1\)と\(\mathbf{d}_2\)を持つ2本の直線を考える。ユークリッド世界座標系におけるこれらの方向間の角度は次のように与えられる。
+<!--
+Consider two lines with directions (3-vectors) \(\mathbf{d}_1\) and \(\mathbf{d}_2\). The angle between these
 directions in a Euclidean world frame is given by
-cos  =
-(dT
-1 d2)
-q
-(dT
-1 d1)(dT
-2 d2)
-. (3.22)
+-->
+\[
+cos \theta = \frac{(\mathbf{d}_1^T \mathbf{d}_2)}
+{\sqrt{(\mathbf{d}_1^T\mathbf{d}_1)(\mathbf{d}_2^T \mathbf{d}_2)}}
+\tag{3.22}
+\]
+
+これは次のように書ける。
+<!--
 This may be written as
-cos  =
-(dT
-1 
-∞d2)
-q
-(dT
-1 
-∞d1)(dT
-2 
-∞d2)
-(3.23)
-where d1 and d2 are the points of intersection of the lines with the plane ∞ containing
-the conic 
-∞, and 
-∞ is the matrix representation of the absolute conic in that plane.
-3.7 The absolute dual quadric 83
-􀀺 􀁓
-d
-d
-1
-2
-􀀺 􀁓
-d
-l
-a b
-Fig. 3.8. Orthogonality and 
-∞. (a) On ∞ orthogonal directions d1, d2 are conjugate with respect
-to 
-∞. (b) A plane normal direction d and the intersection line l of the plane with ∞ are in pole–polar
-relation with respect to 
-∞.
+-->
+\[
+cos \theta = \frac{(\mathbf{d}_1^T\Omega_∞\mathbf{d}_2)}
+{\sqrt{(\mathbf{d}_1^T \Omega_∞\mathbf{d}_1)(\mathbf{d}_2^T \omega_∞\mathbf{d}_2)}} 
+\tag{3.23}
+\]
+
+ここで、\(\mathbf{d}_1\) と \(\mathbf{d}_2\) は、円錐曲線 \(\Omega_∞\) を含む平面 \(\boldsymbol{\pi}_∞\) との交点であり、\(\Omega_∞\) はその平面における絶対円錐曲線の行列表現です。
+<!--
+where \(\mathbf{d}_1\) and \(\mathbf{d}_2\) are the points of intersection of the lines with the plane \(\boldsymbol{|pi}_∞\) containing
+the conic \(\Omega_∞\), and \(\Omega_∞\) is the matrix representation of the absolute conic in that plane.
+-->
+</p><p>
+
+式(3.23)は、ユークリッド世界座標系において(3.22)に簡約される。
+\(\Omega_∞ = \mathtt{I}\)。
+しかし、この式は任意の射影座標系において成り立つことが、点と円錐の変換特性から検証できる（(iv)(b)を参照）。
+<!--
 The expression (3.23) reduces to (3.22) in a Euclidean world frame where 
-∞ = I.
+\(\Omega_∞ = \mathtt{I}\).
 However, the expression is valid in any projective coordinate frame as may be verified
-from the transformation properties of points and conics (see (iv)(b) on page 63).
+from the transformation properties of points and conics (see (iv)(b)).
+-->
+</p><p>
+2つの平面間の角度を、それらの面法線の方向から計算する簡単な公式はありません。
+<!--
 There is no simple formula for the angle between two planes computed from the
 directions of their surface normals.
-Orthogonality and polarity. We now give a geometric representation of orthogonality
+-->
+</p><p>
+<strong>直交性と極性</strong> 絶対円錐曲線に基づく射影空間における直交性の幾何学的表現を与える。主要な表現は、円錐曲線によって誘起される点と直線の間の極-極関係である。
+<!--
+<strong>Orthogonality and polarity.</strong> We now give a geometric representation of orthogonality
 in a projective space based on the absolute conic. The main device will be the
 pole–polar relationship between a point and line induced by a conic.
-An immediate consequence of (3.23) is that two directions d1 and d2 are orthogonal
-if dT
-1 
-∞d2 = 0. Thus orthogonality is encoded by conjugacy with respect to 
-∞. The
+-->
+</p><p>
+(3.23) から直接導かれる結論は、2 つの方向 \(\mathbf{d}_1\) と \(\mathbf{d}_2\) は、\(\mathbf{d}_1^T\Omega_∞\mathbf{d}_2 = 0\) のとき直交するということである。したがって、直交性は、\(\Omega_∞\) に関する共役性によって表現される。このことの大きな利点は、共役性が射影関係であるため、（ユークリッド 3 次元空間の射影変換によって得られる）射影フレームにおいて、方向がそのフレームで \(\Omega_∞\) に関して共役であれば、直交であると識別できることである（一般に、射影フレームでは \(\Omega_∞\) の行列は I ではない）。直交性の幾何学的表現を図 3.8 に示す。
+<!--
+An immediate consequence of (3.23) is that two directions \(\mathbf{d}_1\) and \(\mathbf{d}_2\) are orthogonal
+if \(\mathbf{d}_1^T\Omega_∞\mathbf{d}_2 = 0\). Thus orthogonality is encoded by conjugacy with respect to 
+\(\Omega_∞\). The
 great advantage of this is that conjugacy is a projective relation, so that in a projective
 frame (obtained by a projective transformation of Euclidean 3-space) directions can
 be identified as orthogonal if they are conjugate with respect to 
-∞ in that frame (in
+\(\Omega_∞\) in that frame (in
 general the matrix of 
-∞ is not I in a projective frame). The geometric representation
+\(\Omega_∞\) is not I in a projective frame). The geometric representation
 of orthogonality is shown in figure 3.8.
+-->
+</p>
+<center><img src="images/fig3_8.png"></center>
+<p>
+図 3.8. 直交性と
+\(\Omega_∞\)。(a) \(\boldsymbol{\pi}_∞\) 上では、直交方向 \(\mathbf{d}_1, \mathbf{d}_2\) は、\(\Omega_∞\) に関して共役である。(b) 平面の​​法線方向 \(\mathbf{d}\) と、平面と \(\boldsymbol{\pi}_∞\) の交線 \(\mathbf{l}\) は、\(\Omega_∞\) に関して極-極関係にある。
+<!--
+Fig. 3.8. Orthogonality and 
+\(\Omega_∞\). (a) On \(\boldsymbol{\pi}_∞\) orthogonal directions \(\mathbf{d}_1, \mathbf{d}_2\) are conjugate with respect
+to \(\Omega_∞\). (b) A plane normal direction \(\mathbf{d}\) and the intersection line \(\mathbf{l}\) of the plane with \(\boldsymbol{\pi}_∞\) are in pole–polar
+relation with respect to 
+\(\Omega_∞\).
+-->
+</p><p>
+この表現は、カメラ内の光線間の直交性を考慮する際に役立ちます。例えば、カメラ中心を通る平面の法線を決定する場合などです（セクション8.6を参照）。像点が\(\Omega_∞\)の像に関して共役である場合、対応する光線は直交します。
+<!--
 This representation is helpful when considering orthogonality between rays in a
 camera, for example in determining the normal to a plane through the camera centre
-(see section 8.6(p213)). If image points are conjugate with respect to the image of
-
-∞ then the corresponding rays are orthogonal.
+(see section 8.6). If image points are conjugate with respect to the image of
+\(\Omega_∞\) then the corresponding rays are orthogonal.
+-->
+</p><p>
+ここでも、よりアルゴリズム的なアプローチは、座標を射影変換して、\(\Omega_∞\) をその標準位置 (3.21) にマッピングし、その後、座標から直接計量特性を決定することです。
+<!--
 Again, a more algorithmic approach is to projectively transform the coordinates so
 that 
-∞ is mapped to its canonical position (3.21), and then metric properties can be
+\(\Omega_∞\) is mapped to its canonical position (3.21), and then metric properties can be
 determined directly from coordinates.
-3.7 The absolute dual quadric
+-->
+</p>
+<h2>3.7 絶対双対二次曲面</h2>
+<!--
+<h2>3.7 The absolute dual quadric</h2>
+-->
+<p>
+\(\Omega_∞\) は2つの方程式で定義され、無限遠平面上の円錐曲線であることを思い出してください。絶対円錐曲線の双対である\(\Omega_∞\) は、3次元空間における退化した双対二次曲線で、絶対双対二次曲線と呼ばれ、\(\mathtt{Q}_∞^∗\) と表記されます。幾何学的には、\(\mathtt{Q}_∞^∗\) は\(\Omega_∞\) に接する平面から構成されます。したがって、\(\Omega_∞\) は \(\mathtt{Q}_∞^∗\) の「縁」にあたります。これは縁二次曲線と呼ばれます。楕円体に接する平面の集合を考え、楕円体をパンケーキ状に押しつぶします。
+<!--
 Recall that 
-∞ is defined by two equations – it is a conic on the plane at infinity. The
+\(\Omega_∞\) is defined by two equations – it is a conic on the plane at infinity. The
 dual of the absolute conic 
-∞ is a degenerate dual quadric in 3-space called the absolute
-dual quadric, and denoted Q∗
-∞. Geometrically Q∗
-∞ consists of the planes tangent to 
-∞,
+\(\Omega_∞\) is a degenerate dual quadric in 3-space called the absolute
+dual quadric, and denoted \(\mathtt{Q}_∞^∗\). Geometrically \(\mathtt{Q}_∞^∗\) consists of the planes tangent to 
+\(\Omega_∞\),
 so that 
-∞ is the “rim” of Q∗
-∞. This is called a rim quadric. Think of the set of planes
+\(\Omega_∞\) is the “rim” of \(\mathtt{Q}_∞^∗\). This is called a rim quadric. Think of the set of planes
 tangent to an ellipsoid, and then squash the ellipsoid to a pancake.
-Algebraically Q∗
-∞ is represented by a 4 × 4 homogeneous matrix of rank 3, which in
-84 3 Projective Geometry and Transformations of 3D
+-->
+</p><p>
+代数的には\(\mathtt{Q}_∞^∗\)は4×4の3階同次行列で表され、計量3次元空間では標準形は次のようになる。
+<!--
+Algebraically \(\mathtt{Q}_∞^∗\) is represented by a 4 × 4 homogeneous matrix of rank 3, which in
 metric 3-space has the canonical form
-Q∗
-∞ =
-"
-I 0
-0T 0
-#
-. (3.24)
+-->
+\[
+\mathtt{Q}_∞^∗ =
+\begin{bmatrix}
+\mathtt{I} &  \mathbf{0} \\
+\mathbf{0}^T & 0
+\end{bmatrix}
+\tag{3.24}
+\]
+
+</p><p>
+双対絶対二次曲面包絡線内の任意の平面は確かに \(\Omega_∞\) に接することを示す。したがって、\(\mathtt{Q}_∞^∗\) は真に \(\Omega_∞\) の双対である。 = (vT, k)T で表される平面を考える。
+この平面が \(\mathtt{Q}_∞^∗\) で定義される包絡線内にある場合と \(\boldsymbol{\pi}^T\mathtt{Q}_∞^∗\boldsymbol{\pi} = 0\) の場合に限り、(3.24) の形式から \(\mathbf{v}^T\mathbf{v} = 0\) となる。ここで（8.6節参照）、\(\mathbf{v}\)は、平面\((\mathbf{v}^T, k)^T\)が無限遠平面と交わる直線を表します。この直線が絶対円錐曲線に接するのは、\(\mathbf{v}^T\mathtt{I}\mathbf{v} = 0\)のときのみです。したがって、\(\mathtt{Q}_∞^∗\)の包絡線は、絶対円錐曲線に接する平面のみで構成されます。
+<!--
 We will show that any plane in the dual absolute quadric envelope is indeed tangent
-to 
-∞, so the Q∗
-∞ is truly a dual of 
-∞. Consider a plane represented by  = (vT, k)T.
-This plane is in the envelope defined by Q∗
-∞ if and only if 
-TQ∗
-∞ = 0, which given
-the form (3.24) is equivalent to vTv = 0. Now, (see section 8.6(p213)) v represents
-the line in which the plane (vT, k)T meets the plane at infinity. This line is tangent to
-the absolute conic if and only if vTIv = 0. Thus, the envelope of Q∗
-∞ is made up of
+to \(\Omega_∞\), so the \(\mathtt{Q}_∞^∗\) 
+ is truly a dual of 
+\(\Omega_∞\). Consider a plane represented by  = (vT, k)T.
+This plane is in the envelope defined by \(\mathtt{Q}_∞^∗\) if and only if \(\boldsymbol{\pi}^T\mathtt{Q}_∞^∗\boldsymbol{\pi} = 0\), which given
+the form (3.24) is equivalent to \(\mathbf{v}^T\mathbf{v} = 0\). Now, (see section 8.6) \(\mathbf{v}\) represents
+the line in which the plane \((\mathbf{v}^T, k)^T\) meets the plane at infinity. This line is tangent to
+the absolute conic if and only if \(\mathbf{v}^T\mathtt{I}\mathbf{v} = 0\). Thus, the envelope of \(\mathtt{Q}_∞^∗\) is made up of
 just those planes tangent to the absolute conic.
+-->
+</p><p>
+これは重要な事実なので、別の角度から考察します。絶対円錐曲線を、押しつぶされた楕円体、つまり行列 \(\mathtt{Q} = diag(1, 1, 1, k)\) で表される二次曲面の極限として考えます。\(k → ∞\) のにつれて、これらの二次曲面は無限遠平面にますます近づき、極限において、これらの二次曲面に含まれる点は \((X_1, X_2, X_3, 0)^T\) において \(X_1^2 + X_2^2 + X_3^2 = 0\) となる点、つまり絶対円錐曲線上の点のみになります。しかし、\(\mathtt{Q}\) の双対は二次関数 \(\mathtt{Q}^∗ = \mathtt{Q}^{-1} = diag(1, 1, 1, k^{-1})\) であり、これは極限では絶対双対二次関数 \(\mathtt{Q}_∞^∗ = diag(1, 1, 1, 0)\) になります。
+<!--
 Since this is an important fact, we consider it from another angle. Consider the absolute
 conic as the limit of a series of squashed ellipsoids, namely quadrics represented
-by the matrix Q = diag(1, 1, 1, k). As k → ∞, these quadrics become increasingly
+by the matrix \(\mathtt{Q} = diag(1, 1, 1, k)\). As \(k → ∞\), these quadrics become increasingly
 close to the plane at infinity, and in the limit the only points they contain are the points
-(X1, X2, X3, 0)T with X
-2
-1 + X
-2
-2 + X
-2
-3 = 0, that is points on the absolute conic. However,
-the dual of Q is the quadric Q∗ = Q−1 = diag(1, 1, 1, k−1), which in the limit becomes
-the absolute dual quadric Q∗
-∞ = diag(1, 1, 1, 0).
-The dual quadric Q∗
-∞ is a degenerate quadric and has 8 degrees of freedom (a symmetric
+\((X_1, X_2, X_3, 0)^T\) with \(X_1^2 + X_2^2 + X_3^2 = 0\), that is points on the absolute conic. However,
+the dual of \(\mathtt{Q}\) is the quadric \(\mathtt{Q}^∗ = \mathtt{Q}^{-1} = diag(1, 1, 1, k^{-1})\), which in the limit becomes
+the absolute dual quadric \(\mathtt{Q}_∞^∗ = diag(1, 1, 1, 0)\).
+-->
+</p><p>
+双対二次関数 \(\mathtt{Q}_∞^∗\) は退化した二次関数であり、8 の自由度を持ちます (対称行列は 10 個の独立要素を持ちますが、無関係なスケールとゼロ行列式の条件により、自由度はそれぞれ 1 ずつ減少します)。これは、射影座標系で計量特性を指定するために必要な 8 個の自由度の幾何学的表現です。\(\mathtt{Q}_∞^∗\) は、代数操作において \(\Omega_∞\) よりも大きな利点があります。\(\boldsymbol{|pi}_∞\) と \(\Omega_∞\) の両方が単一の幾何学的オブジェクトに含まれているためです (\(\Omega_∞\) では、指定するために 2 つの方程式 (3.21) が必要です)。以下では、その最も重要な 3 つの特性を示します。
+<!--
+The dual quadric \(\mathtt{Q}_∞^∗\) is a degenerate quadric and has 8 degrees of freedom (a symmetric
 matrix has 10 independent elements, but the irrelevant scale and zero determinant
 condition each reduce the degrees of freedom by 1). It is a geometric representation of
 the 8 degrees of freedom that are required to specify metric properties in a projective
-coordinate frame. Q∗
-∞ has a significant advantage over 
-∞ in algebraic manipulations
-because both ∞ and 
-∞ are contained in a single geometric object (unlike 
-∞ which
+coordinate frame. \(\mathtt{Q}_∞^∗\) has a significant advantage over 
+\(\Omega_∞\) in algebraic manipulations
+because both \(\boldsymbol{|pi}_∞\) and 
+\(\Omega_∞\) are contained in a single geometric object (unlike 
+\(\Omega_∞\) which
 requires two equations (3.21) in order to specify it). In the following we give its three
 most important properties.
-Result 3.10. The absolute dual quadric, Q∗
-∞, is fixed under the projective transformation
-H if, and only if, H is a similarity.
-Proof. This follows directly from the invariance of the absolute conic under a similarity
-transform, since the planar tangency relationship between Q∗
-∞ and 
-∞ is transformation
+-->
+</p><p>
+
+<strong>結果 3.10.</strong> 絶対双対二次関数 \(\mathtt{Q}_∞^∗\)
+は、射影変換 \(\mathtt{H}\) によって固定されるため、\(\mathtt{H}\) は相似である。
+<!--
+<strong>Result 3.10.</strong> The absolute dual quadric, \(\mathtt{Q}_∞^∗\)
+, is fixed under the projective transformation
+\(\mathtt{H}\) if, and only if, \(\mathtt{H}\) is a similarity.
+-->
+</p><p>
+<strong>証明</strong> これは、\(\mathtt{Q}_∞^∗\) と \(\Omega_∞\) の平面接線関係が変換不変であるため、相似変換における絶対円錐曲線の不変性から直接導かれる。それにもかかわらず、我々は独立に直接的な証明を与える。
+\(\mathtt{Q}_∞^∗\) は双対二次曲面であるため、(3.17) に従って変換され、\(\mathtt{H}\) の下で固定されるための必要十分条件は、\(\mathtt{Q}_∞^∗
+= \mathtt{HQ}_∞^∗\mathtt{H}^T\) である。これを任意の変換に適用すると、
+<!--
+<strong>Proof.</strong> This follows directly from the invariance of the absolute conic under a similarity
+transform, since the planar tangency relationship between \(\mathtt{Q}_∞^∗\) and \(\Omega_∞\) is transformation
 invariant. Nevertheless, we give an independent direct proof.
-Since Q∗
-∞ is a dual quadric, it transforms according to (3.17–p74), so it is fixed under H
-if and only if Q∗
-∞ = HQ∗
-∞HT. Applying this with an arbitrary transform
-H =
-"
-A t
-vT k
-#
+Since \(\mathtt{Q}_∞^∗\) is a dual quadric, it transforms according to (3.17), so it is fixed under \(\mathtt{H}\) if and only if \(\mathtt{Q}_∞^∗
+ = \mathtt{HQ}_∞^∗\mathtt{H}^T\). Applying this with an arbitrary transform
+-->
+\[
+\mathtt{H} =
+\begin{bmatrix}
+\mathtt{A} & \mathbf{t} \\
+\mathbf{v}^T & k
+\end{bmatrix}
+\]
+
+以下がわかる。
+<!--
 we find
-"
-I 0
-0T 0
-#
-=
-"
-A t
-vT k
-# "
-I 0
-0T 0
-# "
-AT v
-tT k
-#
-=
-"
-AAT Av
-vTAT vTv
-#
-3.8 Closure 85
-which must be true up to scale. By inspection, this equation holds if and only if v = 0
-and A is a scaled orthogonal matrix (scaling, rotation and possible reflection). In other
-words, H is a similarity transform.
-Result 3.11. The plane at infinity ∞ is the null-vector of Q∗
-∞.
-This is easily verified when Q∗
-∞ has its canonical form (3.24) in a metric frame since
-then, with ∞ = (0, 0, 0, 1)T, Q∗
-∞∞ = 0. This property holds in any frame as may
+-->
+
+\[
+\begin{align}
+\begin{bmatrix}
+\mathtt{I} &  \mathbf{0} \\
+\mathbf{0}^T & 0
+\end{bmatrix}
+&=
+\begin{bmatrix}
+\mathtt{A} & \mathbf{t} \\
+\mathbf{v}^T k
+\end{bmatrix}
+\begin{bmatrix}
+\mathtt{I} &  \mathbf{0} \\
+\mathbf{0}^T & 0
+\end{bmatrix}
+\begin{bmatrix}
+\mathtt{A}^T & \mathbf{v} \\
+\mathbf{t}^T & k
+\end{bmatrix} \\
+\\
+&=
+\begin{bmatrix}
+\mathtt{AA}^T & \mathtt{A}\mathbf{v} \\
+\mathbf{v}^T\mathtt{A}^T & \mathbf{v}^T\mathbf{v}
+\end{bmatrix}
+\end{align}
+\]
+
+これはスケールまで必ず成り立ちます。調べてみると、この式は\(\mathbf{v} = 0\)
+かつ\(\mathtt{A}\)がスケールされた直交行列（スケーリング、回転、そして場合によっては鏡映変換）である場合にのみ成立します。言い換えれば、\(\mathtt{H}\)は相似変換です。
+<!--
+which must be true up to scale. By inspection, this equation holds if and only if \(\mathbf{v} = 0\)
+and \(\mathtt{A}\) is a scaled orthogonal matrix (scaling, rotation and possible reflection). In other
+words, \(\mathtt{H}\) is a similarity transform.
+-->
+</p><p>
+<strong>結果 3.11.</strong> 無限遠平面 \(\boldsymbol{\pi}_∞\) は \(\mathtt{Q}_∞^∗\) のヌルベクトルです。
+<!--
+<strong>Result 3.11.</strong> The plane at infinity \(\boldsymbol{\pi}_∞\) is the null-vector of \(\mathtt{Q}_∞^∗\).
+-->
+</p><p>
+
+これは、\(\mathtt{Q}_∞^∗\) が計量フレームで標準形 (3.24) を持つときに簡単に検証できます。\(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\)、\(\mathtt{Q}_∞^∗\boldsymbol{\pi}_∞ = 0\) です。この性質は、平面と双対二次曲面の変換特性から代数的に容易にわかるように、どのフレームでも成り立ちます。\(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\) ならば、\({\mathtt{Q}_∞^∗}^\prime = \mathtt{H}\mathtt{Q}_∞^∗\mathtt{H}^T\)、\(\boldsymbol{\pi}_∞^\prime = \mathtt{H}^{-T}\boldsymbol{\pi}_∞\)、そして
+<!--
+This is easily verified when \(\mathtt{Q}_∞^∗\) has its canonical form (3.24) in a metric frame since
+then, with \(\boldsymbol{\pi}_∞ = (0, 0, 0, 1)^T\), \(\mathtt{Q}_∞^∗\boldsymbol{\pi}_∞ = 0\). This property holds in any frame as may
 be readily seen algebraically from the transformation properties of planes and dual
-quadrics: if X′ = HX, then Q∗
-∞
-′ = H Q∗
-∞ HT, ′
-∞ = H−T
-∞, and
-Q∗
-∞
-′
-
-′
-∞ = (H Q∗
-∞ H
-T)H−T
-∞ = HQ∗
-∞∞ = 0.
-Result 3.12. The angle between two planes 1 and 2 is given by
-cos  =
-
-T
-1 Q∗
-∞2 q
-(
-T
-1 Q∗
-∞1) (
-T
-2 Q∗
-∞2)
-. (3.25)
-Proof. Consider two planes with Euclidean coordinates 1 = (nT
-1 , d1)T,
-2 = (nT
-2 , d2)T. In a Euclidean frame, Q∗
-∞ has the form (3.24), and (3.25) reduces
-to
-cos  =
-nT
-1 n2 q
-(nT
-1 n1) (nT
-2 n2)
+quadrics: if \(\mathbf{X}^\prime = \mathtt{H}\mathbf{X}\), then \({\mathtt{Q}_∞^∗}^\prime = \mathtt{H}\mathtt{Q}_∞^∗\mathtt{H}^T\), \(\boldsymbol{\pi}_∞^\prime = \mathtt{H}^{-T}\boldsymbol{\pi}_∞\), and
+-->
+
+\[
+{\mathtt{Q}_∞^∗}^\prime\boldsymbol{\pi}_∞^\prime 
+= (\mathtt{HQ}_∞^∗\mathtt{H}^T)\mathtt{H}^{-T}\boldsymbol{\pi}_∞ 
+= \mathtt{HQ}_∞^∗\boldsymbol{\pi}_∞ = 0
+\]
+</p><p>
+<strong>結果 3.12.</strong> 2つの平面 \(\boldsymbol{\pi}_1\) と \(\boldsymbol{\pi}_2\) の間の角度は次のように表される。
+<!--
+<strong>Result 3.12.</strong> The angle between two planes \(\boldsymbol{\pi}_1\) and \(\boldsymbol{\pi}_2\) is given by
+-->
+\[
+\cos \theta = \frac{\boldsymbol{\pi}_1^T\mathtt{Q}_∞^∗\boldsymbol{\pi}_2}
+{\sqrt{(\boldsymbol{\pi}_1^T\mathtt{Q}_∞^∗\boldsymbol{\pi}_1)
+(\boldsymbol{\pi}_2^T \mathtt{Q}_∞^∗\boldsymbol{\pi}_2)}} \tag{3.25}
+\]
+
+</p><p>
+<strong>証明</strong> ユークリッド座標系 \(\boldsymbol{\pi}_1 = (\mathbf{n}_1^T, d_1)^T\), \(\boldsymbol{\pi}_2 = (\mathbf{n}^T, d_2)^T\) を持つ2つの平面を考える。ユークリッド座標系では、\(\mathtt{Q}_∞^∗\) は(3.24)の形を持ち、(3.25) は次のように簡約される。
+<!--
+<strong>Proof.</strong> Consider two planes with Euclidean coordinates \(\boldsymbol{\pi}_1 = (\mathbf{n}_1^T , d_1)^T\), \(\boldsymbol{\pi}_2 = (\mathbf{n}^T, d_2)^T\). In a Euclidean frame, \(\mathtt{Q}_∞^∗\) has the form (3.24), and (3.25) reduces to
+-->
+\[
+\cos \theta = \frac{\mathbf{n}_1^T\mathbf{n}_2}
+{\sqrt{(\mathbf{n}_1^T\mathbf{n}_1) (\mathbf{n}_2^T \mathbf{n}_2)}}
+\]
+これは平面間の角度を法線のスカラー積で表したものである。平面と \(\mathtt{Q}_∞^∗\) が射影変換された場合でも、平面と双対二次曲面の（共変）変換特性により、(3.25) は平面間の角度を決定する。
+<!--
 which is the angle between the planes expressed in terms of a scalar product of their
 normals.
-If the planes and Q∗
-∞ are projectively transformed, (3.25) will still determine the angle
+If the planes and \(\mathtt{Q}_∞^∗\) are projectively transformed, (3.25) will still determine the angle
 between planes due to the (covariant) transformation properties of planes and dual
 quadrics.
+-->
+</p><p>
+証明の最後の部分の詳細は演習問題として残しますが、これは円点の双対を用いて計算された、\(\mathbb P^2\) 内の2直線間の角度に関する結果2.23の導出の3次元直接類似です。\(\mathbb P^3\) 内の平面は\(\mathbb P^2\) 内の直線の類似であり、絶対双対二次曲面は円点の双対の類似です。
+<!--
 The details of the last part of the proof are left as an exercise, but are a direct 3D
-analogue of the derivation of result 2.23(p54) on the angle between two lines in IP2
-computed using the dual of the circular points. Planes in IP3 are the analogue of lines
-in IP2, and the absolute dual quadric is the analogue of the dual of the circular points.
-3.8 Closure
-3.8.1 The literature
+analogue of the derivation of result 2.23 on the angle between two lines in \(\mathbb P^2\)
+computed using the dual of the circular points. Planes in \(\mathbb P^3\) are the analogue of lines
+in \(\mathbb P^2\), and the absolute dual quadric is the analogue of the dual of the circular points.
+-->
+</p>
+<h2>3.8 まとめ</h2>
+<h3>3.8.1 文献</h3>
+<!--
+<h2>3.8 Closure</h2>
+<h3>3.8.1 The literature</h3>
+-->
+<p>
+第2章で引用した教科書もここで関連しています。記述幾何学の観点からの一般的な背景については[Boehm-94]を、曲線と曲面の多くの明確な説明についてはHilbertとCohn-Vossenの[Hilbert-56]を参照してください。
+<!--
 The textbooks cited in chapter 2 are also relevant here. See also [Boehm-94] for a general
 background from the perspective of descriptive geometry, and Hilbert and Cohn-
 Vossen [Hilbert-56] for many clearly explained properties of curves and surfaces.
-An important representation for points, lines and planes in IP3, which is omitted
+-->
+</p><p>
+本章では省略するが、\(\mathbb P^3\) における点、直線、平面の重要な表現としてグラスマン・ケーリー代数がある。この表現では、接続や接合といった幾何学的演算は、行列式に基づく「括弧代数」によって表現される。この分野の優れた入門書は [Carlsson-94] に示されており、多視点テンソルへの応用は [Triggs-95] に示されている。
+<!--
+An important representation for points, lines and planes in \(\mathbb P^3\), which is omitted
 in this chapter, is the Grassmann–Cayley algebra. In this representation geometric
 operations such as incidence and joins are represented by a “bracket algebra” based on
 matrix determinants. A good introduction to this area is given by [Carlsson-94], and
 its application to multiple view tensors is illustrated in [Triggs-95].
-86 3 Projective Geometry and Transformations of 3D
+-->
+</p><p>
+FaugerasとMaybank [Faugeras-90]は、コンピュータビジョンの文献に\(\Omega_∞\)を導入しました（相対方向の解の多重性を決定するため）。また、Triggsは[Triggs-97]で、自動キャリブレーションに使用するために\(\mathtt{Q}_∞^∗\)を導入しました。
+<!--
 Faugeras and Maybank [Faugeras-90] introduced 
-∞ into the computer vision literature
+\(\Omega_∞\) into the computer vision literature
 (in order to determine the multiplicity of solutions for relative orientation), and
-Triggs introduced Q∗
-∞ in [Triggs-97] for use in auto-calibration.
-3.8.2 Notes and exercises
-(i) Pl ¨ucker coordinates.
-(a) Using Pl¨ucker line coordinates, L, write an expression for the point of
+Triggs introduced \(\mathtt{Q}_∞^∗\)
+ in [Triggs-97] for use in auto-calibration.
+-->
+</p>
+<h3>3.8.2 ノートと演習</h3>
+<!--
+<h3>3.8.2 Notes and exercises</h3>
+-->
+<p>
+<div class="styleBullet">
+<ul><li>
+(i) Pl&uuml;cker座標<br><br>
+<ul><li>
+(a) Pl&uuml;cker直線座標 \(\mathcal{L}\) を用いて、直線と平面の交点、および点と直線によって定義される平面を表す式を書きなさい。
+</li><br><li>(b) 点が直線上にあり、直線が平面上にあるための条件を導出しなさい。
+</li><br><li>(c) 平行平面は \(\boldsymbol{\pi}_∞\) 上で直線で交わることを示す。ヒント：2つの平行平面の交線 \(\mathtt{L}^∗\) を求めるには、(3.9) から始めなさい。
+</li><br><li>(d) 平行直線は \(\boldsymbol{\pi}_∞\) 上で交わることを示す。
+</li></ul>
+</li><br><li>(ii) 射影変換。3次元空間の（実）射影変換は、楕円体を2枚放物面または双曲面へ写像できるが、楕円体を1枚双曲面（つまり、実数ルーリングを持つ曲面）へ写像することはできないことを示せ。
+</li><br><li>(iii) スクリュー分解。ユークリッド変換 {\(\mathtt{R}, t\)} を表す 4 × 4 行列（回転軸の方向は a、つまり \(\mathtt{R}\mathbf{a} = \mathbf{a}\)）には、2 つの複素共役固有値と 2 つの等しい実固有値があり、次の固有ベクトル構造を持つことを示します。<br><br>
+<ul><li>
+(a) a が t に垂直である場合、実固有値に対応する固有ベクトルは異なります。
+</li><br><li>(b) それ以外の場合、実固有値に対応する固有ベクトルは一致し、\(\boldsymbol{\pi}_∞\) 上にあります。<br><br>
+<!--
+(i) Pl&uuml;ucker coordinates.
+<ul><li>
+(a) Using Pl&uuml;cker line coordinates, \(\mathcal{L}\), write an expression for the point of
 intersection of a line with a plane, and the plane defined by a point and
 a line.
-(b) Now derive the condition for a point to be on a line, and a line to be on
+</li><br><li>(b) Now derive the condition for a point to be on a line, and a line to be on
 a plane.
-(c) Show that parallel planes intersect in a line on ∞. Hint, start from (3.9–
-p71) to determine the line of intersection of two parallel planes L∗.
-(d) Show that parallel lines intersect on ∞.
-(ii) Projective transformations. Show that a (real) projective transformation of
+</li><br><li>(c) Show that parallel planes intersect in a line on \(\boldsymbol{\pi}_∞\). Hint, start from (3.9
+) to determine the line of intersection of two parallel planes \(\mathtt{L}^∗\).
+</li><br><li>(d) Show that parallel lines intersect on \(\boldsymbol{\pi}_∞\).
+</li></ul>
+</li><br><li>(ii) Projective transformations. Show that a (real) projective transformation of
 3-space can map an ellipsoid to a paraboloid or hyperboloid of two sheets, but
 cannot map an ellipsoid to a hyperboloid of one sheet (i.e. a surface with real
 rulings).
-(iii) Screw decomposition. Show that the 4 × 4 matrix representing the Euclidean
-transformation {R, t} (with a the direction of the rotation axis, i.e. Ra = a) has
+</li><br><li>(iii) Screw decomposition. Show that the 4 × 4 matrix representing the Euclidean
+transformation {\(\mathtt{R}, t\)} (with a the direction of the rotation axis, i.e. \(\mathtt{R}\mathbf{a} = \mathbf{a}\)) has
 two complex conjugate eigenvalues, and two equal real eigenvalues, and the
 following eigenvector structure:
+<ul><li>
 (a) if a is perpendicular to t, then the eigenvectors corresponding to the real
 eigenvalues are distinct;
-(b) otherwise, the eigenvectors corresponding to the real eigenvalues are
-coincident, and on ∞.
+</li><br><li>(b) otherwise, the eigenvectors corresponding to the real eigenvalues are
+coincident, and on \(\boldsymbol{\pi}_∞\).
+-->
+</li></ul>
+（例えば、(3.20)のような単純なケースを選びます。別のケースは495ページに記載されています。）
+最初のケースでは、実固有値に対応する2つの実点は、不動点の列を定義します。これは平面運動におけるねじ軸です。2番目のケースでは、ねじ軸の方向は定義されていますが、不動点の列ではありません。
+複素固有値に対応する固有ベクトルは何を表していますか？
+<!--
 (E.g. choose simple cases such as (3.20), another case is given on page 495).
 In the first case the two real points corresponding to the real eigenvalues define
 a line of fixed points. This is the screw axis for planar motion. In the second
 case, the direction of the screw axis is defined, but it is not a line of fixed points.
-What do the eigenvectors corresponding to the complex eigenvalues represent? -->
+What do the eigenvectors corresponding to the complex eigenvalues represent? 
+-->
 </p>
     </body>
 </html>
